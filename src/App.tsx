@@ -41,9 +41,52 @@ const badgeImage = "/assets/lorapok-badge.png";
 const founderImage = "/assets/founder-avatar.jpg";
 const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/portfolio/bkash.jpg";
 const gravatarUrl = "https://gravatar.com/lorapok";
+const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
 const contactTargets = [
-  { id: "labs", label: "Contact Lorapok Labs", subjectPrefix: "[Lorapok Labs]" },
-  { id: "founder", label: "Contact Founder", subjectPrefix: "[Founder]" },
+  {
+    id: "labs",
+    label: "Contact Lorapok Labs",
+    eyebrow: "Contact",
+    title: "Contact Lorapok Labs",
+    description:
+      "Use this route for product ideas, open-source support, ecosystem partnerships, and collaboration around Lorapok projects.",
+    helper:
+      "Best for structured requests where the reply should include scope, timeline, links, or technical details.",
+    recipientLabel: "Lorapok Labs",
+    recipientEmail: founder.email,
+    subjectPrefix: "[Lorapok Labs]",
+    subjectPlaceholder: "Project inquiry / support / collaboration",
+    messagePlaceholder:
+      "Tell Lorapok what you need, what you are building, and how the project should move forward.",
+    submitLabel: "Draft Labs Email",
+    suggestedLinks: [
+      { label: "Email", href: `mailto:${founder.email}`, icon: "mail" },
+      { label: "GitHub Org", href: brand.githubOrg, icon: "code" },
+      { label: "LinkedIn", href: founder.links.linkedin, icon: "briefcase" },
+    ],
+  },
+  {
+    id: "founder",
+    label: "Contact Founder",
+    eyebrow: "Founder",
+    title: `Contact ${founder.name.split(" ")[0]}`,
+    description:
+      "Use this route for founder-level conversations, personal collaboration, hiring, advising, or direct professional messages.",
+    helper:
+      "Best for direct messages where context, intent, and the next step should be clear from the first email.",
+    recipientLabel: founder.name,
+    recipientEmail: founder.email,
+    subjectPrefix: "[Founder]",
+    subjectPlaceholder: "Founder conversation / hiring / advisory",
+    messagePlaceholder:
+      "Write the context, what you want to discuss, and the best next action for the founder.",
+    submitLabel: "Draft Founder Email",
+    suggestedLinks: [
+      { label: "Email", href: `mailto:${founder.email}`, icon: "mail" },
+      { label: "Portfolio", href: founder.links.portfolio, icon: "globe" },
+      { label: "LinkedIn", href: founder.links.linkedin, icon: "briefcase" },
+    ],
+  },
 ] as const;
 
 type ContactTarget = (typeof contactTargets)[number]["id"];
@@ -57,6 +100,10 @@ function App() {
   const [contactEmail, setContactEmail] = useState("");
   const [contactSubject, setContactSubject] = useState("");
   const [contactMessage, setContactMessage] = useState("");
+  const [contactStatus, setContactStatus] = useState<"idle" | "sending" | "success" | "error">(
+    "idle",
+  );
+  const [contactStatusText, setContactStatusText] = useState("");
   const shouldReduceMotion = useReducedMotion();
 
   // Close modal on Escape key
@@ -85,6 +132,8 @@ function App() {
         : projects.filter((project) => project.category === activeCategory),
     [activeCategory],
   );
+  const activeContactTarget =
+    contactTargets.find((target) => target.id === contactTarget) ?? contactTargets[0];
 
   const copyValue = async (label: string, value: string) => {
     try {
@@ -102,19 +151,55 @@ function App() {
     visible: { opacity: 1, y: 0 },
   };
 
-  const submitContactForm = (event: FormEvent<HTMLFormElement>) => {
+  const submitContactForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const activeTarget =
-      contactTargets.find((target) => target.id === contactTarget) ?? contactTargets[0];
-    const subject = `${activeTarget.subjectPrefix} ${contactSubject || "New message"}`.trim();
-    const body = [
-      `Name: ${contactName || "Not provided"}`,
-      `Email: ${contactEmail || "Not provided"}`,
-      "",
-      contactMessage || "Hello Lorapok,",
-    ].join("\n");
+    if (!web3FormsAccessKey) {
+      setContactStatus("error");
+      setContactStatusText("Add VITE_WEB3FORMS_ACCESS_KEY to enable direct sending.");
+      return;
+    }
 
-    window.location.href = `mailto:${founder.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const subject =
+      `${activeContactTarget.subjectPrefix} ${contactSubject || "New message"}`.trim();
+
+    setContactStatus("sending");
+    setContactStatusText("Sending your message...");
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        body: JSON.stringify({
+          access_key: web3FormsAccessKey,
+          from_name: contactName || "Lorapok website visitor",
+          email: contactEmail,
+          subject,
+          message: contactMessage,
+          route: activeContactTarget.label,
+          recipient: activeContactTarget.recipientLabel,
+          replyto: contactEmail,
+          botcheck: "",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        method: "POST",
+      });
+      const result = (await response.json()) as { message?: string; success?: boolean };
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Message could not be sent.");
+      }
+
+      setContactStatus("success");
+      setContactStatusText(`Message sent to ${activeContactTarget.recipientLabel}.`);
+      setContactName("");
+      setContactEmail("");
+      setContactSubject("");
+      setContactMessage("");
+    } catch (error) {
+      setContactStatus("error");
+      setContactStatusText(error instanceof Error ? error.message : "Message could not be sent.");
+    }
   };
 
   return (
@@ -132,7 +217,7 @@ function App() {
           <a href="#products">Products</a>
           <a href="#ecosystem">Ecosystem</a>
           <a href="#founder">Founder</a>
-          <a href="#support">Support</a>
+          <a className="nav-support" href="#support">Support</a>
         </nav>
         <a className="icon-link" href={brand.githubOrg} target="_blank" rel="noreferrer">
           <Code2 size={18} />
@@ -496,36 +581,45 @@ function App() {
           <div className="contact-form-copy">
             <span className="eyebrow compact">
               <Mail size={15} />
-              Contact
+              {activeContactTarget.eyebrow}
             </span>
-            <h2 id="contact-form-title">Contact Lorapok or contact the founder</h2>
-            <p>
-              Use the form to draft a clean email right away. For detailed collaboration messages,
-              email keeps everything organized.
-            </p>
+            <h2 id="contact-form-title">{activeContactTarget.title}</h2>
+            <p>{activeContactTarget.description}</p>
             <div className="contact-suggested-links">
-              <a href={`mailto:${founder.email}`}>
-                <Mail size={16} />
-                Email
-              </a>
-              <a href={founder.links.linkedin} target="_blank" rel="noreferrer">
-                <BriefcaseBusiness size={16} />
-                LinkedIn
-              </a>
+              {activeContactTarget.suggestedLinks.map((link) => (
+                <a
+                  href={link.href}
+                  key={link.label}
+                  target={link.href.startsWith("mailto:") ? undefined : "_blank"}
+                  rel={link.href.startsWith("mailto:") ? undefined : "noreferrer"}
+                >
+                  <ContactLinkIcon icon={link.icon} />
+                  {link.label}
+                </a>
+              ))}
             </div>
-            <p className="contact-helper">
-              If you want a true inbox later, Formspree or Resend would be the cleanest upgrade for
-              receiving messages and replying professionally.
-            </p>
+            <div className="contact-route">
+              <span>Route</span>
+              <strong>{activeContactTarget.recipientLabel}</strong>
+              <small>{activeContactTarget.recipientEmail}</small>
+            </div>
+            <p className="contact-helper">{activeContactTarget.helper}</p>
           </div>
 
           <form className="contact-form" onSubmit={submitContactForm}>
+            <input
+              name="botcheck"
+              className="hidden-field"
+              tabIndex={-1}
+              autoComplete="off"
+            />
             <div className="contact-targets" role="tablist" aria-label="Choose who to contact">
               {contactTargets.map((target) => (
                 <button
                   key={target.id}
                   type="button"
                   className={contactTarget === target.id ? "active" : ""}
+                  aria-selected={contactTarget === target.id}
                   onClick={() => setContactTarget(target.id)}
                 >
                   {target.label}
@@ -536,51 +630,68 @@ function App() {
             <label className="field">
               <span>Your name</span>
               <input
+                name="name"
                 value={contactName}
                 onChange={(event) => setContactName(event.target.value)}
                 placeholder="Your name"
+                required
               />
             </label>
 
             <label className="field">
               <span>Your email</span>
               <input
+                name="email"
                 type="email"
                 value={contactEmail}
                 onChange={(event) => setContactEmail(event.target.value)}
                 placeholder="you@example.com"
+                required
               />
             </label>
 
             <label className="field">
               <span>Subject</span>
               <input
+                name="subject"
                 value={contactSubject}
                 onChange={(event) => setContactSubject(event.target.value)}
-                placeholder="Project inquiry / support / collaboration"
+                placeholder={activeContactTarget.subjectPlaceholder}
+                required
               />
             </label>
 
             <label className="field">
               <span>Message</span>
               <textarea
+                name="message"
                 rows={6}
                 value={contactMessage}
                 onChange={(event) => setContactMessage(event.target.value)}
-                placeholder="Tell Lorapok what you need, what you are building, and how you'd like to work together."
+                placeholder={activeContactTarget.messagePlaceholder}
+                required
               />
             </label>
 
             <div className="contact-form-actions">
-              <button type="submit" className="primary-action contact-submit">
+              <button
+                type="submit"
+                className="primary-action contact-submit"
+                disabled={contactStatus === "sending"}
+              >
                 <Mail size={18} />
-                Draft Email
+                {contactStatus === "sending" ? "Sending..." : activeContactTarget.submitLabel}
               </button>
             </div>
 
-            <p className="contact-note">
+            <p
+              className={`contact-note ${contactStatus !== "idle" ? contactStatus : ""}`}
+              role="status"
+              aria-live="polite"
+            >
               <CircleHelp size={15} />
-              This form opens your mail app with a ready-to-send message.
+              {contactStatusText ||
+                `This form sends directly to ${activeContactTarget.recipientLabel}.`}
             </p>
           </form>
         </motion.div>
@@ -636,6 +747,19 @@ function Metric({ value, label }: { value: string; label: string }) {
       <span>{label}</span>
     </div>
   );
+}
+
+function ContactLinkIcon({ icon }: { icon: "briefcase" | "code" | "globe" | "mail" }) {
+  switch (icon) {
+    case "briefcase":
+      return <BriefcaseBusiness size={16} />;
+    case "code":
+      return <Code2 size={16} />;
+    case "globe":
+      return <Globe2 size={16} />;
+    case "mail":
+      return <Mail size={16} />;
+  }
 }
 
 function SectionIntro({

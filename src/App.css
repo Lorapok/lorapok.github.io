@@ -56,16 +56,21 @@ button:focus-visible {
 
 .topbar {
   align-items: center;
-  backdrop-filter: blur(22px);
-  background: rgba(3, 7, 17, 0.72);
-  border: 1px solid rgba(129, 238, 196, 0.16);
+  backdrop-filter: blur(24px) saturate(1.15);
+  background:
+    linear-gradient(90deg, rgba(11, 25, 24, 0.86), rgba(3, 7, 17, 0.9) 38%, rgba(4, 13, 21, 0.86)),
+    rgba(3, 7, 17, 0.82);
+  border: 1px solid rgba(129, 238, 196, 0.2);
   border-radius: 999px;
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   display: flex;
   gap: 1rem;
   justify-content: space-between;
   left: 50%;
   max-width: 1180px;
-  padding: 0.65rem 0.85rem;
+  padding: 0.52rem 0.62rem 0.52rem 0.68rem;
   position: fixed;
   top: 1rem;
   transform: translateX(-50%);
@@ -73,21 +78,44 @@ button:focus-visible {
   z-index: 20;
 }
 
+.topbar::before {
+  background: linear-gradient(90deg, rgba(103, 255, 143, 0.18), rgba(108, 236, 255, 0.1), transparent);
+  border-radius: inherit;
+  content: "";
+  inset: 0;
+  opacity: 0.52;
+  pointer-events: none;
+  position: absolute;
+}
+
 .brand-lockup {
   align-items: center;
+  border-radius: 999px;
   color: var(--text);
   display: inline-flex;
-  gap: 0.75rem;
+  gap: 0.7rem;
   min-width: max-content;
+  padding: 0.3rem 0.7rem 0.3rem 0.28rem;
+  position: relative;
   text-decoration: none;
+  transition: background 180ms ease, transform 180ms ease;
+  z-index: 1;
+}
+
+.brand-lockup:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-1px);
 }
 
 .brand-lockup img {
   aspect-ratio: 1;
-  border: 1px solid rgba(103, 255, 143, 0.35);
+  background: rgba(3, 7, 17, 0.8);
+  border: 1px solid rgba(103, 255, 143, 0.42);
   border-radius: 50%;
-  box-shadow: 0 0 32px rgba(103, 255, 143, 0.22);
-  height: 2.4rem;
+  box-shadow:
+    0 0 0 4px rgba(103, 255, 143, 0.06),
+    0 0 28px rgba(103, 255, 143, 0.22);
+  height: 2.55rem;
   object-fit: cover;
 }
 
@@ -97,21 +125,32 @@ button:focus-visible {
 }
 
 .brand-lockup strong {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
 .brand-lockup small {
   color: var(--green);
   font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  margin-top: 0.25rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  margin-top: 0.23rem;
   text-transform: uppercase;
 }
 
 .topbar nav {
   align-items: center;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(129, 238, 196, 0.12);
+  border-radius: 999px;
   display: flex;
-  gap: clamp(0.4rem, 2vw, 1.4rem);
+  gap: 0.18rem;
+  left: 50%;
+  padding: 0.22rem;
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 1;
 }
 
 .topbar nav a,
@@ -120,18 +159,43 @@ button:focus-visible {
   border-radius: 999px;
   color: #d8fff1;
   display: inline-flex;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
+  font-weight: 800;
   gap: 0.45rem;
-  padding: 0.65rem 0.8rem;
+  min-height: 2.35rem;
+  padding: 0.58rem 0.85rem;
+  position: relative;
   text-decoration: none;
-  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+  z-index: 1;
 }
 
 .topbar nav a:hover,
 .icon-link:hover {
-  background: rgba(103, 255, 143, 0.1);
+  background: rgba(103, 255, 143, 0.11);
   color: var(--green);
   transform: translateY(-1px);
+}
+
+.topbar nav a.nav-support {
+  color: var(--gold);
+}
+
+.topbar nav a.nav-support:hover {
+  background: rgba(255, 207, 90, 0.12);
+  color: var(--gold);
+}
+
+.icon-link {
+  background: rgba(103, 255, 143, 0.1);
+  border: 1px solid rgba(103, 255, 143, 0.22);
+  color: #f0fff8;
+  padding-inline: 0.95rem;
+}
+
+.icon-link:hover {
+  border-color: rgba(103, 255, 143, 0.42);
+  box-shadow: 0 0 24px rgba(103, 255, 143, 0.12);
 }
 
 .hero-section,
@@ -1173,6 +1237,41 @@ button:focus-visible {
   min-height: 2.45rem;
   padding: 0.45rem 0.75rem;
   text-decoration: none;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.contact-suggested-links a:hover {
+  background: rgba(103, 255, 143, 0.09);
+  border-color: rgba(103, 255, 143, 0.42);
+  color: var(--green);
+}
+
+.contact-route {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(129, 238, 196, 0.14);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.2rem;
+  margin: 1rem 0 0.85rem;
+  padding: 0.8rem;
+}
+
+.contact-route span {
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.contact-route strong {
+  color: var(--text);
+  font-size: 0.98rem;
+}
+
+.contact-route small {
+  color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .contact-helper {
@@ -1232,6 +1331,10 @@ button:focus-visible {
   resize: vertical;
 }
 
+.hidden-field {
+  display: none;
+}
+
 .field input::placeholder,
 .field textarea::placeholder {
   color: rgba(143, 179, 177, 0.72);
@@ -1255,11 +1358,25 @@ button:focus-visible {
   flex: 1 1 12rem;
 }
 
+.contact-submit:disabled {
+  cursor: wait;
+  filter: grayscale(0.15);
+  opacity: 0.72;
+}
+
 .contact-note {
   align-items: center;
   display: flex;
   font-size: 0.88rem;
   gap: 0.45rem;
+}
+
+.contact-note.success {
+  color: var(--green);
+}
+
+.contact-note.error {
+  color: #ffd986;
 }
 
 .support-note {
@@ -1389,11 +1506,17 @@ button:focus-visible {
   }
 
   .topbar nav {
+    background: transparent;
+    border: 0;
     gap: 0.35rem;
+    left: auto;
     order: 3;
     overflow-x: auto;
     padding-bottom: 0.1rem;
+    padding-inline: 0;
+    position: static;
     scrollbar-width: none;
+    transform: none;
     width: 100%;
   }
 
