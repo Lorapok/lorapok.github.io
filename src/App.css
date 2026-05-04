@@ -16,8 +16,9 @@
   color: var(--text);
   isolation: isolate;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
   position: relative;
+  width: 100%;
 }
 
 .ambient-grid {
@@ -138,7 +139,8 @@ button:focus-visible {
 .product-section,
 .ecosystem-section,
 .founder-section,
-.support-section,
+.support-card-section,
+.contact-form-section,
 .footer {
   margin-inline: auto;
   max-width: 1180px;
@@ -156,6 +158,7 @@ button:focus-visible {
 
 .hero-copy {
   min-width: 0;
+  width: 100%;
 }
 
 .eyebrow {
@@ -184,6 +187,10 @@ button:focus-visible {
   margin: 1.35rem 0 1rem;
   max-width: 8ch;
   text-transform: uppercase;
+}
+
+.hero-section h1 span {
+  display: block;
 }
 
 .hero-lede {
@@ -224,6 +231,7 @@ button:focus-visible {
   gap: 0.5rem;
   justify-content: center;
   min-height: 2.85rem;
+  min-width: 0;
   text-decoration: none;
 }
 
@@ -256,6 +264,7 @@ button:focus-visible {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(129, 238, 196, 0.17);
   border-radius: 8px;
+  min-width: 0;
   padding: 0.85rem;
 }
 
@@ -327,7 +336,8 @@ button:focus-visible {
 .product-section,
 .ecosystem-section,
 .founder-section,
-.support-section {
+.support-card-section,
+.contact-form-section {
   padding-block: 4.8rem;
 }
 
@@ -336,8 +346,7 @@ button:focus-visible {
 }
 
 .section-intro h2,
-.founder-section h2,
-.support-section h2 {
+.founder-section h2 {
   font-size: clamp(2.2rem, 6vw, 4.3rem);
   letter-spacing: 0;
   line-height: 0.96;
@@ -345,7 +354,6 @@ button:focus-visible {
 }
 
 .section-intro p,
-.support-copy p,
 .contact-panel p,
 .founder-profile p {
   color: var(--muted);
@@ -377,9 +385,7 @@ button:focus-visible {
 .philosophy-card,
 .project-card,
 .founder-profile,
-.contact-panel,
-.support-section,
-.wallet-panel {
+.contact-panel {
   backdrop-filter: blur(20px);
   background: var(--panel);
   border: 1px solid var(--line);
@@ -420,6 +426,7 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   min-height: 22rem;
+  min-width: 0;
   overflow: hidden;
   padding: 1rem;
   position: relative;
@@ -719,78 +726,554 @@ button:focus-visible {
   border-color: rgba(103, 255, 143, 0.5);
 }
 
-.support-section {
-  align-items: start;
+/* ─── Compact Support Card ─── */
+.support-compact-card {
+  align-items: center;
   background:
-    radial-gradient(circle at top left, rgba(103, 255, 143, 0.16), transparent 25rem),
-    var(--panel-strong);
+    radial-gradient(ellipse at 20% 50%, rgba(255, 165, 50, 0.18), transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(255, 207, 90, 0.10), transparent 45%),
+    linear-gradient(140deg, rgba(30, 16, 8, 0.92), rgba(18, 10, 5, 0.88));
+  border: 1px solid rgba(255, 180, 60, 0.22);
+  border-radius: 16px;
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 220, 130, 0.12);
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: minmax(0, 0.75fr) minmax(320px, 1.25fr);
-  margin-block: 4rem;
-  padding: clamp(1.1rem, 4vw, 2rem);
-}
-
-.copy-bkash {
-  background: rgba(255, 207, 90, 0.12);
-  border: 1px solid rgba(255, 207, 90, 0.35);
-  color: var(--gold);
-  cursor: pointer;
-  font: inherit;
-  margin-top: 1.4rem;
-  padding: 0.8rem 1rem;
-}
-
-.wallet-panel {
-  display: grid;
-  gap: 0.65rem;
-  padding: 0.75rem;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
   position: relative;
 }
 
-.wallet-row {
+.support-compact-card::before {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 180, 60, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at 70% 80%, rgba(255, 180, 60, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px, 24px 24px;
+  content: "";
+  inset: 0;
+  opacity: 0.6;
+  pointer-events: none;
+  position: absolute;
+}
+
+.coffee-icon-float {
+  display: inline-flex;
+  height: 4rem;
+  margin-bottom: 0.7rem;
+  position: relative;
+  width: 4.8rem;
+}
+
+.coffee-cup {
   align-items: center;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(129, 238, 196, 0.15);
-  border-radius: 8px;
-  color: var(--text);
+  background: linear-gradient(180deg, rgba(255, 207, 90, 0.28), rgba(255, 165, 50, 0.1));
+  border: 1px solid rgba(255, 207, 90, 0.35);
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: 0 8px 24px rgba(255, 165, 50, 0.18);
+  color: #ffe7ad;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 900;
+  height: 2.6rem;
+  justify-content: center;
+  left: 0;
+  letter-spacing: 0.06em;
+  position: absolute;
+  text-transform: uppercase;
+  top: 1.15rem;
+  width: 3.2rem;
+}
+
+.coffee-cup::after {
+  border: 2px solid rgba(255, 207, 90, 0.55);
+  border-left: none;
+  border-radius: 0 999px 999px 0;
+  content: "";
+  height: 1.05rem;
+  position: absolute;
+  right: -0.58rem;
+  top: 0.58rem;
+  width: 0.85rem;
+}
+
+.coffee-steam {
+  animation: steam-rise 2.6s ease-in-out infinite;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 207, 90, 0));
+  border-radius: 999px;
+  height: 1.25rem;
+  left: 0.65rem;
+  opacity: 0.75;
+  position: absolute;
+  top: 0.1rem;
+  width: 0.22rem;
+}
+
+.steam-two {
+  animation-delay: 0.45s;
+  left: 1.4rem;
+  height: 1.45rem;
+}
+
+.steam-three {
+  animation-delay: 0.9s;
+  left: 2.15rem;
+  height: 1.15rem;
+}
+
+.support-eyebrow {
+  background: rgba(255, 180, 60, 0.15) !important;
+  border-color: rgba(255, 180, 60, 0.35) !important;
+  color: var(--gold) !important;
+}
+
+.support-compact-left h2 {
+  color: #fff;
+  font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+  line-height: 1.05;
+  margin: 0.8rem 0 0.6rem;
+}
+
+.support-compact-left p {
+  color: rgba(255, 220, 180, 0.72);
+  font-size: 0.98rem;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 38ch;
+}
+
+.support-quote {
+  color: var(--gold) !important;
+  font-style: italic;
+  font-size: 0.92rem !important;
+  margin-top: 0.8rem !important;
+  opacity: 0.85;
+}
+
+.support-compact-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.support-stats {
+  display: flex;
+  gap: 1.2rem;
+  text-align: center;
+}
+
+.support-stat strong {
+  color: var(--gold);
+  display: block;
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 900;
+}
+
+.support-stat span {
+  color: rgba(255, 220, 180, 0.6);
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin-top: 0.15rem;
+  text-transform: uppercase;
+}
+
+.support-cta-btn {
+  align-items: center;
+  background: linear-gradient(135deg, #ffcf5a, #f5a623);
+  border: none;
+  border-radius: 999px;
+  box-shadow:
+    0 8px 32px rgba(255, 165, 50, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  color: #1a0a00;
   cursor: pointer;
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: 220px minmax(0, 1fr) 24px;
-  min-height: 4rem;
-  padding: 0.7rem 0.85rem;
+  display: inline-flex;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 900;
+  gap: 0.55rem;
+  justify-content: center;
+  min-height: 3.2rem;
+  min-width: 220px;
+  padding: 0.9rem 1.8rem;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.support-cta-btn:hover {
+  box-shadow:
+    0 12px 44px rgba(255, 165, 50, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.support-cta-btn:active {
+  transform: translateY(0);
+}
+
+/* ─── Support Modal ─── */
+.support-modal-overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 1.5rem;
+  position: fixed;
+  z-index: 100;
+}
+
+.support-modal {
+  background:
+    radial-gradient(circle at top left, rgba(255, 207, 90, 0.1), transparent 18rem),
+    radial-gradient(circle at bottom right, rgba(103, 255, 143, 0.08), transparent 18rem),
+    linear-gradient(150deg, rgba(10, 24, 38, 0.98), rgba(7, 15, 26, 0.98));
+  border: 1px solid rgba(255, 207, 90, 0.18);
+  border-radius: 16px;
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  max-height: calc(100vh - 3rem);
+  max-width: 680px;
+  overflow-y: auto;
+  padding: clamp(1.2rem, 4vw, 2rem);
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 120, 200, 0.2) transparent;
+  width: 100%;
+}
+
+.modal-close {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  height: 2.2rem;
+  justify-content: center;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  transition: background 180ms ease, color 180ms ease;
+  width: 2.2rem;
+  z-index: 2;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.modal-bkash-section h3,
+.modal-crypto-section h3 {
+  align-items: center;
+  color: #fff;
+  display: flex;
+  font-size: 1.15rem;
+  gap: 0.55rem;
+  margin: 0 0 0.6rem;
+}
+
+.bkash-subtitle,
+.crypto-subtitle {
+  color: rgba(220, 238, 232, 0.72);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.bkash-subtitle strong {
+  color: var(--gold);
+}
+
+.bkash-qr-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 1.4rem 0;
+}
+
+.bkash-qr {
+  background: #fff;
+  border: 3px solid rgba(255, 207, 90, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(255, 165, 50, 0.2);
+  max-width: 220px;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.bkash-number-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+}
+
+.bkash-label {
+  color: rgba(220, 238, 232, 0.7);
+  font-size: 0.9rem;
+}
+
+.bkash-code {
+  background: rgba(255, 207, 90, 0.08);
+  border: 1px solid rgba(255, 207, 90, 0.28);
+  border-radius: 8px;
+  color: #ffe7ad;
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.45rem 0.75rem;
+}
+
+.copy-btn {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.3rem;
+  min-height: 1.8rem;
+  padding: 0.3rem 0.55rem;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 207, 90, 0.1);
+  border-color: rgba(255, 207, 90, 0.35);
+  color: #ffe7ad;
+}
+
+.bkash-instructions {
+  color: rgba(220, 238, 232, 0.48);
+  font-size: 0.82rem;
+  font-style: italic;
+  margin: 0;
+  text-align: center;
+}
+
+.modal-divider {
+  background: linear-gradient(90deg, transparent, rgba(255, 207, 90, 0.22), transparent);
+  height: 1px;
+  margin: 1.8rem 0;
+}
+
+.crypto-table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.crypto-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.crypto-table thead th {
+  border-bottom: 1px solid rgba(255, 207, 90, 0.15);
+  color: rgba(220, 238, 232, 0.55);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.55rem 0.65rem;
   text-align: left;
+  text-transform: uppercase;
 }
 
-.wallet-row:hover {
-  border-color: var(--line-strong);
+.crypto-table tbody tr {
+  transition: background 150ms ease;
 }
 
-.wallet-row span {
+.crypto-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.crypto-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.65rem;
+  vertical-align: middle;
+}
+
+.net-name {
+  color: rgba(244, 255, 250, 0.88);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.net-token {
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.net-addr code {
+  color: #95c8ca;
+  font-size: 0.76rem;
+  word-break: break-all;
+}
+
+.contact-form-card {
+  backdrop-filter: blur(20px);
+  background:
+    radial-gradient(circle at top left, rgba(103, 255, 143, 0.12), transparent 20rem),
+    linear-gradient(150deg, rgba(9, 18, 31, 0.92), rgba(6, 13, 24, 0.88));
+  border: 1px solid rgba(129, 238, 196, 0.18);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   display: grid;
-  gap: 0.22rem;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+  padding: clamp(1rem, 3vw, 1.5rem);
 }
 
-.wallet-row small {
+.contact-form-copy h2 {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 0.98;
+  margin: 1rem 0 0.85rem;
+}
+
+.contact-form-copy p,
+.contact-helper,
+.contact-note {
+  color: var(--muted);
+  line-height: 1.68;
+  margin: 0;
+}
+
+.contact-suggested-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 1.4rem 0 0.9rem;
+}
+
+.contact-suggested-links a {
+  align-items: center;
+  border: 1px solid rgba(129, 238, 196, 0.18);
+  border-radius: 999px;
+  color: var(--text);
+  display: inline-flex;
+  gap: 0.45rem;
+  min-height: 2.45rem;
+  padding: 0.45rem 0.75rem;
+  text-decoration: none;
+}
+
+.contact-helper {
+  font-size: 0.92rem;
+  margin-top: 0.8rem;
+}
+
+.contact-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.contact-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.contact-targets button {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(129, 238, 196, 0.16);
+  border-radius: 999px;
+  color: #dfffee;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.8rem;
+}
+
+.contact-targets button.active {
+  background: rgba(103, 255, 143, 0.14);
+  border-color: rgba(103, 255, 143, 0.5);
   color: var(--green);
 }
 
-.wallet-row code {
-  color: #95c8ca;
-  font-size: 0.78rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field span {
+  color: #dfffee;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.field input,
+.field textarea {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(129, 238, 196, 0.16);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  min-width: 0;
+  padding: 0.8rem 0.85rem;
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(143, 179, 177, 0.72);
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: rgba(103, 255, 143, 0.5);
+  box-shadow: 0 0 0 2px rgba(103, 255, 143, 0.12);
+  outline: none;
+}
+
+.contact-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.contact-submit,
+.contact-alt {
+  flex: 1 1 12rem;
+}
+
+.contact-note {
+  align-items: center;
+  display: flex;
+  font-size: 0.88rem;
+  gap: 0.45rem;
 }
 
 .support-note {
   align-items: center;
+  background: rgba(255, 200, 50, 0.08);
+  border: 1px solid rgba(255, 200, 50, 0.2);
+  border-radius: 8px;
   color: #ffd986;
   display: flex;
-  font-size: 0.88rem;
-  gap: 0.45rem;
-  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  gap: 0.55rem;
+  line-height: 1.5;
+  margin: 1.2rem 0 0;
+  padding: 0.75rem;
 }
 
 .copy-toast {
@@ -809,7 +1292,7 @@ button:focus-visible {
   right: 1rem;
   transform: translateY(8px);
   transition: opacity 180ms ease, transform 180ms ease;
-  z-index: 30;
+  z-index: 200;
 }
 
 .copy-toast.visible {
@@ -838,8 +1321,23 @@ button:focus-visible {
 @media (max-width: 1040px) {
   .hero-section,
   .founder-section,
-  .support-section {
+  .contact-form-card {
     grid-template-columns: 1fr;
+  }
+
+  .support-compact-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .support-compact-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .support-compact-left p {
+    max-width: 48ch;
   }
 
   .hero-section {
@@ -864,21 +1362,55 @@ button:focus-visible {
 
 @media (max-width: 760px) {
   .topbar {
-    align-items: stretch;
+    align-items: center;
     border-radius: 8px;
     flex-wrap: wrap;
-    padding: 0.65rem;
+    gap: 0.45rem 0.7rem;
+    padding: 0.5rem;
+    top: 0.6rem;
+    width: calc(100% - 1rem);
+  }
+
+  .brand-lockup {
+    gap: 0.55rem;
+  }
+
+  .brand-lockup img {
+    height: 2rem;
+  }
+
+  .brand-lockup strong {
+    font-size: 0.86rem;
+  }
+
+  .brand-lockup small {
+    font-size: 0.64rem;
+    margin-top: 0.16rem;
   }
 
   .topbar nav {
+    gap: 0.35rem;
     order: 3;
     overflow-x: auto;
     padding-bottom: 0.1rem;
+    scrollbar-width: none;
     width: 100%;
   }
 
+  .topbar nav::-webkit-scrollbar,
+  .filter-bar::-webkit-scrollbar {
+    display: none;
+  }
+
   .topbar nav a {
+    font-size: 0.82rem;
     min-width: max-content;
+    padding: 0.5rem 0.58rem;
+  }
+
+  .icon-link {
+    min-height: 2.2rem;
+    padding: 0.5rem 0.62rem;
   }
 
   .icon-link span {
@@ -886,21 +1418,43 @@ button:focus-visible {
   }
 
   .hero-section {
-    padding-top: 9.5rem;
+    gap: 1.35rem;
+    min-height: auto;
+    padding-block: 8.1rem 3rem;
   }
 
   .hero-section h1 {
-    font-size: clamp(3.2rem, 17vw, 5rem);
+    font-size: clamp(2.85rem, 14vw, 4.4rem);
+    line-height: 0.9;
+    margin-block: 1rem 0.75rem;
   }
 
-  .hero-actions,
+  .hero-lede {
+    font-size: clamp(1.35rem, 8vw, 2.3rem);
+    line-height: 1.02;
+  }
+
+  .hero-body {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    margin-top: 1rem;
+  }
+
+  .hero-actions {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+  }
+
   .signal-row {
     grid-template-columns: 1fr;
+    margin-top: 1.2rem;
   }
 
   .primary-action,
   .secondary-action,
   .ghost-action {
+    min-height: 2.7rem;
     width: 100%;
   }
 
@@ -915,14 +1469,58 @@ button:focus-visible {
     min-height: 20rem;
   }
 
+  .project-card {
+    min-height: 0;
+    padding: 0.95rem;
+  }
+
+  .project-card h3 {
+    font-size: 1.16rem;
+  }
+
+  .project-actions {
+    gap: 0.5rem;
+  }
+
+  .section-intro h2 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    line-height: 1;
+  }
+
+  .founder-profile {
+    min-height: 0;
+  }
+
+  .founder-profile h2 {
+    font-size: clamp(2.2rem, 10.5vw, 3.35rem);
+    line-height: 0.98;
+    max-width: 100%;
+  }
+
+  .founder-roleline {
+    font-size: 0.98rem !important;
+  }
+
+  .contact-panel {
+    min-height: 0;
+  }
+
   .wallet-row {
     grid-template-columns: 1fr 24px;
+    min-height: 0;
   }
 
   .wallet-row code {
     grid-column: 1 / -1;
+    overflow: visible;
+    text-overflow: clip;
     white-space: normal;
     word-break: break-all;
+  }
+
+  .support-note {
+    align-items: flex-start;
+    line-height: 1.45;
   }
 
   .footer {
@@ -937,18 +1535,70 @@ button:focus-visible {
   .product-section,
   .ecosystem-section,
   .founder-section,
-  .support-section,
+  .support-card-section,
+  .contact-form-section,
   .footer {
     padding-inline: 0.8rem;
   }
 
+  .philosophy-section,
+  .product-section,
+  .ecosystem-section,
+  .founder-section,
+  .support-card-section,
+  .contact-form-section {
+    padding-block: 3.1rem;
+  }
+
+  .eyebrow {
+    border-radius: 8px;
+    font-size: 0.68rem;
+    gap: 0.4rem;
+    letter-spacing: 0.08em;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .eyebrow.compact {
+    font-size: 0.66rem;
+  }
+
+  .hero-section {
+    padding-top: 7.65rem;
+  }
+
+  .hero-section h1 {
+    font-size: clamp(2.75rem, 15vw, 3.85rem);
+  }
+
+  .hero-lede {
+    max-width: 12ch;
+  }
+
   .hero-visual {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 0.78;
   }
 
   .hero-glass-card {
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     max-width: calc(100% - 2rem);
+    padding: 0.58rem 0.65rem;
+  }
+
+  .hero-card-bottom {
+    left: 1rem;
+    right: 1rem;
+  }
+
+  .section-intro h2,
+  .founder-section h2 {
+    font-size: clamp(1.85rem, 9.6vw, 2.75rem);
+  }
+
+  .section-intro p,
+  .contact-panel p,
+  .founder-profile p {
+    font-size: 0.94rem;
+    line-height: 1.62;
   }
 
   .filter-bar {
@@ -956,10 +1606,228 @@ button:focus-visible {
     margin-inline: -0.8rem;
     overflow-x: auto;
     padding-inline: 0.8rem;
+    padding-bottom: 0.2rem;
+    scrollbar-width: none;
   }
 
   .filter-bar button {
+    font-size: 0.78rem;
+    min-height: 2.25rem;
     min-width: max-content;
+    padding: 0.48rem 0.68rem;
+  }
+
+  .philosophy-card {
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .project-card-head {
+    align-items: flex-start;
+  }
+
+  .project-category {
+    font-size: 0.67rem;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .project-icon {
+    flex: 0 0 auto;
+  }
+
+  .project-description {
+    font-size: 0.9rem;
+  }
+
+  .project-actions a {
+    flex: 1 1 auto;
+    min-width: 6.1rem;
+  }
+
+  .card-arrow {
+    display: none;
+  }
+
+  .founder-profile,
+  .contact-panel {
+    padding: 0.85rem;
+  }
+
+  .support-compact-card {
+    padding: 1.2rem;
+  }
+
+  .support-cta-btn {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .support-modal {
+    padding: 1rem;
+  }
+
+  .crypto-table td {
+    padding: 0.5rem 0.4rem;
+  }
+
+  .net-name {
+    font-size: 0.82rem;
+  }
+
+  .net-addr code {
+    font-size: 0.68rem;
+  }
+
+  .bkash-qr {
+    max-width: 180px;
+  }
+
+  .founder-portrait {
+    min-height: 17rem;
+  }
+
+  .portrait-ring {
+    bottom: 0.75rem;
+    height: 3.7rem;
+    left: 0.75rem;
+    width: 3.7rem;
+  }
+
+  .founder-facts span,
+  .contact-links a,
+  .footer-links a {
+    font-size: 0.88rem;
+  }
+
+  .contact-panel-mark {
+    margin-bottom: 1.35rem;
+  }
+
+  .contact-links,
+  .footer-links {
+    gap: 0.5rem;
+  }
+
+  .contact-links a {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+
+  .contact-suggested-links a,
+  .contact-targets button,
+  .contact-submit,
+  .contact-alt {
+    width: 100%;
+  }
+
+  .footer-brand img {
+    height: 2.15rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .topbar {
+    padding: 0.42rem;
+  }
+
+  .brand-lockup img {
+    height: 1.85rem;
+  }
+
+  .topbar nav a {
+    font-size: 0.76rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .hero-section {
+    padding-top: 7.25rem;
+  }
+
+  .hero-section h1 {
+    font-size: clamp(2.35rem, 14vw, 3.2rem);
+  }
+
+  .hero-lede {
+    font-size: clamp(1.22rem, 7.5vw, 1.75rem);
+  }
+
+  .primary-action,
+  .secondary-action,
+  .ghost-action {
+    font-size: 0.9rem;
+  }
+
+  .metric {
+    padding: 0.72rem;
+  }
+
+  .hero-glass-card {
+    font-size: 0.7rem;
+  }
+
+  .founder-profile h2 {
+    font-size: clamp(1.9rem, 10vw, 2.45rem);
+  }
+
+  .founder-portrait {
+    min-height: 14.5rem;
+  }
+
+  .contact-links a,
+  .footer-links a {
+    flex-basis: 100%;
+  }
+
+  .contact-form-card {
+    padding: 0.85rem;
+  }
+
+  .coffee-icon-float {
+    height: 3.4rem;
+    width: 4rem;
+  }
+
+  .coffee-cup {
+    font-size: 0.7rem;
+    height: 2.25rem;
+    top: 1rem;
+    width: 2.85rem;
+  }
+
+  .support-stats {
+    gap: 0.8rem;
+  }
+
+  .support-stat strong {
+    font-size: 1.3rem;
+  }
+
+  .coffee-icon-float {
+    font-size: 2.2rem;
+  }
+
+  .support-compact-left h2 {
+    font-size: 1.5rem;
+  }
+
+  .support-modal-overlay {
+    padding: 0.75rem;
+  }
+}
+
+@keyframes steam-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scaleY(0.9);
+  }
+
+  20% {
+    opacity: 0.75;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scaleY(1.25);
   }
 }
 
