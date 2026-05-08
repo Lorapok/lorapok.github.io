@@ -6,7 +6,14 @@ export type ProjectCategory =
   | "Laravel/PHP"
   | "Desktop/Linux"
   | "Browser Extensions"
-  | "Games/Utilities";
+  | "Games/Utilities"
+  | "Mobile Apps";
+
+export type ProjectLink = {
+  label: string;
+  url: string;
+  icon?: "web" | "npm" | "github" | "vscode" | "api" | "snap" | "download" | "pypi" | "packagist" | "firefox" | "chrome" | "terminal" | "android" | "gamepad" | "monitor" | "book" | "cloud" | "box" | "cpu" | "server" | "layers";
+};
 
 export type Project = {
   name: string;
@@ -14,9 +21,8 @@ export type Project = {
   description: string;
   category: ProjectCategory;
   language: string;
-  repo: string;
-  demo?: string;
   featured?: boolean;
+  links: ProjectLink[];
 };
 
 export type SupportAddress = {
@@ -104,144 +110,210 @@ export const projects: Project[] = [
   {
     name: "Lorapok API Atlas",
     tagline: "Open-source data exploration console",
-    description:
-      "A polished atlas for discovering public APIs and open data sources with a fast, searchable interface.",
+    description: "A polished atlas for discovering public APIs and open data sources with a fast, searchable interface.",
     category: "Developer Tools",
     language: "TypeScript",
-    repo: "https://github.com/Maijied/Lorapok-API_Atlas",
-    demo: "https://maijied.github.io/Lorapok-API_Atlas/",
     featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-API_Atlas/", icon: "web" },
+      { label: "npm", url: "https://www.npmjs.com/package/lorapok-atlas", icon: "npm" },
+      { label: "MCP npm", url: "https://www.npmjs.com/package/lorapok-atlas-mcp", icon: "box" },
+      { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=lorapok.lorapok-atlas", icon: "vscode" },
+      { label: "Cloudflare API", url: "https://github.com/Maijied/Lorapok-API_Atlas/tree/main/packages/lorapok-atlas-api", icon: "cloud" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-API_Atlas", icon: "github" },
+    ],
   },
   {
     name: "Lorapok Media Player",
     tagline: "High-performance biological media engine",
-    description:
-      "A desktop-grade media player built for low-latency playback, high-fidelity control, and sensory UI aesthetics.",
+    description: "A desktop-grade media player built for low-latency playback, high-fidelity control, and sensory UI aesthetics.",
     category: "Media",
     language: "TypeScript",
-    repo: "https://github.com/Maijied/Lorapok_Media_Player",
-    demo: "https://maijied.github.io/Lorapok_Media_Player/",
     featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok_Media_Player/", icon: "web" },
+      { label: "npm", url: "https://www.npmjs.com/package/lorapok-player", icon: "npm" },
+      { label: "Snap", url: "https://snapcraft.io/lorapokmediaplayer", icon: "snap" },
+      { label: "CI/CD", url: "https://github.com/Maijied/Lorapok_Media_Player/blob/main/.github/workflows/workflow-unified.yml", icon: "server" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok_Media_Player", icon: "github" },
+    ],
   },
   {
     name: "Lorapok Keyboard",
     tagline: "Professional Bengali input system",
-    description:
-      "Android Bengali keyboard with phonetic typing, context-aware prediction, and a large vocabulary engine.",
+    description: "Android Bengali keyboard with phonetic typing, context-aware prediction, and a large vocabulary engine.",
     category: "Language/Input",
     language: "Kotlin",
-    repo: "https://github.com/Maijied/Lorapok-Keyboard",
-    demo: "https://maijied.github.io/Lorapok-Keyboard/",
     featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Keyboard/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Keyboard", icon: "github" },
+    ],
   },
   {
     name: "Lorapok AI Agent",
     tagline: "Action-oriented coding agent",
-    description:
-      "A terminal-first AI coding agent that plans, executes, verifies, and helps move codebases from reasoning to deployment.",
+    description: "A terminal-first AI coding agent that plans, executes, verifies, and helps move codebases from reasoning to deployment.",
     category: "AI",
     language: "JavaScript",
-    repo: "https://github.com/Maijied/Lorapok_AI_Agent",
     featured: true,
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok_AI_Agent", icon: "github" },
+    ],
+  },
+  {
+    name: "Roast as a Service",
+    tagline: "Multi-platform roast API",
+    description: "A fun and dynamic API service providing customizable roasts. Distributed across npm, PyPI, and Packagist.",
+    category: "Developer Tools",
+    language: "TypeScript",
+    featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/roast-as-a-service/", icon: "web" },
+      { label: "npm", url: "https://www.npmjs.com/package/roast-api", icon: "npm" },
+      { label: "PyPI", url: "https://pypi.org/project/roast-api/", icon: "pypi" },
+      { label: "Packagist", url: "https://packagist.org/packages/maizied/roast-api", icon: "packagist" },
+      { label: "GitHub", url: "https://github.com/Maijied/roast-as-a-service", icon: "github" },
+    ],
   },
   {
     name: "Lorapok LocalSync",
     tagline: "Local-first private communication",
-    description:
-      "A privacy-focused communication platform designed to work over a local router network without external servers.",
+    description: "A privacy-focused communication platform designed to work over a local router network without external servers.",
     category: "Developer Tools",
     language: "JavaScript",
-    repo: "https://github.com/Maijied/Lorapok-LocalSync",
-    demo: "https://maijied.github.io/Lorapok-LocalSync/",
-    featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-LocalSync/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-LocalSync", icon: "github" },
+    ],
   },
   {
     name: "Dynamic Ollama LLM Chat",
     tagline: "Local LLM console and web UI setup",
-    description:
-      "A complete setup for running local models with Ollama, API access, VS Code workflows, and a dynamic console UI.",
+    description: "A complete setup for running local models with Ollama, API access, VS Code workflows, and a dynamic console UI.",
     category: "AI",
     language: "Python",
-    repo: "https://github.com/Maijied/Lorapok-Dynamic-Ollama-LLM-Chat-Interface",
-    demo: "https://maijied.github.io/Lorapok-Dynamic-Ollama-LLM-Chat-Interface/",
-    featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Dynamic-Ollama-LLM-Chat-Interface/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Dynamic-Ollama-LLM-Chat-Interface", icon: "github" },
+    ],
   },
   {
     name: "Laravel Execution Monitor",
     tagline: "Zero-config Laravel performance monitor",
-    description:
-      "A Laravel-focused monitoring tool for tracking runtime behavior and performance with minimal setup.",
+    description: "A Laravel-focused monitoring tool for tracking runtime behavior and performance with minimal setup.",
     category: "Laravel/PHP",
     language: "PHP",
-    repo: "https://github.com/Maijied/Lorapok-Laravel-Execution-Monitor",
-    demo: "https://maijied.github.io/Lorapok-Laravel-Execution-Monitor/",
     featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/lorapok/", icon: "web" },
+      { label: "Packagist", url: "https://packagist.org/packages/lorapok/laravel-execution-monitor", icon: "packagist" },
+      { label: "GitHub", url: "https://github.com/Maijied/lorapok", icon: "github" },
+    ],
   },
   {
-    name: "Hazari Scoreboard",
-    tagline: "Animated scoreboard for Hazari",
-    description:
-      "A responsive glassmorphism scoreboard for tracking four-player Hazari card game sessions.",
-    category: "Games/Utilities",
-    language: "HTML",
-    repo: "https://github.com/Maijied/Hazari_Scoreboard",
-    demo: "https://maijied.github.io/Hazari_Scoreboard/",
-  },
-  {
-    name: "Linpad",
-    tagline: "Minimal text editor for Ubuntu",
-    description:
-      "A lightweight editor focused on essentials like syntax highlighting, word count, and light/dark modes.",
-    category: "Desktop/Linux",
-    language: "Python",
-    repo: "https://github.com/Maijied/linpad",
-    demo: "https://maijied.github.io/linpad/",
-  },
-  {
-    name: "SubtitleMaster Chrome",
-    tagline: "Subtitle search and download extension",
-    description:
-      "A browser extension that searches and downloads subtitles using the OpenSubtitles API.",
+    name: "SubtitleMaster Firefox",
+    tagline: "Subtitle downloader extension",
+    description: "A browser extension that searches and downloads subtitles using the OpenSubtitles API.",
     category: "Browser Extensions",
     language: "JavaScript",
-    repo: "https://github.com/Maijied/SubtitleMaster-Chrome",
-  },
-  {
-    name: "Linux File Replacer",
-    tagline: "Laravel database config switcher",
-    description:
-      "A Zenity and Bash desktop utility for quickly switching Laravel database configuration files.",
-    category: "Desktop/Linux",
-    language: "Shell",
-    repo: "https://github.com/Maijied/Linux-File-Replacer",
+    links: [
+      { label: "AMO", url: "https://addons.mozilla.org/en-US/firefox/addon/subtitle-master/", icon: "firefox" },
+      { label: "GitHub", url: "https://github.com/Maijied/SubtitleMaster-Firefox", icon: "github" },
+    ],
   },
   {
     name: "xsnap Media Downloader",
     tagline: "Media capture utility",
-    description:
-      "A JavaScript utility project for downloading and managing media assets from supported sources.",
+    description: "Opera & Mozilla browser addon for downloading and managing media assets from supported sources.",
     category: "Media",
     language: "JavaScript",
-    repo: "https://github.com/Maijied/xsnap-media-downloader",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/xsnap-media-downloader_Opera", icon: "github" },
+    ],
   },
   {
-    name: "spotlight tickets",
-    tagline: "Ticketing and event workflow",
-    description:
-      "A PHP-based project for ticket management and event-oriented workflow experiments.",
+    name: "Spotlight Tickets",
+    tagline: "Self-hosted ticketing platform",
+    description: "A PHP-based platform for self-hosted ticket selling and event-oriented workflow management.",
     category: "Laravel/PHP",
     language: "PHP",
-    repo: "https://github.com/Maijied/spotlight-tickets",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/spotlight-tickets", icon: "github" },
+    ],
+  },
+  {
+    name: "Hazari Scoreboard",
+    tagline: "Animated scoreboard for Hazari",
+    description: "A responsive glassmorphism scoreboard for tracking four-player Hazari card game sessions.",
+    category: "Games/Utilities",
+    language: "HTML",
+    links: [
+      { label: "Live", url: "https://maijied.github.io/Hazari_Scoreboard/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Hazari_Scoreboard", icon: "github" },
+    ],
+  },
+  {
+    name: "Linpad",
+    tagline: "Minimal text editor for Ubuntu",
+    description: "A lightweight editor focused on essentials like syntax highlighting, word count, and light/dark modes.",
+    category: "Desktop/Linux",
+    language: "Python",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/linpad/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/linpad", icon: "github" },
+    ],
+  },
+  {
+    name: "AirHockey Unity3D",
+    tagline: "Single & multiplayer Air Hockey",
+    description: "A fun and interactive Air Hockey game for Android built with Unity3D, C#, and Blender.",
+    category: "Games/Utilities",
+    language: "C#",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/AirHockey_Unity3D_AndroidGame", icon: "github" },
+    ],
+  },
+  {
+    name: "Bangla Character Recognition",
+    tagline: "AI-powered Bangla OCR",
+    description: "An Android application utilizing machine learning for real-time Bengali character recognition.",
+    category: "Mobile Apps",
+    language: "Java",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Bangla-Character-Recognition-Android-application", icon: "github" },
+    ],
+  },
+  {
+    name: "Expense Manager Pro",
+    tagline: "Personal finance tracker",
+    description: "A feature-rich Android app designed for tracking daily expenses and managing personal finances seamlessly.",
+    category: "Mobile Apps",
+    language: "Java",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/ExpenseManagerPro", icon: "github" },
+    ],
+  },
+  {
+    name: "Linux File Replacer",
+    tagline: "Laravel config switcher",
+    description: "A Zenity and Bash desktop utility for quickly switching Laravel database configuration files.",
+    category: "Desktop/Linux",
+    language: "Shell",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Linux-File-Replacer", icon: "github" },
+    ],
   },
   {
     name: "Lorapok Windows Activator",
     tagline: "Windows utility reference",
-    description:
-      "A neutral utility listing retained as part of the broader open-source catalog with a direct repository link.",
+    description: "A neutral utility listing retained as part of the broader open-source catalog with a direct repository link.",
     category: "Games/Utilities",
     language: "Docs",
-    repo: "https://github.com/Maijied/Lorapok-Windows-Activator",
-    demo: "https://maijied.github.io/Lorapok-Windows-Activator/",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Windows-Activator/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Windows-Activator", icon: "github" },
+    ],
   },
 ];
 
@@ -254,5 +326,7 @@ export const categories: ("All" | ProjectCategory)[] = [
   "Laravel/PHP",
   "Desktop/Linux",
   "Browser Extensions",
+  "Mobile Apps",
   "Games/Utilities",
 ];
+

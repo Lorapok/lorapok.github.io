@@ -16,12 +16,20 @@ import {
   MapPin,
   MessageCircle,
   Network,
-  Play,
   ShieldCheck,
   Sparkles,
   Terminal,
   X,
   Zap,
+  Package,
+  Download,
+  Cloud,
+  Box,
+  Server,
+  Monitor,
+  Smartphone,
+  Gamepad2,
+  Book,
 } from "lucide-react";
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -42,6 +50,7 @@ const founderImage = "/assets/founder-avatar.jpg";
 const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/portfolio/bkash.jpg";
 const gravatarUrl = "https://gravatar.com/lorapok";
 const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
+const labsAccessKey = import.meta.env.VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY as string | undefined;
 const contactTargets = [
   {
     id: "labs",
@@ -53,16 +62,17 @@ const contactTargets = [
     helper:
       "Best for structured requests where the reply should include scope, timeline, links, or technical details.",
     recipientLabel: "Lorapok Labs",
-    recipientEmail: founder.email,
+    recipientEmail: "lorapokdev@gmail.com",
     subjectPrefix: "[Lorapok Labs]",
     subjectPlaceholder: "Project inquiry / support / collaboration",
     messagePlaceholder:
       "Tell Lorapok what you need, what you are building, and how the project should move forward.",
     submitLabel: "Draft Labs Email",
     suggestedLinks: [
-      { label: "Email", href: `mailto:${founder.email}`, icon: "mail" },
-      { label: "GitHub Org", href: brand.githubOrg, icon: "code" },
-      { label: "LinkedIn", href: founder.links.linkedin, icon: "briefcase" },
+      { label: "Email", href: "mailto:lorapokdev@gmail.com", icon: "mail" },
+      { label: "LinkedIn", href: "https://www.linkedin.com/showcase/lorapok/", icon: "briefcase" },
+      { label: "Reddit", href: "https://www.reddit.com/r/LorapokLabs/", icon: "globe" },
+      { label: "Gravatar", href: "https://gravatar.com/lorapok", icon: "globe" },
     ],
   },
   {
@@ -162,19 +172,37 @@ function App() {
     const subject =
       `${activeContactTarget.subjectPrefix} ${contactSubject || "New message"}`.trim();
 
+    const targetAccessKey = activeContactTarget.id === "labs" ? labsAccessKey : web3FormsAccessKey;
+
+    // DRAFT MODE: If submit label includes "Draft", or no appropriate access key is provided
+    if (activeContactTarget.submitLabel.toLowerCase().includes("draft") || !targetAccessKey) {
+      const body = `Name: ${contactName || "Visitor"}\nEmail: ${contactEmail || "No email provided"}\n\n${contactMessage}`;
+      const mailtoUrl = `mailto:${activeContactTarget.recipientEmail}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoUrl;
+
+      setContactStatus("success");
+      setContactStatusText(`Drafting email to ${activeContactTarget.recipientLabel}...`);
+      return;
+    }
+
     setContactStatus("sending");
     setContactStatusText("Sending your message...");
 
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         body: JSON.stringify({
-          access_key: web3FormsAccessKey,
-          from_name: contactName || "Lorapok website visitor",
-          email: contactEmail,
+          access_key: targetAccessKey,
+          template: "table",
+          from_name: "Lorapok Labs Portal",
           subject,
+          name: contactName || "Visitor",
+          email: contactEmail,
           message: contactMessage,
-          route: activeContactTarget.label,
-          recipient: activeContactTarget.recipientLabel,
+          "Source Site": "lorapok.github.io",
+          "Contact Route": activeContactTarget.label,
+          "Filing Category": activeContactTarget.id === "labs" ? "Enterprise/Labs" : "Founder Direct",
           replyto: contactEmail,
           botcheck: "",
         }),
@@ -217,6 +245,7 @@ function App() {
           <a href="#products">Products</a>
           <a href="#ecosystem">Ecosystem</a>
           <a href="#founder">Founder</a>
+          <a href="#contact">Contact</a>
           <a className="nav-support" href="#support">Support</a>
         </nav>
         <a className="icon-link" href={brand.githubOrg} target="_blank" rel="noreferrer">
@@ -569,7 +598,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      <section className="contact-form-section" aria-labelledby="contact-form-title">
+      <section id="contact" className="contact-form-section" aria-labelledby="contact-form-title">
         <motion.div
           className="contact-form-card"
           initial="hidden"
@@ -726,11 +755,11 @@ function App() {
             <Globe2 size={16} />
             Gravatar
           </a>
-          <a href={founder.links.telegram} target="_blank" rel="noreferrer">
-            <MessageCircle size={16} />
-            Telegram
+          <a href="https://www.reddit.com/r/LorapokLabs/" target="_blank" rel="noreferrer">
+            <Globe2 size={16} />
+            Reddit
           </a>
-          <a href={`mailto:${founder.email}`}>
+          <a href="mailto:lorapokdev@gmail.com">
             <Mail size={16} />
             Email
           </a>
@@ -815,23 +844,44 @@ function ProjectCard({
       <p className="project-description">{project.description}</p>
       <div className="project-meta">
         <span>{project.language}</span>
-        {project.demo ? <span>Live page</span> : <span>Repository</span>}
       </div>
       <div className="project-actions">
-        <a href={project.repo} target="_blank" rel="noreferrer">
-          <Code2 size={16} />
-          Repo
-        </a>
-        {project.demo ? (
-          <a href={project.demo} target="_blank" rel="noreferrer">
-            <Play size={16} />
-            Live
+        {project.links?.map((link, i) => (
+          <a href={link.url} target="_blank" rel="noreferrer" key={i} className="project-link-badge">
+            <ProjectLinkIcon icon={link.icon} />
+            {link.label}
           </a>
-        ) : null}
-        <ChevronRight className="card-arrow" size={18} aria-hidden="true" />
+        ))}
       </div>
     </motion.article>
   );
+}
+
+function ProjectLinkIcon({ icon }: { icon?: string }) {
+  switch (icon) {
+    case "web": return <Globe2 size={16} />;
+    case "npm":
+    case "pypi":
+    case "packagist": return <Package size={16} />;
+    case "github": return <Code2 size={16} />;
+    case "vscode": return <Terminal size={16} />;
+    case "api": return <Network size={16} />;
+    case "snap":
+    case "download": return <Download size={16} />;
+    case "firefox":
+    case "chrome":
+    case "monitor": return <Monitor size={16} />;
+    case "terminal": return <Terminal size={16} />;
+    case "android": return <Smartphone size={16} />;
+    case "gamepad": return <Gamepad2 size={16} />;
+    case "book": return <Book size={16} />;
+    case "cloud": return <Cloud size={16} />;
+    case "box": return <Box size={16} />;
+    case "cpu": return <Cpu size={16} />;
+    case "server": return <Server size={16} />;
+    case "layers": return <Layers3 size={16} />;
+    default: return <ChevronRight size={16} />;
+  }
 }
 
 export default App;
