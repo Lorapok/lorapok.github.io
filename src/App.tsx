@@ -72,6 +72,7 @@ const contactTargets = [
       { label: "Email", href: "mailto:lorapokdev@gmail.com", icon: "mail" },
       { label: "LinkedIn", href: "https://www.linkedin.com/showcase/lorapok/", icon: "briefcase" },
       { label: "Reddit", href: "https://www.reddit.com/r/LorapokLabs/", icon: "globe" },
+      { label: "X (Twitter)", href: "https://x.com/LorapokLabs", icon: "globe" },
       { label: "Gravatar", href: "https://gravatar.com/lorapok", icon: "globe" },
     ],
   },
@@ -759,6 +760,10 @@ function App() {
           <a href="https://www.reddit.com/r/LorapokLabs/" target="_blank" rel="noreferrer">
             <Globe2 size={16} />
             Reddit
+          </a>
+          <a href="https://x.com/LorapokLabs" target="_blank" rel="noreferrer">
+            <Globe2 size={16} />
+            X
           </a>
           <a href="mailto:lorapokdev@gmail.com">
             <Mail size={16} />
