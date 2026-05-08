@@ -49,8 +49,8 @@ const badgeImage = "/assets/lorapok-badge.png";
 const founderImage = "/assets/founder-avatar.jpg";
 const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/portfolio/bkash.jpg";
 const gravatarUrl = "https://gravatar.com/lorapok";
-const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
-const labsAccessKey = import.meta.env.VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY as string | undefined;
+const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "8022b84d-8a91-4b69-a24a-c9a9cc1f5099";
+const labsAccessKey = import.meta.env.VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY || "28051c1f-ed3d-4130-8a3b-c6e0cef7353c";
 const contactTargets = [
   {
     id: "labs",
@@ -67,7 +67,7 @@ const contactTargets = [
     subjectPlaceholder: "Project inquiry / support / collaboration",
     messagePlaceholder:
       "Tell Lorapok what you need, what you are building, and how the project should move forward.",
-    submitLabel: "Draft Labs Email",
+    submitLabel: "Send to Labs",
     suggestedLinks: [
       { label: "Email", href: "mailto:lorapokdev@gmail.com", icon: "mail" },
       { label: "LinkedIn", href: "https://www.linkedin.com/showcase/lorapok/", icon: "briefcase" },
@@ -80,6 +80,7 @@ const contactTargets = [
     label: "Contact Founder",
     eyebrow: "Founder",
     title: `Contact ${founder.name.split(" ")[0]}`,
+    submitLabel: `Send to ${founder.name.split(" ")[0]}`,
     description:
       "Use this route for founder-level conversations, personal collaboration, hiring, advising, or direct professional messages.",
     helper:
@@ -90,7 +91,6 @@ const contactTargets = [
     subjectPlaceholder: "Founder conversation / hiring / advisory",
     messagePlaceholder:
       "Write the context, what you want to discuss, and the best next action for the founder.",
-    submitLabel: "Draft Founder Email",
     suggestedLinks: [
       { label: "Email", href: `mailto:${founder.email}`, icon: "mail" },
       { label: "Portfolio", href: founder.links.portfolio, icon: "globe" },
@@ -174,8 +174,8 @@ function App() {
 
     const targetAccessKey = activeContactTarget.id === "labs" ? labsAccessKey : web3FormsAccessKey;
 
-    // DRAFT MODE: If submit label includes "Draft", or no appropriate access key is provided
-    if (activeContactTarget.submitLabel.toLowerCase().includes("draft") || !targetAccessKey) {
+    // DRAFT FALLBACK: Only if no access key is provided at all
+    if (!targetAccessKey) {
       const body = `Name: ${contactName || "Visitor"}\nEmail: ${contactEmail || "No email provided"}\n\n${contactMessage}`;
       const mailtoUrl = `mailto:${activeContactTarget.recipientEmail}?subject=${encodeURIComponent(
         subject
