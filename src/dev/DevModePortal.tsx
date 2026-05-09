@@ -63,7 +63,7 @@ function NavItem({ item, active, onClick }: { item: NavItem; active: boolean; on
 
 function DevPortalInner({ onClose }: { onClose: () => void }) {
   const [activePanel, setActivePanel] = useState<PanelId>("dashboard");
-  const { user, signIn } = useDevAuth();
+  const { user, signIn, signOut } = useDevAuth();
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -154,6 +154,15 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
             ) : (
               <button className="dev-nav-avatar" onClick={signIn} title="Sign in to access user profile">
                 <span style={{ fontSize: "0.75rem" }}>🔑</span>
+              </button>
+            )}
+            {user && (
+              <button 
+                className="dev-btn dev-btn-ghost dev-btn-sm" 
+                onClick={signOut} 
+                style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.72rem", color: "var(--dev-red)" }}
+              >
+                Sign Out
               </button>
             )}
             <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={onClose} title="Back to standard mode" style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.72rem" }}>
