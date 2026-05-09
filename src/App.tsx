@@ -222,7 +222,11 @@ function App() {
     <main className="site-shell">
       <div className="ambient-grid" aria-hidden="true" />
       <header className="topbar">
-        <a className="brand-lockup" href="#home" aria-label="Lorapok Labs home">
+        <a 
+          className={`brand-lockup ${contactStatus === "sending" ? "sending-transmission" : ""}`} 
+          href="#home" 
+          aria-label="Lorapok Labs home"
+        >
           <motion.img 
             src={badgeImage} 
             alt="" 

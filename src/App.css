@@ -2049,8 +2049,33 @@ button:focus-visible {
 }
 
 .larva-badge.sending {
-  animation: lorapok-evolution 2s linear infinite;
-  filter: drop-shadow(0 0 8px var(--color-green));
+  animation: lorapok-evolution 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px var(--color-green));
+  z-index: 10;
+}
+
+.brand-lockup.sending-transmission span {
+  animation: lorapok-text-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes lorapok-text-glow {
+  0%, 100% { opacity: 1; text-shadow: none; }
+  50% { opacity: 0.7; text-shadow: 0 0 10px var(--color-green); color: var(--color-green); }
+}
+
+@keyframes lorapok-evolution {
+  0% { 
+    transform: rotate(0deg) scale(1); 
+    filter: drop-shadow(0 0 5px var(--color-green));
+  }
+  50% { 
+    transform: rotate(180deg) scale(1.4); 
+    filter: drop-shadow(0 0 25px var(--color-green));
+  }
+  100% { 
+    transform: rotate(360deg) scale(1); 
+    filter: drop-shadow(0 0 5px var(--color-green));
+  }
 }
 
 @keyframes lorapok-spin {
@@ -2058,11 +2083,6 @@ button:focus-visible {
   to { transform: rotate(360deg); }
 }
 
-@keyframes lorapok-evolution {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.2); filter: drop-shadow(0 0 15px var(--color-green)); }
-  100% { transform: rotate(360deg) scale(1); }
-}
 
 @media (max-width: 640px) {
   .status-indicator {
