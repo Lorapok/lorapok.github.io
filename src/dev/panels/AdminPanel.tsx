@@ -102,102 +102,130 @@ function AdminContent() {
               <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={signOut}>Sign out</button>
             </div>
           )}
+   return (
+    <div className="dev-panel-content">
+      {/* ─── Header ─── */}
+      <div className="dev-panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div className="dev-panel-title">System <span>Command</span></div>
+          <div className="dev-panel-sub">Global Lorapok Labs surveillance and infrastructure management.</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className="dev-msg" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 1rem' }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 'bold' }}>Authenticated</span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--dev-muted)' }}>{user?.email}</span>
+            </div>
+            <img src={user?.photoURL || ""} alt="" style={{ width: 24, height: 24, borderRadius: '50%' }} />
+          </div>
+          <button className="dev-btn-outline" onClick={signOut} style={{ fontSize: '0.7rem' }}>Sign out</button>
         </div>
       </div>
 
-      <div className="dev-g4" style={{ marginBottom: "1.5rem" }}>
-        {[
-          { num: stats.users, label: "active maintainers", icon: "👥" },
-          { num: stats.events, label: "total events", icon: "📈" },
-          { num: stats.readmes, label: "saved readmes", icon: "📄" },
-          { num: stats.commits, label: "commit explanations", icon: "⚡" }
-        ].map(s => (
-          <div key={s.label} className="dev-card dev-card-sm">
-            <div style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>{s.icon}</div>
-            <div className="dev-stat-num">{s.num}</div>
-            <div className="dev-stat-label">{s.label}</div>
+      {/* ─── Global Stats ─── */}
+      <div className="dev-g4" style={{ marginBottom: '2rem' }}>
+        <div className="dev-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ padding: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}><Users color="#3b82f6" /></div>
+          <div>
+            <div className="dev-stitle" style={{ fontSize: '1.2rem' }}>{stats.users}</div>
+            <div className="dev-auth-sub">active maintainers</div>
           </div>
-        ))}
+        </div>
+        <div className="dev-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px' }}><Activity color="#ef4444" /></div>
+          <div>
+            <div className="dev-stitle" style={{ fontSize: '1.2rem' }}>{stats.events}</div>
+            <div className="dev-auth-sub">total events</div>
+          </div>
+        </div>
+        <div className="dev-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}><FileText color="#fff" /></div>
+          <div>
+            <div className="dev-stitle" style={{ fontSize: '1.2rem' }}>{stats.readmes}</div>
+            <div className="dev-auth-sub">saved readmes</div>
+          </div>
+        </div>
+        <div className="dev-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ padding: '0.75rem', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '8px' }}><Zap color="#eab308" /></div>
+          <div>
+            <div className="dev-stitle" style={{ fontSize: '1.2rem' }}>{stats.commits}</div>
+            <div className="dev-auth-sub">commit explanations</div>
+          </div>
+        </div>
       </div>
 
-      <div className="dev-g21">
-        {/* Activity Log */}
-        <div>
-          <div className="dev-stitle"><span className="dev-stitle-dot" />Live Analytics Feed</div>
-          <div className="dev-card" style={{ padding: "0" }}>
-            <div className="dev-activity-feed">
-              {events.map(ev => (
-                <div key={ev.id} className="dev-feed-item">
-                  <div className="dev-feed-dot" style={{ background: ev.category === "ai" ? "var(--dev-purple)" : "var(--dev-green)" }} />
-                  <div className="dev-feed-content">
-                    <div className="dev-feed-header">
-                      <span className="dev-feed-user">{ev.email}</span>
-                      <span className="dev-feed-time">{ev.timestamp?.toDate().toLocaleTimeString()}</span>
-                    </div>
-                    <div className="dev-feed-action">
-                      <span style={{ color: "var(--dev-muted)" }}>{ev.category}:</span> {ev.action}
-                      {ev.metadata?.provider && <span className="dev-badge dev-badge-muted" style={{ marginLeft: "0.5rem" }}>{ev.metadata.provider}</span>}
-                    </div>
+      <div className="dev-g2" style={{ gridTemplateColumns: '1.5fr 1fr', alignItems: 'start' }}>
+        {/* Activity Feed */}
+        <div className="dev-card" style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+          <div className="dev-stitle" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }} />
+            LIVE ANALYTICS FEED
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', maxHeight: '500px' }}>
+            {events.length === 0 ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--dev-muted)' }}>Awaiting signals...</div>
+            ) : (
+              events.map(event => (
+                <div key={event.id} className="dev-msg" style={{ padding: '1rem', borderLeft: '2px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ color: 'var(--dev-accent)', fontWeight: 'bold', fontSize: '0.75rem' }}>{event.email || 'anonymous'}</span>
+                    <span style={{ color: 'var(--dev-muted)', fontSize: '0.65rem' }}>{event.timestamp?.toDate ? event.timestamp.toDate().toLocaleTimeString() : 'Recent'}</span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem' }}>
+                    <span style={{ color: 'var(--dev-muted2)' }}>{event.category}:</span> {event.action}
                   </div>
                 </div>
-              ))}
-              {events.length === 0 && <div style={{ padding: "2rem", textAlign: "center", color: "var(--dev-muted)" }}>No recent activity.</div>}
-            </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Maintainer Directory */}
-        <div>
-          <div className="dev-stitle"><span className="dev-stitle-dot" />Maintainer Directory</div>
-          <div className="dev-card" style={{ padding: "0" }}>
-            <div className="dev-user-list">
+        {/* User Management */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="dev-card">
+            <div className="dev-stitle" style={{ marginBottom: '1.5rem' }}>MAINTAINER DIRECTORY</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {users.map(u => (
-                <div key={u.uid} style={{ borderBottom: "1px solid var(--dev-border)" }}>
-                  <div 
-                    className="dev-user-item" 
-                    onClick={() => handleSelectUser(u)}
-                    style={{ cursor: "pointer", background: selectedUser?.uid === u.uid ? "var(--dev-bg2)" : "transparent" }}
-                  >
-                    <img src={u.photoURL || "/assets/avatar-placeholder.png"} alt="" className="dev-user-avatar" />
-                    <div className="dev-user-info">
-                      <div className="dev-user-name">{u.displayName}</div>
-                      <div className="dev-user-email">{u.email}</div>
+                <div 
+                  key={u.uid} 
+                  className={`dev-msg ${selectedUser?.uid === u.uid ? 'active' : ''}`} 
+                  onClick={() => handleSelectUser(u)}
+                  style={{ cursor: 'pointer', padding: '0.75rem', transition: 'all 0.2s', border: selectedUser?.uid === u.uid ? '1px solid var(--dev-accent)' : '1px solid transparent' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <img src={u.photoURL} alt="" style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{u.displayName}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--dev-muted)' }}>{u.email}</div>
                     </div>
-                    <span className={`dev-badge ${u.role === "admin" ? "dev-badge-purple" : "dev-badge-muted"}`}>{u.role}</span>
+                    <div className={`dev-badge ${u.role === 'admin' ? 'dev-badge-purple' : 'dev-badge-muted'}`} style={{ fontSize: '0.6rem' }}>{u.role}</div>
                   </div>
-                  
+
                   {selectedUser?.uid === u.uid && (
-                    <div style={{ padding: "1rem", background: "var(--dev-bg)", fontSize: "0.85rem" }}>
-                      {loadingUserDetails ? (
-                        <div style={{ color: "var(--dev-muted)" }}>Loading user data...</div>
-                      ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                      {loadingUserDetails ? <div style={{ color: 'var(--dev-muted)', fontSize: '0.8rem' }}>Loading data...</div> : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: "1rem" }}>
                           <div>
-                            <div className="dev-stitle" style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}>Stored Data ({userData.length})</div>
-                            {userData.length === 0 ? <div style={{ color: "var(--dev-muted)" }}>No data stored.</div> : (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                            <div className="dev-stitle" style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}>STORED DATA ({userData.length})</div>
+                            {userData.length === 0 ? <div style={{ color: "var(--dev-muted)", fontSize: "0.8rem" }}>No data stored.</div> : (
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                                 {userData.map(d => (
-                                  <div key={d.id} style={{ background: "var(--dev-bg2)", padding: "0.5rem", borderRadius: "4px" }}>
-                                    <strong style={{ color: "var(--dev-fg)" }}>{d.key}:</strong> <span style={{ color: "var(--dev-muted2)" }}>{d.value.length > 50 ? d.value.substring(0, 50) + "..." : d.value}</span>
-                                  </div>
+                                  <div key={d.id} className="dev-badge dev-badge-muted" style={{ fontSize: "0.7rem" }}>{d.key}</div>
                                 ))}
                               </div>
                             )}
                           </div>
                           <div>
-                            <div className="dev-stitle" style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}>API Keys</div>
-                            {!u.apiKeys || Object.keys(u.apiKeys).length === 0 ? <div style={{ color: "var(--dev-muted)" }}>No API keys configured.</div> : (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                                {Object.entries(u.apiKeys).map(([provider, key]) => (
-                                  <div key={provider} style={{ background: "var(--dev-bg2)", padding: "0.5rem", borderRadius: "4px", display: "flex", justifyContent: "space-between" }}>
-                                    <strong style={{ color: "var(--dev-fg)", textTransform: "capitalize" }}>{provider}:</strong> 
-                                    <span style={{ color: "var(--dev-muted2)", fontFamily: "var(--dev-font-mono)" }}>
-                                      {key.length > 8 ? `${key.substring(0, 4)}...${key.slice(-4)}` : "Set"}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                            <div className="dev-stitle" style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}>API KEYS</div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                              {Object.entries(selectedUser.apiKeys || {}).map(([p, k]) => (
+                                <div key={p} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", background: "rgba(255,255,255,0.05)", padding: "0.4rem 0.6rem", borderRadius: "4px" }}>
+                                  <span style={{ color: "var(--dev-fg)", fontWeight: "bold" }}>{p}:</span>
+                                  <span style={{ color: k ? "#10b981" : "var(--dev-muted)" }}>{k ? "Set" : "Empty"}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -207,12 +235,14 @@ function AdminContent() {
               ))}
             </div>
           </div>
-          
-          <div className="dev-stitle" style={{ marginTop: "1.5rem" }}><span className="dev-stitle-dot" />System Operations</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <button className="dev-btn dev-btn-secondary" style={{ width: "100%", justifyContent: "flex-start" }}>✉ Broadcast to Maintainers</button>
-            <button className="dev-btn dev-btn-secondary" style={{ width: "100%", justifyContent: "flex-start" }}>📁 Backup Firestore Data</button>
-            <button className="dev-btn dev-btn-ghost" style={{ width: "100%", justifyContent: "flex-start", color: "var(--dev-red)" }}>✕ Flush System Cache</button>
+
+          <div className="dev-card">
+            <div className="dev-stitle" style={{ marginBottom: "1.5rem" }}>SYSTEM OPERATIONS</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <button className="dev-btn dev-btn-ghost" style={{ justifyContent: "flex-start", fontSize: "0.8rem" }}><FileText size={14} /> Broadcast to Maintainers</button>
+              <button className="dev-btn dev-btn-ghost" style={{ justifyContent: "flex-start", fontSize: "0.8rem" }}><Database size={14} /> Backup Firestore Data</button>
+              <button className="dev-btn dev-btn-ghost" style={{ justifyContent: "flex-start", fontSize: "0.8rem", color: "var(--dev-red)" }}>× Flush System Cache</button>
+            </div>
           </div>
         </div>
       </div>
