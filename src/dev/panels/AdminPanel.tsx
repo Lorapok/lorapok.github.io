@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { AdminGate, useDevAuth } from "../DevAuth";
 import { db } from "../../lib/firebase";
-import { collection, query, orderBy, limit, onSnapshot, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, limit, onSnapshot, getDocs, startAfter } from "firebase/firestore";
 import { 
   Users, 
   Activity, 
@@ -17,7 +17,8 @@ import {
   X,
   Clock,
   MoreVertical,
-  ExternalLink
+  ExternalLink,
+  ArrowDown
 } from "lucide-react";
 
 interface AnalyticsEvent {
@@ -59,6 +60,9 @@ function AdminContent() {
   const { signOut } = useDevAuth();
   const [events, setEvents] = useState<AnalyticsEvent[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [lastDoc, setLastDoc] = useState<any>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [stats, setStats] = useState({ users: 0, events: 0, readmes: 0, commits: 0 });
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -78,18 +82,25 @@ function AdminContent() {
       (err) => console.warn("Admin logs access restricted:", err.message)
     );
 
-    const loadStats = async () => {
+    const loadInitialData = async () => {
       try {
-        const [uSnap, rSnap, cSnap, eSnap] = await Promise.all([
-          getDocs(collection(db, "users")),
+        // Stats
+        const [rSnap, cSnap, eSnap] = await Promise.all([
           getDocs(collection(db, "readme_templates")),
           getDocs(collection(db, "commit_explanations")),
           getDocs(collection(db, "analytics")),
         ]);
         
+        // Users (Initial 50)
+        const uQuery = query(collection(db, "users"), orderBy("email"), limit(50));
+        const uSnap = await getDocs(uQuery);
+        
         setUsers(uSnap.docs.map(doc => doc.data() as UserProfile));
+        setLastDoc(uSnap.docs[uSnap.docs.length - 1]);
+        setHasMore(uSnap.size === 50);
+        
         setStats({
-          users: uSnap.size,
+          users: uSnap.size, // This will be updated to total count if needed, but for now shows loaded
           readmes: rSnap.size,
           commits: cSnap.size,
           events: eSnap.size
@@ -99,9 +110,27 @@ function AdminContent() {
       }
     };
 
-    loadStats();
+    loadInitialData();
     return () => unsubEvents();
   }, []);
+
+  const loadMoreUsers = async () => {
+    if (!lastDoc || loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const nextQuery = query(collection(db, "users"), orderBy("email"), startAfter(lastDoc), limit(50));
+      const nextSnap = await getDocs(nextQuery);
+      
+      const newUsers = nextSnap.docs.map(doc => doc.data() as UserProfile);
+      setUsers(prev => [...prev, ...newUsers]);
+      setLastDoc(nextSnap.docs[nextSnap.docs.length - 1]);
+      setHasMore(nextSnap.size === 50);
+    } catch (e) {
+      console.error("Pagination error:", e);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleOpenUser = async (u: UserProfile) => {
     setSelectedUser(u);
@@ -268,6 +297,32 @@ function AdminContent() {
                   })}
                 </tbody>
               </table>
+              {hasMore && (
+                <div style={{ padding: '1.5rem', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.03)', background: 'rgba(255,255,255,0.01)' }}>
+                  <button 
+                    onClick={loadMoreUsers} 
+                    disabled={loadingMore}
+                    style={{ 
+                      background: 'rgba(255,255,255,0.05)', 
+                      border: '1px solid rgba(255,255,255,0.1)', 
+                      borderRadius: '8px', 
+                      padding: '8px 20px', 
+                      color: 'var(--dev-muted)', 
+                      fontSize: '0.8rem', 
+                      fontWeight: 600, 
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--dev-muted)'; }}
+                  >
+                    {loadingMore ? 'SYNCING...' : <>LOAD MORE USERS <ArrowDown size={14} /></>}
+                  </button>
+                </div>
+              )}
               {filteredUsers.length === 0 && (
                 <div style={{ padding: '4rem', textAlign: 'center', opacity: 0.3 }}>
                   <Users size={32} style={{ marginBottom: '1rem', opacity: 0.2 }} />
