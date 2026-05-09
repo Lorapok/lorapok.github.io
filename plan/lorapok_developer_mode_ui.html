@@ -1,0 +1,336 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent;color:var(--color-text-primary)}
+.screen{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:2rem}
+.topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo-row{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px}
+.dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block}
+.mode-toggle{display:flex;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);overflow:hidden;font-size:12px}
+.mode-btn{padding:5px 12px;cursor:pointer;background:transparent;border:none;color:var(--color-text-secondary);font-family:var(--font-sans)}
+.mode-btn.active{background:var(--color-background-info);color:var(--color-text-info);font-weight:500}
+.nav-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);padding:0 16px}
+.tab{font-size:12px;padding:10px 14px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;border-top:none;border-left:none;border-right:none;background:transparent;font-family:var(--font-sans)}
+.tab.active{color:var(--color-text-info);border-bottom-color:#1D9E75;font-weight:500}
+.content{padding:16px}
+.section-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.card-icon{font-size:18px;margin-bottom:8px;color:var(--color-text-info)}
+.card-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.card-sub{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.badge-green{background:#E1F5EE;color:#0F6E56}
+.badge-purple{background:#EEEDFE;color:#3C3489}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-coral{background:#FAECE7;color:#993C1D}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.api-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px}
+.api-chip{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
+.api-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.blog-post{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.blog-thumb{width:44px;height:44px;border-radius:var(--border-radius-md);background:#E1F5EE;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#0F6E56;font-size:18px}
+.blog-meta{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:14px 0}
+.tasks-wrap{margin-top:2rem}
+.task-section{margin-bottom:1.5rem}
+.task-section-head{font-size:13px;font-weight:500;padding:8px 12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);margin-bottom:6px}
+.task-num{font-size:11px;color:var(--color-text-secondary);font-family:var(--font-mono);flex-shrink:0;margin-top:1px;min-width:24px}
+.task-body{flex:1}
+.task-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.task-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.task-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.priority-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.p-high{background:#E24B4A}
+.p-med{background:#EF9F27}
+.p-low{background:#1D9E75}
+</style>
+
+<h2 class="sr-only">Lorapok Labs Developer Mode — UI mockup and build task list</h2>
+
+<p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">UI preview — Developer Mode portal with all major sections</p>
+
+<div class="screen">
+  <div class="topbar">
+    <div class="logo-row"><span class="dot"></span> Lorapok Labs</div>
+    <div class="mode-toggle">
+      <button class="mode-btn">Standard</button>
+      <button class="mode-btn active"><i class="ti ti-terminal-2" aria-hidden="true"></i> Developer</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <i class="ti ti-bell" style="font-size:17px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+      <div style="width:28px;height:28px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#0F6E56">M</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab active">AI Labs</button>
+    <button class="tab">Blog</button>
+    <button class="tab">Projects</button>
+    <button class="tab">Playground</button>
+    <button class="tab">Admin</button>
+  </div>
+
+  <div class="content">
+    <div class="row" style="margin-bottom:14px">
+      <span class="section-title" style="margin:0">AI provider</span>
+      <div class="api-row" style="margin:0;flex:1">
+        <div class="api-chip"><span class="api-dot" style="background:#5DCAA5"></span> Claude (active)</div>
+        <div class="api-chip"><span class="api-dot" style="background:#85B7EB"></span> OpenAI</div>
+        <div class="api-chip"><span class="api-dot" style="background:#F09595"></span> Gemini</div>
+        <div class="api-chip"><span class="api-dot" style="background:#AFA9EC"></span> Mistral</div>
+        <div class="api-chip"><span class="api-dot" style="background:#EF9F27"></span> Groq</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <p class="section-title">AI tools</p>
+    <div class="card-grid">
+      <div class="card">
+        <i class="ti ti-message-bolt card-icon" aria-hidden="true"></i>
+        <div class="card-title">Lorapok AI Chat</div>
+        <div class="card-sub">Switch provider mid-conversation</div>
+        <div style="margin-top:8px"><span class="badge badge-green">Live</span></div>
+      </div>
+      <div class="card">
+        <i class="ti ti-pencil card-icon" aria-hidden="true"></i>
+        <div class="card-title">Blog Writer</div>
+        <div class="card-sub">Context → auto-post with AI image</div>
+        <div style="margin-top:8px"><span class="badge badge-amber">New</span></div>
+      </div>
+      <div class="card">
+        <i class="ti ti-file-code card-icon" aria-hidden="true"></i>
+        <div class="card-title">README Gen</div>
+        <div class="card-sub">Schema to full README in seconds</div>
+        <div style="margin-top:8px"><span class="badge badge-green">Live</span></div>
+      </div>
+      <div class="card">
+        <i class="ti ti-git-commit card-icon" aria-hidden="true"></i>
+        <div class="card-title">Commit Explainer</div>
+        <div class="card-sub">Plain-English diffs for stakeholders</div>
+        <div style="margin-top:8px"><span class="badge badge-green">Live</span></div>
+      </div>
+      <div class="card">
+        <i class="ti ti-code card-icon" aria-hidden="true"></i>
+        <div class="card-title">API Playground</div>
+        <div class="card-sub">Test any AI provider with live results</div>
+        <div style="margin-top:8px"><span class="badge badge-purple">Beta</span></div>
+      </div>
+      <div class="card">
+        <i class="ti ti-brain card-icon" aria-hidden="true"></i>
+        <div class="card-title">Project Recommender</div>
+        <div class="card-sub">Smart match: skills → Lorapok repos</div>
+        <div style="margin-top:8px"><span class="badge badge-green">Live</span></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <p class="section-title">Latest blog posts (AI-generated)</p>
+    <div class="blog-post">
+      <div class="blog-thumb"><i class="ti ti-robot" aria-hidden="true"></i></div>
+      <div>
+        <div style="font-size:13px;font-weight:500">Why open-source AI tooling is eating the stack</div>
+        <div class="blog-meta">Generated from admin context · 2 min read · <span class="badge badge-green" style="padding:1px 6px">Published</span></div>
+      </div>
+    </div>
+    <div class="blog-post">
+      <div class="blog-thumb"><i class="ti ti-git-branch" aria-hidden="true"></i></div>
+      <div>
+        <div style="font-size:13px;font-weight:500">How we built Lorapok UI with zero runtime dependencies</div>
+        <div class="blog-meta">Generated from admin context · 4 min read · <span class="badge badge-amber" style="padding:1px 6px">Draft</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tasks-wrap">
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem"><i class="ti ti-list-check" aria-hidden="true"></i> Full build task list — priority order</p>
+
+  <div class="task-section">
+    <div class="task-section-head"><span class="badge badge-coral">Phase 1</span> Core infrastructure</div>
+
+    <div class="task-item">
+      <span class="priority-dot p-high" title="High priority"></span>
+      <span class="task-num">01</span>
+      <div class="task-body">
+        <div class="task-title">Mode switcher UI — Standard ↔ Developer</div>
+        <div class="task-desc">Sticky nav toggle that persists mode in localStorage. Developer mode loads a separate route or injects extra sections. Standard mode stays unchanged.</div>
+        <div class="task-tags"><span class="badge badge-blue">Frontend</span><span class="badge badge-green">High</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-high"></span>
+      <span class="task-num">02</span>
+      <div class="task-body">
+        <div class="task-title">Firebase project setup — Firestore + Auth + Storage</div>
+        <div class="task-desc">Initialize Firebase project. Collections: blogs, api_keys (encrypted), comments, subscribers. Enable Google Auth + email for admin panel.</div>
+        <div class="task-tags"><span class="badge badge-purple">Backend</span><span class="badge badge-green">High</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-high"></span>
+      <span class="task-num">03</span>
+      <div class="task-body">
+        <div class="task-title">Multi-provider AI key manager</div>
+        <div class="task-desc">Secure input panel for Claude, OpenAI, Gemini, Mistral, Groq, Cohere. Keys stored encrypted in localStorage (never sent to Firebase). Provider selector dropdown on every AI tool.</div>
+        <div class="task-tags"><span class="badge badge-blue">Frontend</span><span class="badge badge-amber">Security</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-section">
+    <div class="task-section-head"><span class="badge badge-purple">Phase 2</span> AI Blog system</div>
+
+    <div class="task-item">
+      <span class="priority-dot p-high"></span>
+      <span class="task-num">04</span>
+      <div class="task-body">
+        <div class="task-title">Admin panel — blog context editor</div>
+        <div class="task-desc">Protected admin route. Form fields: topic, key points, target audience, tone. Submit triggers AI generation pipeline. Firebase Auth gate.</div>
+        <div class="task-tags"><span class="badge badge-purple">Backend</span><span class="badge badge-blue">Frontend</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-high"></span>
+      <span class="task-num">05</span>
+      <div class="task-body">
+        <div class="task-title">AI blog post generator</div>
+        <div class="task-desc">Send admin context to chosen AI provider. Stream response to preview pane. Auto-structure into title, intro, sections, conclusion. Save draft to Firestore on completion.</div>
+        <div class="task-tags"><span class="badge badge-green">AI</span><span class="badge badge-purple">Backend</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-high"></span>
+      <span class="task-num">06</span>
+      <div class="task-body">
+        <div class="task-title">AI image generation for blog cover</div>
+        <div class="task-desc">Auto-generate a cover image from the blog title using Stability AI or fal.ai. Upload to Firebase Storage. Attach URL to blog document. Show in post card thumbnail.</div>
+        <div class="task-tags"><span class="badge badge-green">AI</span><span class="badge badge-amber">Storage</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-med"></span>
+      <span class="task-num">07</span>
+      <div class="task-body">
+        <div class="task-title">Blog listing page + individual post page</div>
+        <div class="task-desc">Grid of published posts with cover image, title, read-time, tags. Clicking opens full Markdown-rendered post. Slug-based routing. Load from Firestore in real time.</div>
+        <div class="task-tags"><span class="badge badge-blue">Frontend</span><span class="badge badge-purple">Firestore</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-med"></span>
+      <span class="task-num">08</span>
+      <div class="task-body">
+        <div class="task-title">Blog admin dashboard</div>
+        <div class="task-desc">Table of all posts: status (draft / published / scheduled), edit, delete, regenerate. One-click publish. Schedule post for future date using Firestore timestamps.</div>
+        <div class="task-tags"><span class="badge badge-purple">Backend</span><span class="badge badge-blue">Frontend</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-low"></span>
+      <span class="task-num">09</span>
+      <div class="task-body">
+        <div class="task-title">Comment system + reactions</div>
+        <div class="task-desc">Firebase-backed comments per post. Emoji reactions stored per-user. Optional: AI moderation to filter spam before publish.</div>
+        <div class="task-tags"><span class="badge badge-purple">Backend</span><span class="badge badge-green">AI</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-section">
+    <div class="task-section-head"><span class="badge badge-blue">Phase 3</span> Developer Mode — AI Labs</div>
+
+    <div class="task-item">
+      <span class="priority-dot p-high"></span>
+      <span class="task-num">10</span>
+      <div class="task-body">
+        <div class="task-title">Multi-provider AI chat (upgrade existing)</div>
+        <div class="task-desc">Keep Lorapok AI chat but add provider switcher. Each provider uses its own SDK/REST call behind a common wrapper function. Show active model in chat header.</div>
+        <div class="task-tags"><span class="badge badge-green">AI</span><span class="badge badge-blue">Frontend</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-med"></span>
+      <span class="task-num">11</span>
+      <div class="task-body">
+        <div class="task-title">Live API Playground</div>
+        <div class="task-desc">Code editor (CodeMirror) where devs write prompts + system prompts. Run against any provider. See raw JSON response alongside formatted output. Copy as curl or JS snippet.</div>
+        <div class="task-tags"><span class="badge badge-green">AI</span><span class="badge badge-blue">Frontend</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-med"></span>
+      <span class="task-num">12</span>
+      <div class="task-body">
+        <div class="task-title">Provider comparison tool</div>
+        <div class="task-desc">Send the same prompt to 2-3 providers simultaneously. Render side-by-side responses with latency, token count, cost estimate. Save comparisons to Firestore.</div>
+        <div class="task-tags"><span class="badge badge-green">AI</span><span class="badge badge-purple">Firestore</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-med"></span>
+      <span class="task-num">13</span>
+      <div class="task-body">
+        <div class="task-title">Prompt library — community shared</div>
+        <div class="task-desc">Users submit prompts with title, category, provider tag. Stored in Firestore with upvotes. Search + filter by provider/category. One-click to load into Playground.</div>
+        <div class="task-tags"><span class="badge badge-purple">Firestore</span><span class="badge badge-blue">Frontend</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-section">
+    <div class="task-section-head"><span class="badge badge-amber">Phase 4</span> Enrichment + polish</div>
+
+    <div class="task-item">
+      <span class="priority-dot p-med"></span>
+      <span class="task-num">14</span>
+      <div class="task-body">
+        <div class="task-title">Email newsletter — auto-send on publish</div>
+        <div class="task-desc">Subscriber list in Firestore. On blog publish, trigger email via EmailJS or Resend with post summary + link. Unsubscribe link auto-generated.</div>
+        <div class="task-tags"><span class="badge badge-purple">Backend</span><span class="badge badge-amber">Email</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-med"></span>
+      <span class="task-num">15</span>
+      <div class="task-body">
+        <div class="task-title">Analytics dashboard (admin only)</div>
+        <div class="task-desc">Track page views, blog reads, AI tool usage counts stored in Firestore. Display sparkline charts in admin panel. No external tracking — fully self-hosted.</div>
+        <div class="task-tags"><span class="badge badge-purple">Backend</span><span class="badge badge-blue">Frontend</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-low"></span>
+      <span class="task-num">16</span>
+      <div class="task-body">
+        <div class="task-title">Dark / light mode refinement + design system</div>
+        <div class="task-desc">Extend existing CSS variables to cover Developer Mode sections. Ensure all new components match the Syne + DM Mono aesthetic. Add micro-animations on tab switch.</div>
+        <div class="task-tags"><span class="badge badge-blue">Frontend</span><span class="badge badge-green">Design</span></div>
+      </div>
+    </div>
+
+    <div class="task-item">
+      <span class="priority-dot p-low"></span>
+      <span class="task-num">17</span>
+      <div class="task-body">
+        <div class="task-title">SEO + OG image auto-generation</div>
+        <div class="task-desc">Each blog post gets a dynamic OG image generated from its title + cover. Meta tags auto-populated from Firestore document. Sitemap auto-updated on publish.</div>
+        <div class="task-tags"><span class="badge badge-blue">Frontend</span><span class="badge badge-green">SEO</span></div>
+      </div>
+    </div>
+  </div>
+</div>

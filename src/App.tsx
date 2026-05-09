@@ -43,9 +43,11 @@ import {
   type ProjectCategory,
 } from "./data/lorapok";
 import "./App.css";
+import DevModePortal from "./dev/DevModePortal";
 
 const heroImage = "/assets/lorapok-hero.png";
 const badgeImage = "/assets/lorapok-badge.png";
+const devBadgeImage = "/assets/lorapok-dev-logo.png";
 const founderImage = "/assets/founder-avatar.jpg";
 const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/portfolio/bkash.jpg";
 const gravatarUrl = "https://gravatar.com/lorapok";
@@ -218,6 +220,19 @@ function App() {
     }
   };
 
+  const [isDeveloperMode, setIsDeveloperMode] = useState(() => localStorage.getItem("lpk_dev_mode") === "true");
+
+  const toggleDevMode = () => {
+    const next = !isDeveloperMode;
+    localStorage.setItem("lpk_dev_mode", String(next));
+    setIsDeveloperMode(next);
+  };
+
+  // Developer Mode — full portal takeover
+  if (isDeveloperMode) {
+    return <DevModePortal onClose={toggleDevMode} />;
+  }
+
   return (
     <main className="site-shell">
       <div className="ambient-grid" aria-hidden="true" />
@@ -249,6 +264,18 @@ function App() {
           <span>GitHub Org</span>
         </a>
       </header>
+
+      {/* Floating Dev Mode Toggle */}
+      <button 
+        className="dev-floating-trigger" 
+        onClick={toggleDevMode}
+        title="Enter Developer Mode"
+      >
+        <div className="dev-floating-larva">
+          <img src={devBadgeImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+        <span className="dev-floating-label">DEV MODE</span>
+      </button>
 
       <section id="home" className="hero-section">
         <motion.div

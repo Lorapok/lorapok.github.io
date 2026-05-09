@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lorapok Labs — Open-source that feels alive</title>
+  <meta name="description" content="Lorapok Labs is a nonprofit open-source collective building tools the world can freely own. No VC. No paywall. Just code." />
+  <meta property="og:title" content="Lorapok Labs" />
+  <meta property="og:description" content="Nonprofit open-source software collective. We build tools the world can freely own." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://lorapok.github.io/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:#09090b; --bg2:#111113; --bg3:#1a1a1e;
+      --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+      --text:#f4f4f5; --muted:#71717a;
+      --accent:#6ee7b7; --accent2:#34d399; --accent3:#059669;
+      --amber:#fbbf24; --red:#f87171; --purple:#a78bfa;
+      --font-head:'Syne',sans-serif; --font-body:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.7; overflow-x:hidden; }
+
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+    body::after {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+      background-size:60px 60px;
+      mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 30%,transparent 100%);
+    }
+
+    .container { max-width:1100px; margin:0 auto; padding:0 2rem; position:relative; z-index:1; }
+
+    /* NAV */
+    nav { position:sticky; top:0; z-index:200; background:rgba(9,9,11,.88); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
+    .nav-inner { display:flex; align-items:center; justify-content:space-between; height:56px; }
+    .logo { font-family:var(--font-head); font-size:1.1rem; font-weight:800; color:var(--text); text-decoration:none; display:flex; align-items:center; gap:.5rem; }
+    .logo-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent); animation:pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.8)} }
+    .nav-links { display:flex; align-items:center; gap:1.5rem; }
+    .nav-links a { font-size:.85rem; color:var(--muted); text-decoration:none; font-family:var(--font-mono); transition:color .2s; }
+    .nav-links a:hover { color:var(--text); }
+    .nav-cta { font-size:.82rem; font-weight:500; padding:6px 16px; border-radius:6px; background:var(--accent); color:#052e16; text-decoration:none; font-family:var(--font-head); transition:background .2s,transform .15s; }
+    .nav-cta:hover { background:var(--accent2); transform:translateY(-1px); }
+
+    /* HERO */
+    .hero { padding:7rem 0 5rem; text-align:center; position:relative; }
+    .hero-eyebrow { display:inline-flex; align-items:center; gap:.5rem; font-family:var(--font-mono); font-size:.78rem; color:var(--accent); border:1px solid rgba(110,231,183,.2); padding:4px 14px; border-radius:20px; margin-bottom:2rem; animation:fadeUp .6s ease both; }
+    .hero h1 { font-family:var(--font-head); font-size:clamp(2.8rem,7vw,5.5rem); font-weight:800; line-height:1.05; letter-spacing:-.03em; margin-bottom:1.5rem; animation:fadeUp .6s .1s ease both; }
+    .hero h1 em { font-style:normal; color:transparent; -webkit-text-stroke:1px var(--accent); }
+    .hero-sub { max-width:540px; margin:0 auto 2.5rem; color:var(--muted); font-size:1.1rem; font-weight:300; animation:fadeUp .6s .2s ease both; }
+    .hero-actions { display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; animation:fadeUp .6s .3s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    .btn-primary { display:inline-flex; align-items:center; gap:.5rem; background:var(--accent); color:#052e16; font-family:var(--font-head); font-weight:700; font-size:.95rem; padding:12px 28px; border-radius:8px; text-decoration:none; transition:background .2s,transform .15s,box-shadow .2s; box-shadow:0 0 30px rgba(110,231,183,.15); cursor:pointer; border:none; }
+    .btn-primary:hover { background:var(--accent2); transform:translateY(-2px); box-shadow:0 0 40px rgba(110,231,183,.3); }
+    .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; border:1px solid var(--border2); color:var(--text); font-family:var(--font-body); font-size:.95rem; padding:12px 28px; border-radius:8px; text-decoration:none; transition:border-color .2s,background .2s; cursor:pointer; background:transparent; }
+    .btn-ghost:hover { background:var(--bg3); border-color:var(--muted); }
+
+    /* STATS */
+    .stats-bar { display:flex; justify-content:center; flex-wrap:wrap; gap:0; border:1px solid var(--border); border-radius:12px; background:var(--bg2); max-width:680px; margin:4rem auto; overflow:hidden; animation:fadeUp .6s .4s ease both; }
+    .stat { flex:1; min-width:140px; padding:1.25rem 1.5rem; text-align:center; border-right:1px solid var(--border); }
+    .stat:last-child { border-right:none; }
+    .stat-num { font-family:var(--font-head); font-size:1.8rem; font-weight:800; color:var(--accent); display:block; line-height:1; }
+    .stat-label { font-size:.78rem; color:var(--muted); font-family:var(--font-mono); margin-top:.3rem; }
+
+    /* SECTION HEADS */
+    .section-head { text-align:center; margin-bottom:3rem; }
+    .section-label { font-family:var(--font-mono); font-size:.75rem; color:var(--accent); letter-spacing:.1em; text-transform:uppercase; margin-bottom:.75rem; display:block; }
+    .section-head h2 { font-family:var(--font-head); font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; letter-spacing:-.02em; line-height:1.1; }
+    .section-head p { color:var(--muted); max-width:480px; margin:.75rem auto 0; }
+
+    /* PROJECTS */
+    #projects { padding:5rem 0; }
+    .projects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
+    .project-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.5rem; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:.75rem; transition:border-color .2s,background .2s,transform .2s; position:relative; overflow:hidden; }
+    .project-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0; transition:opacity .3s; }
+    .project-card:hover { border-color:var(--border2); background:var(--bg3); transform:translateY(-2px); }
+    .project-card:hover::before { opacity:1; }
+    .project-top { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; }
+    .project-name { font-family:var(--font-head); font-size:1rem; font-weight:700; color:var(--text); }
+    .project-desc { font-size:.87rem; color:var(--muted); line-height:1.6; flex:1; }
+    .project-footer { display:flex; align-items:center; gap:1rem; margin-top:.5rem; }
+    .lang-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .lang-name { font-size:.78rem; color:var(--muted); font-family:var(--font-mono); }
+    .stars { display:flex; align-items:center; gap:.3rem; font-size:.78rem; color:var(--amber); font-family:var(--font-mono); margin-left:auto; }
+    .forks { display:flex; align-items:center; gap:.3rem; font-size:.78rem; color:var(--muted); font-family:var(--font-mono); }
+    .projects-skeleton { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
+    .skel { background:var(--bg2); border:1px solid var(--border); border-radius:12px; height:160px; animation:shimmer 1.5s ease-in-out infinite; }
+    @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:.3} }
+
+    /* AI SECTION */
+    #ai-features { padding:5rem 0; border-top:1px solid var(--border); }
+
+    .api-notice { background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.2); border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:2rem; display:flex; gap:.75rem; align-items:flex-start; }
+    .api-notice-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+    .api-notice-text { font-size:.85rem; color:var(--purple); font-family:var(--font-mono); line-height:1.6; }
+    .api-notice-text strong { color:var(--purple); }
+    .api-key-row { display:flex; gap:.5rem; margin-top:.75rem; flex-wrap:wrap; }
+    .api-key-input { flex:1; min-width:200px; background:rgba(0,0,0,.3); border:1px solid rgba(167,139,250,.3); border-radius:6px; padding:.55rem .85rem; color:var(--text); font-family:var(--font-mono); font-size:.82rem; outline:none; }
+    .api-key-input:focus { border-color:var(--purple); }
+    .api-key-input::placeholder { color:var(--muted); }
+    .api-key-btn { background:var(--purple); color:#1e1b4b; border:none; border-radius:6px; padding:.55rem 1.1rem; font-family:var(--font-head); font-weight:700; font-size:.82rem; cursor:pointer; white-space:nowrap; }
+
+    .ai-tabs { display:flex; gap:.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:2.5rem; }
+    .ai-tab { font-family:var(--font-mono); font-size:.82rem; padding:9px 18px; border-radius:8px; border:1px solid var(--border2); color:var(--muted); background:transparent; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:.4rem; }
+    .ai-tab:hover { color:var(--text); border-color:var(--muted); }
+    .ai-tab.active { background:rgba(110,231,183,.1); border-color:rgba(110,231,183,.35); color:var(--accent); }
+    .ai-panel { display:none; }
+    .ai-panel.active { display:block; animation:fadeUp .3s ease both; }
+
+    /* CHAT */
+    .chat-wrap { background:var(--bg2); border:1px solid var(--border2); border-radius:16px; overflow:hidden; max-width:760px; margin:0 auto; }
+    .chat-header { padding:.9rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.75rem; background:var(--bg3); }
+    .chat-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--accent3),#0891b2); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; color:#fff; flex-shrink:0; }
+    .chat-title { font-family:var(--font-head); font-size:.95rem; font-weight:700; }
+    .chat-sub { font-size:.74rem; color:var(--muted); font-family:var(--font-mono); }
+    .ai-badge { margin-left:auto; font-family:var(--font-mono); font-size:.7rem; padding:3px 8px; border-radius:4px; background:rgba(167,139,250,.15); color:var(--purple); border:1px solid rgba(167,139,250,.2); white-space:nowrap; }
+    .chat-messages { height:340px; overflow-y:auto; padding:1.25rem; display:flex; flex-direction:column; gap:1rem; scroll-behavior:smooth; }
+    .chat-messages::-webkit-scrollbar { width:4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+    .msg { display:flex; gap:.75rem; align-items:flex-start; }
+    .msg.user { flex-direction:row-reverse; }
+    .msg-av { width:28px; height:28px; border-radius:50%; flex-shrink:0; font-size:.65rem; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    .msg.ai .msg-av { background:linear-gradient(135deg,var(--accent3),#0891b2); color:#fff; }
+    .msg.user .msg-av { background:var(--bg3); border:1px solid var(--border2); color:var(--muted); }
+    .msg-bubble { max-width:82%; padding:.75rem 1rem; border-radius:12px; font-size:.88rem; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+    .msg.ai .msg-bubble { background:var(--bg3); border:1px solid var(--border); border-top-left-radius:4px; color:var(--text); }
+    .msg.user .msg-bubble { background:rgba(110,231,183,.1); border:1px solid rgba(110,231,183,.2); border-top-right-radius:4px; color:var(--text); }
+    .typing-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s ease-in-out infinite; margin:0 1px; }
+    .typing-dot:nth-child(2){animation-delay:.2s} .typing-dot:nth-child(3){animation-delay:.4s}
+    @keyframes blink { 0%,80%,100%{opacity:.3;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+    .chat-chips { padding:.75rem 1.25rem; display:flex; gap:.5rem; flex-wrap:wrap; border-top:1px solid var(--border); background:var(--bg3); }
+    .chip { font-size:.74rem; padding:5px 12px; border-radius:20px; border:1px solid var(--border2); color:var(--muted); cursor:pointer; font-family:var(--font-mono); transition:all .15s; white-space:nowrap; background:transparent; }
+    .chip:hover { border-color:var(--accent); color:var(--accent); }
+    .chat-input-row { display:flex; gap:.5rem; padding:1rem 1.25rem; border-top:1px solid var(--border); }
+    .chat-input { flex:1; background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:.65rem 1rem; color:var(--text); font-family:var(--font-body); font-size:.88rem; outline:none; transition:border-color .2s; }
+    .chat-input:focus { border-color:rgba(110,231,183,.4); }
+    .chat-input::placeholder { color:var(--muted); }
+    .chat-send { background:var(--accent); color:#052e16; border:none; border-radius:8px; padding:.65rem 1.1rem; cursor:pointer; font-weight:700; font-size:.85rem; font-family:var(--font-head); transition:background .2s; }
+    .chat-send:hover { background:var(--accent2); }
+    .chat-send:disabled { opacity:.4; cursor:not-allowed; }
+
+    /* FORM ELEMENTS */
+    .form-label { font-family:var(--font-mono); font-size:.76rem; color:var(--accent); display:block; margin-bottom:.45rem; }
+    .form-select, .form-input, .form-textarea { width:100%; background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:.65rem 1rem; color:var(--text); font-family:var(--font-body); font-size:.88rem; outline:none; transition:border-color .2s; appearance:none; }
+    .form-select:focus,.form-input:focus,.form-textarea:focus { border-color:rgba(110,231,183,.4); }
+    .form-textarea { resize:vertical; min-height:90px; font-family:var(--font-mono); }
+    .form-box { background:var(--bg2); border:1px solid var(--border2); border-radius:16px; padding:2rem; margin-bottom:1.5rem; max-width:760px; margin-left:auto; margin-right:auto; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-group { margin-bottom:1.1rem; }
+
+    /* RECOMMENDER */
+    .rec-result { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.5rem; max-width:760px; margin:0 auto; }
+    .rec-result h4 { font-family:var(--font-head); font-weight:700; margin-bottom:.6rem; color:var(--accent); font-size:1rem; }
+    .rec-result p { font-size:.88rem; color:var(--muted); line-height:1.75; white-space:pre-wrap; }
+
+    /* README */
+    .readme-output { background:#0d0d0f; border:1px solid var(--border2); border-radius:12px; overflow:hidden; max-width:760px; margin:0 auto; }
+    .readme-bar { display:flex; align-items:center; justify-content:space-between; padding:.6rem 1rem; border-bottom:1px solid var(--border); background:var(--bg2); }
+    .readme-bar span { font-family:var(--font-mono); font-size:.75rem; color:var(--muted); }
+    .copy-btn { font-family:var(--font-mono); font-size:.72rem; padding:4px 10px; border-radius:5px; border:1px solid var(--border2); background:transparent; color:var(--muted); cursor:pointer; transition:all .2s; }
+    .copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+    .readme-pre { padding:1.25rem; font-family:var(--font-mono); font-size:.8rem; color:#a3e635; line-height:1.8; max-height:400px; overflow-y:auto; white-space:pre-wrap; word-break:break-word; }
+
+    /* COMMITS */
+    .commit-cards { display:flex; flex-direction:column; gap:1rem; max-width:760px; margin:0 auto; }
+    .commit-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.25rem; }
+    .commit-hash { font-family:var(--font-mono); font-size:.73rem; color:var(--accent); background:rgba(110,231,183,.1); padding:2px 8px; border-radius:4px; margin-bottom:.6rem; display:inline-block; }
+    .commit-msg-text { font-family:var(--font-mono); font-size:.88rem; color:var(--text); margin-bottom:.65rem; word-break:break-all; }
+    .commit-explain { font-size:.86rem; color:var(--muted); line-height:1.65; border-top:1px solid var(--border); padding-top:.75rem; margin-top:.5rem; white-space:pre-wrap; }
+    .commit-explain.loading { color:var(--border2); font-style:italic; }
+    .impact-tag { display:inline-flex; align-items:center; font-size:.72rem; font-family:var(--font-mono); padding:3px 9px; border-radius:12px; margin-right:.4rem; margin-bottom:.5rem; }
+    .tag-breaking { background:rgba(248,113,113,.12); color:var(--red); border:1px solid rgba(248,113,113,.2); }
+    .tag-feature { background:rgba(110,231,183,.1); color:var(--accent); border:1px solid rgba(110,231,183,.2); }
+    .tag-fix { background:rgba(251,191,36,.1); color:var(--amber); border:1px solid rgba(251,191,36,.2); }
+    .tag-docs { background:rgba(167,139,250,.1); color:var(--purple); border:1px solid rgba(167,139,250,.2); }
+
+    /* MISSION */
+    #mission { padding:5rem 0; border-top:1px solid var(--border); }
+    .pillars { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem; }
+    .pillar { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.5rem; }
+    .pillar-icon { font-size:1.5rem; margin-bottom:.75rem; }
+    .pillar h3 { font-family:var(--font-head); font-size:1rem; font-weight:700; margin-bottom:.4rem; }
+    .pillar p { font-size:.87rem; color:var(--muted); line-height:1.6; }
+
+    /* CONTRIBUTE */
+    #contribute { padding:5rem 0; border-top:1px solid var(--border); }
+    .contribute-inner { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
+    .contribute-text h2 { font-family:var(--font-head); font-size:clamp(1.6rem,3.5vw,2.4rem); font-weight:800; letter-spacing:-.02em; line-height:1.1; margin-bottom:1rem; }
+    .contribute-text p { color:var(--muted); margin-bottom:1.5rem; }
+    .steps { display:flex; flex-direction:column; gap:.75rem; }
+    .step { display:flex; align-items:flex-start; gap:1rem; }
+    .step-num { font-family:var(--font-mono); font-size:.75rem; font-weight:500; color:var(--accent); background:rgba(110,231,183,.1); border:1px solid rgba(110,231,183,.2); border-radius:4px; padding:2px 7px; flex-shrink:0; margin-top:2px; }
+    .step p { font-size:.9rem; color:var(--muted); margin:0; }
+    .step strong { color:var(--text); }
+    .terminal { background:#0d0d0f; border:1px solid var(--border2); border-radius:10px; overflow:hidden; font-family:var(--font-mono); font-size:.82rem; }
+    .term-bar { display:flex; align-items:center; gap:.4rem; padding:.6rem .9rem; border-bottom:1px solid var(--border); background:var(--bg2); }
+    .term-dot { width:10px; height:10px; border-radius:50%; }
+    .term-body { padding:1.25rem; line-height:2; color:#a3e635; }
+    .term-prompt { color:var(--muted); }
+    .term-comment { color:var(--muted); font-size:.75rem; }
+
+    /* TEAM */
+    #team { padding:5rem 0; border-top:1px solid var(--border); }
+    .team-grid { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; }
+    .member { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.5rem 1.25rem; text-align:center; width:200px; transition:border-color .2s; }
+    .member:hover { border-color:var(--border2); }
+    .avatar { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--accent3),#1d4ed8); margin:0 auto .75rem; display:flex; align-items:center; justify-content:center; font-family:var(--font-head); font-weight:800; font-size:1.1rem; color:#fff; }
+    .member-name { font-family:var(--font-head); font-weight:700; font-size:.95rem; }
+    .member-role { font-size:.78rem; color:var(--muted); font-family:var(--font-mono); margin-top:.2rem; }
+    .member-handle { display:inline-block; margin-top:.6rem; font-size:.75rem; color:var(--accent); text-decoration:none; font-family:var(--font-mono); }
+    .member-handle:hover { text-decoration:underline; }
+
+    /* FOOTER */
+    footer { border-top:1px solid var(--border); padding:2.5rem 0; font-size:.82rem; color:var(--muted); }
+    .footer-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .footer-links { display:flex; gap:1.5rem; }
+    .footer-links a { color:var(--muted); text-decoration:none; font-family:var(--font-mono); }
+    .footer-links a:hover { color:var(--text); }
+
+    /* FLOATING BUTTON */
+    #ai-float { position:fixed; bottom:2rem; right:2rem; z-index:300; background:linear-gradient(135deg,var(--accent3),#0891b2); border:none; border-radius:50px; padding:12px 22px; color:#fff; font-family:var(--font-head); font-weight:700; font-size:.88rem; cursor:pointer; display:flex; align-items:center; gap:.5rem; box-shadow:0 4px 24px rgba(5,150,105,.4); transition:transform .2s,box-shadow .2s; }
+    #ai-float:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(5,150,105,.5); }
+
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity .6s ease,transform .6s ease; }
+    .reveal.visible { opacity:1; transform:none; }
+
+    @media (max-width:680px) {
+      .nav-links { display:none; }
+      .contribute-inner { grid-template-columns:1fr; gap:2rem; }
+      .form-row { grid-template-columns:1fr; }
+      .stats-bar { flex-direction:column; }
+      .stat { border-right:none; border-bottom:1px solid var(--border); }
+      .stat:last-child { border-bottom:none; }
+      #ai-float { bottom:1rem; right:1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <a class="logo" href="#"><span class="logo-dot"></span>Lorapok Labs</a>
+    <div class="nav-links">
+      <a href="#projects">Projects</a>
+      <a href="#ai-features">AI Tools</a>
+      <a href="#mission">Mission</a>
+      <a href="#team">Team</a>
+      <a href="#contribute">Contribute</a>
+      <a class="nav-cta" href="https://github.com/lorapok" target="_blank" rel="noopener">GitHub →</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">
+      <span class="logo-dot" style="width:6px;height:6px;animation-delay:.3s"></span>
+      Nonprofit · Open-source · AI-powered
+    </div>
+    <h1>Build tools the world<br>can freely <em>own.</em></h1>
+    <p class="hero-sub">Lorapok Labs is an open-source collective creating software with no VC, no paywalls, and no strings attached — now with AI built in.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="https://github.com/lorapok" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        View on GitHub
+      </a>
+      <button class="btn-ghost" onclick="document.getElementById('ai-features').scrollIntoView({behavior:'smooth'})">✦ Try AI Tools</button>
+    </div>
+    <div class="stats-bar">
+      <div class="stat"><span class="stat-num" id="stat-repos">—</span><span class="stat-label">repositories</span></div>
+      <div class="stat"><span class="stat-num" id="stat-stars">—</span><span class="stat-label">total stars</span></div>
+      <div class="stat"><span class="stat-num" id="stat-forks">—</span><span class="stat-label">total forks</span></div>
+      <div class="stat"><span class="stat-num" id="stat-lang">—</span><span class="stat-label">languages used</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">// open-source work</span>
+      <h2>Our Projects</h2>
+      <p>Everything we build is public, forkable, and free. Pick it up, improve it, make it yours.</p>
+    </div>
+    <div id="projects-container">
+      <div class="projects-skeleton">
+        <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+        <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ AI FEATURES ═══════════════════════════════ -->
+<section id="ai-features">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">// powered by claude ai</span>
+      <h2>AI built into the org</h2>
+      <p>Four live AI tools — chat with our bot, get project recommendations, generate READMEs, and decode commits.</p>
+    </div>
+
+    <!-- API KEY NOTICE -->
+    <div class="api-notice reveal" id="api-notice">
+      <span class="api-notice-icon">🔑</span>
+      <div class="api-notice-text">
+        <strong>Add your Anthropic API key to activate AI features.</strong><br>
+        Your key is stored only in memory for this session — never saved to disk or sent anywhere except directly to the Anthropic API.
+        <div class="api-key-row">
+          <input class="api-key-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." />
+          <button class="api-key-btn" onclick="saveKey()">Activate →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="ai-tabs reveal">
+      <button class="ai-tab active" onclick="switchTab('chat',this)">💬 Ask Lorapok AI</button>
+      <button class="ai-tab" onclick="switchTab('rec',this)">🎯 Project Recommender</button>
+      <button class="ai-tab" onclick="switchTab('readme',this)">📄 README Generator</button>
+      <button class="ai-tab" onclick="switchTab('commits',this)">🔍 Commit Explainer</button>
+    </div>
+
+    <!-- TAB: CHAT -->
+    <div class="ai-panel active" id="panel-chat">
+      <div class="chat-wrap reveal">
+        <div class="chat-header">
+          <div class="chat-avatar">L</div>
+          <div>
+            <div class="chat-title">Lorapok AI</div>
+            <div class="chat-sub">Ask anything about the org, contributing, or open source</div>
+          </div>
+          <span class="ai-badge">Claude · Streaming</span>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg ai">
+            <div class="msg-av">L</div>
+            <div class="msg-bubble">Hey! I'm Lorapok AI. I know everything about this org, our projects, and open-source development. What can I help you with?</div>
+          </div>
+        </div>
+        <div class="chat-chips">
+          <button class="chip" onclick="sendChip(this)">What is Lorapok Labs?</button>
+          <button class="chip" onclick="sendChip(this)">How do I make my first contribution?</button>
+          <button class="chip" onclick="sendChip(this)">What tech stack do you use?</button>
+          <button class="chip" onclick="sendChip(this)">How is the org funded?</button>
+          <button class="chip" onclick="sendChip(this)">Best project for a beginner?</button>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Ask anything..." maxlength="500" />
+          <button class="chat-send" id="chat-send-btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: RECOMMENDER -->
+    <div class="ai-panel" id="panel-rec">
+      <div class="form-box reveal">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your skill level</label>
+            <select class="form-select" id="rec-level">
+              <option value="beginner">Beginner — just getting started</option>
+              <option value="intermediate" selected>Intermediate — comfortable with code</option>
+              <option value="advanced">Advanced — I ship production code</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred language</label>
+            <select class="form-select" id="rec-lang">
+              <option>JavaScript / TypeScript</option>
+              <option>Python</option>
+              <option>Go</option>
+              <option>Rust</option>
+              <option>PHP / Laravel</option>
+              <option>Any language</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">What do you want to work on?</label>
+          <textarea class="form-textarea" id="rec-interest" placeholder="e.g. I love building CLIs, I enjoy improving developer experience, I want to work on UI components..."></textarea>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center" onclick="runRecommender()">✦ Find my perfect project</button>
+      </div>
+      <div class="rec-result" id="rec-result" style="display:none">
+        <h4>AI Recommendation</h4>
+        <p id="rec-output">Loading...</p>
+      </div>
+    </div>
+
+    <!-- TAB: README -->
+    <div class="ai-panel" id="panel-readme">
+      <div class="form-box reveal">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Project name</label>
+            <input class="form-input" type="text" id="rm-name" placeholder="e.g. blade-cli" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">License</label>
+            <select class="form-select" id="rm-license">
+              <option>MIT</option><option>Apache 2.0</option><option>GPL-3.0</option><option>BSD-3</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">What does it do? (one line)</label>
+          <input class="form-input" type="text" id="rm-desc" placeholder="e.g. Lightweight CLI toolkit for scaffolding projects with opinionated defaults" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Language / stack</label>
+            <input class="form-input" type="text" id="rm-stack" placeholder="e.g. Go, TypeScript, Python" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Key features (comma-separated)</label>
+            <input class="form-input" type="text" id="rm-features" placeholder="e.g. fast startup, zero deps, plugin system" />
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:.5rem" onclick="generateReadme()">✦ Generate README.md</button>
+      </div>
+      <div class="readme-output" id="readme-output" style="display:none">
+        <div class="readme-bar">
+          <span>README.md — generated by Lorapok AI</span>
+          <button class="copy-btn" onclick="copyReadme()">Copy</button>
+        </div>
+        <pre class="readme-pre" id="readme-pre"></pre>
+      </div>
+    </div>
+
+    <!-- TAB: COMMITS -->
+    <div class="ai-panel" id="panel-commits">
+      <div class="form-box reveal">
+        <div class="form-group">
+          <label class="form-label">Paste commit messages (one per line, up to 8)</label>
+          <textarea class="form-textarea" id="commit-input" style="min-height:120px" placeholder="feat: add streaming support for large file uploads&#10;fix(auth): resolve token expiry race condition&#10;chore: bump deps, remove unused packages&#10;BREAKING CHANGE: rename --config flag to --conf&#10;docs: update contributing guide with new workflow"></textarea>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center" onclick="explainCommits()">✦ Explain these commits</button>
+      </div>
+      <div class="commit-cards" id="commit-cards"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MISSION -->
+<section id="mission">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">// why we exist</span>
+      <h2>Software should be<br>a public good</h2>
+      <p>We believe the best tools belong to everyone — not locked behind a subscription or controlled by investors.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar reveal"><div class="pillar-icon">🔓</div><h3>Radically open</h3><p>Every line of code is public. Fork it, audit it, ship it. No premium tiers, no dark patterns.</p></div>
+      <div class="pillar reveal"><div class="pillar-icon">🌍</div><h3>Built for everyone</h3><p>We design for developers in Dhaka as much as in Berlin. Bandwidth-aware, dependency-light.</p></div>
+      <div class="pillar reveal"><div class="pillar-icon">🤝</div><h3>Community-owned</h3><p>No single company controls the roadmap. Decisions happen in the open — PRs, issues, discussions.</p></div>
+      <div class="pillar reveal"><div class="pillar-icon">✦</div><h3>AI-augmented</h3><p>We use AI to lower the barrier to contribution — docs, onboarding, and tooling, all AI-assisted.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTRIBUTE -->
+<section id="contribute">
+  <div class="container">
+    <div class="contribute-inner">
+      <div class="contribute-text reveal">
+        <span class="section-label">// get involved</span>
+        <h2>Your first PR is one step away</h2>
+        <p>Whether you're writing code, fixing docs, or filing bugs — every contribution moves us forward.</p>
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span><p><strong>Fork any repo</strong> — browse our projects and pick one that interests you.</p></div>
+          <div class="step"><span class="step-num">02</span><p><strong>Pick a good-first-issue</strong> — filter by the label on GitHub.</p></div>
+          <div class="step"><span class="step-num">03</span><p><strong>Open a PR</strong> — we review fast and leave thoughtful feedback.</p></div>
+          <div class="step"><span class="step-num">04</span><p><strong>Join the community</strong> — hop in Discord and say hi.</p></div>
+        </div>
+        <br>
+        <a class="btn-primary" href="https://github.com/lorapok" target="_blank" rel="noopener" style="display:inline-flex;width:fit-content;margin-top:.5rem">Browse good-first-issues →</a>
+      </div>
+      <div class="reveal">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot" style="background:#f87171"></div>
+            <div class="term-dot" style="background:#fbbf24"></div>
+            <div class="term-dot" style="background:#4ade80"></div>
+          </div>
+          <div class="term-body">
+            <div><span class="term-prompt">$ </span>git clone https://github.com/lorapok/&lt;project&gt;</div>
+            <div><span class="term-prompt">$ </span>cd &lt;project&gt; &amp;&amp; npm install</div>
+            <div><span class="term-comment"># find an issue you like</span></div>
+            <div><span class="term-prompt">$ </span>git checkout -b fix/your-idea</div>
+            <div><span class="term-comment"># make your changes</span></div>
+            <div><span class="term-prompt">$ </span>git push &amp;&amp; gh pr create</div>
+            <div style="color:var(--accent)">✓ Pull request opened — nice work!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">// the humans</span>
+      <h2>Maintainers</h2>
+      <p>Real people. Real commits. Building in public.</p>
+    </div>
+    <div class="team-grid">
+      <div class="member reveal">
+        <div class="avatar" style="background:linear-gradient(135deg,#059669,#0891b2)">MZ</div>
+        <div class="member-name">Maizied</div>
+        <div class="member-role">founder · full-stack</div>
+        <a class="member-handle" href="https://github.com/Maijied" target="_blank">@Maijied</a>
+      </div>
+      <div class="member reveal" style="opacity:.5">
+        <div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#db2777)">?</div>
+        <div class="member-name">You?</div>
+        <div class="member-role">contributor</div>
+        <a class="member-handle" href="https://github.com/lorapok" target="_blank">join us →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-inner">
+    <span>© 2025 Lorapok Labs · Nonprofit Open-Source · Dhaka, BD</span>
+    <div class="footer-links">
+      <a href="https://github.com/lorapok" target="_blank">GitHub</a>
+      <a href="mailto:hello@lorapok.org">Contact</a>
+      <a href="#">License</a>
+    </div>
+  </div>
+</footer>
+
+<button id="ai-float" onclick="document.getElementById('ai-features').scrollIntoView({behavior:'smooth'})">✦ AI Tools</button>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let API_KEY = '';
+let chatHistory = [];
+
+const SYSTEM = `You are Lorapok AI — the intelligent assistant for Lorapok Labs, a nonprofit open-source software collective based in Dhaka, Bangladesh, founded by Mohammad Maizied Hasan Majumder (@Maijied on GitHub).
+
+About Lorapok Labs:
+- Nonprofit, community-driven open-source organization
+- Mission: build tools the world can freely own — no VC, no paywalls, no strings
+- Focus: developer tooling, CLI tools, UI libraries, backend utilities
+- Founder: Maizied — full-stack engineer, 6+ years, specializes in Laravel, React, mobile
+- GitHub: https://github.com/lorapok
+- All projects MIT licensed, always welcoming contributors especially beginners
+- Based in Dhaka, Bangladesh
+
+Respond concisely and in a warm, developer-friendly tone. Use plain text (no markdown headers). Keep answers under 200 words unless a detailed answer is clearly needed.`;
+
+// ══════════════════════════════════════════════════════
+// SCROLL REVEAL
+// ══════════════════════════════════════════════════════
+const revealObs = new IntersectionObserver(
+  entries => entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target);} }),
+  {threshold:0.08}
+);
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ══════════════════════════════════════════════════════
+// API KEY
+// ══════════════════════════════════════════════════════
+function saveKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-ant')) {
+    alert('Please enter a valid Anthropic API key (starts with sk-ant).');
+    return;
+  }
+  API_KEY = val;
+  const n = document.getElementById('api-notice');
+  n.style.background = 'rgba(110,231,183,.08)';
+  n.style.borderColor = 'rgba(110,231,183,.25)';
+  n.innerHTML = '<span class="api-notice-icon">✓</span><div class="api-notice-text"><strong>API key activated.</strong> All four AI features are now live — try them below.</div>';
+}
+
+// ══════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.ai-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ai-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════
+// CLAUDE API — STREAMING
+// ══════════════════════════════════════════════════════
+async function streamClaude(messages, system, onChunk, onDone) {
+  if (!API_KEY) { onDone('⚠ Please add your Anthropic API key above to use AI features.'); return; }
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, stream:true, system: system||SYSTEM, messages })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      onDone('Error: ' + (e.error?.message || res.statusText));
+      return;
+    }
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let full = '';
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      for (const line of dec.decode(value).split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (raw === '[DONE]') continue;
+        try {
+          const j = JSON.parse(raw);
+          if (j.type === 'content_block_delta' && j.delta?.text) {
+            full += j.delta.text;
+            onChunk(full);
+          }
+        } catch {}
+      }
+    }
+    onDone(full);
+  } catch(e) { onDone('Error: ' + e.message); }
+}
+
+// CLAUDE API — NON-STREAMING
+async function askClaude(messages, system) {
+  if (!API_KEY) return '⚠ Please add your Anthropic API key above.';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system: system||SYSTEM, messages })
+    });
+    const data = await res.json();
+    return data.content?.[0]?.text || 'No response received.';
+  } catch(e) { return 'Error: ' + e.message; }
+}
+
+// ══════════════════════════════════════════════════════
+// FEATURE 1 — CHAT
+// ══════════════════════════════════════════════════════
+function addMsg(role, text) {
+  const box = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="msg-av">${role==='ai'?'L':'U'}</div><div class="msg-bubble"></div>`;
+  div.querySelector('.msg-bubble').textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div.querySelector('.msg-bubble');
+}
+
+function showTyping() {
+  const box = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai'; div.id = 'typing';
+  div.innerHTML = `<div class="msg-av">L</div><div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chat-input');
+  const btn = document.getElementById('chat-send-btn');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; btn.disabled = true;
+  addMsg('user', text);
+  chatHistory.push({role:'user', content:text});
+  showTyping();
+  let bubble = null;
+  await streamClaude(
+    chatHistory, SYSTEM,
+    (partial) => {
+      document.getElementById('typing')?.remove();
+      if (!bubble) bubble = addMsg('ai','');
+      bubble.textContent = partial;
+      document.getElementById('chat-messages').scrollTop = 99999;
+    },
+    (final) => {
+      document.getElementById('typing')?.remove();
+      if (!bubble) bubble = addMsg('ai', final);
+      else bubble.textContent = final;
+      chatHistory.push({role:'assistant', content:final});
+      btn.disabled = false;
+    }
+  );
+}
+
+function sendChip(btn) {
+  document.getElementById('chat-input').value = btn.textContent;
+  sendChat();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) sendChat();
+});
+
+// ══════════════════════════════════════════════════════
+// FEATURE 2 — PROJECT RECOMMENDER
+// ══════════════════════════════════════════════════════
+async function runRecommender() {
+  const level    = document.getElementById('rec-level').value;
+  const lang     = document.getElementById('rec-lang').value;
+  const interest = document.getElementById('rec-interest').value.trim();
+  const res      = document.getElementById('rec-result');
+  const out      = document.getElementById('rec-output');
+
+  res.style.display = 'block';
+  out.textContent = 'Finding your perfect match...';
+
+  const prompt = `A developer wants to contribute to Lorapok Labs open-source projects.
+
+Profile:
+- Skill level: ${level}
+- Preferred language: ${lang}
+- Interests: ${interest || 'general open source tooling'}
+
+Lorapok Labs builds: CLI tools, UI component libraries, backend utilities, developer tooling, lightweight databases, form engines. Stack: TypeScript, Go, JavaScript, Python, Rust.
+
+Give a practical recommendation covering:
+1. Which type of project suits them
+2. What kind of issues to look for
+3. One concrete step they can take TODAY
+4. One sentence on why their background is valuable
+
+Keep it under 200 words, warm, and motivating. Plain text only, no headers.`;
+
+  const reply = await askClaude([{role:'user',content:prompt}], 'You are a helpful open-source contribution advisor for Lorapok Labs. Plain text only, no markdown.');
+  out.textContent = reply;
+}
+
+// ══════════════════════════════════════════════════════
+// FEATURE 3 — README GENERATOR (streaming)
+// ══════════════════════════════════════════════════════
+async function generateReadme() {
+  const name     = document.getElementById('rm-name').value.trim()     || 'my-project';
+  const desc     = document.getElementById('rm-desc').value.trim()     || 'An open-source tool';
+  const stack    = document.getElementById('rm-stack').value.trim()    || 'JavaScript';
+  const license  = document.getElementById('rm-license').value;
+  const features = document.getElementById('rm-features').value.trim();
+  const output   = document.getElementById('readme-output');
+  const pre      = document.getElementById('readme-pre');
+
+  output.style.display = 'block';
+  pre.textContent = 'Generating your README...';
+
+  const prompt = `Write a complete, professional README.md for:
+
+Project: ${name}
+Description: ${desc}
+Stack: ${stack}
+License: ${license}
+Features: ${features || 'not specified'}
+Org: Lorapok Labs (nonprofit OSS)
+
+Include:
+- Title + badge placeholders (build, npm/pkg version, license badge)
+- Short description
+- Features list
+- Installation (code block)
+- Quick Start / Usage (code block)
+- Contributing (mention Lorapok Labs' contribution guide)
+- License
+
+Output ONLY raw markdown. No preamble or explanation.`;
+
+  await streamClaude(
+    [{role:'user',content:prompt}],
+    'You are a technical writer. Output only raw markdown, no explanation, no preamble.',
+    (partial) => { pre.textContent = partial; },
+    (final)   => { pre.textContent = final; }
+  );
+}
+
+function copyReadme() {
+  navigator.clipboard.writeText(document.getElementById('readme-pre').textContent).then(() => {
+    const b = document.querySelector('.copy-btn');
+    b.textContent = 'Copied!';
+    setTimeout(() => b.textContent = 'Copy', 2000);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// FEATURE 4 — COMMIT EXPLAINER
+// ══════════════════════════════════════════════════════
+function classifyCommit(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('breaking') || m.includes('!:'))  return {label:'Breaking', cls:'tag-breaking'};
+  if (m.startsWith('feat'))                         return {label:'Feature',  cls:'tag-feature'};
+  if (m.startsWith('fix'))                          return {label:'Bug fix',  cls:'tag-fix'};
+  if (m.startsWith('docs') || m.startsWith('chore') || m.startsWith('refactor')) return {label:'Maintenance', cls:'tag-docs'};
+  return {label:'Change', cls:'tag-feature'};
+}
+
+async function explainCommits() {
+  const raw = document.getElementById('commit-input').value.trim();
+  if (!raw) return;
+  const commits = raw.split('\n').map(l=>l.trim()).filter(Boolean).slice(0,8);
+  const container = document.getElementById('commit-cards');
+  container.innerHTML = '';
+
+  commits.forEach((msg, i) => {
+    const type = classifyCommit(msg);
+    const hash = Math.random().toString(16).slice(2,9);
+    const card = document.createElement('div');
+    card.className = 'commit-card';
+    card.innerHTML = `
+      <span class="commit-hash">${hash}</span>
+      <div><span class="impact-tag ${type.cls}">${type.label}</span></div>
+      <div class="commit-msg-text">${msg}</div>
+      <div class="commit-explain loading" id="exp-${i}">Analyzing...</div>`;
+    container.appendChild(card);
+  });
+
+  const prompt = `Explain each git commit message in plain English for a non-technical stakeholder. 1-2 sentences per commit: what changed and why it matters. Number them 1, 2, 3...
+
+${commits.map((c,i)=>`${i+1}. ${c}`).join('\n')}
+
+Output only numbered explanations, one per line. No extra text, no headers.`;
+
+  const reply = await askClaude([{role:'user',content:prompt}], 'You explain git commits clearly and concisely. Output only numbered lines, no extra text.');
+  const lines = reply.split('\n').filter(l=>l.trim());
+
+  commits.forEach((_,i) => {
+    const el = document.getElementById('exp-'+i);
+    if (!el) return;
+    const match = lines.find(l => l.match(new RegExp(`^${i+1}[.)]`)));
+    el.textContent = (match || lines[i] || '').replace(/^\d+[.)]\s*/,'');
+    el.classList.remove('loading');
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// GITHUB API + PROJECTS
+// ══════════════════════════════════════════════════════
+const langColors = {
+  JavaScript:'#f1e05a',TypeScript:'#3178c6',Python:'#3572A5',PHP:'#4F5D95',
+  HTML:'#e34c26',CSS:'#563d7c',Go:'#00ADD8',Rust:'#dea584',Java:'#b07219',
+  Ruby:'#701516',Shell:'#89e051',Vue:'#41b883',Svelte:'#ff3e00','C#':'#178600',
+  Kotlin:'#A97BFF',Dart:'#00B4AB'
+};
+
+function mkCard(name, desc, lang, stars, forks, url) {
+  const a = document.createElement('a');
+  a.className = 'project-card reveal';
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  const color = langColors[lang]||'#71717a';
+  a.innerHTML = `
+    <div class="project-top"><div class="project-name">${name}</div><span>📦</span></div>
+    <div class="project-desc">${desc}</div>
+    <div class="project-footer">
+      ${lang?`<span class="lang-dot" style="background:${color}"></span><span class="lang-name">${lang}</span>`:''}
+      <span class="stars">★ ${stars}</span>
+      <span class="forks">⑂ ${forks}</span>
+    </div>`;
+  return a;
+}
+
+async function loadGitHub() {
+  try {
+    const res = await fetch('https://api.github.com/orgs/lorapok/repos?per_page=30&sort=updated');
+    if (!res.ok) throw 0;
+    const repos = (await res.json()).filter(r=>!r.fork&&!r.archived);
+    if (!repos.length) throw 0;
+    document.getElementById('stat-repos').textContent = repos.length;
+    document.getElementById('stat-stars').textContent = repos.reduce((a,r)=>a+r.stargazers_count,0);
+    document.getElementById('stat-forks').textContent = repos.reduce((a,r)=>a+r.forks_count,0);
+    document.getElementById('stat-lang').textContent  = [...new Set(repos.map(r=>r.language).filter(Boolean))].length;
+    const grid = document.createElement('div'); grid.className='projects-grid';
+    repos.slice(0,9).forEach(r => grid.appendChild(mkCard(r.name, r.description||'No description.', r.language, r.stargazers_count, r.forks_count, r.html_url)));
+    document.getElementById('projects-container').replaceChildren(grid);
+    grid.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+  } catch {
+    const demos = [
+      {name:'lorapok-ui',   desc:'Headless component library for accessible UIs. Zero runtime, full control.',     lang:'TypeScript',  stars:47, forks:12},
+      {name:'blade-cli',    desc:'Lightweight CLI toolkit for scaffolding projects with opinionated defaults.',     lang:'Go',          stars:31, forks:8},
+      {name:'formkraft',    desc:'Schema-driven form engine. Define forms in JSON, ship anywhere.',                 lang:'JavaScript',  stars:88, forks:22},
+      {name:'relay-db',     desc:'Tiny SQLite-backed key-value store for edge environments.',                      lang:'Rust',        stars:19, forks:4},
+      {name:'devpulse',     desc:'GitHub activity dashboard — self-hostable, no auth required.',                   lang:'Vue',         stars:62, forks:17},
+      {name:'maildrop',     desc:'Minimal transactional email sender. SMTP-compatible, under 2 kB.',               lang:'Python',      stars:24, forks:6},
+    ];
+    document.getElementById('stat-repos').textContent = demos.length;
+    document.getElementById('stat-stars').textContent = demos.reduce((a,d)=>a+d.stars,0);
+    document.getElementById('stat-forks').textContent = demos.reduce((a,d)=>a+d.forks,0);
+    document.getElementById('stat-lang').textContent  = [...new Set(demos.map(d=>d.lang))].length;
+    const grid = document.createElement('div'); grid.className='projects-grid';
+    demos.forEach(d => grid.appendChild(mkCard(d.name,d.desc,d.lang,d.stars,d.forks,`https://github.com/lorapok/${d.name}`)));
+    document.getElementById('projects-container').replaceChildren(grid);
+    grid.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+  }
+}
+
+loadGitHub();
+</script>
+</body>
+</html>
