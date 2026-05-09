@@ -12,8 +12,6 @@ import { auth, googleProvider, isFirebaseConfigured, db } from "../lib/firebase"
 import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc } from "firebase/firestore";
 import { AI_PROVIDERS, type AIProviderId } from "./constants/providers";
 
-export type { AIProviderId };
-
 export type LogCategory = 'auth' | 'ai' | 'nav' | 'config' | 'system' | 'profile';
 
 interface DevContextType {
@@ -35,20 +33,7 @@ interface DevContextType {
   logEvent: (category: LogCategory, action: string, metadata?: any) => Promise<void>;
 }
 
-const DevContext = createContext<DevContextType>({
-  user: null,
-  loading: false,
-  signIn: async () => {},
-  signOut: async () => {},
-  isAdmin: false,
-  apiKeys: {},
-  setApiKey: () => {},
-  activeProvider: "claude",
-  setActiveProvider: () => {},
-  activeModels: {},
-  setActiveModel: () => {},
-  logEvent: async () => {},
-});
+const DevContext = createContext<DevContextType | undefined>(undefined);
 
 const ADMIN_EMAILS = ["mdshuvo40@gmail.com", "lorapokdev@gmail.com"];
 
@@ -274,21 +259,37 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       {loginError && (
         <div style={{
           position: "fixed", bottom: "2rem", right: "2rem", zIndex: 9999,
-          background: "rgba(220, 38, 38, 0.95)", color: "#fff", padding: "1rem 1.5rem",
-          borderRadius: "12px", border: "1px solid rgba(255,255,255,0.2)",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.5)", backdropFilter: "blur(10px)",
-          maxWidth: "350px", fontSize: "0.85rem", animation: "dev-slide-up 0.3s ease-out"
+          background: "rgba(220, 38, 38, 0.95)", color: "#fff", padding: "1.25rem",
+          borderRadius: "16px", border: "1px solid rgba(255,255,255,0.2)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)", backdropFilter: "blur(20px)",
+          maxWidth: "350px", fontSize: "0.85rem", animation: "dev-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
         }}>
-          <div style={{ fontWeight: 700, marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span>⚠</span> Authentication Error
+          <div style={{ fontWeight: 700, marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <span style={{ fontSize: "1.2rem" }}>⚠</span> Authentication Failed
           </div>
-          <div style={{ opacity: 0.9, lineHeight: 1.5, marginBottom: "0.8rem" }}>{loginError}</div>
-          <button 
-            onClick={() => setLoginError(null)}
-            style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "4px 10px", borderRadius: "6px", fontSize: "0.75rem", cursor: "pointer" }}
-          >
-            Dismiss
-          </button>
+          <div style={{ opacity: 0.9, lineHeight: 1.5, marginBottom: "1rem", fontFamily: "var(--dev-font-mono)", fontSize: "0.75rem" }}>
+            {loginError}
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button 
+              onClick={async () => {
+                setLoginError(null);
+                setSigningIn(true);
+                try {
+                  await signInWithRedirect(auth, googleProvider);
+                } catch (e: any) { setLoginError(e.message); setSigningIn(false); }
+              }}
+              style={{ background: "#fff", border: "none", color: "#000", padding: "6px 12px", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+            >
+              Try Redirect Flow
+            </button>
+            <button 
+              onClick={() => setLoginError(null)}
+              style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "6px 12px", borderRadius: "8px", fontSize: "0.75rem", cursor: "pointer" }}
+            >
+              Dismiss
+            </button>
+          </div>
         </div>
       )}
     </DevContext.Provider>
@@ -296,7 +297,11 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useDevAuth() {
-  return useContext(DevContext);
+  const context = useContext(DevContext);
+  if (context === undefined) {
+    throw new Error("useDevAuth must be used within a DevAuthProvider");
+  }
+  return context;
 }
 
 export function AdminGate({ children }: { children: ReactNode }) {
