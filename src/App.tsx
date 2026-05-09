@@ -246,9 +246,12 @@ function App() {
         });
       }
 
-      const result = (await response.json()) as { message?: string; success?: boolean };
+      const result = (await response.json()) as { message?: string; success?: boolean; id?: string };
 
-      if (!response.ok || !result.success) {
+      // Success if response is OK and (Web3Forms success OR Resend ID exists)
+      const isSuccessful = response.ok && (result.success || result.id || mailProxyUrl);
+
+      if (!isSuccessful) {
         throw new Error(result.message || "Message could not be sent.");
       }
 
@@ -269,7 +272,12 @@ function App() {
       <div className="ambient-grid" aria-hidden="true" />
       <header className="topbar">
         <a className="brand-lockup" href="#home" aria-label="Lorapok Labs home">
-          <img src={badgeImage} alt="" />
+          <img 
+            src={badgeImage} 
+            alt="" 
+            className={contactStatus === "sending" ? "animate-pulse-slow" : ""}
+            style={contactStatus === "sending" ? { animation: "spin 3s linear infinite" } : {}}
+          />
           <span>
             <strong>Lorapok</strong>
             <small>Labs</small>
