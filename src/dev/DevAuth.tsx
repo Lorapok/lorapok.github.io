@@ -181,6 +181,28 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignOut = async () => {
     if (!isFirebaseConfigured) return;
+    
+    // Clear all localStorage keys starting with lpk_
+    const keysToClear = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('lpk_key_') || key.startsWith('lpk_model_') || key === 'lpk_active_provider')) {
+        keysToClear.push(key);
+      }
+    }
+    keysToClear.forEach(k => localStorage.removeItem(k));
+
+    // Reset local state to defaults
+    const emptyKeys: Record<string, string> = {};
+    const defaultModels: Record<string, string> = {};
+    AI_PROVIDERS.forEach(p => {
+      emptyKeys[p.id] = "";
+      defaultModels[p.id] = p.availableModels[0];
+    });
+    setApiKeys(emptyKeys);
+    setActiveModels(defaultModels);
+    setActiveProvider("claude");
+
     await signOut(auth);
     logEvent("auth", "logout");
   };
