@@ -2037,7 +2037,7 @@ button:focus-visible {
   border: 2px solid rgba(103, 255, 143, 0.1);
   border-top-color: var(--color-green);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: lorapok-spin 1s linear infinite;
   box-shadow: 0 0 10px rgba(103, 255, 143, 0.2);
 }
 
@@ -2048,9 +2048,20 @@ button:focus-visible {
   transition: all 0.5s var(--ease-out);
 }
 
-@keyframes spin {
+.larva-badge.sending {
+  animation: lorapok-evolution 2s linear infinite;
+  filter: drop-shadow(0 0 8px var(--color-green));
+}
+
+@keyframes lorapok-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@keyframes lorapok-evolution {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); filter: drop-shadow(0 0 15px var(--color-green)); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
 @media (max-width: 640px) {
@@ -2058,4 +2069,3 @@ button:focus-visible {
     padding: 0.6rem 1rem;
   }
 }
-

@@ -275,17 +275,7 @@ function App() {
           <motion.img 
             src={badgeImage} 
             alt="" 
-            animate={contactStatus === "sending" ? { 
-              rotate: 360, 
-              scale: [1, 1.2, 1],
-              filter: ["blur(0px)", "blur(2px)", "blur(0px)"]
-            } : { rotate: 0, scale: 1 }}
-            transition={contactStatus === "sending" ? { 
-              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-              scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-              filter: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
-            } : { duration: 0.5 }}
-            className="larva-badge"
+            className={`larva-badge ${contactStatus === "sending" ? "sending" : ""}`}
           />
           <span>
             <strong>Lorapok</strong>
