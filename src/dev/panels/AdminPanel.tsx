@@ -3,6 +3,13 @@ import { useState, useEffect } from "react";
 import { AdminGate, useDevAuth } from "../DevAuth";
 import { db } from "../../lib/firebase";
 import { collection, query, orderBy, limit, onSnapshot, getDocs } from "firebase/firestore";
+import { 
+  Users, 
+  Activity, 
+  FileText, 
+  Database, 
+  Zap
+} from "lucide-react";
 
 interface AnalyticsEvent {
   id: string;
@@ -46,20 +53,24 @@ function AdminContent() {
 
     // Stats & User List
     const loadStats = async () => {
-      const [uSnap, rSnap, cSnap, eSnap] = await Promise.all([
-        getDocs(collection(db, "users")),
-        getDocs(collection(db, "readme_templates")),
-        getDocs(collection(db, "commit_explanations")),
-        getDocs(collection(db, "analytics")),
-      ]);
-      
-      setUsers(uSnap.docs.map(doc => doc.data() as UserProfile));
-      setStats({
-        users: uSnap.size,
-        readmes: rSnap.size,
-        commits: cSnap.size,
-        events: eSnap.size
-      });
+      try {
+        const [uSnap, rSnap, cSnap, eSnap] = await Promise.all([
+          getDocs(collection(db, "users")),
+          getDocs(collection(db, "readme_templates")),
+          getDocs(collection(db, "commit_explanations")),
+          getDocs(collection(db, "analytics")),
+        ]);
+        
+        setUsers(uSnap.docs.map(doc => doc.data() as UserProfile));
+        setStats({
+          users: uSnap.size,
+          readmes: rSnap.size,
+          commits: cSnap.size,
+          events: eSnap.size
+        });
+      } catch (e) {
+        console.warn("Failed to load global stats:", e);
+      }
     };
 
     loadStats();
@@ -74,35 +85,16 @@ function AdminContent() {
     setSelectedUser(u);
     setLoadingUserDetails(true);
     try {
-      // Fetch data
       const dataSnap = await getDocs(collection(db, `users/${u.uid}/data`));
       setUserData(dataSnap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch (e) {
-      // Ignore main user fetch error
+      setUserData([]);
     } finally {
       setLoadingUserDetails(false);
     }
   };
 
   return (
-    <div className="dev-panel-content">
-      <div className="dev-panel-header">
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-          <div>
-            <div className="dev-panel-title">System <span>Command</span></div>
-            <div className="dev-panel-sub">Global Lorapok Labs surveillance and infrastructure management.</div>
-          </div>
-          {user && (
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.75rem", color: "var(--dev-green)" }}>● Authenticated</div>
-                <div style={{ fontSize: "0.72rem", color: "var(--dev-muted)" }}>{user.email}</div>
-              </div>
-              {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid var(--dev-green)" }} />}
-              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={signOut}>Sign out</button>
-            </div>
-          )}
-   return (
     <div className="dev-panel-content">
       {/* ─── Header ─── */}
       <div className="dev-panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
