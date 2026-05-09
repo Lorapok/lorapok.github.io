@@ -133,27 +133,38 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [signingIn, setSigningIn] = useState(false);
 
   const handleSignIn = async () => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured) {
+      setLoginError("Firebase is not configured. Missing environment variables.");
+      return;
+    }
     setLoginError(null);
+    setSigningIn(true);
+    
+    // Debug info (silently log for diagnostics)
+    console.log("Initiating login for:", window.location.origin);
+
     try {
-      // Try Popup first (Better UX)
+      // Try Popup first
       const res = await signInWithPopup(auth, googleProvider);
       if (res.user) {
-        handleUserDoc(res.user);
+        await handleUserDoc(res.user);
       }
     } catch (err: any) {
-      console.warn("Popup blocked or failed, trying redirect fallback...", err);
-      if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request") {
+      console.warn("Auth Attempt Failed:", err.code);
+      if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request" || err.code === "auth/popup-closed-by-user") {
         try {
           await signInWithRedirect(auth, googleProvider);
         } catch (redirErr: any) {
           setLoginError(redirErr.message);
         }
       } else {
-        setLoginError(err.message);
+        setLoginError(`${err.code}: ${err.message}`);
       }
+    } finally {
+      setSigningIn(false);
     }
   };
 
@@ -252,7 +263,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   return (
     <DevContext.Provider
       value={{ 
-        user, loading, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
+        user, loading: loading || signingIn, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
         apiKeys, setApiKey: updateApiKey,
         activeProvider, setActiveProvider: updateActiveProvider,
         activeModels, setActiveModel: updateActiveModel,
@@ -300,9 +311,21 @@ export function AdminGate({ children }: { children: ReactNode }) {
           <div className="dev-auth-badge">⚙ Admin Panel</div>
           <h2 className="dev-auth-title"><span>Restricted</span> Access</h2>
           <p className="dev-auth-sub">This panel requires Lorapok Labs administrator credentials.</p>
-          <button className="dev-btn dev-btn-primary dev-auth-signin" onClick={signIn}>
-            Sign in with Google
+          
+          <button 
+            className="dev-btn dev-btn-primary dev-auth-signin" 
+            onClick={signIn}
+            disabled={loading}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", width: "100%" }}
+          >
+            {loading ? <div className="dev-auth-spinner" style={{ width: "16px", height: "16px" }} /> : "Sign in with Google"}
           </button>
+
+          {user && !isAdmin && (
+            <div style={{ marginTop: "1rem", color: "var(--dev-red)", fontSize: "0.8rem", textAlign: "center" }}>
+              ⚠ Access Denied: Your account ({user.email}) is not in the maintainer whitelist.
+            </div>
+          )}
         </div>
       </div>
     );
