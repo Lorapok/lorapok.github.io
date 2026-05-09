@@ -1994,3 +1994,68 @@ button:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Contact Status Area */
+.contact-form-status-area {
+  margin-top: 1.5rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.status-flex {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.status-flex.success {
+  color: var(--color-green);
+  background: rgba(103, 255, 143, 0.05);
+  border-color: rgba(103, 255, 143, 0.2);
+}
+
+.status-flex.error {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.05);
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.status-spinner-biological {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(103, 255, 143, 0.1);
+  border-top-color: var(--color-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 10px rgba(103, 255, 143, 0.2);
+}
+
+.larva-badge {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: all 0.5s var(--ease-out);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .status-indicator {
+    padding: 0.6rem 1rem;
+  }
+}
+

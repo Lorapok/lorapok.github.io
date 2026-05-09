@@ -272,11 +272,20 @@ function App() {
       <div className="ambient-grid" aria-hidden="true" />
       <header className="topbar">
         <a className="brand-lockup" href="#home" aria-label="Lorapok Labs home">
-          <img 
+          <motion.img 
             src={badgeImage} 
             alt="" 
-            className={contactStatus === "sending" ? "animate-pulse-slow" : ""}
-            style={contactStatus === "sending" ? { animation: "spin 3s linear infinite" } : {}}
+            animate={contactStatus === "sending" ? { 
+              rotate: 360, 
+              scale: [1, 1.2, 1],
+              filter: ["blur(0px)", "blur(2px)", "blur(0px)"]
+            } : { rotate: 0, scale: 1 }}
+            transition={contactStatus === "sending" ? { 
+              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+              scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
+              filter: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+            } : { duration: 0.5 }}
+            className="larva-badge"
           />
           <span>
             <strong>Lorapok</strong>
@@ -755,15 +764,50 @@ function App() {
               </button>
             </div>
 
-            <p
-              className={`contact-note ${contactStatus !== "idle" ? contactStatus : ""}`}
-              role="status"
-              aria-live="polite"
-            >
-              <CircleHelp size={15} />
-              {contactStatusText ||
-                `This form sends directly to ${activeContactTarget.recipientLabel}.`}
-            </p>
+            <div className="contact-form-status-area">
+              <AnimatePresence mode="wait">
+                {contactStatus && contactStatus !== "idle" ? (
+                  <motion.div 
+                    key={contactStatus}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    className={`status-indicator ${contactStatus}`}
+                  >
+                    {contactStatus === "sending" ? (
+                      <div className="status-flex">
+                        <div className="status-spinner-biological" />
+                        <motion.span
+                          animate={{ opacity: [1, 0.5, 1] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                          Sending Transmission...
+                        </motion.span>
+                      </div>
+                    ) : contactStatus === "success" ? (
+                      <div className="status-flex success">
+                        <Check size={18} />
+                        <span>Transmission Delivered.</span>
+                      </div>
+                    ) : (
+                      <div className="status-flex error">
+                        <X size={18} />
+                        <span>{contactStatusText}</span>
+                      </div>
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="contact-note"
+                  >
+                    <CircleHelp size={15} />
+                    This form sends directly to {activeContactTarget.recipientLabel}.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
           </form>
         </motion.div>
       </section>
