@@ -57,7 +57,7 @@ interface ChatSession {
 }
 
 function AdminContent() {
-  const { signOut } = useDevAuth();
+  const { } = useDevAuth();
   const [events, setEvents] = useState<AnalyticsEvent[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [lastDoc, setLastDoc] = useState<any>(null);
@@ -85,9 +85,8 @@ function AdminContent() {
     const loadInitialData = async () => {
       try {
         // Stats
-        const [rSnap, cSnap, eSnap] = await Promise.all([
+        const [rSnap, eSnap] = await Promise.all([
           getDocs(collection(db, "readme_templates")),
-          getDocs(collection(db, "commit_explanations")),
           getDocs(collection(db, "analytics")),
         ]);
         
@@ -95,14 +94,17 @@ function AdminContent() {
         const uQuery = query(collection(db, "users"), orderBy("email"), limit(10));
         const uSnap = await getDocs(uQuery);
         
+        // Count AI Chat events specifically from analytics for the counter
+        const chatEventsCount = eSnap.docs.filter(d => d.data().category === 'ai' || d.data().action === 'chat_saved').length;
+        
         setUsers(uSnap.docs.map(doc => doc.data() as UserProfile));
         setLastDoc(uSnap.docs[uSnap.docs.length - 1]);
         setHasMore(uSnap.size === 10);
         
         setStats({
-          users: uSnap.size, // This will be updated to total count if needed, but for now shows loaded
+          users: uSnap.size, 
           readmes: rSnap.size,
-          commits: cSnap.size,
+          commits: chatEventsCount, // Use chatEventsCount for AI Chats stat
           events: eSnap.size
         });
       } catch (e) {
@@ -165,7 +167,6 @@ function AdminContent() {
           <div className="dev-panel-title" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>System <span>Command</span></div>
           <div className="dev-panel-sub" style={{ opacity: 0.6, fontSize: '0.85rem' }}>Professional Infrastructure & User Analytics.</div>
         </div>
-        <button className="dev-btn-outline" onClick={signOut} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}>Sign out</button>
       </div>
 
       {/* ─── Global Stats ─── */}
