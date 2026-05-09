@@ -348,9 +348,32 @@ function AdminContent() {
                         <div style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.4, marginBottom: '1rem', letterSpacing: '0.1em' }}>CREDENTIALS</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                           {Object.entries(selectedUser.apiKeys || {}).map(([p, k]) => (
-                            <div key={p} style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{p}</span>
-                              <span style={{ color: k ? '#10b981' : 'rgba(255,255,255,0.1)', fontSize: '0.75rem' }}>{k ? '● ACTIVE' : 'NO KEY'}</span>
+                            <div key={p} style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontWeight: 600, textTransform: 'capitalize', fontSize: '0.85rem' }}>{p}</span>
+                                <span style={{ fontSize: '0.7rem', fontFamily: 'var(--dev-font-mono)', opacity: k ? 0.6 : 0.2 }}>
+                                  {k ? (k.length > 20 ? `${k.substring(0, 12)}...${k.slice(-4)}` : k) : 'No key set'}
+                                </span>
+                              </div>
+                              {k && (
+                                <button 
+                                  onClick={(e) => {
+                                    navigator.clipboard.writeText(k);
+                                    const target = e.currentTarget as HTMLButtonElement;
+                                    const oldText = target.innerText;
+                                    target.innerText = "COPIED";
+                                    target.style.color = "#10b981";
+                                    setTimeout(() => {
+                                      target.innerText = oldText;
+                                      target.style.color = "";
+                                    }, 1000);
+                                  }}
+                                  className="dev-btn dev-btn-ghost dev-btn-sm" 
+                                  style={{ fontSize: '0.65rem', border: '1px solid rgba(255,255,255,0.1)' }}
+                                >
+                                  COPY
+                                </button>
+                              )}
                             </div>
                           ))}
                           {Object.keys(selectedUser.apiKeys || {}).length === 0 && <div style={{ opacity: 0.3, fontSize: '0.85rem' }}>No API keys configured.</div>}
