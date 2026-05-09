@@ -93,19 +93,37 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [showVariantDropdown, setShowVariantDropdown] = useState(false);
+  const [validatingKey, setValidatingKey] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const chatHistory = useRef<{ role: string; content: string }[]>([]);
 
   const activeP = AI_PROVIDERS.find(p => p.id === activeProvider) || AI_PROVIDERS[0];
+  const hasActiveKey = !!apiKeys[activeProvider];
 
-  const handleSaveKey = () => {
+  const handleSaveKey = async () => {
     if (!keyInput.trim()) return;
-    setApiKey(activeProvider, keyInput.trim());
-    setKeyInput("");
+    setValidatingKey(true);
+    try {
+      // Quick validation: try a lightweight API call
+      if (activeP.apiType === "gemini") {
+        const res = await fetch(`${activeP.endpoint}/models?key=${keyInput.trim()}`);
+        if (!res.ok) throw new Error("Invalid Gemini API key");
+      }
+      setApiKey(activeProvider, keyInput.trim());
+      setKeyInput("");
+      logEvent("config", "key_validated", { provider: activeProvider, success: true });
+    } catch {
+      setApiKey(activeProvider, keyInput.trim());
+      setKeyInput("");
+      logEvent("config", "key_saved_unvalidated", { provider: activeProvider });
+    } finally {
+      setValidatingKey(false);
+    }
   };
 
   const handleClearKey = () => {
     setApiKey(activeProvider, "");
+    logEvent("config", "key_cleared", { provider: activeProvider });
   };
 
   const scrollToBottom = () => {
@@ -130,60 +148,57 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
     setMessages(prev => [...prev, { role: "user", text: input }, { role: "ai", text: "…" }]);
     setIsStreaming(true);
 
-    try {
-      let endpoint = "";
-      let body = {};
-      let headers: Record<string, string> = { "Content-Type": "application/json" };
+    const selectedModel = activeModels[activeProvider] || activeP.model;
 
-      if (activeProvider === "claude") {
-        endpoint = "https://api.anthropic.com/v1/messages";
+    try {
+      let endpoint = activeP.endpoint;
+      let body: any = {};
+      let headers: Record<string, string> = { "Content-Type": "application/json" };
+      let fetchUrl = endpoint;
+
+      if (activeP.apiType === "anthropic") {
         headers["x-api-key"] = key;
         headers["anthropic-version"] = "2023-06-01";
         headers["anthropic-dangerous-direct-browser-access"] = "true";
+        body = { model: selectedModel, max_tokens: 1024, system: LORAPOK_SYSTEM, messages: chatHistory.current };
+      } else if (activeP.apiType === "gemini") {
+        // Google AI Gemini REST API format
+        fetchUrl = `${endpoint}/models/${selectedModel}:generateContent?key=${key}`;
         body = {
-          model: activeModels[activeProvider] || activeP.model,
-          max_tokens: 600,
-          system: LORAPOK_SYSTEM,
-          messages: chatHistory.current,
+          system_instruction: { parts: [{ text: LORAPOK_SYSTEM }] },
+          contents: chatHistory.current.map(m => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [{ text: m.content }]
+          }))
         };
-      } else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(activeProvider)) {
-        if (activeProvider === "openai") endpoint = "https://api.openai.com/v1/chat/completions";
-        else if (activeProvider === "groq") endpoint = "https://api.groq.com/openai/v1/chat/completions";
-        else if (activeProvider === "mistral") endpoint = "https://api.mistral.ai/v1/chat/completions";
-        else if (activeProvider === "deepseek") endpoint = "https://api.deepseek.com/chat/completions";
-        else if (activeProvider === "perplexity") endpoint = "https://api.perplexity.ai/chat/completions";
-        else if (activeProvider === "xai") endpoint = "https://api.x.ai/v1/chat/completions";
-        else if (activeProvider === "together") endpoint = "https://api.together.xyz/v1/chat/completions";
-        else if (activeProvider === "openrouter") endpoint = "https://openrouter.ai/api/v1/chat/completions";
-        else if (activeProvider === "anyscale") endpoint = "https://api.endpoints.anyscale.com/v1/chat/completions";
-        
+      } else {
+        // OpenAI-compatible
         headers["Authorization"] = `Bearer ${key}`;
         body = {
-          model: activeModels[activeProvider] || activeP.model,
+          model: selectedModel,
           messages: [
             { role: "system", content: LORAPOK_SYSTEM },
             ...chatHistory.current.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content }))
           ],
         };
-      } else {
-        throw new Error(`${activeP.label} integration is currently being optimized.`);
       }
 
-      const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(body) });
+      const res = await fetch(fetchUrl, { method: "POST", headers, body: JSON.stringify(body) });
       const data = await res.json();
+      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
       
       let reply = "";
-      if (activeProvider === "claude") reply = data.content?.[0]?.text || "No response.";
-      else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(activeProvider)) reply = data.choices?.[0]?.message?.content || "No response.";
-
-      if (data.error) throw new Error(data.error.message);
+      if (activeP.apiType === "anthropic") reply = data.content?.[0]?.text || "No response.";
+      else if (activeP.apiType === "gemini") reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
+      else reply = data.choices?.[0]?.message?.content || "No response.";
 
       chatHistory.current.push({ role: "assistant", content: reply });
       setMessages(prev => [...prev.slice(0, -1), { role: "ai", text: reply }]);
-      logEvent("ai", "chat_message", { provider: activeProvider });
+      logEvent("ai", "chat_message", { provider: activeProvider, model: selectedModel });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Network error";
       setMessages(prev => [...prev.slice(0, -1), { role: "ai", text: `⚠ ${msg}` }]);
+      logEvent("ai", "chat_error", { provider: activeProvider, error: msg });
     } finally {
       setIsStreaming(false);
       setTimeout(scrollToBottom, 50);
@@ -222,38 +237,53 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "stretch" }}>
-          <div className="dev-input-wrap" style={{ flex: 1, minWidth: "250px" }}>
-            <span className="dev-input-icon">🔑</span>
-            <input
-              className="dev-form-input"
-              type="password"
-              placeholder={`Paste ${activeP.label} API key…`}
-              value={keyInput}
-              onChange={e => setKeyInput(e.target.value)}
-            />
+        {hasActiveKey ? (
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.6rem 1rem", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", borderRadius: "8px" }}>
+              <span style={{ color: "#4ade80", fontSize: "1rem" }}>✓</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "0.8rem", color: "#4ade80", fontFamily: "var(--dev-font-mono)" }}>{activeP.label} API Key Active</div>
+                <div style={{ fontSize: "0.65rem", color: "var(--dev-muted)" }}>Key: {apiKeys[activeProvider].substring(0, 8)}…{apiKeys[activeProvider].slice(-4)}</div>
+              </div>
+              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={handleClearKey} style={{ color: "var(--dev-red)", fontSize: "0.75rem" }}>Remove Key</button>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button className="dev-btn dev-btn-primary" onClick={handleSaveKey}>Save Key</button>
-            <button className="dev-btn dev-btn-ghost" onClick={handleClearKey}>Clear</button>
-            <a 
-              href={PROVIDER_URLS[activeProvider] || "#"} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="dev-btn"
-              style={{ 
-                display: "flex", alignItems: "center", gap: "0.4rem", 
-                background: "rgba(255,255,255,0.05)", border: "1px solid var(--dev-border)", 
-                color: "var(--dev-muted)", fontSize: "0.8rem", textDecoration: "none",
-                borderRadius: "8px", padding: "0 1rem", fontWeight: 600, transition: "all 0.2s"
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = activeP.color; e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
-              onMouseLeave={e => { e.currentTarget.style.color = "var(--dev-muted)"; e.currentTarget.style.borderColor = "var(--dev-border)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-            >
-              Get API Key ↗
-            </a>
+        ) : (
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "stretch" }}>
+            <div className="dev-input-wrap" style={{ flex: 1, minWidth: "250px" }}>
+              <span className="dev-input-icon">🔑</span>
+              <input
+                className="dev-form-input"
+                type="password"
+                placeholder={`Paste ${activeP.label} API key…`}
+                value={keyInput}
+                onChange={e => setKeyInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSaveKey()}
+              />
+            </div>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button className="dev-btn dev-btn-primary" onClick={handleSaveKey} disabled={validatingKey}>
+                {validatingKey ? "Validating…" : "Save Key"}
+              </button>
+              <a 
+                href={PROVIDER_URLS[activeProvider] || "#"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="dev-btn"
+                style={{ 
+                  display: "flex", alignItems: "center", gap: "0.4rem", 
+                  background: "rgba(255,255,255,0.05)", border: "1px solid var(--dev-border)", 
+                  color: "var(--dev-muted)", fontSize: "0.8rem", textDecoration: "none",
+                  borderRadius: "8px", padding: "0 1rem", fontWeight: 600, transition: "all 0.2s"
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = activeP.color; e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = "var(--dev-muted)"; e.currentTarget.style.borderColor = "var(--dev-border)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+              >
+                Get API Key ↗
+              </a>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Tools */}

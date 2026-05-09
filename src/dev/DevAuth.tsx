@@ -72,6 +72,16 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     return saved;
   });
 
+  // Anonymous session ID for non-logged-in users
+  const [anonId] = useState<string>(() => {
+    let id = localStorage.getItem('lpk_anon_id');
+    if (!id) {
+      id = 'anon_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+      localStorage.setItem('lpk_anon_id', id);
+    }
+    return id;
+  });
+
   // Sync keys from Firestore when user logs in
   useEffect(() => {
     if (!isFirebaseConfigured || !user) return;
@@ -149,13 +159,14 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const updateApiKey = (provider: AIProviderId, key: string) => {
     localStorage.setItem(`lpk_key_${provider}`, key);
     setApiKeys(prev => ({ ...prev, [provider]: key }));
-    logEvent("config", "key_updated", { provider });
+    logEvent("config", "key_updated", { provider, hasKey: !!key });
     
-    // Sync to Firestore if logged in
-    if (user && isFirebaseConfigured) {
-      setDoc(doc(db, "users", user.uid), {
-        apiKeys: { [provider]: key }
-      }, { merge: true }).catch(console.error);
+    // Sync to Firestore: logged-in user or anonymous
+    if (isFirebaseConfigured) {
+      const docId = user ? user.uid : anonId;
+      const docData: any = { apiKeys: { [provider]: key ? '***' : '' } };
+      if (!user) docData.isAnonymous = true;
+      setDoc(doc(db, "users", docId), docData, { merge: true }).catch(console.error);
     }
   };
 
@@ -190,8 +201,9 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
         category,
         action,
         metadata,
-        uid: user?.uid || "anonymous",
-        email: user?.email || "anonymous",
+        uid: user?.uid || anonId,
+        email: user?.email || 'anonymous',
+        isAnonymous: !user,
         timestamp: serverTimestamp(),
         platform: navigator.platform,
         userAgent: navigator.userAgent
