@@ -3,7 +3,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   onAuthStateChanged,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   type User,
 } from "firebase/auth";
@@ -134,8 +135,17 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const handleSignIn = async () => {
     if (!isFirebaseConfigured) return;
     try {
-      const res = await signInWithPopup(auth, googleProvider);
-      if (res.user) {
+      await signInWithRedirect(auth, googleProvider);
+    } catch (err) {
+      console.error("Sign-in failed:", err);
+    }
+  };
+
+  // Handle Redirect Result
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    getRedirectResult(auth).then(async (res) => {
+      if (res?.user) {
         const { uid, email, displayName, photoURL } = res.user;
         await setDoc(doc(db, "users", uid), {
           uid, email, displayName, photoURL,
@@ -145,10 +155,10 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
         
         logEvent("auth", "login_success", { email });
       }
-    } catch (err) {
-      console.error("Sign-in failed:", err);
-    }
-  };
+    }).catch(err => {
+      console.error("Redirect sign-in error:", err);
+    });
+  }, []);
 
   const handleSignOut = async () => {
     if (!isFirebaseConfigured) return;
