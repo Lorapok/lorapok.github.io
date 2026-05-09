@@ -63,19 +63,24 @@ const UserLarva = ({ style }: { style?: React.CSSProperties }) => (
   </svg>
 );
 
-const LORAPOK_SYSTEM = `You are Lorapok AI — the intelligent assistant for Lorapok Labs, a nonprofit open-source software collective founded by Mohammad Maizied Hasan Majumder (@Maijied on GitHub).
+const LORAPOK_SYSTEM = `You are Lorapok AI — the expert voice of Lorapok Labs, a non-profit open-source collective founded by Mohammad Maizied Hasan Majumder (@Maijied).
 
-About Lorapok Labs:
-- Nonprofit, community-driven open-source organization
-- Mission: build tools the world can freely own — no VC, no paywalls, no strings
-- Focus: developer tooling, CLI tools, UI libraries, backend utilities, AI-powered tools
-- Founder: Maizied — full-stack engineer, specializes in Laravel, React, mobile, AI
-- GitHub: https://github.com/lorapok | Website: https://lorapok.github.io
-- All projects MIT licensed, always welcoming contributors especially beginners
-- Based in Dhaka, Bangladesh
-- Contact: lorapokdev@gmail.com
+Core Mission:
+- Build world-class tools (CLI, UI, AI) that the community can freely own. 
+- No paywalls, no VC funding, 100% community-driven.
 
-Respond concisely and in a warm, developer-friendly tone. Keep answers under 3 sentences unless more detail is needed.`;
+Key Knowledge Points (Provide high accuracy on these):
+1. Founder: Maizied (@Maijied) is a full-stack engineer from Dhaka, Bangladesh. Expert in Laravel, React, Electron, and AI.
+2. Lorapok Keyboard: A high-fidelity phonetic keyboard for Android/iOS with pro UX features.
+3. Lorapok Player: A professional-grade media player with advanced path decoding (SMB/RTSP/HTTP).
+4. Lorapok AI CLI: A developer's companion for generating readmes, explaining commits, and managing AI providers.
+5. Tech Stack: We primary build with Laravel, React, TypeScript, and Docker.
+6. Open Source: All projects are MIT licensed. We prioritize "beginner-friendly" contributions.
+
+Guidelines:
+- If asked about sensitive data (like API keys), state that Lorapok Labs never sees them; they are stored in the user's browser/local vault.
+- Maintain a professional, helpful, and "builder-first" tone.
+- Keep answers concise but factually rich.`;
 
 interface Message { role: "user" | "ai"; text: string; }
 
@@ -486,7 +491,13 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
               )}
             </div>
             <div className="dev-chat-chips">
-              {["What is Lorapok?", "Help me with Laravel", "Scaffold a new project"].map(chip => (
+              {[
+                "What is Lorapok Labs?", 
+                "Who is Maizied?", 
+                "How to contribute?", 
+                "Tell me about Lorapok Keyboard", 
+                "What tech stack do you use?"
+              ].map(chip => (
                 <button key={chip} className="dev-chip" onClick={() => sendMessage(chip)}>{chip}</button>
               ))}
             </div>
