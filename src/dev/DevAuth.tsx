@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   onAuthStateChanged,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   signOut,
@@ -12,6 +13,7 @@ import { auth, googleProvider, isFirebaseConfigured, db } from "../lib/firebase"
 import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc } from "firebase/firestore";
 import { AI_PROVIDERS, type AIProviderId } from "./constants/providers";
 
+export type { AIProviderId };
 export type LogCategory = 'auth' | 'ai' | 'nav' | 'config' | 'system' | 'profile';
 
 interface DevContextType {
