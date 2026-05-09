@@ -33,6 +33,7 @@ interface DevContextType {
   
   // Analytics & Logging
   logEvent: (category: LogCategory, action: string, metadata?: any) => Promise<void>;
+  logChat: (provider: AIProviderId, model: string, messages: { role: 'user' | 'assistant', content: string }[]) => Promise<void>;
 }
 
 const DevContext = createContext<DevContextType | undefined>(undefined);
@@ -267,6 +268,24 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const logChat = async (provider: AIProviderId, model: string, messages: { role: 'user' | 'assistant', content: string }[]) => {
+    if (!isFirebaseConfigured) return;
+    try {
+      const docId = user ? user.uid : anonId;
+      await addDoc(collection(db, `users/${docId}/chats`), {
+        provider,
+        model,
+        messages,
+        timestamp: serverTimestamp(),
+        email: user?.email || 'anonymous'
+      });
+      // Also log as a general event
+      logEvent('ai', 'chat_saved', { provider, model });
+    } catch (e) {
+      // Silent fail
+    }
+  };
+
   const isAdmin = Boolean(user && ADMIN_EMAILS.includes(user.email ?? ""));
 
   return (
@@ -276,7 +295,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
         apiKeys, setApiKey: updateApiKey,
         activeProvider, setActiveProvider: updateActiveProvider,
         activeModels, setActiveModel: updateActiveModel,
-        logEvent
+        logEvent, logChat
       }}
     >
       {children}

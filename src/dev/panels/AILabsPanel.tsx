@@ -84,7 +84,7 @@ interface AILabsPanelProps {
 }
 
 export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
-  const { apiKeys, setApiKey, activeProvider, setActiveProvider, activeModels, setActiveModel, logEvent } = useDevAuth();
+  const { apiKeys, setApiKey, activeProvider, setActiveProvider, activeModels, setActiveModel, logEvent, logChat } = useDevAuth();
   const [keyInput, setKeyInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     { role: "ai", text: "Hey! I'm Lorapok AI — I know everything about this org, our open-source projects, and developer tooling. Ask me anything, or switch providers above and I'll use that instead." }
@@ -192,9 +192,14 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
       else if (activeP.apiType === "gemini") reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
       else reply = data.choices?.[0]?.message?.content || "No response.";
 
-      chatHistory.current.push({ role: "assistant", content: reply });
+    chatHistory.current.push({ role: "assistant", content: reply });
       setMessages(prev => [...prev.slice(0, -1), { role: "ai", text: reply }]);
       logEvent("ai", "chat_message", { provider: activeProvider, model: selectedModel });
+      
+      // SAVE CHAT DATA
+      logChat(activeProvider, selectedModel, [
+        ...chatHistory.current.slice(-2) as { role: 'user' | 'assistant', content: string }[]
+      ]);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Network error";
       setMessages(prev => [...prev.slice(0, -1), { role: "ai", text: `⚠ ${msg}` }]);

@@ -4,7 +4,7 @@ import { useDevAuth, type AIProviderId } from "../DevAuth";
 import { AI_PROVIDERS } from "../constants/providers";
 
 export default function PlaygroundPanel() {
-  const { apiKeys, logEvent } = useDevAuth();
+  const { apiKeys, logEvent, logChat } = useDevAuth();
   const [providerId, setProviderId] = useState<AIProviderId>("claude");
   const [maxTokens, setMaxTokens] = useState(1000);
   const [systemPrompt, setSystemPrompt] = useState("You are Lorapok AI, an expert in open-source development.");
@@ -87,6 +87,12 @@ export default function PlaygroundPanel() {
       else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(providerId)) reply = data.choices?.[0]?.message?.content || "Error";
       
       setFormattedOutput(reply);
+
+      // SAVE CHAT DATA
+      logChat(providerId, activeProvider.model, [
+        { role: 'user', content: userMessage },
+        { role: 'assistant', content: reply }
+      ]);
     } catch (e) {
       setRawOutput("Error: " + (e instanceof Error ? e.message : "Unknown"));
     } finally {
