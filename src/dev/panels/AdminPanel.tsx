@@ -11,11 +11,13 @@ import {
   Zap,
   ChevronRight,
   ShieldCheck,
+  Key,
   Search,
   MessageSquare,
   X,
-  User as UserIcon,
-  Clock
+  Clock,
+  MoreVertical,
+  ExternalLink
 } from "lucide-react";
 
 interface AnalyticsEvent {
@@ -106,7 +108,6 @@ function AdminContent() {
     setLoadingDetails(true);
     setActiveTab('info');
     try {
-      // Parallel fetch for speed
       const [dataSnap, chatSnap] = await Promise.all([
         getDocs(collection(db, `users/${u.uid}/data`)),
         getDocs(query(collection(db, `users/${u.uid}/chats`), orderBy("timestamp", "desc"), limit(10)))
@@ -133,7 +134,7 @@ function AdminContent() {
       <div className="dev-panel-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
         <div>
           <div className="dev-panel-title" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>System <span>Command</span></div>
-          <div className="dev-panel-sub" style={{ opacity: 0.6, fontSize: '0.85rem' }}>Scalable infrastructure & User Insights.</div>
+          <div className="dev-panel-sub" style={{ opacity: 0.6, fontSize: '0.85rem' }}>Professional Infrastructure & User Analytics.</div>
         </div>
         <button className="dev-btn-outline" onClick={signOut} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}>Sign out</button>
       </div>
@@ -158,92 +159,155 @@ function AdminContent() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
         
-        {/* 1. SCALABLE USER DIRECTORY */}
+        {/* 1. PROFESSIONAL SCROLLABLE TABLE */}
         <section>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <div className="dev-stitle" style={{ margin: 0, letterSpacing: '0.05em' }}>
-              <ShieldCheck size={16} style={{ marginRight: '0.5rem' }} /> MAINTAINER DIRECTORY
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div className="dev-stitle" style={{ margin: 0, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ShieldCheck size={18} /> MAINTAINER DIRECTORY
             </div>
             <div style={{ position: 'relative', width: '300px' }}>
               <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.3 }} />
               <input 
                 type="text" 
-                placeholder="Search 10k+ users..." 
+                placeholder="Filter 10k+ maintainers..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ 
                   width: '100%', 
                   background: 'rgba(255,255,255,0.05)', 
                   border: '1px solid rgba(255,255,255,0.1)', 
-                  borderRadius: '20px', 
-                  padding: '8px 12px 8px 34px', 
+                  borderRadius: '10px', 
+                  padding: '10px 12px 10px 38px', 
                   color: '#fff', 
-                  fontSize: '0.85rem' 
+                  fontSize: '0.85rem',
+                  outline: 'none',
+                  transition: 'border-color 0.2s'
                 }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--dev-accent)'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
               />
             </div>
           </div>
           
-          <div className="dev-card" style={{ padding: '1rem', maxHeight: '500px', overflowY: 'auto' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-              {filteredUsers.map(u => (
-                <div 
-                  key={u.uid} 
-                  onClick={() => handleOpenUser(u)}
-                  style={{ 
-                    padding: '1rem', 
-                    borderRadius: '10px', 
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    transition: 'transform 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                  <img src={u.photoURL} alt="" style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.1)' }} />
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.displayName}</div>
-                    <div style={{ fontSize: '0.75rem', opacity: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.email}</div>
-                  </div>
-                  <div className={`dev-badge ${u.role === 'admin' ? 'dev-badge-purple' : 'dev-badge-muted'}`} style={{ fontSize: '0.6rem' }}>{u.role}</div>
+          <div className="dev-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ overflowX: 'auto', maxHeight: '550px', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: '#111', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                  <tr>
+                    <th style={{ padding: '1rem 1.5rem', color: 'var(--dev-muted)', fontWeight: 600 }}>MAINTAINER</th>
+                    <th style={{ padding: '1rem 1.5rem', color: 'var(--dev-muted)', fontWeight: 600 }}>ROLE</th>
+                    <th style={{ padding: '1rem 1.5rem', color: 'var(--dev-muted)', fontWeight: 600 }}>PROVIDER</th>
+                    <th style={{ padding: '1rem 1.5rem', color: 'var(--dev-muted)', fontWeight: 600 }}>API STATUS</th>
+                    <th style={{ padding: '1rem 1.5rem', color: 'var(--dev-muted)', fontWeight: 600, textAlign: 'right' }}>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((u, idx) => {
+                    const keysCount = Object.values(u.apiKeys || {}).filter(k => !!k).length;
+                    return (
+                      <tr 
+                        key={u.uid} 
+                        style={{ 
+                          borderBottom: '1px solid rgba(255,255,255,0.03)', 
+                          background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+                          transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)'}
+                      >
+                        <td style={{ padding: '0.85rem 1.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <img src={u.photoURL} alt="" style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)' }} />
+                            <div>
+                              <div style={{ fontWeight: 600 }}>{u.displayName}</div>
+                              <div style={{ fontSize: '0.75rem', opacity: 0.5 }}>{u.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1.5rem' }}>
+                          <span className={`dev-badge ${u.role === 'admin' ? 'dev-badge-purple' : 'dev-badge-muted'}`} style={{ fontSize: '0.65rem', padding: '2px 8px' }}>
+                            {u.role.toUpperCase()}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1.5rem', textTransform: 'capitalize', opacity: 0.8 }}>
+                          {u.activeProvider || '---'}
+                        </td>
+                        <td style={{ padding: '0.85rem 1.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: keysCount > 0 ? '#10b981' : 'rgba(255,255,255,0.1)' }} />
+                            <span style={{ fontSize: '0.75rem', color: keysCount > 0 ? '#10b981' : 'var(--dev-muted)' }}>
+                              {keysCount} Key{keysCount !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1.5rem', textAlign: 'right' }}>
+                          <button 
+                            onClick={() => handleOpenUser(u)}
+                            style={{ 
+                              background: 'rgba(59, 130, 246, 0.1)', 
+                              color: '#3b82f6', 
+                              border: '1px solid rgba(59, 130, 246, 0.2)',
+                              borderRadius: '6px',
+                              padding: '4px 12px',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.4rem'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'; e.currentTarget.style.color = '#3b82f6'; }}
+                          >
+                            MANAGE <ChevronRight size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {filteredUsers.length === 0 && (
+                <div style={{ padding: '4rem', textAlign: 'center', opacity: 0.3 }}>
+                  <Users size={32} style={{ marginBottom: '1rem', opacity: 0.2 }} />
+                  <div>No maintainers match your search criteria.</div>
                 </div>
-              ))}
-              {filteredUsers.length === 0 && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '2rem', opacity: 0.3 }}>No maintainers found.</div>}
+              )}
             </div>
           </div>
         </section>
 
         {/* 2. SYSTEM OPERATIONS */}
         <section>
-          <div className="dev-stitle" style={{ marginBottom: '1rem', letterSpacing: '0.05em' }}>
-            <Database size={16} style={{ marginRight: '0.5rem' }} /> SYSTEM OPERATIONS
+          <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em' }}>
+            <Database size={18} style={{ marginRight: '0.5rem' }} /> SYSTEM OPERATIONS
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-            <button className="dev-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>
-              <div style={{ color: 'var(--dev-accent)' }}><Zap size={20} /></div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+            <button className="dev-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ color: 'var(--dev-accent)' }}><Zap size={24} /></div>
               <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Broadcast Signals</div>
+              <div style={{ fontSize: '0.7rem', opacity: 0.4 }}>Send notifications to all maintainers.</div>
             </button>
-            <button className="dev-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>
-              <div style={{ color: '#eab308' }}><Database size={20} /></div>
+            <button className="dev-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ color: '#eab308' }}><Database size={24} /></div>
               <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Snapshot Vault</div>
+              <div style={{ fontSize: '0.7rem', opacity: 0.4 }}>Backup all encrypted user metadata.</div>
             </button>
-            <button className="dev-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.2s', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
-              <div><FileText size={20} /></div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Export Logs</div>
+            <button className="dev-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.2s', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
+              <div><FileText size={24} /></div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Export System Logs</div>
+              <div style={{ fontSize: '0.7rem', opacity: 0.4 }}>Generate JSON dump of session activity.</div>
             </button>
           </div>
         </section>
 
         {/* 3. LIVE ANALYTICS FEED */}
         <section>
-          <div className="dev-stitle" style={{ marginBottom: '1rem', letterSpacing: '0.05em' }}>
-            <Activity size={16} style={{ marginRight: '0.5rem' }} /> LIVE ANALYTICS FEED
+          <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em' }}>
+            <Activity size={18} style={{ marginRight: '0.5rem' }} /> LIVE ANALYTICS FEED
           </div>
-          <div className="dev-card" style={{ padding: '0', maxHeight: '400px', overflowY: 'auto' }}>
+          <div className="dev-card" style={{ padding: '0', maxHeight: '400px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.08)' }}>
             {events.map((ev, idx) => (
               <div key={ev.id} style={{ 
                 padding: '1rem 1.5rem', 
@@ -256,10 +320,11 @@ function AdminContent() {
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: ev.category === 'ai' ? '#a855f7' : '#10b981', boxShadow: `0 0 8px ${ev.category === 'ai' ? '#a855f7' : '#10b981'}` }} />
                 <div style={{ width: '80px', fontSize: '0.7rem', opacity: 0.4, fontFamily: 'var(--dev-font-mono)' }}>{ev.timestamp?.toDate().toLocaleTimeString()}</div>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>{ev.email || 'anonymous'}</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{ev.email || 'anonymous'}</span>
                   <ChevronRight size={12} opacity={0.2} />
-                  <span style={{ fontSize: '0.8rem', opacity: 0.7 }}><strong style={{ opacity: 0.5, marginRight: '0.4rem' }}>{ev.category}:</strong> {ev.action}</span>
+                  <span style={{ fontSize: '0.8rem', opacity: 0.7 }}><strong style={{ opacity: 0.4, marginRight: '0.4rem', textTransform: 'uppercase', fontSize: '0.7rem' }}>{ev.category}:</strong> {ev.action}</span>
                 </div>
+                <MoreVertical size={14} style={{ opacity: 0.2 }} />
               </div>
             ))}
           </div>
@@ -277,7 +342,7 @@ function AdminContent() {
             style={{ 
               position: 'relative', 
               width: '100%', 
-              maxWidth: '800px', 
+              maxWidth: '850px', 
               background: '#0a0a0a', 
               borderRadius: '24px', 
               border: '1px solid rgba(255,255,255,0.1)', 
@@ -285,30 +350,32 @@ function AdminContent() {
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              maxHeight: '85vh'
+              maxHeight: '90vh'
             }}
           >
             {/* Modal Header */}
-            <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.01)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                <img src={selectedUser.photoURL} alt="" style={{ width: 56, height: 56, borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                <img src={selectedUser.photoURL} alt="" style={{ width: 60, height: 60, borderRadius: '16px', border: '2px solid rgba(255,255,255,0.1)' }} />
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold' }}>{selectedUser.displayName}</h3>
-                  <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.5 }}>{selectedUser.email}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>{selectedUser.displayName}</h3>
+                    <div className={`dev-badge ${selectedUser.role === 'admin' ? 'dev-badge-purple' : 'dev-badge-muted'}`}>{selectedUser.role.toUpperCase()}</div>
+                  </div>
+                  <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.9rem', opacity: 0.5 }}>{selectedUser.email}</p>
                 </div>
-                <div className={`dev-badge ${selectedUser.role === 'admin' ? 'dev-badge-purple' : 'dev-badge-muted'}`}>{selectedUser.role}</div>
               </div>
-              <button onClick={() => setSelectedUser(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#fff', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <X size={20} />
+              <button onClick={() => setSelectedUser(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#fff', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+                <X size={24} />
               </button>
             </div>
 
             {/* Modal Tabs */}
-            <div style={{ display: 'flex', padding: '0 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ display: 'flex', padding: '0 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)' }}>
               {[
-                { id: 'info', label: 'Identity', icon: <UserIcon size={14} /> },
+                { id: 'info', label: 'Credentials', icon: <Key size={14} /> },
                 { id: 'data', label: 'Cloud Vault', icon: <Database size={14} /> },
-                { id: 'chats', label: 'AI History', icon: <MessageSquare size={14} /> }
+                { id: 'chats', label: 'AI Telemetry', icon: <MessageSquare size={14} /> }
               ].map(tab => (
                 <button 
                   key={tab.id}
@@ -318,13 +385,13 @@ function AdminContent() {
                     background: 'none', 
                     border: 'none', 
                     color: activeTab === tab.id ? 'var(--dev-accent)' : 'var(--dev-muted)', 
-                    fontSize: '0.85rem', 
-                    fontWeight: 600,
+                    fontSize: '0.9rem', 
+                    fontWeight: 700,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.6rem',
-                    borderBottom: `2px solid ${activeTab === tab.id ? 'var(--dev-accent)' : 'transparent'}`,
+                    gap: '0.7rem',
+                    borderBottom: `3px solid ${activeTab === tab.id ? 'var(--dev-accent)' : 'transparent'}`,
                     transition: 'all 0.2s'
                   }}
                 >
@@ -334,26 +401,26 @@ function AdminContent() {
             </div>
 
             {/* Modal Body */}
-            <div style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
+            <div style={{ flex: 1, padding: '2.5rem', overflowY: 'auto' }}>
               {loadingDetails ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', gap: '1rem', opacity: 0.4 }}>
-                  <div className="dev-auth-spinner" />
-                  <span>Fetching encrypted signals...</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', gap: '1.5rem', opacity: 0.4 }}>
+                  <div className="dev-auth-spinner" style={{ width: '40px', height: '40px' }} />
+                  <span style={{ letterSpacing: '0.1em', fontSize: '0.8rem' }}>SYNCING USER TELEMETRY...</span>
                 </div>
               ) : (
                 <>
                   {activeTab === 'info' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
                       <div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.4, marginBottom: '1rem', letterSpacing: '0.1em' }}>CREDENTIALS</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '1.25rem', letterSpacing: '0.15em' }}>ENCRYPTED CREDENTIALS</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                           {Object.entries(selectedUser.apiKeys || {}).map(([p, k]) => (
-                            <div key={p} style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span style={{ fontWeight: 600, textTransform: 'capitalize', fontSize: '0.85rem' }}>{p}</span>
-                                <span style={{ fontSize: '0.7rem', fontFamily: 'var(--dev-font-mono)', opacity: k ? 0.6 : 0.2 }}>
-                                  {k ? (k.length > 20 ? `${k.substring(0, 12)}...${k.slice(-4)}` : k) : 'No key set'}
-                                </span>
+                            <div key={p} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <div style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.8rem', color: 'var(--dev-accent)', marginBottom: '0.2rem' }}>{p}</div>
+                                <div style={{ fontSize: '0.75rem', fontFamily: 'var(--dev-font-mono)', opacity: k ? 0.6 : 0.2 }}>
+                                  {k ? (k.length > 25 ? `${k.substring(0, 15)}...${k.slice(-4)}` : k) : 'No key provided'}
+                                </div>
                               </div>
                               {k && (
                                 <button 
@@ -366,29 +433,33 @@ function AdminContent() {
                                     setTimeout(() => {
                                       target.innerText = oldText;
                                       target.style.color = "";
-                                    }, 1000);
+                                    }, 1500);
                                   }}
                                   className="dev-btn dev-btn-ghost dev-btn-sm" 
-                                  style={{ fontSize: '0.65rem', border: '1px solid rgba(255,255,255,0.1)' }}
+                                  style={{ fontSize: '0.7rem', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 700, padding: '4px 10px' }}
                                 >
                                   COPY
                                 </button>
                               )}
                             </div>
                           ))}
-                          {Object.keys(selectedUser.apiKeys || {}).length === 0 && <div style={{ opacity: 0.3, fontSize: '0.85rem' }}>No API keys configured.</div>}
+                          {Object.keys(selectedUser.apiKeys || {}).length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>No keys set.</div>}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.4, marginBottom: '1rem', letterSpacing: '0.1em' }}>METADATA</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                           <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
-                              <div style={{ fontSize: '0.7rem', opacity: 0.5 }}>Provider</div>
-                              <div style={{ textTransform: 'capitalize' }}>{selectedUser.activeProvider || 'Not set'}</div>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '1.25rem', letterSpacing: '0.15em' }}>WORKSPACE CONFIG</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ fontSize: '0.7rem', opacity: 0.4, fontWeight: 700, marginBottom: '0.4rem' }}>ACTIVE PROVIDER</div>
+                              <div style={{ textTransform: 'capitalize', fontWeight: 700, fontSize: '1rem' }}>{selectedUser.activeProvider || 'Not set'}</div>
                            </div>
-                           <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
-                              <div style={{ fontSize: '0.7rem', opacity: 0.5 }}>User ID</div>
-                              <div style={{ fontSize: '0.75rem', fontFamily: 'var(--dev-font-mono)', opacity: 0.7 }}>{selectedUser.uid}</div>
+                           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ fontSize: '0.7rem', opacity: 0.4, fontWeight: 700, marginBottom: '0.4rem' }}>UID REFERENCE</div>
+                              <div style={{ fontSize: '0.8rem', fontFamily: 'var(--dev-font-mono)', opacity: 0.7, wordBreak: 'break-all' }}>{selectedUser.uid}</div>
+                           </div>
+                           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ fontSize: '0.7rem', opacity: 0.4, fontWeight: 700, marginBottom: '0.4rem' }}>LAST SEEN</div>
+                              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{selectedUser.lastLogin?.toDate ? selectedUser.lastLogin.toDate().toLocaleString() : 'Recently'}</div>
                            </div>
                         </div>
                       </div>
@@ -397,52 +468,54 @@ function AdminContent() {
 
                   {activeTab === 'data' && (
                     <div>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.4, marginBottom: '1rem', letterSpacing: '0.1em' }}>STORED OBJECTS ({userData.length})</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '1.5rem', letterSpacing: '0.15em' }}>CLOUD DATA PERSISTENCE ({userData.length} OBJECTS)</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                         {userData.map(d => (
-                          <div key={d.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '0.25rem' }}>{d.key}</div>
-                            <div style={{ fontSize: '0.75rem', opacity: 0.4, fontFamily: 'var(--dev-font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.value}</div>
+                          <div key={d.id} style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                            <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--dev-accent)' }}>{d.key}</div>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.5, fontFamily: 'var(--dev-font-mono)', lineHeight: 1.5, maxHeight: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.value}</div>
+                            <div style={{ position: 'absolute', right: '1rem', top: '1rem', opacity: 0.2 }}><ExternalLink size={14} /></div>
                           </div>
                         ))}
-                        {userData.length === 0 && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem', opacity: 0.2 }}>User storage is empty.</div>}
+                        {userData.length === 0 && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px' }}>Maintainer has no active cloud data.</div>}
                       </div>
                     </div>
                   )}
 
                   {activeTab === 'chats' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.4, marginBottom: '0.5rem', letterSpacing: '0.1em' }}>RECENT CONVERSATIONS</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '0.5rem', letterSpacing: '0.15em' }}>AI INTERACTION STREAM</div>
                       {userChats.map(session => (
-                        <div key={session.id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                          <div style={{ padding: '0.75rem 1.25rem', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--dev-accent)' }}>{session.provider.toUpperCase()}</span>
-                              <span style={{ opacity: 0.3 }}>/</span>
-                              <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>{session.model}</span>
+                        <div key={session.id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+                          <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <div style={{ background: 'var(--dev-accent)', color: '#000', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>{session.provider.toUpperCase()}</div>
+                              <span style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.6 }}>{session.model}</span>
                             </div>
-                            <div style={{ fontSize: '0.7rem', opacity: 0.4, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                              <Clock size={12} /> {session.timestamp?.toDate ? session.timestamp.toDate().toLocaleString() : 'Recently'}
+                            <div style={{ fontSize: '0.7rem', opacity: 0.4, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <Clock size={14} /> {session.timestamp?.toDate ? session.timestamp.toDate().toLocaleString() : 'Recently'}
                             </div>
                           </div>
-                          <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                             {session.messages.slice(0, 4).map((msg, midx) => (
-                              <div key={midx} style={{ display: 'flex', gap: '1rem', opacity: msg.role === 'assistant' ? 0.9 : 1 }}>
+                              <div key={midx} style={{ display: 'flex', gap: '1.25rem', opacity: msg.role === 'assistant' ? 0.9 : 1 }}>
                                 <div style={{ 
-                                  width: '24px', height: '24px', borderRadius: '6px', 
+                                  width: '32px', height: '32px', borderRadius: '10px', 
                                   background: msg.role === 'assistant' ? 'var(--dev-accent)' : 'rgba(255,255,255,0.1)',
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, flexShrink: 0
+                                  color: msg.role === 'assistant' ? '#000' : '#fff',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
+                                  boxShadow: msg.role === 'assistant' ? '0 0 15px var(--dev-accent-50)' : 'none'
                                 }}>
                                   {msg.role === 'assistant' ? 'AI' : 'U'}
                                 </div>
-                                <div style={{ fontSize: '0.85rem', lineHeight: 1.5, opacity: msg.role === 'assistant' ? 0.8 : 1 }}>{msg.content}</div>
+                                <div style={{ fontSize: '0.95rem', lineHeight: 1.6, opacity: msg.role === 'assistant' ? 0.8 : 1, paddingTop: '4px' }}>{msg.content}</div>
                               </div>
                             ))}
-                            {session.messages.length > 4 && <div style={{ fontSize: '0.7rem', opacity: 0.3, textAlign: 'center', padding: '0.5rem 0', borderTop: '1px dashed rgba(255,255,255,0.05)' }}>+ {session.messages.length - 4} more messages</div>}
+                            {session.messages.length > 4 && <div style={{ fontSize: '0.75rem', opacity: 0.3, textAlign: 'center', padding: '0.75rem 0', borderTop: '1px dashed rgba(255,255,255,0.05)', marginTop: '0.5rem' }}>+ {session.messages.length - 4} MORE MESSAGES IN SESSION</div>}
                           </div>
                         </div>
                       ))}
-                      {userChats.length === 0 && <div style={{ textAlign: 'center', padding: '3rem', opacity: 0.2 }}>No chat telemetry found for this maintainer.</div>}
+                      {userChats.length === 0 && <div style={{ textAlign: 'center', padding: '5rem', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px' }}>No chat telemetry recorded.</div>}
                     </div>
                   )}
                 </>
