@@ -49,8 +49,6 @@ const badgeImage = "/assets/lorapok-badge.png";
 const founderImage = "/assets/founder-avatar.jpg";
 const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/portfolio/bkash.jpg";
 const gravatarUrl = "https://gravatar.com/lorapok";
-const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "8022b84d-8a91-4b69-a24a-c9a9cc1f5099";
-const labsAccessKey = import.meta.env.VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY || "28051c1f-ed3d-4130-8a3b-c6e0cef7353c";
 const mailProxyUrl = import.meta.env.VITE_MAIL_PROXY_URL as string | undefined;
 const contactTargets = [
   {
@@ -165,85 +163,38 @@ function App() {
 
   const submitContactForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!web3FormsAccessKey) {
+    if (!mailProxyUrl) {
       setContactStatus("error");
-      setContactStatusText("Add VITE_WEB3FORMS_ACCESS_KEY to enable direct sending.");
+      setContactStatusText("Mail Proxy is not configured. Transmission aborted.");
       return;
     }
 
-    const subject =
-      `${activeContactTarget.subjectPrefix} ${contactSubject || "New message"}`.trim();
 
-    const targetAccessKey = activeContactTarget.id === "labs" ? labsAccessKey : web3FormsAccessKey;
-
-    // DRAFT FALLBACK: Only if no access key is provided at all
-    if (!targetAccessKey) {
-      const body = `Name: ${contactName || "Visitor"}\nEmail: ${contactEmail || "No email provided"}\n\n${contactMessage}`;
-      const mailtoUrl = `mailto:${activeContactTarget.recipientEmail}?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailtoUrl;
-
-      setContactStatus("success");
-      setContactStatusText(`Drafting email to ${activeContactTarget.recipientLabel}...`);
-      return;
-    }
 
     setContactStatus("sending");
     setContactStatusText("Sending your message...");
 
     try {
-      let response;
-      
-      // Attempt to use custom Mail Proxy (Cloudflare/Resend) for premium HTML design
-      if (mailProxyUrl) {
-        try {
-          response = await fetch(mailProxyUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: contactName || "Visitor",
-              email: contactEmail,
-              message: contactMessage,
-              route: activeContactTarget.label,
-            }),
-          });
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error("Mail Proxy Error:", errorData);
-            // If proxy exists but fails, we might still want to fallback, 
-            // but let's log it clearly.
-          }
-        } catch (err) {
-          console.error("Mail Proxy Fetch Failed:", err);
-        }
-      } 
-      
-      // Fallback to Web3Forms only if proxy is missing or failed to connect
-      if (!response || !response.ok) {
-        console.log("Falling back to Web3Forms...");
-        response = await fetch("https://api.web3forms.com/submit", {
-          body: JSON.stringify({
-            access_key: targetAccessKey,
-            from_name: "Lorapok Labs Portal",
-            subject,
-            "👤 Visitor Name": contactName || "Anonymous Builder",
-            "📧 Contact Email": contactEmail,
-            "📝 Message": contactMessage,
-            "---": "---",
-            "🚀 Interaction Route": activeContactTarget.label,
-            "📂 Project Scope": activeContactTarget.id === "labs" ? "Lorapok Labs / Enterprise" : "Founder Direct",
-            "🌐 Source Node": "lorapok.github.io",
-            replyto: contactEmail,
-            botcheck: "",
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          method: "POST",
-        });
+      // Use custom Mail Proxy (Cloudflare/Resend) for premium HTML design
+      if (!mailProxyUrl) {
+        throw new Error("Mail Proxy is not configured.");
+      }
+
+      const response = await fetch(mailProxyUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: contactName || "Visitor",
+          email: contactEmail,
+          message: contactMessage,
+          route: activeContactTarget.label,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Mail Proxy Error:", errorData);
+        throw new Error("Transmission failed. Please try again later.");
       }
 
       const result = (await response.json()) as { message?: string; success?: boolean; id?: string };
