@@ -176,7 +176,9 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       const docId = user ? user.uid : anonId;
       const docData: any = { apiKeys: { [provider]: key ? '***' : '' } };
       if (!user) docData.isAnonymous = true;
-      setDoc(doc(db, "users", docId), docData, { merge: true }).catch(console.error);
+      setDoc(doc(db, "users", docId), docData, { merge: true }).catch(() => {
+        // Silently fail if firestore is blocked or unreachable
+      });
     }
   };
 
@@ -207,6 +209,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const logEvent = async (category: LogCategory, action: string, metadata: any = {}) => {
     if (!isFirebaseConfigured) return;
     try {
+      // Use a timeout for analytics so they don't block anything
       await addDoc(collection(db, "analytics"), {
         category,
         action,
@@ -219,7 +222,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
         userAgent: navigator.userAgent
       });
     } catch (e) {
-      console.error("Analytics failed:", e);
+      // Analytics should NEVER cause a visible console error for the user
     }
   };
 

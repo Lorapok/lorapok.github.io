@@ -52,13 +52,18 @@ export default function UserProfilePanel() {
     try {
       const res = await listAll(listRef);
       const filePromises = res.items.map(async (itemRef) => {
-        const url = await getDownloadURL(itemRef);
-        return { name: itemRef.name, url, fullPath: itemRef.fullPath };
+        try {
+          const url = await getDownloadURL(itemRef);
+          return { name: itemRef.name, url, fullPath: itemRef.fullPath };
+        } catch (err) {
+          return null;
+        }
       });
-      const fileList = await Promise.all(filePromises);
+      const fileList = (await Promise.all(filePromises)).filter(f => f !== null) as StoredFile[];
       setFiles(fileList);
     } catch (e) {
-      console.error("Failed to fetch files:", e);
+      // Silently handle CORS/Permission errors to keep console clean
+      console.warn("Storage listing limited. Check Firebase CORS settings if files are missing.");
     }
   };
 

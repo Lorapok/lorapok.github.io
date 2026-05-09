@@ -79,14 +79,23 @@ function AdminContent() {
       
       // Fetch files
       const listRef = ref(storage, `users/${u.uid}/files`);
-      const res = await listAll(listRef);
-      const filePromises = res.items.map(async (itemRef) => {
-        const url = await getDownloadURL(itemRef);
-        return { name: itemRef.name, url };
-      });
-      setUserFiles(await Promise.all(filePromises));
+      try {
+        const res = await listAll(listRef);
+        const filePromises = res.items.map(async (itemRef) => {
+          try {
+            const url = await getDownloadURL(itemRef);
+            return { name: itemRef.name, url };
+          } catch {
+            return null;
+          }
+        });
+        const fileList = (await Promise.all(filePromises)).filter(f => f !== null) as {name: string, url: string}[];
+        setUserFiles(fileList);
+      } catch {
+        setUserFiles([]);
+      }
     } catch (e) {
-      console.error("Failed to load user details", e);
+      // Ignore main user fetch error
     } finally {
       setLoadingUserDetails(false);
     }
