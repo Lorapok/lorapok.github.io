@@ -36,6 +36,7 @@ jobs:
         env:
           VITE_WEB3FORMS_ACCESS_KEY: ${{ secrets.VITE_WEB3FORMS_ACCESS_KEY }}
           VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY: ${{ secrets.VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY }}
+          VITE_MAIL_PROXY_URL: ${{ secrets.VITE_MAIL_PROXY_URL }}
         run: npm run build
 
       - name: Upload Pages artifact

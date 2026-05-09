@@ -51,6 +51,7 @@ const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/por
 const gravatarUrl = "https://gravatar.com/lorapok";
 const web3FormsAccessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "8022b84d-8a91-4b69-a24a-c9a9cc1f5099";
 const labsAccessKey = import.meta.env.VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY || "28051c1f-ed3d-4130-8a3b-c6e0cef7353c";
+const mailProxyUrl = import.meta.env.VITE_MAIL_PROXY_URL as string | undefined;
 const contactTargets = [
   {
     id: "labs",
@@ -192,27 +193,59 @@ function App() {
     setContactStatusText("Sending your message...");
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        body: JSON.stringify({
-          access_key: targetAccessKey,
-          from_name: "Lorapok Labs Portal",
-          subject,
-          "👤 Visitor Name": contactName || "Anonymous Builder",
-          "📧 Contact Email": contactEmail,
-          "📝 Message": contactMessage,
-          "---": "---",
-          "🚀 Interaction Route": activeContactTarget.label,
-          "📂 Project Scope": activeContactTarget.id === "labs" ? "Lorapok Labs / Enterprise" : "Founder Direct",
-          "🌐 Source Node": "lorapok.github.io",
-          replyto: contactEmail,
-          botcheck: "",
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        method: "POST",
-      });
+      let response;
+      
+      // Attempt to use custom Mail Proxy (Cloudflare/Resend) for premium HTML design
+      if (mailProxyUrl) {
+        try {
+          response = await fetch(mailProxyUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: contactName || "Visitor",
+              email: contactEmail,
+              message: contactMessage,
+              route: activeContactTarget.label,
+            }),
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error("Mail Proxy Error:", errorData);
+            // If proxy exists but fails, we might still want to fallback, 
+            // but let's log it clearly.
+          }
+        } catch (err) {
+          console.error("Mail Proxy Fetch Failed:", err);
+        }
+      } 
+      
+      // Fallback to Web3Forms only if proxy is missing or failed to connect
+      if (!response || !response.ok) {
+        console.log("Falling back to Web3Forms...");
+        response = await fetch("https://api.web3forms.com/submit", {
+          body: JSON.stringify({
+            access_key: targetAccessKey,
+            from_name: "Lorapok Labs Portal",
+            subject,
+            "👤 Visitor Name": contactName || "Anonymous Builder",
+            "📧 Contact Email": contactEmail,
+            "📝 Message": contactMessage,
+            "---": "---",
+            "🚀 Interaction Route": activeContactTarget.label,
+            "📂 Project Scope": activeContactTarget.id === "labs" ? "Lorapok Labs / Enterprise" : "Founder Direct",
+            "🌐 Source Node": "lorapok.github.io",
+            replyto: contactEmail,
+            botcheck: "",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          method: "POST",
+        });
+      }
+
       const result = (await response.json()) as { message?: string; success?: boolean };
 
       if (!response.ok || !result.success) {
