@@ -91,13 +91,13 @@ function AdminContent() {
           getDocs(collection(db, "analytics")),
         ]);
         
-        // Users (Initial 50)
-        const uQuery = query(collection(db, "users"), orderBy("email"), limit(50));
+        // Users (Initial 10)
+        const uQuery = query(collection(db, "users"), orderBy("email"), limit(10));
         const uSnap = await getDocs(uQuery);
         
         setUsers(uSnap.docs.map(doc => doc.data() as UserProfile));
         setLastDoc(uSnap.docs[uSnap.docs.length - 1]);
-        setHasMore(uSnap.size === 50);
+        setHasMore(uSnap.size === 10);
         
         setStats({
           users: uSnap.size, // This will be updated to total count if needed, but for now shows loaded
@@ -118,13 +118,13 @@ function AdminContent() {
     if (!lastDoc || loadingMore || !hasMore) return;
     setLoadingMore(true);
     try {
-      const nextQuery = query(collection(db, "users"), orderBy("email"), startAfter(lastDoc), limit(50));
+      const nextQuery = query(collection(db, "users"), orderBy("email"), startAfter(lastDoc), limit(10));
       const nextSnap = await getDocs(nextQuery);
       
       const newUsers = nextSnap.docs.map(doc => doc.data() as UserProfile);
       setUsers(prev => [...prev, ...newUsers]);
       setLastDoc(nextSnap.docs[nextSnap.docs.length - 1]);
-      setHasMore(nextSnap.size === 50);
+      setHasMore(nextSnap.size === 10);
     } catch (e) {
       console.error("Pagination error:", e);
     } finally {
