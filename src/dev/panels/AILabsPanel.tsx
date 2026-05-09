@@ -1,5 +1,6 @@
 // src/dev/panels/AILabsPanel.tsx
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { useDevAuth } from "../DevAuth";
 
 import { AI_PROVIDERS } from "../constants/providers";
@@ -83,7 +84,7 @@ interface AILabsPanelProps {
 }
 
 export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
-  const { apiKeys, setApiKey, activeProvider, setActiveProvider, logEvent } = useDevAuth();
+  const { apiKeys, setApiKey, activeProvider, setActiveProvider, activeModels, setActiveModel, logEvent } = useDevAuth();
   const [keyInput, setKeyInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     { role: "ai", text: "Hey! I'm Lorapok AI — I know everything about this org, our open-source projects, and developer tooling. Ask me anything, or switch providers above and I'll use that instead." }
@@ -91,6 +92,7 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
   const [chatInput, setChatInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const [showVariantDropdown, setShowVariantDropdown] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const chatHistory = useRef<{ role: string; content: string }[]>([]);
 
@@ -139,7 +141,7 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
         headers["anthropic-version"] = "2023-06-01";
         headers["anthropic-dangerous-direct-browser-access"] = "true";
         body = {
-          model: activeP.model,
+          model: activeModels[activeProvider] || activeP.model,
           max_tokens: 600,
           system: LORAPOK_SYSTEM,
           messages: chatHistory.current,
@@ -157,7 +159,7 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
         
         headers["Authorization"] = `Bearer ${key}`;
         body = {
-          model: activeP.model,
+          model: activeModels[activeProvider] || activeP.model,
           messages: [
             { role: "system", content: LORAPOK_SYSTEM },
             ...chatHistory.current.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content }))
@@ -294,9 +296,61 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
               Ask anything about the org, contributing, or open source
             </div>
           </div>
-          <div style={{ position: "relative", marginLeft: "auto" }}>
+          <div style={{ position: "relative", marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+            
+            {/* Model Variant Dropdown */}
+            {apiKeys[activeProvider] && activeP.availableModels?.length > 0 && (
+              <div style={{ position: "relative" }}>
+                <button 
+                  onClick={() => { setShowVariantDropdown(!showVariantDropdown); setShowModelDropdown(false); }}
+                  style={{ 
+                    fontSize: "0.65rem", padding: "4px 8px", border: `1px solid var(--dev-border)`, 
+                    borderRadius: "6px", color: "var(--dev-muted)", fontFamily: "var(--dev-font-mono)", 
+                    background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px"
+                  }}
+                >
+                  <span style={{ maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {activeModels[activeProvider] || activeP.model}
+                  </span>
+                  <span style={{ fontSize: "0.5rem", opacity: 0.6 }}>▼</span>
+                </button>
+                {showVariantDropdown && (
+                  <div style={{
+                    position: "absolute", top: "100%", right: 0, marginTop: "0.5rem", 
+                    background: "rgba(15, 15, 19, 0.95)", border: "1px solid var(--dev-border)", 
+                    borderRadius: "8px", padding: "0.5rem", zIndex: 101, width: "220px",
+                    backdropFilter: "blur(20px)", boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+                    display: "flex", flexDirection: "column", gap: "2px", maxHeight: "250px", overflowY: "auto"
+                  }}>
+                    <div style={{ padding: "0.2rem 0.5rem", fontSize: "0.6rem", color: "var(--dev-muted)", fontFamily: "var(--dev-font-mono)" }}>SELECT MODEL VARIANT</div>
+                    {activeP.availableModels.map(modelId => {
+                      const isActive = (activeModels[activeProvider] || activeP.model) === modelId;
+                      return (
+                        <div 
+                          key={modelId}
+                          onClick={() => { setActiveModel(activeProvider, modelId); setShowVariantDropdown(false); }}
+                          style={{
+                            padding: "0.6rem 0.8rem", borderRadius: "6px", cursor: "pointer",
+                            display: "flex", alignItems: "center", gap: "0.5rem",
+                            background: isActive ? `${activeP.color}15` : "transparent",
+                            color: isActive ? "#fff" : "var(--dev-muted)", fontSize: "0.75rem", fontFamily: "var(--dev-font-mono)",
+                            transition: "background 0.2s"
+                          }}
+                          onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                          onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
+                        >
+                          {isActive && <span style={{ color: activeP.color }}>✓</span>}
+                          {modelId}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
             <button 
-              onClick={() => setShowModelDropdown(!showModelDropdown)}
+              onClick={() => { setShowModelDropdown(!showModelDropdown); setShowVariantDropdown(false); }}
               style={{ 
                 fontSize: "0.7rem", padding: "4px 8px", border: `1px solid ${activeP.color}40`, 
                 borderRadius: "6px", color: activeP.color, fontFamily: "var(--dev-font-mono)", 
@@ -363,7 +417,30 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
                   <div className="dev-msg-av" style={{ background: "transparent", border: `1px solid ${m.role === "ai" ? "var(--dev-green)" : "var(--dev-cyan)"}` }}>
                     {m.role === "ai" ? <AILarva /> : <UserLarva />}
                   </div>
-                  <div className="dev-msg-bubble" style={{ whiteSpace: "pre-wrap" }}>{m.text}</div>
+                  <div className="dev-msg-bubble" style={m.role === "ai" ? {} : { whiteSpace: "pre-wrap" }}>
+                    {m.role === "ai" ? (
+                      <ReactMarkdown
+                        components={{
+                          code: ({ node, inline, className, children, ...props }: any) => {
+                            const match = /language-(\w+)/.exec(className || "");
+                            return !inline && match ? (
+                              <div style={{ background: "rgba(0,0,0,0.5)", padding: "0.5rem", borderRadius: "6px", overflowX: "auto", margin: "0.5rem 0", border: "1px solid var(--dev-border)" }}>
+                                <code className={className} {...props}>{children}</code>
+                              </div>
+                            ) : (
+                              <code style={{ background: "rgba(255,255,255,0.1)", padding: "2px 4px", borderRadius: "4px" }} {...props}>
+                                {children}
+                              </code>
+                            );
+                          }
+                        }}
+                      >
+                        {m.text}
+                      </ReactMarkdown>
+                    ) : (
+                      m.text
+                    )}
+                  </div>
                 </div>
               ))}
               {isStreaming && (

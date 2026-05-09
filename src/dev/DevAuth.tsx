@@ -13,6 +13,8 @@ import { AI_PROVIDERS, type AIProviderId } from "./constants/providers";
 
 export type { AIProviderId };
 
+export type LogCategory = 'auth' | 'ai' | 'nav' | 'config' | 'system' | 'profile';
+
 interface DevContextType {
   user: User | null;
   loading: boolean;
@@ -25,9 +27,11 @@ interface DevContextType {
   setApiKey: (provider: AIProviderId, key: string) => void;
   activeProvider: AIProviderId;
   setActiveProvider: (id: AIProviderId) => void;
+  activeModels: Record<string, string>;
+  setActiveModel: (provider: AIProviderId, model: string) => void;
   
   // Analytics & Logging
-  logEvent: (category: string, action: string, metadata?: any) => Promise<void>;
+  logEvent: (category: LogCategory, action: string, metadata?: any) => Promise<void>;
 }
 
 const DevContext = createContext<DevContextType>({
@@ -40,6 +44,8 @@ const DevContext = createContext<DevContextType>({
   setApiKey: () => {},
   activeProvider: "claude",
   setActiveProvider: () => {},
+  activeModels: {},
+  setActiveModel: () => {},
   logEvent: async () => {},
 });
 
@@ -55,6 +61,13 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     const saved: Record<string, string> = {};
     AI_PROVIDERS.forEach(p => {
       saved[p.id] = localStorage.getItem(`lpk_key_${p.id}`) || "";
+    });
+    return saved;
+  });
+  const [activeModels, setActiveModels] = useState<Record<string, string>>(() => {
+    const saved: Record<string, string> = {};
+    AI_PROVIDERS.forEach(p => {
+      saved[p.id] = localStorage.getItem(`lpk_model_${p.id}`) || p.availableModels[0];
     });
     return saved;
   });
@@ -80,6 +93,15 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
           if (data.activeProvider) {
             setActiveProvider(data.activeProvider as AIProviderId);
             localStorage.setItem("lpk_active_provider", data.activeProvider);
+          }
+          if (data.activeModels) {
+            setActiveModels(prev => {
+              const newModels = { ...prev, ...data.activeModels };
+              Object.entries(newModels).forEach(([k, v]) => {
+                if (typeof v === "string") localStorage.setItem(`lpk_model_${k}`, v);
+              });
+              return newModels;
+            });
           }
         }
       } catch (err) {
@@ -149,7 +171,19 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logEvent = async (category: string, action: string, metadata: any = {}) => {
+  const updateActiveModel = (provider: AIProviderId, model: string) => {
+    localStorage.setItem(`lpk_model_${provider}`, model);
+    setActiveModels(prev => ({ ...prev, [provider]: model }));
+    logEvent("config", "model_switched", { provider, model });
+
+    if (user && isFirebaseConfigured) {
+      setDoc(doc(db, "users", user.uid), {
+        activeModels: { [provider]: model }
+      }, { merge: true }).catch(console.error);
+    }
+  };
+
+  const logEvent = async (category: LogCategory, action: string, metadata: any = {}) => {
     if (!isFirebaseConfigured) return;
     try {
       await addDoc(collection(db, "analytics"), {
@@ -175,6 +209,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
         user, loading, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
         apiKeys, setApiKey: updateApiKey,
         activeProvider, setActiveProvider: updateActiveProvider,
+        activeModels, setActiveModel: updateActiveModel,
         logEvent
       }}
     >

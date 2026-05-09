@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDevAuth } from "../DevAuth";
+import { AI_PROVIDERS } from "../constants/providers";
 import { storage, db } from "../../lib/firebase";
 import { ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject } from "firebase/storage";
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
@@ -18,7 +19,7 @@ interface StoredFile {
 }
 
 export default function UserProfilePanel() {
-  const { user } = useDevAuth();
+  const { user, apiKeys, setApiKey } = useDevAuth();
   
   // Data State
   const [dataKey, setDataKey] = useState("");
@@ -208,6 +209,50 @@ export default function UserProfilePanel() {
             )}
           </div>
         </div>
+        
+        {/* API Keys Section */}
+        <div className="dev-card" style={{ gridColumn: "1 / -1" }}>
+          <div className="dev-stitle"><span className="dev-stitle-dot" />API Key Management</div>
+          <p className="dev-auth-sub" style={{ marginBottom: "1rem" }}>Your keys are synced across your devices via Firebase.</p>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+            {AI_PROVIDERS.map(p => {
+              const hasKey = !!apiKeys[p.id];
+              return (
+                <div key={p.id} className="dev-msg" style={{ display: "flex", flexDirection: "column", gap: "0.5rem", padding: "1rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.color }}></span>
+                      <strong style={{ color: "var(--dev-fg)" }}>{p.label}</strong>
+                    </div>
+                    {hasKey ? <span className="dev-badge dev-badge-green" style={{ fontSize: "0.6rem" }}>Configured</span> : <span className="dev-badge dev-badge-muted" style={{ fontSize: "0.6rem" }}>Not Set</span>}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+                    <input 
+                      className="dev-form-input" 
+                      type="password" 
+                      placeholder={hasKey ? "••••••••••••" : `Enter ${p.label} key...`}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && e.currentTarget.value) {
+                          setApiKey(p.id, e.currentTarget.value);
+                          e.currentTarget.value = "";
+                        }
+                      }}
+                      style={{ flex: 1, padding: "0.4rem 0.6rem", fontSize: "0.75rem" }}
+                    />
+                    {hasKey && (
+                      <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={() => setApiKey(p.id, "")} style={{ color: "var(--dev-red)", padding: "0 0.5rem" }}>Clear</button>
+                    )}
+                  </div>
+                  <div style={{ fontSize: "0.6rem", color: "var(--dev-muted)", marginTop: "0.25rem" }}>
+                    Press Enter to save • {p.availableModels.length} models available
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     </div>
   );

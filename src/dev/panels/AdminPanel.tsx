@@ -21,6 +21,9 @@ interface UserProfile {
   photoURL: string;
   role: string;
   lastLogin: any;
+  apiKeys?: Record<string, string>;
+  activeProvider?: string;
+  activeModels?: Record<string, string>;
 }
 
 function AdminContent() {
@@ -184,6 +187,21 @@ function AdminContent() {
                                 {userData.map(d => (
                                   <div key={d.id} style={{ background: "var(--dev-bg2)", padding: "0.5rem", borderRadius: "4px" }}>
                                     <strong style={{ color: "var(--dev-fg)" }}>{d.key}:</strong> <span style={{ color: "var(--dev-muted2)" }}>{d.value.length > 50 ? d.value.substring(0, 50) + "..." : d.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="dev-stitle" style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}>API Keys</div>
+                            {!u.apiKeys || Object.keys(u.apiKeys).length === 0 ? <div style={{ color: "var(--dev-muted)" }}>No API keys configured.</div> : (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                                {Object.entries(u.apiKeys).map(([provider, key]) => (
+                                  <div key={provider} style={{ background: "var(--dev-bg2)", padding: "0.5rem", borderRadius: "4px", display: "flex", justifyContent: "space-between" }}>
+                                    <strong style={{ color: "var(--dev-fg)", textTransform: "capitalize" }}>{provider}:</strong> 
+                                    <span style={{ color: "var(--dev-muted2)", fontFamily: "var(--dev-font-mono)" }}>
+                                      {key.length > 8 ? `${key.substring(0, 4)}...${key.slice(-4)}` : "Set"}
+                                    </span>
                                   </div>
                                 ))}
                               </div>
