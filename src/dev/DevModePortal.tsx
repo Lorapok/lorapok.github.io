@@ -133,10 +133,8 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
 
           <div className="dev-nav-right">
             {configuredProviders.length > 0 && (
-              <button className="dev-nav-provider" onClick={() => switchPanel("ai-labs")}>
+              <button className="dev-nav-provider" onClick={() => switchPanel("ai-labs")} style={{ padding: '0 10px', minWidth: 'auto' }}>
                 <span className="dev-provider-dot" />
-                {configuredProviders[0]}
-                <span style={{ color: "var(--dev-muted)", marginLeft: "2px" }}>▾</span>
               </button>
             )}
             {user ? (
