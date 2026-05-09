@@ -101,15 +101,16 @@ export default function DashboardPanel({ onSwitchPanel }: DashboardPanelProps) {
   // Real-time Logs (CMD Board)
   useEffect(() => {
     const q = query(collection(db, 'analytics'), orderBy('timestamp', 'desc'), limit(30));
-    const unsub = onSnapshot(q, (snap) => {
-      const newLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as LogEntry));
-      setLogs(newLogs.reverse());
-      
-      // Auto-scroll terminal
-      setTimeout(() => {
-        if (terminalRef.current) terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-      }, 100);
-    });
+    const unsub = onSnapshot(q, 
+      (snap) => {
+        const newLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+        setLogs(newLogs.reverse());
+        setTimeout(() => {
+          if (terminalRef.current) terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+        }, 100);
+      },
+      (err) => console.warn("Dashboard analytics access restricted:", err.message)
+    );
     return () => unsub();
   }, []);
 

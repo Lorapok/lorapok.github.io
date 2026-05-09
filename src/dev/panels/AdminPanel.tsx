@@ -39,9 +39,12 @@ function AdminContent() {
   useEffect(() => {
     // Real-time Analytics Feed
     const qEvents = query(collection(db, "analytics"), orderBy("timestamp", "desc"), limit(10));
-    const unsubEvents = onSnapshot(qEvents, (snap) => {
-      setEvents(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AnalyticsEvent)));
-    });
+    const unsubEvents = onSnapshot(qEvents, 
+      (snap) => {
+        setEvents(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AnalyticsEvent)));
+      },
+      (err) => console.warn("Admin logs access restricted:", err.message)
+    );
 
     // Stats & User List
     const loadStats = async () => {
