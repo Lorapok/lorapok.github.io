@@ -37,9 +37,14 @@ export default function UserProfilePanel() {
     
     // Listen to user's stored data
     const q = query(collection(db, `users/${user.uid}/data`), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      setUserDataList(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StoredData)));
-    });
+    const unsub = onSnapshot(q, 
+      (snapshot) => {
+        setUserDataList(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StoredData)));
+      },
+      (err) => {
+        console.warn("Firestore access restricted:", err.message);
+      }
+    );
 
     fetchFiles();
 
