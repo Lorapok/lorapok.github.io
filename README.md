@@ -26,7 +26,7 @@ Built with performance and aesthetics at the core:
 - **Communication Infrastructure:** 
   - **Cloudflare Workers:** Acts as a custom serverless proxy for mail routing.
   - **Resend API:** Powering premium, branded HTML email transmissions.
-  - **Web3Forms:** High-reliability fallback for mission-critical inquiries.
+
 
 ---
 
@@ -43,8 +43,7 @@ To maintain the communication pipeline, the following secrets must be configured
 | Secret Name | Purpose |
 | :--- | :--- |
 | `VITE_MAIL_PROXY_URL` | The URL of your Cloudflare Worker proxy. |
-| `VITE_WEB3FORMS_ACCESS_KEY` | Access key for Founder inquiries (Fallback). |
-| `VITE_WEB3FORMS__LORAPOK_LABS_ACCESS_KEY` | Access key for Labs inquiries (Fallback). |
+
 
 ---
 

@@ -199,7 +199,7 @@ function App() {
 
       const result = (await response.json()) as { message?: string; success?: boolean; id?: string };
 
-      // Success if response is OK and (Web3Forms success OR Resend ID exists)
+      // Success if response is OK and (Resend ID exists or Proxy confirms success)
       const isSuccessful = response.ok && (result.success || result.id || mailProxyUrl);
 
       if (!isSuccessful) {
