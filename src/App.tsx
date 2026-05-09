@@ -195,7 +195,6 @@ function App() {
       const response = await fetch("https://api.web3forms.com/submit", {
         body: JSON.stringify({
           access_key: targetAccessKey,
-          template: "table",
           from_name: "Lorapok Labs Portal",
           subject,
           "👤 Visitor Name": contactName || "Anonymous Builder",
