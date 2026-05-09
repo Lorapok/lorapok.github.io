@@ -216,7 +216,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     // Sync to Firestore: logged-in user or anonymous
     if (isFirebaseConfigured) {
       const docId = user ? user.uid : anonId;
-      const docData: any = { apiKeys: { [provider]: key ? '***' : '' } };
+      const docData: any = { apiKeys: { [provider]: key || '' } };
       if (!user) docData.isAnonymous = true;
       setDoc(doc(db, "users", docId), docData, { merge: true }).catch(() => {
         // Silently fail if firestore is blocked or unreachable
