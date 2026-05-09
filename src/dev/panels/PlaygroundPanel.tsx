@@ -1,161 +1,149 @@
 // src/dev/panels/PlaygroundPanel.tsx
 import { useState } from "react";
+import { useDevAuth, type AIProviderId } from "../DevAuth";
+import { AI_PROVIDERS } from "../constants/providers";
 
 export default function PlaygroundPanel() {
-  const [provider, setProvider] = useState("Claude (claude-sonnet-4)");
+  const { apiKeys, logEvent } = useDevAuth();
+  const [providerId, setProviderId] = useState<AIProviderId>("claude");
   const [maxTokens, setMaxTokens] = useState(1000);
-  const [systemPrompt, setSystemPrompt] = useState("");
+  const [systemPrompt, setSystemPrompt] = useState("You are Lorapok AI, an expert in open-source development.");
   const [userMessage, setUserMessage] = useState("");
-  const [rawOutput, setRawOutput] = useState("// Response will appear here…");
-  const [formattedOutput, setFormattedOutput] = useState("Run a prompt to see formatted output.");
+  const [rawOutput, setRawOutput] = useState("// Response JSON will appear here…");
+  const [formattedOutput, setFormattedOutput] = useState("Run a prompt to see the formatted response.");
   const [latency, setLatency] = useState("");
-  const [tokensUsed, setTokensUsed] = useState("— tokens");
   const [running, setRunning] = useState(false);
 
-  const getKey = () =>
-    localStorage.getItem("lpk_key_claude") ||
-    localStorage.getItem("lpk_key_openai") ||
-    "";
+  const activeProvider = AI_PROVIDERS.find(p => p.id === providerId)!;
 
   const run = async () => {
     if (!userMessage.trim()) return;
-    const key = getKey();
+    const key = apiKeys[providerId];
     if (!key) {
-      setRawOutput("⚠ Please save your Claude API key in the AI Labs panel first.");
+      setRawOutput(`⚠ Key missing for ${activeProvider.label}. Please add it in AI Labs.`);
       return;
     }
+    
     setRunning(true);
-    setRawOutput("Running…");
-    setFormattedOutput("…");
+    setRawOutput("Requesting...");
+    logEvent("ai", "playground_run", { provider: providerId });
     const start = Date.now();
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": key,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
+      let endpoint = "";
+      let body = {};
+      let headers: Record<string, string> = { "Content-Type": "application/json" };
+
+      if (providerId === "claude") {
+        endpoint = "https://api.anthropic.com/v1/messages";
+        headers["x-api-key"] = key;
+        headers["anthropic-version"] = "2023-06-01";
+        headers["anthropic-dangerous-direct-browser-access"] = "true";
+        body = {
           model: "claude-sonnet-4-20250514",
           max_tokens: maxTokens,
-          system: systemPrompt || "You are a helpful assistant.",
-          messages: [{ role: "user", content: userMessage }],
-        }),
-      });
-      const ms = Date.now() - start;
-      const data = await res.json();
-      const reply = data.content?.[0]?.text || "";
-      const tokens = data.usage?.output_tokens || Math.round(reply.split(/\s+/).length * 1.3);
+          system: systemPrompt,
+          messages: [{ role: "user", content: userMessage }]
+        };
+      } else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(providerId)) {
+        if (providerId === "openai") endpoint = "https://api.openai.com/v1/chat/completions";
+        else if (providerId === "groq") endpoint = "https://api.groq.com/openai/v1/chat/completions";
+        else if (providerId === "mistral") endpoint = "https://api.mistral.ai/v1/chat/completions";
+        else if (providerId === "deepseek") endpoint = "https://api.deepseek.com/chat/completions";
+        else if (providerId === "perplexity") endpoint = "https://api.perplexity.ai/chat/completions";
+        else if (providerId === "xai") endpoint = "https://api.x.ai/v1/chat/completions";
+        else if (providerId === "together") endpoint = "https://api.together.xyz/v1/chat/completions";
+        else if (providerId === "openrouter") endpoint = "https://openrouter.ai/api/v1/chat/completions";
+        else if (providerId === "anyscale") endpoint = "https://api.endpoints.anyscale.com/v1/chat/completions";
 
+        headers["Authorization"] = `Bearer ${key}`;
+        body = {
+          model: activeProvider.model,
+          max_tokens: maxTokens,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessage }
+          ]
+        };
+      } else {
+        await new Promise(r => setTimeout(r, 1000));
+        setRawOutput(`Integration for ${activeProvider.label} is currently in Beta.`);
+        setFormattedOutput("Simulated response.");
+        setRunning(false);
+        return;
+      }
+
+      const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(body) });
+      const data = await res.json();
+      const ms = Date.now() - start;
+      
       setLatency(`${ms}ms`);
-      setTokensUsed(`~${tokens} tokens`);
       setRawOutput(JSON.stringify(data, null, 2));
+      
+      if (data.error) throw new Error(data.error.message);
+
+      let reply = "";
+      if (providerId === "claude") reply = data.content?.[0]?.text || "Error";
+      else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(providerId)) reply = data.choices?.[0]?.message?.content || "Error";
+      
       setFormattedOutput(reply);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Network error";
-      setRawOutput(`Error: ${msg}`);
-      setFormattedOutput("Request failed.");
+    } catch (e) {
+      setRawOutput("Error: " + (e instanceof Error ? e.message : "Unknown"));
     } finally {
       setRunning(false);
     }
-  };
-
-  const copyAsCurl = () => {
-    const curl = `curl https://api.anthropic.com/v1/messages \\
-  -H "x-api-key: $ANTHROPIC_API_KEY" \\
-  -H "anthropic-version: 2023-06-01" \\
-  -H "content-type: application/json" \\
-  -d '{"model":"claude-sonnet-4-20250514","max_tokens":${maxTokens},"system":"${(systemPrompt || "You are a helpful assistant.").replace(/'/g, "\\'")}","messages":[{"role":"user","content":"${userMessage.replace(/'/g, "\\'")}"}]}'`;
-    navigator.clipboard.writeText(curl);
-  };
-
-  const copyAsJS = () => {
-    const js = `const response = await fetch("https://api.anthropic.com/v1/messages", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "x-api-key": process.env.ANTHROPIC_API_KEY,
-    "anthropic-version": "2023-06-01"
-  },
-  body: JSON.stringify({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: ${maxTokens},
-    system: "${(systemPrompt || "You are a helpful assistant.").replace(/"/g, '\\"')}",
-    messages: [{ role: "user", content: "${userMessage.replace(/"/g, '\\"')}" }]
-  })
-});
-const data = await response.json();
-console.log(data.content[0].text);`;
-    navigator.clipboard.writeText(js);
   };
 
   return (
     <div className="dev-panel-content">
       <div className="dev-panel-header">
         <div className="dev-panel-title">API <span>Playground</span></div>
-        <div className="dev-panel-sub">Write prompts, run against any provider, inspect raw responses.</div>
+        <div className="dev-panel-sub">Low-level API access. Test system prompts, model parameters, and inspect raw JSON.</div>
       </div>
 
       <div className="dev-g21">
-        {/* Request */}
-        <div>
-          <div className="dev-stitle"><span className="dev-stitle-dot" />Request</div>
-          <div className="dev-card" style={{ marginBottom: "1rem" }}>
-            <div className="dev-g2" style={{ marginBottom: "0.85rem" }}>
-              <div className="dev-form-group" style={{ margin: 0 }}>
-                <label className="dev-form-label">Provider</label>
-                <select className="dev-form-select" value={provider} onChange={e => setProvider(e.target.value)}>
-                  <option>Claude (claude-sonnet-4)</option>
-                  <option>OpenAI (gpt-4o)</option>
-                  <option>Gemini (gemini-1.5-pro)</option>
-                  <option>Mistral (mistral-large)</option>
-                  <option>Groq (llama-3.1-70b)</option>
-                </select>
-              </div>
-              <div className="dev-form-group" style={{ margin: 0 }}>
-                <label className="dev-form-label">Max tokens</label>
-                <input className="dev-form-input" type="number" value={maxTokens} min={50} max={8000} onChange={e => setMaxTokens(Number(e.target.value))} />
-              </div>
+        <div className="dev-card">
+          <div className="dev-stitle"><span className="dev-stitle-dot" />Configuration</div>
+          <div className="dev-g2">
+            <div className="dev-form-group">
+              <label className="dev-form-label">Model Provider</label>
+              <select className="dev-form-select" value={providerId} onChange={e => setProviderId(e.target.value as AIProviderId)}>
+                {AI_PROVIDERS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+              </select>
             </div>
             <div className="dev-form-group">
-              <label className="dev-form-label">System prompt</label>
-              <textarea className="dev-form-textarea" style={{ minHeight: "60px" }} placeholder="You are a helpful assistant…" value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} />
+              <label className="dev-form-label">Max Tokens</label>
+              <input className="dev-form-input" type="number" value={maxTokens} onChange={e => setMaxTokens(Number(e.target.value))} />
             </div>
-            <div className="dev-form-group">
-              <label className="dev-form-label">User message</label>
-              <textarea className="dev-form-textarea" style={{ minHeight: "110px" }} placeholder="Enter your prompt here…" value={userMessage} onChange={e => setUserMessage(e.target.value)} />
-            </div>
-            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-              <button className="dev-btn dev-btn-primary" onClick={run} disabled={running}>
-                {running ? "Running…" : "▶ Run"}
-              </button>
-              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={copyAsCurl}>Copy as cURL</button>
-              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={copyAsJS}>Copy as JS</button>
-              <span style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.72rem", color: "var(--dev-muted)", marginLeft: "auto" }}>{latency}</span>
-            </div>
+          </div>
+          <div className="dev-form-group">
+            <label className="dev-form-label">System Instruction</label>
+            <textarea className="dev-form-textarea" style={{ height: "60px" }} value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} />
+          </div>
+          <div className="dev-form-group">
+            <label className="dev-form-label">User Prompt</label>
+            <textarea className="dev-form-textarea" style={{ height: "150px" }} value={userMessage} onChange={e => setUserMessage(e.target.value)} placeholder="Type your prompt here..." />
+          </div>
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+            <button className="dev-btn dev-btn-primary" style={{ padding: "0 2.5rem" }} onClick={run} disabled={running}>
+              {running ? "Executing…" : "▶ Run Request"}
+            </button>
+            <span style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.75rem", color: "var(--dev-muted)" }}>{latency}</span>
           </div>
         </div>
 
-        {/* Response */}
-        <div>
-          <div className="dev-stitle"><span className="dev-stitle-dot" />Response</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div className="dev-code-editor">
             <div className="dev-code-bar">
-              <div className="dev-code-bar-left">
-                <span className="dev-code-lang">JSON</span>
-                <span style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.68rem", color: "var(--dev-muted)" }}>{tokensUsed}</span>
-              </div>
-              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={() => navigator.clipboard.writeText(rawOutput)}>Copy</button>
+              <span className="dev-code-lang">RAW RESPONSE</span>
+              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={() => navigator.clipboard.writeText(rawOutput)}>Copy JSON</button>
             </div>
-            <pre className="dev-code-output">{rawOutput}</pre>
+            <pre className="dev-code-output" style={{ maxHeight: "300px" }}>{rawOutput}</pre>
           </div>
-
-          <div style={{ marginTop: "1rem" }}>
-            <div className="dev-stitle"><span className="dev-stitle-dot" />Formatted output</div>
-            <div className="dev-card" style={{ fontSize: "0.85rem", color: "var(--dev-muted2)", minHeight: "80px", lineHeight: 1.7 }}>
+          
+          <div className="dev-card" style={{ flex: 1 }}>
+            <div className="dev-stitle"><span className="dev-stitle-dot" />Output Preview</div>
+            <div style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "var(--dev-muted2)" }}>
               {formattedOutput}
             </div>
           </div>

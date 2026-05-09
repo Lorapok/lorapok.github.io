@@ -1,5 +1,6 @@
-// src/dev/panels/BlogPanel.tsx
 import { useState } from "react";
+import { useDevAuth } from "../DevAuth";
+import { AI_PROVIDERS } from "../constants/providers";
 
 const AUDIENCE_OPTIONS = ["Developers", "Open-source contributors", "Tech community", "General public"];
 const TONE_OPTIONS = ["Technical & precise", "Conversational", "Inspirational", "Tutorial-style"];
@@ -26,7 +27,9 @@ const BADGE_MAP = {
 };
 
 export default function BlogPanel() {
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [topic, setTopic] = useState("");
+
   const [context, setContext] = useState("");
   const [audience, setAudience] = useState("Developers");
   const [tone, setTone] = useState("Technical & precise");
@@ -34,12 +37,15 @@ export default function BlogPanel() {
   const [generating, setGenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState("");
   const [genTime, setGenTime] = useState("");
+  const { activeProvider, apiKeys } = useDevAuth();
+  
+  const activeP = AI_PROVIDERS.find(p => p.id === activeProvider) || AI_PROVIDERS[0];
 
   const generatePost = async () => {
     if (!topic && !context) return;
-    const key = localStorage.getItem("lpk_key_claude") || localStorage.getItem("lpk_key_openai") || "";
+    const key = apiKeys[activeProvider];
     if (!key) {
-      alert("Please save a Claude or OpenAI API key in AI Labs first.");
+      alert(`Please save an API key for ${activeP.label} in AI Labs first.`);
       return;
     }
     setGenerating(true);
@@ -69,23 +75,54 @@ Structure:
 Write the full blog post now. Output only the Markdown.`;
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": key,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+      let endpoint = "";
+      let body = {};
+      let headers: Record<string, string> = { "Content-Type": "application/json" };
+      
+      const systemInstruction = "You are a professional technical writer for Lorapok Labs. Write engaging, accurate blog posts about open-source software development. Output only valid Markdown, no preamble.";
+      
+      if (activeProvider === "claude") {
+        endpoint = "https://api.anthropic.com/v1/messages";
+        headers["x-api-key"] = key;
+        headers["anthropic-version"] = "2023-06-01";
+        headers["anthropic-dangerous-direct-browser-access"] = "true";
+        body = {
+          model: activeP.model,
           max_tokens: 1500,
-          system: "You are a professional technical writer for Lorapok Labs. Write engaging, accurate blog posts about open-source software development. Output only valid Markdown, no preamble.",
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
+          system: systemInstruction,
+          messages: [{ role: "user", content: prompt }]
+        };
+      } else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(activeProvider)) {
+        if (activeProvider === "openai") endpoint = "https://api.openai.com/v1/chat/completions";
+        else if (activeProvider === "groq") endpoint = "https://api.groq.com/openai/v1/chat/completions";
+        else if (activeProvider === "mistral") endpoint = "https://api.mistral.ai/v1/chat/completions";
+        else if (activeProvider === "deepseek") endpoint = "https://api.deepseek.com/chat/completions";
+        else if (activeProvider === "perplexity") endpoint = "https://api.perplexity.ai/chat/completions";
+        else if (activeProvider === "xai") endpoint = "https://api.x.ai/v1/chat/completions";
+        else if (activeProvider === "together") endpoint = "https://api.together.xyz/v1/chat/completions";
+        else if (activeProvider === "openrouter") endpoint = "https://openrouter.ai/api/v1/chat/completions";
+        else if (activeProvider === "anyscale") endpoint = "https://api.endpoints.anyscale.com/v1/chat/completions";
+
+        headers["Authorization"] = `Bearer ${key}`;
+        body = {
+          model: activeP.model,
+          messages: [
+            { role: "system", content: systemInstruction },
+            { role: "user", content: prompt }
+          ]
+        };
+      } else {
+        throw new Error("Provider not fully supported here yet.");
+      }
+
+      const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(body) });
       const data = await res.json();
-      const result = data.content?.[0]?.text || "Generation failed.";
+      
+      if (data.error) throw new Error(data.error.message);
+
+      let result = "";
+      if (activeProvider === "claude") result = data.content?.[0]?.text || "Generation failed.";
+      else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(activeProvider)) result = data.choices?.[0]?.message?.content || "Generation failed.";
       setGeneratedPost(result);
       setGenTime(((Date.now() - start) / 1000).toFixed(1));
     } catch (e) {
@@ -94,6 +131,37 @@ Write the full blog post now. Output only the Markdown.`;
       setGenerating(false);
     }
   };
+
+  if (selectedPost) {
+    return (
+      <div className="dev-panel-content">
+        <div style={{ marginBottom: "1.5rem" }}>
+          <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={() => setSelectedPost(null)}>
+            ← Back to System
+          </button>
+        </div>
+        <div className="dev-blog-reader">
+          <div className="reader-header">
+            <div className="reader-icon">{selectedPost.icon}</div>
+            <h1 className="reader-title">{selectedPost.title}</h1>
+            <div className="reader-meta">
+              <span className={`dev-badge ${BADGE_MAP[selectedPost.status]}`}>{selectedPost.status}</span>
+              <span>{selectedPost.readTime} reading time</span>
+              <span>Published {selectedPost.date}</span>
+            </div>
+          </div>
+          <div className="reader-content">
+            <p>This is a full preview of the blog post as it would appear on the live site. The content is parsed from Markdown and styled with Lorapok's high-fidelity theme.</p>
+            <p>Lorapok Labs focuses on building tools that are radically open. This post explores the technical architecture of our latest CLI tools and how we integrate AI to enhance the developer experience without adding bloat.</p>
+            <div className="reader-placeholder-box">
+              [ Full Markdown Content would render here ]
+            </div>
+            <p>We believe that open-source is not just about the code, but about the community and the knowledge sharing that happens around it. Stay tuned for more technical deep-dives.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dev-panel-content">
@@ -111,7 +179,7 @@ Write the full blog post now. Output only the Markdown.`;
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             {DEMO_POSTS.map(post => (
-              <div key={post.id} className="dev-blog-card">
+              <div key={post.id} className="dev-blog-card" onClick={() => setSelectedPost(post)} style={{ cursor: "pointer" }}>
                 <div className="dev-blog-thumb">
                   <div className="dev-blog-thumb-pattern" />
                   <span className="dev-blog-thumb-icon">{post.icon}</span>
@@ -128,6 +196,7 @@ Write the full blog post now. Output only the Markdown.`;
             ))}
           </div>
         </div>
+
 
         {/* Generator */}
         <div>

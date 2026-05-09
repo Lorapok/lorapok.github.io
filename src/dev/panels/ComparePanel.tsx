@@ -1,18 +1,12 @@
 // src/dev/panels/ComparePanel.tsx
 import { useState } from "react";
-
-const COMPARE_PROVIDERS = [
-  { id: "claude", label: "Claude", color: "#4ade80", badgeCls: "dev-badge-green" },
-  { id: "openai", label: "OpenAI", color: "#60a5fa", badgeCls: "dev-badge-blue" },
-  { id: "gemini", label: "Gemini", color: "#34d399", badgeCls: "dev-badge-cyan" },
-  { id: "groq", label: "Groq", color: "#a78bfa", badgeCls: "dev-badge-purple" },
-];
+import { useDevAuth, type AIProviderId } from "../DevAuth";
+import { AI_PROVIDERS } from "../constants/providers";
 
 interface ProviderResult {
-  id: string;
+  id: AIProviderId;
   label: string;
   color: string;
-  badgeCls: string;
   text: string;
   latency: string;
   tokens: string;
@@ -20,12 +14,13 @@ interface ProviderResult {
 }
 
 export default function ComparePanel() {
+  const { apiKeys, logEvent } = useDevAuth();
   const [prompt, setPrompt] = useState("");
-  const [selected, setSelected] = useState<string[]>(["claude", "openai"]);
+  const [selected, setSelected] = useState<AIProviderId[]>(["claude", "openai"]);
   const [results, setResults] = useState<ProviderResult[]>([]);
   const [running, setRunning] = useState(false);
 
-  const toggleProvider = (id: string) => {
+  const toggleProvider = (id: AIProviderId) => {
     setSelected(prev =>
       prev.includes(id)
         ? prev.length > 1 ? prev.filter(p => p !== id) : prev
@@ -35,52 +30,70 @@ export default function ComparePanel() {
 
   const runCompare = async () => {
     if (!prompt.trim()) return;
-    const key = localStorage.getItem("lpk_key_claude") || "";
-    if (!key) {
-      alert("Please save your Claude API key in AI Labs first.");
-      return;
-    }
-
-    const activeProviders = COMPARE_PROVIDERS.filter(p => selected.includes(p.id));
+    
+    const activeProviders = AI_PROVIDERS.filter(p => selected.includes(p.id));
     setResults(activeProviders.map(p => ({ ...p, text: "Running…", latency: "—", tokens: "—", loading: true })));
     setRunning(true);
+    logEvent("ai", "compare_run", { providers: selected });
 
-    const runProvider = async (p: typeof COMPARE_PROVIDERS[0]): Promise<Partial<ProviderResult>> => {
+    const runProvider = async (p: typeof AI_PROVIDERS[0]): Promise<Partial<ProviderResult>> => {
+      const key = apiKeys[p.id];
       const start = Date.now();
-      // Only Claude is actually implemented; others show a simulated note
-      if (p.id !== "claude") {
-        await new Promise(r => setTimeout(r, 600 + Math.random() * 800));
-        const simMs = Date.now() - start;
-        return {
-          text: `[${p.label} simulation] This feature requires your ${p.label} API key. Save a key for ${p.label} in AI Labs to see real responses here.`,
-          latency: `~${simMs}ms simulated`,
-          tokens: "simulated",
-          loading: false,
-        };
+      
+      if (!key) {
+        return { text: `⚠ Key missing for ${p.label}. Set it in AI Labs.`, latency: "—", tokens: "—", loading: false };
       }
+
       try {
-        const res = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": key,
-            "anthropic-version": "2023-06-01",
-            "anthropic-dangerous-direct-browser-access": "true",
-          },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-20250514",
+        let endpoint = "";
+        let body = {};
+        let headers: Record<string, string> = { "Content-Type": "application/json" };
+
+        if (p.id === "claude") {
+          endpoint = "https://api.anthropic.com/v1/messages";
+          headers["x-api-key"] = key;
+          headers["anthropic-version"] = "2023-06-01";
+          headers["anthropic-dangerous-direct-browser-access"] = "true";
+          body = {
+            model: p.model,
             max_tokens: 400,
-            messages: [{ role: "user", content: prompt }],
-          }),
-        });
-        const ms = Date.now() - start;
+            messages: [{ role: "user", content: prompt }]
+          };
+        } else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(p.id)) {
+          if (p.id === "openai") endpoint = "https://api.openai.com/v1/chat/completions";
+          else if (p.id === "groq") endpoint = "https://api.groq.com/openai/v1/chat/completions";
+          else if (p.id === "mistral") endpoint = "https://api.mistral.ai/v1/chat/completions";
+          else if (p.id === "deepseek") endpoint = "https://api.deepseek.com/chat/completions";
+          else if (p.id === "perplexity") endpoint = "https://api.perplexity.ai/chat/completions";
+          else if (p.id === "xai") endpoint = "https://api.x.ai/v1/chat/completions";
+          else if (p.id === "together") endpoint = "https://api.together.xyz/v1/chat/completions";
+          else if (p.id === "openrouter") endpoint = "https://openrouter.ai/api/v1/chat/completions";
+          else if (p.id === "anyscale") endpoint = "https://api.endpoints.anyscale.com/v1/chat/completions";
+
+          headers["Authorization"] = `Bearer ${key}`;
+          body = {
+            model: p.model,
+            max_tokens: 400,
+            messages: [{ role: "user", content: prompt }]
+          };
+        } else {
+          await new Promise(r => setTimeout(r, 800 + Math.random() * 1000));
+          return { text: `[${p.label}] Integration optimized for Claude/OpenAI. Live ${p.label} coming soon.`, latency: "Simulated", tokens: "—", loading: false };
+        }
+
+        const res = await fetch(endpoint, { method: "POST", headers, body: JSON.stringify(body) });
         const data = await res.json();
-        const text = data.content?.[0]?.text || (data.error ? `⚠ ${data.error.message}` : "No response.");
-        const tokens = data.usage?.output_tokens || Math.round(text.split(/\s+/).length * 1.3);
-        return { text, latency: `${ms}ms`, tokens: `${tokens} tokens`, loading: false };
-      } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : "Error";
-        return { text: `⚠ ${msg}`, latency: "—", tokens: "—", loading: false };
+        const ms = Date.now() - start;
+        
+        let text = "";
+        if (p.id === "claude") text = data.content?.[0]?.text || "No response.";
+        else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(p.id)) text = data.choices?.[0]?.message?.content || "No response.";
+        
+        if (data.error) throw new Error(data.error.message);
+
+        return { text, latency: `${ms}ms`, tokens: "—", loading: false };
+      } catch (e) {
+        return { text: `⚠ Error: ${e instanceof Error ? e.message : "Network"}`, latency: "—", tokens: "—", loading: false };
       }
     };
 
@@ -99,53 +112,54 @@ export default function ComparePanel() {
     <div className="dev-panel-content">
       <div className="dev-panel-header">
         <div className="dev-panel-title">Provider <span>Compare</span></div>
-        <div className="dev-panel-sub">One prompt → multiple providers simultaneously. See latency, tokens, and quality side-by-side.</div>
+        <div className="dev-panel-sub">Simultaneous multi-provider testing. Evaluate quality and latency side-by-side.</div>
       </div>
 
-      <div className="dev-card" style={{ marginBottom: "1.25rem" }}>
+      <div className="dev-card" style={{ marginBottom: "1.5rem" }}>
         <div className="dev-form-group">
-          <label className="dev-form-label">Prompt to compare</label>
-          <textarea className="dev-form-textarea" style={{ minHeight: "80px" }} placeholder="e.g. Explain the benefits of open-source software in 3 bullet points…" value={prompt} onChange={e => setPrompt(e.target.value)} />
+          <label className="dev-form-label">Comparison Prompt</label>
+          <textarea className="dev-form-textarea" style={{ minHeight: "100px" }} placeholder="e.g. Write a technical summary of Lorapok's mission..." value={prompt} onChange={e => setPrompt(e.target.value)} />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-            {COMPARE_PROVIDERS.map(p => (
-              <button
-                key={p.id}
-                className="dev-chip"
-                style={selected.includes(p.id) ? { borderColor: `${p.color}55`, color: p.color } : {}}
-                onClick={() => toggleProvider(p.id)}
-              >
-                {selected.includes(p.id) ? "✓ " : ""}{p.label}
-              </button>
-            ))}
-          </div>
-          <button className="dev-btn dev-btn-primary dev-btn-sm" style={{ marginLeft: "auto" }} onClick={runCompare} disabled={running}>
-            {running ? "Running…" : "⚖ Compare now"}
+        <div className="dev-provider-grid">
+          {AI_PROVIDERS.map(p => (
+            <button
+              key={p.id}
+              className={`dev-provider-chip ${selected.includes(p.id) ? "active" : ""}`}
+              onClick={() => toggleProvider(p.id)}
+            >
+              <span className="dev-pdot" style={{ background: p.color }} />
+              {p.label}
+            </button>
+          ))}
+          <button className="dev-btn dev-btn-primary" style={{ marginLeft: "auto", padding: "0 2rem" }} onClick={runCompare} disabled={running || !prompt}>
+            {running ? "Comparing…" : "⚖ Run Comparison"}
           </button>
         </div>
-        <p style={{ fontSize: "0.72rem", color: "var(--dev-muted)", fontFamily: "var(--dev-font-mono)", marginTop: "0.75rem" }}>
-          Select up to 3 providers. Only providers with saved API keys will return real results.
-        </p>
       </div>
 
-      {results.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${results.length}, 1fr)`, gap: "1rem" }}>
-          {results.map(r => (
-            <div key={r.id} className="dev-card" style={{ borderColor: `${r.color}25` }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                <div style={{ fontFamily: "var(--dev-font-head)", fontWeight: 700, fontSize: "0.92rem" }}>{r.label}</div>
-                <span className={`dev-badge ${r.badgeCls}`}>
-                  {r.loading ? "…" : `${r.latency} · ${r.tokens}`}
-                </span>
-              </div>
-              <div style={{ fontSize: "0.83rem", color: "var(--dev-muted2)", minHeight: "80px", lineHeight: 1.7 }}>
-                {r.loading ? <><span className="dev-typing-dot" /><span className="dev-typing-dot" /><span className="dev-typing-dot" /></> : r.text}
-              </div>
+      <div className="dev-g3" style={{ gridTemplateColumns: `repeat(${results.length || 1}, 1fr)` }}>
+        {results.map(r => (
+          <div key={r.id} className="dev-card" style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+              <div style={{ fontFamily: "var(--dev-font-head)", fontWeight: 800, color: r.color }}>{r.label.toUpperCase()}</div>
+              <div className="dev-badge dev-badge-muted">{r.latency}</div>
             </div>
-          ))}
-        </div>
-      )}
+            <div style={{ fontSize: "0.85rem", lineHeight: 1.7, color: "var(--dev-muted2)", flex: 1 }}>
+              {r.loading ? (
+                <div style={{ display: "flex", gap: "4px" }}>
+                  <span className="dev-typing-dot" /><span className="dev-typing-dot" /><span className="dev-typing-dot" />
+                </div>
+              ) : r.text}
+            </div>
+          </div>
+        ))}
+        {results.length === 0 && (
+          <div className="dev-empty-state" style={{ gridColumn: "1 / -1", padding: "4rem" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⚖</div>
+            <p>Select providers and run a prompt to compare results.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

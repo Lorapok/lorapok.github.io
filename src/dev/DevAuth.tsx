@@ -1,6 +1,5 @@
 // src/dev/DevAuth.tsx
-// Firebase Auth context for Lorapok Labs Developer Mode Admin access
-
+// Global Context for Lorapok Labs Developer Mode: Auth, API Keys, and Workspace State
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   onAuthStateChanged,
@@ -8,36 +7,94 @@ import {
   signOut,
   type User,
 } from "firebase/auth";
-import { auth, googleProvider, isFirebaseConfigured } from "../lib/firebase";
+import { auth, googleProvider, isFirebaseConfigured, db } from "../lib/firebase";
+import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc } from "firebase/firestore";
+import { AI_PROVIDERS, type AIProviderId } from "./constants/providers";
 
-interface AuthContextType {
+export type { AIProviderId };
+
+interface DevContextType {
   user: User | null;
   loading: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  
+  // API Key Management
+  apiKeys: Record<string, string>;
+  setApiKey: (provider: AIProviderId, key: string) => void;
+  activeProvider: AIProviderId;
+  setActiveProvider: (id: AIProviderId) => void;
+  
+  // Analytics & Logging
+  logEvent: (category: string, action: string, metadata?: any) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
+const DevContext = createContext<DevContextType>({
   user: null,
   loading: false,
   signIn: async () => {},
   signOut: async () => {},
   isAdmin: false,
+  apiKeys: {},
+  setApiKey: () => {},
+  activeProvider: "claude",
+  setActiveProvider: () => {},
+  logEvent: async () => {},
 });
 
-// Authorized admin emails — add yours here
 const ADMIN_EMAILS = ["mdshuvo40@gmail.com", "lorapokdev@gmail.com"];
 
 export function DevAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(isFirebaseConfigured);
+  const [activeProvider, setActiveProvider] = useState<AIProviderId>(() => {
+    return (localStorage.getItem("lpk_active_provider") as AIProviderId) || "claude";
+  });
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
+    const saved: Record<string, string> = {};
+    AI_PROVIDERS.forEach(p => {
+      saved[p.id] = localStorage.getItem(`lpk_key_${p.id}`) || "";
+    });
+    return saved;
+  });
+
+  // Sync keys from Firestore when user logs in
+  useEffect(() => {
+    if (!isFirebaseConfigured || !user) return;
+    const fetchUserData = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.apiKeys) {
+            setApiKeys(prev => {
+              const newKeys = { ...prev, ...data.apiKeys };
+              // Also sync to localStorage
+              Object.entries(newKeys).forEach(([k, v]) => {
+                if (typeof v === "string") localStorage.setItem(`lpk_key_${k}`, v);
+              });
+              return newKeys;
+            });
+          }
+          if (data.activeProvider) {
+            setActiveProvider(data.activeProvider as AIProviderId);
+            localStorage.setItem("lpk_active_provider", data.activeProvider);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch user data:", err);
+      }
+    };
+    fetchUserData();
+  }, [user]);
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
+      if (u) logEvent("auth", "session_start", { email: u.email });
     });
     return unsub;
   }, []);
@@ -45,7 +102,17 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const handleSignIn = async () => {
     if (!isFirebaseConfigured) return;
     try {
-      await signInWithPopup(auth, googleProvider);
+      const res = await signInWithPopup(auth, googleProvider);
+      if (res.user) {
+        const { uid, email, displayName, photoURL } = res.user;
+        await setDoc(doc(db, "users", uid), {
+          uid, email, displayName, photoURL,
+          lastLogin: serverTimestamp(),
+          role: ADMIN_EMAILS.includes(email || "") ? "admin" : "user"
+        }, { merge: true });
+        
+        logEvent("auth", "login_success", { email });
+      }
     } catch (err) {
       console.error("Sign-in failed:", err);
     }
@@ -54,66 +121,87 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const handleSignOut = async () => {
     if (!isFirebaseConfigured) return;
     await signOut(auth);
+    logEvent("auth", "logout");
+  };
+
+  const updateApiKey = (provider: AIProviderId, key: string) => {
+    localStorage.setItem(`lpk_key_${provider}`, key);
+    setApiKeys(prev => ({ ...prev, [provider]: key }));
+    logEvent("config", "key_updated", { provider });
+    
+    // Sync to Firestore if logged in
+    if (user && isFirebaseConfigured) {
+      setDoc(doc(db, "users", user.uid), {
+        apiKeys: { [provider]: key }
+      }, { merge: true }).catch(console.error);
+    }
+  };
+
+  const updateActiveProvider = (id: AIProviderId) => {
+    localStorage.setItem("lpk_active_provider", id);
+    setActiveProvider(id);
+    logEvent("config", "provider_switched", { provider: id });
+    
+    if (user && isFirebaseConfigured) {
+      setDoc(doc(db, "users", user.uid), {
+        activeProvider: id
+      }, { merge: true }).catch(console.error);
+    }
+  };
+
+  const logEvent = async (category: string, action: string, metadata: any = {}) => {
+    if (!isFirebaseConfigured) return;
+    try {
+      await addDoc(collection(db, "analytics"), {
+        category,
+        action,
+        metadata,
+        uid: user?.uid || "anonymous",
+        email: user?.email || "anonymous",
+        timestamp: serverTimestamp(),
+        platform: navigator.platform,
+        userAgent: navigator.userAgent
+      });
+    } catch (e) {
+      console.error("Analytics failed:", e);
+    }
   };
 
   const isAdmin = Boolean(user && ADMIN_EMAILS.includes(user.email ?? ""));
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, signIn: handleSignIn, signOut: handleSignOut, isAdmin }}
+    <DevContext.Provider
+      value={{ 
+        user, loading, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
+        apiKeys, setApiKey: updateApiKey,
+        activeProvider, setActiveProvider: updateActiveProvider,
+        logEvent
+      }}
     >
       {children}
-    </AuthContext.Provider>
+    </DevContext.Provider>
   );
 }
 
 export function useDevAuth() {
-  return useContext(AuthContext);
+  return useContext(DevContext);
 }
 
-/** Gate component — renders children only when authenticated admin */
 export function AdminGate({ children }: { children: ReactNode }) {
   const { user, loading, signIn, isAdmin } = useDevAuth();
 
-  if (loading) {
-    return (
-      <div className="dev-auth-loading">
-        <div className="dev-auth-spinner" />
-        <span>Authenticating…</span>
-      </div>
-    );
-  }
+  if (loading) return <div className="dev-auth-loading"><div className="dev-auth-spinner" /><span>Authenticating…</span></div>;
 
   if (!user || !isAdmin) {
     return (
       <div className="dev-auth-gate">
         <div className="dev-auth-gate-inner">
           <div className="dev-auth-badge">⚙ Admin Panel</div>
-          <h2 className="dev-auth-title">
-            <span>Restricted</span> Access
-          </h2>
-          <p className="dev-auth-sub">
-            This panel requires Lorapok Labs administrator credentials.
-          </p>
-          {!isFirebaseConfigured && (
-            <div className="dev-auth-warning">
-              ⚠ Firebase is not configured. Add VITE_FIREBASE_* env vars to enable auth.
-            </div>
-          )}
+          <h2 className="dev-auth-title"><span>Restricted</span> Access</h2>
+          <p className="dev-auth-sub">This panel requires Lorapok Labs administrator credentials.</p>
           <button className="dev-btn dev-btn-primary dev-auth-signin" onClick={signIn}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
             Sign in with Google
           </button>
-          {user && !isAdmin && (
-            <p style={{ color: "var(--dev-red)", fontSize: "0.8rem", marginTop: "1rem", fontFamily: "var(--dev-font-mono)" }}>
-              ⛔ {user.email} is not an authorized admin.
-            </p>
-          )}
         </div>
       </div>
     );
@@ -121,3 +209,4 @@ export function AdminGate({ children }: { children: ReactNode }) {
 
   return <>{children}</>;
 }
+

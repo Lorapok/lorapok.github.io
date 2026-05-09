@@ -11,10 +11,13 @@ import AnalyticsPanel from "./panels/AnalyticsPanel";
 import PromptLibraryPanel from "./panels/PromptLibraryPanel";
 import ComparePanel from "./panels/ComparePanel";
 import DashboardPanel from "./panels/DashboardPanel";
+import ReadmePanel from "./panels/ReadmePanel";
+import CommitsPanel from "./panels/CommitsPanel";
+import UserProfilePanel from "./panels/UserProfilePanel";
 import "./DevMode.css";
 
 
-type PanelId = "dashboard" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics";
+type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics";
 
 
 const devBadgeImage = "/assets/lorapok-dev-logo.png";
@@ -38,6 +41,8 @@ const WORKSPACE_ITEMS: NavItem[] = [
 const TOOL_ITEMS: NavItem[] = [
   { id: "compare", icon: "⊟", label: "AI Compare", badge: "β" },
   { id: "prompts", icon: "⊕", label: "Prompt Library" },
+  { id: "readme", icon: "📄", label: "README Gen" },
+  { id: "commits", icon: "⚡", label: "Commit Explain" },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
@@ -76,7 +81,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
   void showToast;
 
   const switchPanel = (id: string) => {
-    if (id === "dashboard" || id === "ai-labs" || id === "blog" || id === "playground" || id === "projects" ||
+    if (id === "dashboard" || id === "profile" || id === "ai-labs" || id === "blog" || id === "playground" || id === "projects" ||
       id === "readme" || id === "commits" || id === "compare" || id === "prompts" ||
       id === "admin" || id === "analytics") {
       setActivePanel(id as PanelId);
@@ -85,16 +90,19 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
 
   const renderPanel = () => {
     switch (activePanel) {
-      case "dashboard": return <DashboardPanel />;
+      case "dashboard": return <DashboardPanel onSwitchPanel={switchPanel} />;
+      case "profile": return <UserProfilePanel />;
       case "ai-labs": return <AILabsPanel onSwitchPanel={switchPanel} />;
       case "blog": return <BlogPanel />;
       case "playground": return <PlaygroundPanel />;
       case "projects": return <ProjectsPanel />;
       case "compare": return <ComparePanel />;
       case "prompts": return <PromptLibraryPanel onLoadToPlayground={(_text) => { switchPanel("playground"); }} />;
+      case "readme": return <ReadmePanel />;
+      case "commits": return <CommitsPanel />;
       case "admin": return <AdminPanel />;
       case "analytics": return <AnalyticsPanel />;
-      default: return <DashboardPanel />;
+      default: return <DashboardPanel onSwitchPanel={switchPanel} />;
     }
   };
 
@@ -112,16 +120,15 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
             <span className="dev-badge-pill">DEV MODE</span>
           </div>
 
-          <div className="dev-nav-tabs">
-            {[...WORKSPACE_ITEMS, ...TOOL_ITEMS, ...ADMIN_ITEMS].map(item => (
-              <button
-                key={item.id}
-                className={`dev-nav-tab ${activePanel === item.id ? "active" : ""}`}
-                onClick={() => setActivePanel(item.id)}
-              >
-                {item.icon} {item.label}
-              </button>
-            ))}
+          <div className="dev-breadcrumb">
+            <span className="bc-root">WORKSPACE</span>
+            <span className="bc-sep">/</span>
+            <span className="bc-active">
+              {(() => {
+                const item = [...WORKSPACE_ITEMS, ...TOOL_ITEMS, ...ADMIN_ITEMS].find(i => i.id === activePanel);
+                return item ? item.label.toUpperCase() : "DASHBOARD";
+              })()}
+            </span>
           </div>
 
           <div className="dev-nav-right">
@@ -133,16 +140,19 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
               </button>
             )}
             {user ? (
-              <img
-                src={user.photoURL || ""}
-                alt={user.displayName || ""}
-                className="dev-nav-avatar"
-                title={user.email || ""}
-                style={{ cursor: "pointer" }}
-                onClick={() => switchPanel("admin")}
-              />
+              <button 
+                className="dev-nav-avatar" 
+                onClick={() => switchPanel("profile")} 
+                title={user.email || "User Profile"}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--dev-green)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </button>
             ) : (
-              <button className="dev-nav-avatar" onClick={signIn} title="Sign in to access admin panel">
+              <button className="dev-nav-avatar" onClick={signIn} title="Sign in to access user profile">
                 <span style={{ fontSize: "0.75rem" }}>🔑</span>
               </button>
             )}
