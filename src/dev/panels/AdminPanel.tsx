@@ -79,24 +79,6 @@ function AdminContent() {
       // Fetch data
       const dataSnap = await getDocs(collection(db, `users/${u.uid}/data`));
       setUserData(dataSnap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
-      
-      // Fetch files
-      const listRef = ref(storage, `users/${u.uid}/files`);
-      try {
-        const res = await listAll(listRef);
-        const filePromises = res.items.map(async (itemRef) => {
-          try {
-            const url = await getDownloadURL(itemRef);
-            return { name: itemRef.name, url };
-          } catch {
-            return null;
-          }
-        });
-        const fileList = (await Promise.all(filePromises)).filter(f => f !== null) as {name: string, url: string}[];
-        setUserFiles(fileList);
-      } catch {
-        setUserFiles([]);
-      }
     } catch (e) {
       // Ignore main user fetch error
     } finally {
@@ -214,18 +196,6 @@ function AdminContent() {
                                     <span style={{ color: "var(--dev-muted2)", fontFamily: "var(--dev-font-mono)" }}>
                                       {key.length > 8 ? `${key.substring(0, 4)}...${key.slice(-4)}` : "Set"}
                                     </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="dev-stitle" style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}>Uploaded Files ({userFiles.length})</div>
-                            {userFiles.length === 0 ? <div style={{ color: "var(--dev-muted)" }}>No files uploaded.</div> : (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                                {userFiles.map(f => (
-                                  <div key={f.name} style={{ background: "var(--dev-bg2)", padding: "0.5rem", borderRadius: "4px" }}>
-                                    <a href={f.url} target="_blank" rel="noreferrer" style={{ color: "var(--dev-cyan)", textDecoration: "none", wordBreak: "break-all" }}>{f.name}</a>
                                   </div>
                                 ))}
                               </div>

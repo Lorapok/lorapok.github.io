@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDevAuth } from "../DevAuth";
 import { AI_PROVIDERS } from "../constants/providers";
-import { storage, db } from "../../lib/firebase";
-import { ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject } from "firebase/storage";
+import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 
 interface StoredData {
@@ -12,11 +11,7 @@ interface StoredData {
   createdAt: any;
 }
 
-interface StoredFile {
-  name: string;
-  url: string;
-  fullPath: string;
-}
+
 
 export default function UserProfilePanel() {
   const { user, apiKeys, setApiKey } = useDevAuth();
@@ -27,10 +22,7 @@ export default function UserProfilePanel() {
   const [userDataList, setUserDataList] = useState<StoredData[]>([]);
   const [savingData, setSavingData] = useState(false);
 
-  // File State
-  const [files, setFiles] = useState<StoredFile[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [savingData, setSavingData] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -46,31 +38,8 @@ export default function UserProfilePanel() {
       }
     );
 
-    fetchFiles();
-
     return () => unsub();
   }, [user]);
-
-  const fetchFiles = async () => {
-    if (!user) return;
-    const listRef = ref(storage, `users/${user.uid}/files`);
-    try {
-      const res = await listAll(listRef);
-      const filePromises = res.items.map(async (itemRef) => {
-        try {
-          const url = await getDownloadURL(itemRef);
-          return { name: itemRef.name, url, fullPath: itemRef.fullPath };
-        } catch (err) {
-          return null;
-        }
-      });
-      const fileList = (await Promise.all(filePromises)).filter(f => f !== null) as StoredFile[];
-      setFiles(fileList);
-    } catch (e) {
-      // Silently handle CORS/Permission errors to keep console clean
-      console.warn("Storage listing limited. Check Firebase CORS settings if files are missing.");
-    }
-  };
 
   const handleSaveData = async () => {
     if (!user || !dataKey.trim() || !dataValue.trim()) return;
@@ -97,44 +66,6 @@ export default function UserProfilePanel() {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-
-    const storageRef = ref(storage, `users/${user.uid}/files/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    setUploading(true);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        console.error("Upload failed", error);
-        setUploading(false);
-        alert("Upload failed");
-      },
-      () => {
-        setUploading(false);
-        setUploadProgress(0);
-        fetchFiles();
-      }
-    );
-  };
-
-  const handleDeleteFile = async (fullPath: string) => {
-    if (confirm("Delete this file?")) {
-      const fileRef = ref(storage, fullPath);
-      try {
-        await deleteObject(fileRef);
-        fetchFiles();
-      } catch (e) {
-        alert("Failed to delete file");
-      }
-    }
-  };
 
   if (!user) {
     return (
@@ -189,36 +120,7 @@ export default function UserProfilePanel() {
           </div>
         </div>
 
-        {/* File Upload Section */}
-        <div className="dev-card">
-          <div className="dev-stitle"><span className="dev-stitle-dot" />File Storage</div>
-          <p className="dev-auth-sub" style={{ marginBottom: "1rem" }}>Upload images, documents, or assets to your personal Firebase bucket.</p>
-          
-          <div className="dev-form-group">
-            <label className="dev-btn dev-btn-ghost" style={{ display: "inline-block", textAlign: "center", cursor: "pointer", width: "100%" }}>
-              {uploading ? `Uploading... ${Math.round(uploadProgress)}%` : "Choose File to Upload"}
-              <input type="file" style={{ display: "none" }} onChange={handleFileUpload} disabled={uploading} />
-            </label>
-          </div>
 
-          <div style={{ marginTop: "2rem" }}>
-            <div className="dev-stitle" style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}>Your Files</div>
-            {files.length === 0 ? (
-              <div className="dev-empty-state" style={{ padding: "1rem", minHeight: "auto" }}>No files uploaded.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                {files.map(file => (
-                  <div key={file.fullPath} className="dev-msg" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <a href={file.url} target="_blank" rel="noreferrer" style={{ color: "var(--dev-cyan)", textDecoration: "none", wordBreak: "break-all" }}>
-                      {file.name}
-                    </a>
-                    <button className="dev-btn dev-btn-ghost dev-btn-sm" style={{ color: "var(--dev-red)", padding: "0 0.5rem" }} onClick={() => handleDeleteFile(file.fullPath)}>×</button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
         
         {/* API Keys Section */}
         <div className="dev-card" style={{ gridColumn: "1 / -1" }}>
