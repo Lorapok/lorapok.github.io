@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDevAuth } from "../DevAuth";
 import { AI_PROVIDERS } from "../constants/providers";
+import { db } from "../../lib/firebase";
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 
 interface StoredData {
@@ -19,8 +20,6 @@ export default function UserProfilePanel() {
   const [dataKey, setDataKey] = useState("");
   const [dataValue, setDataValue] = useState("");
   const [userDataList, setUserDataList] = useState<StoredData[]>([]);
-  const [savingData, setSavingData] = useState(false);
-
   const [savingData, setSavingData] = useState(false);
 
   useEffect(() => {

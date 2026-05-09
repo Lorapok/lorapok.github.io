@@ -77,15 +77,21 @@ export default function DashboardPanel({ onSwitchPanel }: DashboardPanelProps) {
             latestUpdate: timeAgo,
             loading: false
           });
-
-          // Fetch contributors from the most active repo
-          const topRepo = repos.sort((a, b) => b.stargazers_count - a.stargazers_count)[0];
-          if (topRepo) {
-            const contRes = await fetch(`https://api.github.com/repos/lorapok/${topRepo.name}/contributors`);
-            const contributors = await contRes.json();
-            if (Array.isArray(contributors)) {
-              setMaintainers(contributors.slice(0, 3));
+          
+          try {
+            const topRepo = repos.sort((a, b) => b.stargazers_count - a.stargazers_count)[0];
+            if (topRepo) {
+              const contRes = await fetch(`https://api.github.com/repos/lorapok/${topRepo.name}/contributors`);
+              if (contRes.ok) {
+                const contributors = await contRes.json();
+                if (Array.isArray(contributors)) {
+                  setMaintainers(contributors.slice(0, 3));
+                  setGithub(prev => ({ ...prev, maintainers: contributors.length }));
+                }
+              }
             }
+          } catch (e) {
+            console.warn("GitHub contributor fetch failed");
           }
         } else {
           setGithub(prev => ({ ...prev, loading: false, latestUpdate: 'No public repos' }));

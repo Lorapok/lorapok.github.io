@@ -1,9 +1,8 @@
 // src/dev/panels/AdminPanel.tsx
 import { useState, useEffect } from "react";
 import { AdminGate, useDevAuth } from "../DevAuth";
-import { db, storage } from "../../lib/firebase";
+import { db } from "../../lib/firebase";
 import { collection, query, orderBy, limit, onSnapshot, getDocs } from "firebase/firestore";
-import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 interface AnalyticsEvent {
   id: string;
@@ -32,7 +31,6 @@ function AdminContent() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [stats, setStats] = useState({ users: 0, events: 0, readmes: 0, commits: 0 });
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [userFiles, setUserFiles] = useState<{name: string, url: string}[]>([]);
   const [userData, setUserData] = useState<{id: string, key: string, value: string}[]>([]);
   const [loadingUserDetails, setLoadingUserDetails] = useState(false);
 
