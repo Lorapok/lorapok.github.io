@@ -132,31 +132,52 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     return unsub;
   }, []);
 
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const handleSignIn = async () => {
     if (!isFirebaseConfigured) return;
+    setLoginError(null);
     try {
-      await signInWithRedirect(auth, googleProvider);
-    } catch (err) {
-      console.error("Sign-in failed:", err);
+      // Try Popup first (Better UX)
+      const res = await signInWithPopup(auth, googleProvider);
+      if (res.user) {
+        handleUserDoc(res.user);
+      }
+    } catch (err: any) {
+      console.warn("Popup blocked or failed, trying redirect fallback...", err);
+      if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request") {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+        } catch (redirErr: any) {
+          setLoginError(redirErr.message);
+        }
+      } else {
+        setLoginError(err.message);
+      }
     }
   };
 
-  // Handle Redirect Result
+  const handleUserDoc = async (u: User) => {
+    const { uid, email, displayName, photoURL } = u;
+    await setDoc(doc(db, "users", uid), {
+      uid, email, displayName, photoURL,
+      lastLogin: serverTimestamp(),
+      role: ADMIN_EMAILS.includes(email || "") ? "admin" : "user"
+    }, { merge: true }).catch(() => {});
+    logEvent("auth", "login_success", { email });
+  };
+
+  // Handle Redirect Result (Fallback)
   useEffect(() => {
     if (!isFirebaseConfigured) return;
     getRedirectResult(auth).then(async (res) => {
       if (res?.user) {
-        const { uid, email, displayName, photoURL } = res.user;
-        await setDoc(doc(db, "users", uid), {
-          uid, email, displayName, photoURL,
-          lastLogin: serverTimestamp(),
-          role: ADMIN_EMAILS.includes(email || "") ? "admin" : "user"
-        }, { merge: true });
-        
-        logEvent("auth", "login_success", { email });
+        handleUserDoc(res.user);
       }
     }).catch(err => {
-      console.error("Redirect sign-in error:", err);
+      if (err.code !== 'auth/web-storage-unsupported') {
+        setLoginError(err.message);
+      }
     });
   }, []);
 
@@ -239,6 +260,26 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+      {loginError && (
+        <div style={{
+          position: "fixed", bottom: "2rem", right: "2rem", zIndex: 9999,
+          background: "rgba(220, 38, 38, 0.95)", color: "#fff", padding: "1rem 1.5rem",
+          borderRadius: "12px", border: "1px solid rgba(255,255,255,0.2)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)", backdropFilter: "blur(10px)",
+          maxWidth: "350px", fontSize: "0.85rem", animation: "dev-slide-up 0.3s ease-out"
+        }}>
+          <div style={{ fontWeight: 700, marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span>⚠</span> Authentication Error
+          </div>
+          <div style={{ opacity: 0.9, lineHeight: 1.5, marginBottom: "0.8rem" }}>{loginError}</div>
+          <button 
+            onClick={() => setLoginError(null)}
+            style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "4px 10px", borderRadius: "6px", fontSize: "0.75rem", cursor: "pointer" }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
     </DevContext.Provider>
   );
 }
