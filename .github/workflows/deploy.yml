@@ -44,6 +44,10 @@ jobs:
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
         run: npm run build
 
+      # New Step: Adds the CNAME file to the dist folder before uploading
+      - name: Create CNAME file
+        run: echo "lorapok.tech" > dist/CNAME
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
