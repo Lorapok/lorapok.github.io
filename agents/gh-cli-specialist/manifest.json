@@ -1,0 +1,11 @@
+{
+  "name": "loragent-gh-cli-specialist",
+  "slug": "gh-cli-specialist",
+  "type": "specialist",
+  "source": "native",
+  "category": "tools",
+  "formation": "auto-team",
+  "description": "GitHub CLI Specialist. Automates PR management, issue triage, release generation, Actions workflow dispatch, and repo settings.",
+  "tools": ["gh", "git"],
+  "security": "vault-compliant"
+}

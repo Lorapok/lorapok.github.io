@@ -1,0 +1,23 @@
+{
+  "name": "loragent-cicd-specialist",
+  "slug": "cicd-specialist",
+  "version": "1.0.0",
+  "type": "specialist",
+  "category": "devops",
+  "formation": "auto-team",
+  "source": "native",
+  "description": "Lead CI/CD Pipeline Architect & Release Specialist. Designs, automates, and optimizes multi-target deployment pipelines (GitHub Actions, Cloudflare, Docker, NPM, PyPI, Composer, AMO, Open VSX).",
+  "capabilities": [
+    "github-actions",
+    "cloudflare-deployments",
+    "npm-publishing",
+    "pypi-publishing",
+    "composer-publishing",
+    "pipeline-triage"
+  ],
+  "dependencies": [
+    "loragent-boss",
+    "loragent-devops",
+    "loragent-accounts-specialist"
+  ]
+}

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Code2, Users, ExternalLink, Activity } from 'lucide-react';
+import { ArrowRight, Code2, Users, ExternalLink, Activity, Bot } from 'lucide-react';
 import { brand, philosophy, projects } from '../data/lorapok';
 import { ecosystemStats } from '../data/ecosystem-stats';
 import { teamMembers } from '../data/team';
@@ -74,9 +74,10 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-6xl mx-auto"
         >
           <StatsCounter label="Products" value={ecosystemStats.totalProducts} />
+          <StatsCounter label="Agents & Skills" value={ecosystemStats.totalAgents} prefix="+" />
           <StatsCounter label="Marketplaces" value={ecosystemStats.marketplaces} />
           <StatsCounter label="APIs" value={ecosystemStats.apisCatalogued} prefix="+" />
           <StatsCounter label="Repos" value={ecosystemStats.githubRepos} />
@@ -180,6 +181,96 @@ export default function HomePage() {
               </a>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Autonomous Agents & Skills Spotlight */}
+      <section className="px-4 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#67ff8f] uppercase tracking-wider mb-1">
+              <Bot size={14} /> Loragent Intelligence Network
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Autonomous Agents & Skills</h2>
+            <p className="text-gray-400 max-w-xl">
+              Over 240+ specialized intelligence units, autonomous formations, and deterministic skill modules ready for CLI and MCP summon.
+            </p>
+          </div>
+          <Link to="/agents" className="text-[#67ff8f] hover:underline flex items-center gap-1.5 mt-4 md:mt-0 font-mono text-sm">
+            Explore All 240+ Units <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            {
+              name: "Watchman Guardian",
+              slug: "loragent-watchman",
+              desc: "Session state guardian and crash recovery agent. Persists conversation snapshots and resumes crashed sessions automatically.",
+              badge: "Observer",
+              color: "text-rose-400 bg-rose-400/10 border-rose-400/30"
+            },
+            {
+              name: "Deploy Maestro",
+              slug: "loragent-deploy",
+              desc: "Handles multi-platform deployment operations across Vercel, Railway, Docker, and Cloudflare Pages with zero-trust guardrails.",
+              badge: "Skill Routine",
+              color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/30"
+            },
+            {
+              name: "Backend Senior Engineer",
+              slug: "loragent-backend-se",
+              desc: "Implements high-throughput APIs, core streaming logic, database indexing, and low-latency IPC architecture.",
+              badge: "Auto Unit",
+              color: "text-[#67ff8f] bg-[#67ff8f]/10 border-[#67ff8f]/30"
+            },
+            {
+              name: "Governance Guard",
+              slug: "loragent-governance-guard",
+              desc: "Audits AGENTS.md, Cursor rules, lifecycle hooks, MCP configs, and CI workflows for policy drift and unsafe automations.",
+              badge: "Skill Routine",
+              color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/30"
+            },
+            {
+              name: "Student Evolutionary AI",
+              slug: "loragent-student",
+              desc: "Continuous conversation learner. Listens to developer pairing, discovers novel workflows, and dynamic catalog expansions.",
+              badge: "Evolutionary",
+              color: "text-purple-400 bg-purple-400/10 border-purple-400/30"
+            },
+            {
+              name: "Browser Automation",
+              slug: "loragent-browser-automation-expert",
+              desc: "Headless browser driver and visual regression verifier with DevTools protocol and live session interaction.",
+              badge: "Auto Unit",
+              color: "text-[#67ff8f] bg-[#67ff8f]/10 border-[#67ff8f]/30"
+            }
+          ].map((agent) => (
+            <Link
+              key={agent.slug}
+              to="/agents"
+              className="p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 hover:border-[#67ff8f]/40 transition-all flex flex-col justify-between group"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${agent.color}`}>
+                    {agent.badge}
+                  </span>
+                  <code className="text-[11px] font-mono text-gray-500">{agent.slug}</code>
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-[#67ff8f] transition-colors mb-2">
+                  {agent.name}
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
+                  {agent.desc}
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono text-[#67ff8f]">
+                <span>Summon Unit</span>
+                <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 

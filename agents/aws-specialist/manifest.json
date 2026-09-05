@@ -1,0 +1,11 @@
+{
+  "name": "loragent-aws-specialist",
+  "slug": "aws-specialist",
+  "type": "specialist",
+  "source": "native",
+  "category": "cloud",
+  "formation": "auto-team",
+  "description": "Amazon Web Services (AWS) Specialist. Automates AWS CLI, Lambda, S3, ECS/EKS, DynamoDB, and CloudFormation.",
+  "tools": ["aws", "cdk", "curl"],
+  "security": "vault-compliant"
+}

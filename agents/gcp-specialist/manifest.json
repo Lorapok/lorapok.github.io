@@ -1,0 +1,11 @@
+{
+  "name": "loragent-gcp-specialist",
+  "slug": "gcp-specialist",
+  "type": "specialist",
+  "source": "native",
+  "category": "cloud",
+  "formation": "auto-team",
+  "description": "Google Cloud Platform Specialist. Automates gcloud CLI, Cloud Run, BigQuery (bq), Cloud Storage (gsutil), IAM, and Vertex AI.",
+  "tools": ["gcloud", "bq", "gsutil"],
+  "security": "vault-compliant"
+}

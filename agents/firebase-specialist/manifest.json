@@ -1,0 +1,11 @@
+{
+  "name": "loragent-firebase-specialist",
+  "slug": "firebase-specialist",
+  "type": "specialist",
+  "source": "native",
+  "category": "cloud",
+  "formation": "auto-team",
+  "description": "Firebase Ecosystem Specialist. Automates Firestore data modeling, Cloud Functions, Authentication, Hosting, and Security Rules auditing.",
+  "tools": ["firebase", "npx", "node"],
+  "security": "vault-compliant"
+}

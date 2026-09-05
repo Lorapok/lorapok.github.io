@@ -12,6 +12,7 @@ import HomePage from "./pages/HomePage";
 
 // Lazy-loaded pages for code splitting
 const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
+const AgentsPage = lazy(() => import("./pages/AgentsPage"));
 const TeamPage = lazy(() => import("./pages/TeamPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ChangelogPage = lazy(() => import("./pages/ChangelogPage"));
@@ -48,6 +49,7 @@ createRoot(document.getElementById("root")!).render(
           {/* v2.0 Routes with new Layout */}
           <Route element={<Layout><HomePage /></Layout>} path="/" />
           <Route element={<Layout><ProjectsPage /></Layout>} path="/projects" />
+          <Route element={<Layout><AgentsPage /></Layout>} path="/agents" />
           <Route element={<Layout><TeamPage /></Layout>} path="/team" />
           <Route element={<Layout><AboutPage /></Layout>} path="/about" />
           <Route element={<Layout><ChangelogPage /></Layout>} path="/changelog" />

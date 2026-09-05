@@ -1,0 +1,11 @@
+{
+  "name": "loragent-docker-specialist",
+  "slug": "docker-specialist",
+  "type": "specialist",
+  "source": "native",
+  "category": "devops",
+  "formation": "auto-team",
+  "description": "Docker & Containerization Specialist. Automates multi-stage Dockerfiles, Docker Compose stacks, container health checks, and image registries.",
+  "tools": ["docker", "docker-compose"],
+  "security": "vault-compliant"
+}

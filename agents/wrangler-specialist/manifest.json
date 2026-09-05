@@ -1,0 +1,11 @@
+{
+  "name": "loragent-wrangler-specialist",
+  "slug": "wrangler-specialist",
+  "type": "specialist",
+  "source": "native",
+  "category": "cloud",
+  "formation": "auto-team",
+  "description": "Cloudflare Wrangler CLI Specialist. Automates deployment of Workers, Pages, KV, D1, R2, Vectorize, Queues, and Secrets.",
+  "tools": ["wrangler", "npx", "curl"],
+  "security": "vault-compliant"
+}

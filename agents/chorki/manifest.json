@@ -1,0 +1,23 @@
+{
+  "name": "loragent-chorki",
+  "slug": "chorki",
+  "version": "1.0.0",
+  "type": "specialist",
+  "category": "orchestration",
+  "formation": "auto-team",
+  "source": "native",
+  "description": "The Unstoppable Autonomous Autopilot Loop Agent. Iterates relentlessly and executes multi-step objectives until 100% verifiably completed using continuous check-done verification hooks.",
+  "capabilities": [
+    "autonomous-loop",
+    "continuous-verification",
+    "self-healing",
+    "automated-testing",
+    "hook-triggering",
+    "zero-drop-execution"
+  ],
+  "dependencies": [
+    "loragent-boss",
+    "loragent-watchman",
+    "loragent-workspace-guard"
+  ]
+}

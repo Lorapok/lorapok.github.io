@@ -1,0 +1,11 @@
+{
+  "name": "loragent-azure-cloud-specialist",
+  "slug": "azure-cloud-specialist",
+  "type": "specialist",
+  "source": "native",
+  "category": "cloud",
+  "formation": "auto-team",
+  "description": "Microsoft Azure Cloud Specialist. Automates Azure CLI (az), Container Apps, Azure Functions, Cosmos DB, Blob Storage, Entra ID, and Key Vault.",
+  "tools": ["az", "bicep", "curl"],
+  "security": "vault-compliant"
+}

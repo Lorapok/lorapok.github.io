@@ -7,6 +7,7 @@ import LorapokLogo from '../LorapokLogo';
 const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Products', path: '/projects' },
+  { name: 'Agents', path: '/agents' },
   { name: 'Team', path: '/team' },
   { name: 'About', path: '/about' },
   { name: 'Changelog', path: '/changelog' },

@@ -1,0 +1,1358 @@
+{
+  "generated": "2026-08-29T04:19:55.271Z",
+  "total": 224,
+  "formations": {
+    "auto": [
+      {
+        "slug": "loragent-3d-designer",
+        "name": "3d Designer",
+        "description": "3D modeling for apps, software, and web.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-accessibility-audit",
+        "name": "Accessibility Audit",
+        "description": "Whole site or product — a full web accessibility (a11y) audit against WCAG 2.2, following the WCAG-EM methodology. Defines scope, samples representative pages and flows, runs the automated tier (`ac",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-accounts-specialist",
+        "name": "Accounts Specialist",
+        "description": "Credentials Manager. Safely handles tokens and sensitive info using the secure-cred-vault standard.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-addon-maker",
+        "name": "Addon Maker",
+        "description": "Browser extension and application addon creator.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-admin-reliability",
+        "name": "Admin Reliability",
+        "description": "Debugs and reviews the admin React SPA, Vitest setup, API middleware, Firebase auth, and Cloudflare Pages runtime. Use proactively for admin test failures, dashboard regressions, API errors, auth issu",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-ads-manager",
+        "name": "Ads Manager",
+        "description": "Suggests where to provide ads and how with strategy.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-ai-communicator",
+        "name": "Ai Communicator",
+        "description": "AI to AI Communicator. Gets more precise ideas from specialty-based models.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-algorithm-implementer",
+        "name": "Algorithm Implementer",
+        "description": "Problem solver like in LeetCode or competitive programming platforms.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-angular-specialist",
+        "name": "Angular Specialist",
+        "description": "Angular framework specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-animator",
+        "name": "Animator",
+        "description": "Creates animated designs.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-api-chef",
+        "name": "Api Chef",
+        "description": "Designs perfectly structured API responses.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-apple-ecosystem-expert",
+        "name": "Apple Ecosystem Expert",
+        "description": "macOS, iOS, Swift, and Apple ecosystem authority.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-architect-designer",
+        "name": "Architect Designer",
+        "description": "Works alongside the Tech Director to map out complex system architectures visually or structurally.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-auditor",
+        "name": "Auditor",
+        "description": "Security and code compliance auditing.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-authentication-engineer",
+        "name": "Authentication Engineer",
+        "description": "Enterprise Auth, OAuth, and JWT workflows.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-aws-specialist",
+        "name": "Aws Specialist",
+        "description": "Amazon Web Services (AWS) Specialist. Automates AWS CLI, Lambda, S3, ECS/EKS, DynamoDB, and CloudFormation with Zero-Trust Credential Vault integration.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-azure-cloud-specialist",
+        "name": "Azure Cloud Specialist",
+        "description": "Microsoft Azure Cloud Specialist. Automates Azure CLI (az), Container Apps, Azure Functions, Cosmos DB, Blob Storage, Entra ID, and Key Vault with Zero-Trust Credential Vault integration.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-azure-specialist",
+        "name": "Azure Specialist",
+        "description": "Microsoft Azure cloud infrastructure expert.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-backend-se",
+        "name": "Backend Se",
+        "description": "The Backend Senior Software Engineer. Implements APIs, core player logic, and data structures.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-browser-automation-expert",
+        "name": "Browser Automation Expert",
+        "description": "Playwright/Puppeteer/Selenium E2E testing.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-browser-specialist",
+        "name": "Browser Specialist",
+        "description": "Operates exclusively via Browser MCP to navigate and automate web tasks.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-bug-hunter",
+        "name": "Bug Hunter",
+        "description": "The Chela. Most critical problem solver developer. Vibes with devs to fix things.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-business-expert",
+        "name": "Business Expert",
+        "description": "The Business Expert. Analyzes requirements for SEO, market fit, and product logic.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cache-collector",
+        "name": "Cache Collector",
+        "description": "Premium grade Cache Manager. Uses Web3 End-to-End Encryption (E2EE) and Brotli compression to securely sync and free up IDE cache space.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-chorki",
+        "name": "Chorki",
+        "description": "The Unstoppable Autonomous Autopilot Loop Agent. Iterates relentlessly and executes multi-step objectives until 100% verifiably completed using continuous check-done verification hooks.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cicd-automation-expert",
+        "name": "Cicd Automation Expert",
+        "description": "Advanced CI/CD engineering approach.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cicd-specialist",
+        "name": "Cicd Specialist",
+        "description": "Lead CI/CD Pipeline Architect & Release Specialist. Designs, automates, and optimizes multi-target deployment pipelines (GitHub Actions, Cloudflare, Docker, NPM, PyPI, Composer, AMO, Open VSX).",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cli-automation-maker",
+        "name": "Cli Automation Maker",
+        "description": "Builds internal CLI tools and bash automations.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cli-utilities-specialist",
+        "name": "Cli Utilities Specialist",
+        "description": "Builds and optimizes command-line tools.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-client",
+        "name": "Client",
+        "description": "The Client agent. Responsible for providing initial requirements, business constraints, and defining success metrics for the virtual office.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cloud-specialist",
+        "name": "Cloud Specialist",
+        "description": "General cloud infrastructure architect.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-code-auditor",
+        "name": "Code Auditor",
+        "description": "Specialized subagent responsible for auditing code quality, security vulnerabilities, API syntax compliance, and CommonJS module export consistency across the codebase.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-code-optimizer",
+        "name": "Code Optimizer",
+        "description": "Optimizes code execution speed and memory usage.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-command-executor",
+        "name": "Command Executor",
+        "description": "Specialized agent that runs terminal commands across any ecosystem (Node, Python, Docker) safely interpreting output.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-content-writer",
+        "name": "Content Writer",
+        "description": "Writes professional articles and blogs.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cpp-expert",
+        "name": "Cpp Expert",
+        "description": "C++ programming language expert.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-cv-maker",
+        "name": "Cv Maker",
+        "description": "Generates professional CVs/Resumes based on developer portfolios and Git histories.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-database-designer",
+        "name": "Database Designer",
+        "description": "Professional DB architect.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-database-updater",
+        "name": "Database Updater",
+        "description": "Dedicated to syncing agent learnings to Firebase.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-debugger",
+        "name": "Debugger",
+        "description": "Dedicated step-through and stack-trace debugger.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-delivery-boy",
+        "name": "Delivery Boy",
+        "description": "Carries deployment released products to specific places.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-deploy",
+        "name": "Deploy",
+        "description": "Handles all deployment operations: Vercel (frontend/serverless), Railway (backend/databases), Docker (containerized), and multi-platform. Invoke after code is complete and SQA-approved. ALWAYS requires workspace-guard confirmation for production. Preview/staging deploys are auto.",
+        "layer": "loom"
+      },
+      {
+        "slug": "loragent-devops",
+        "name": "Devops",
+        "description": "The DevOps Specialist. Runs CI/CD pipelines, deployment hooks, and ensures build stability.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-django-specialist",
+        "name": "Django Specialist",
+        "description": "Django framework specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-doc-brain-updater",
+        "name": "Doc Brain Updater",
+        "description": "Autonomous documentation maintainer and living knowledge synchronizer for Lorapok AI Agent. Responsible for ensuring `BRAIN.md`, `.agents/BRAIN.md`, `README.md`, `CHANGELOG.md`, `USAGE.md`, and `TESTI",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-docker-specialist",
+        "name": "Docker Specialist",
+        "description": "Docker & Containerization Specialist. Automates multi-stage Dockerfiles, Docker Compose stacks, container health checks, and image registries.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-docman",
+        "name": "Docman",
+        "description": "Docker, containerization, and orchestration expert.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-env-maker",
+        "name": "Env Maker",
+        "description": "Config specialist for env, CMake, and CNAME.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-fastapi",
+        "name": "Fastapi",
+        "description": "FastAPI best practices and conventions. Use when working with FastAPI APIs and Pydantic models for them. Keeps FastAPI code clean and up to date with the latest features and patterns, updated with new",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-firebase-specialist",
+        "name": "Firebase Specialist",
+        "description": "Firebase Ecosystem Specialist. Automates Firestore data modeling, Cloud Functions, Firebase Authentication, Hosting, Storage, and Security Rules auditing with Zero-Trust Credential Vault integration.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-freqghost-admin-panel",
+        "name": "Freqghost Admin Panel",
+        "description": "Build and modify the FreqGhost admin dashboard — Cognitum-aesthetic web UI with JWT auth, role-based ACL, source switching, data collection controls, and ML model management. Use when the user asks ",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-freqghost-data-collection",
+        "name": "Freqghost Data Collection",
+        "description": "Manage CSI/RSSI data collection sessions for ML training — recording, labeling, exporting datasets, and quality validation. Use when the user asks to collect data, record CSI, build datasets, label ",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-freqghost-deployment",
+        "name": "Freqghost Deployment",
+        "description": "Deploy FreqGhost via Docker, nginx, and production configuration — multi-service compose, SSL/TLS, MQTT broker, environment variables. Use when deploying, configuring Docker, setting up nginx, or ma",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-freqghost-frontend-dev",
+        "name": "Freqghost Frontend Dev",
+        "description": "Develop the FreqGhost Three.js 3D viewer and admin panel frontend — Cognitum aesthetic, CDN-only libraries, no build step. Use when modifying the 3D viewer, adding UI elements, changing styling, or ",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-freqghost-model-training",
+        "name": "Freqghost Model Training",
+        "description": "Standardized instructions for training the FreqGhost contrastive CSI encoder and vital signs models.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-freqghost-source-management",
+        "name": "Freqghost Source Management",
+        "description": "Add, configure, and manage SceneSource implementations — the central abstraction for all data flow in FreqGhost. Use when adding new sources, switching active source, configuring router credentials,",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-freqghost-verification",
+        "name": "Freqghost Verification",
+        "description": "Orchestrates deterministic pipeline proofs for FreqGhost ML components to ensure reproducibility.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-frontend-se",
+        "name": "Frontend Se",
+        "description": "The Frontend Senior Software Engineer. Implements UI/UX using biological/sensory computing aesthetics.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-fund-collector",
+        "name": "Fund Collector",
+        "description": "Strategizes roadmaps for VC pitching, crowdfunding, and capitalization.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-garbage-collector",
+        "name": "Garbage Collector",
+        "description": "Identifies and removes unused code, dead files, and unnecessary dependencies.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-gcp-specialist",
+        "name": "Gcp Specialist",
+        "description": "Google Cloud Platform Specialist. Automates gcloud CLI, Cloud Run, BigQuery (bq), Cloud Storage (gsutil), IAM, and Vertex AI with Zero-Trust Credential Vault integration.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-gh-cli-specialist",
+        "name": "Gh Cli Specialist",
+        "description": "GitHub CLI Specialist. Automates PR management, issue triage, release generation, Actions workflow dispatch, and repo settings.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-git-release-manager",
+        "name": "Git Release Manager",
+        "description": "Specialized subagent responsible for auditing git branches (`main`, `LLM-Support/GoogleAiStudio-Support`, `git-features-integration`, `ui-polish-and-functionality-improvement`), preparing releases, up",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-git-specialist",
+        "name": "Git Specialist",
+        "description": "Advanced version control, rebasing, and merge conflict resolution.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-go-expert",
+        "name": "Go Expert",
+        "description": "Go programming language expert.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-gold-collector",
+        "name": "Gold Collector",
+        "description": "Global Telemetry Miner. Detects novel solutions and syncs them to the Firebase Hivemind.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-google-products-specialist",
+        "name": "Google Products Specialist",
+        "description": "Specialist for Google Console, Firebase, GCP.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-governance-guard",
+        "name": "Governance Guard",
+        "description": "Audits AGENTS.md, Cursor rules, project skills, hooks, MCP configuration, Husky, and GitHub workflows for policy drift and unsafe automation. Use proactively when governance, agents, hooks, skills, ru",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-hr",
+        "name": "Hr",
+        "description": "Human Resources. Tracks agent burnout and token limits.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-inspector",
+        "name": "Inspector",
+        "description": "Uses git blame/git log to find the exact culprit of a bug and generates RCA (Root Cause Analysis) reports.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-isp-man",
+        "name": "Isp Man",
+        "description": "Network, IP, Port, and DNS routing specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-javascript-expert",
+        "name": "Javascript Expert",
+        "description": "JavaScript (and TypeScript) programming language expert.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-jokki-bhai",
+        "name": "Jokki Bhai",
+        "description": "The Entertainer. Roasts the team using roast-as-a-service.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-k8-expert",
+        "name": "K8 Expert",
+        "description": "Kubernetes, Helm charts, and cluster management.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-laravel-specialist",
+        "name": "Laravel Specialist",
+        "description": "Laravel PHP framework specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-legacy-system-analyser",
+        "name": "Legacy System Analyser",
+        "description": "Understands and optimizes legacy syntaxes.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-localization-expert",
+        "name": "Localization Expert",
+        "description": "i18n, l10n, and multi-language support mapping.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-logo-designer",
+        "name": "Logo Designer",
+        "description": "Specialist in branding and logo design prompts.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-amo-mcp",
+        "name": "Loragent Amo Mcp",
+        "description": "MCP-orchestrated Firefox AMO publishing for Lorapok extensions.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-amo-publish",
+        "name": "Loragent Amo Publish",
+        "description": "Firefox AMO publish pipeline for Lorapok browser extensions — web-ext sign, amo-metadata, CI, Mission Control, credential vault.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-cloudflare-mail-master",
+        "name": "Loragent Cloudflare Mail Master",
+        "description": "Cloudflare Email Sending on Cloudflare Pages via REST API. Use when configuring outbound mail, routing rules, token split, or troubleshooting 401/10203 errors for Lorapok projects.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-dynamic-versioning",
+        "name": "Loragent Dynamic Versioning",
+        "description": "Lorapok dynamic versioning matrix for production, beta, dev, and PR builds. Use when bumping releases, wiring CI, or Mission Control deploy flows.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-marketplace-crosslink",
+        "name": "Loragent Marketplace Crosslink",
+        "description": "Add consistent",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-mission-control",
+        "name": "Loragent Mission Control",
+        "description": "Operate Lorapok Mission Control admin panel — deployments, notices, mailbox, marketplace sync, and infra-only publishes.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-openvsx-publish",
+        "name": "Loragent Openvsx Publish",
+        "description": "Open VSX publishing for Lorapok VS Code extensions — canonical lorapok-labs namespace, duplicate listing fixes, CI sync.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-unified-deployment",
+        "name": "Loragent Unified Deployment",
+        "description": "Mission Control–only unified deployment for Lorapok projects — release, marketplace publish, admin panel, and website via mission-control.lorapok.tech.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-vscode-publish",
+        "name": "Loragent Vscode Publish",
+        "description": "VS Code Marketplace publishing for Lorapok extensions — VSCE token, publisher LorapokLabs, CI and Mission Control wiring.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-loragent-website-design",
+        "name": "Loragent Website Design",
+        "description": "Design and refresh Lorapok marketing sites — gallery images, platform ribbons, KPI stats, SEO, and Mission Control infra deploy.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-brain-documentation",
+        "name": "Lorapok Brain Documentation",
+        "description": "Skill for maintaining and updating BRAIN.md, .agents/BRAIN.md, and project documentation after every code or architectural change in Lorapok AI Agent.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-cli-testing",
+        "name": "Lorapok Cli Testing",
+        "description": "Skill for running, testing, and debugging the Lorapok CLI, including terminal rendering, mock interactive commands, corner-case testing, and Jest test runner.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-deployment-specialist",
+        "name": "Lorapok Deployment Specialist",
+        "description": "Professional Deployment Specialist skill for Lorapok Media Player. Manages full CI/CD, build verification across Electron, React, Website, and Chrome Extension. Features automated error extraction, diagnosis, fix planning, and retry hook execution.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-express-server",
+        "name": "Lorapok Express Server",
+        "description": "Skill for Express REST API in server.js, model guards, sessions, and packages/sdk consumers.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-frontend",
+        "name": "Lorapok Frontend",
+        "description": ">-",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-git-workflow",
+        "name": "Lorapok Git Workflow",
+        "description": "Skill for managing git integration features, branch management, merge conflict resolution, pull request workflow, and git automation actions in Lorapok.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-mcp-integration",
+        "name": "Lorapok Mcp Integration",
+        "description": "Skill for building, configuring, and verifying Model Context Protocol (MCP) server & client integrations within Lorapok AI Agent.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-model-provider",
+        "name": "Lorapok Model Provider",
+        "description": "Skill for ModelManager, ModelValidator, ModelCacheService, multi-provider routing, menus, and REST model endpoints.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-token-efficiency",
+        "name": "Lorapok Token Efficiency",
+        "description": "Skill for optimizing token usage and context retrieval when AI agents work on the Lorapok AI Agent codebase.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-lorapok-website-build",
+        "name": "Lorapok Website Build",
+        "description": "Skill for maintaining and deploying apps/website frontend assets and static documentation.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-marketing-gen",
+        "name": "Marketing Gen",
+        "description": "Generates high-fidelity, sensory computing and biological UI marketing assets for the Lorapok Ecosystem.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-marketing-strategy-manager",
+        "name": "Marketing Strategy Manager",
+        "description": "Plans overall marketing strategy.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-mathematician",
+        "name": "Mathematician",
+        "description": "Advanced mathematics and statistical logic solver.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-mermaid-architecture-specialist",
+        "name": "Mermaid Architecture Specialist",
+        "description": "Expert in visualizing complex systems using Mermaid.js syntax (flowcharts, state diagrams, sequence diagrams).",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-model-auditor",
+        "name": "Model Auditor",
+        "description": "After model/menu/API changes.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-node-specialist",
+        "name": "Node Specialist",
+        "description": "Node.js backend and runtime specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-notion-expert",
+        "name": "Notion Expert",
+        "description": "Notion API and integration master.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-office-assistant",
+        "name": "Office Assistant",
+        "description": "Passes data from one agent to another on demand.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-operations",
+        "name": "Operations",
+        "description": "The Operations Manager (Ops). Monitors deployment health and logs errors.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-os-specialist",
+        "name": "Os Specialist",
+        "description": "Expert in Operating Systems, file directories, and kernel level operations.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-package-expert",
+        "name": "Package Expert",
+        "description": "Professional Package JSON Writer and strict metadata enforcer.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-package-maker",
+        "name": "Package Maker",
+        "description": "Scaffolds NPM, Pip, and Composer packages.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-paymentguy",
+        "name": "Paymentguy",
+        "description": "Specialist for payment system integrations (Stripe, PayPal, etc).",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-performance-analyser",
+        "name": "Performance Analyser",
+        "description": "Deep-dive bottleneck profiling.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-pion",
+        "name": "Pion",
+        "description": "The PION Agent. Consolidates final results, artifacts, and walkthroughs to present to the Client.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-pipeline-checker",
+        "name": "Pipeline Checker",
+        "description": "Validates data and CI pipeline integrity.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-portfolio-designer",
+        "name": "Portfolio Designer",
+        "description": "Designs the layout and content structure for personal or project portfolio websites.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-pr-specialist",
+        "name": "Pr Specialist",
+        "description": "Public Relations. Handles public sentiment, press releases, and crisis management.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-professional-document-creator",
+        "name": "Professional Document Creator",
+        "description": "Creates Markdown, PDF, text, proposals.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-professional-readme-creator",
+        "name": "Professional Readme Creator",
+        "description": "Skill for drafting, auditing, and maintaining high-impact, professional README documentation for Lorapok AI Agent and open-source repositories.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-professional-research-docx-writer",
+        "name": "Professional Research Docx Writer",
+        "description": ">-",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-professor",
+        "name": "Professor",
+        "description": "Conducts deep academic-level reviews and architectural analysis of the entire project.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-project-architect",
+        "name": "Project Architect",
+        "description": "Project Architect and Team Lead. Orchestrates the project, assigns tasks to specialized developers, designs architecture, and triages reported bugs. Use proactively for architecture decisions or routi",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-project-coordinator",
+        "name": "Project Coordinator",
+        "description": "Orchestrates project timelines, resource allocation, and dependencies.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-project-manager",
+        "name": "Project Manager",
+        "description": "The Project Manager. Breaks down requirements into tasks, creates the /plan, and orchestrates the virtual office workflow.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-project-overviewer",
+        "name": "Project Overviewer",
+        "description": "Generates high-level project state summaries.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-project-theme-expert",
+        "name": "Project Theme Expert",
+        "description": "Curates the visual language, design system, and overarching aesthetic (like ",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-prototype-designer",
+        "name": "Prototype Designer",
+        "description": "Prototype designer like design in Canva.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-publisher",
+        "name": "Publisher",
+        "description": "Generates publish sites info, texts, articles, images to reach target audience.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-python-expert",
+        "name": "Python Expert",
+        "description": "Python programming language expert (version and syntax aware).",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-railway-expert",
+        "name": "Railway Expert",
+        "description": "Railway.app backend deployment specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-react-best-practices",
+        "name": "React Best Practices",
+        "description": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patter",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-react-specialist",
+        "name": "React Specialist",
+        "description": "React.js framework specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-readme-generator-specialist",
+        "name": "Readme Generator Specialist",
+        "description": "Analyzes the entire project ecosystem to generate highly professional, extensive README files tailored to the specific project.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-release-integrity",
+        "name": "Release Integrity",
+        "description": "Audits package versions, GitHub releases, VSIX links, marketplace observations, SEO artifacts, and publishing workflows. Use proactively before releases, marketplace sync, SEO changes, or generated-da",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-repo-repair",
+        "name": "Repo Repair",
+        "description": "Performs a structured repository repair across tests, runtime paths, generated release data, CI, SEO, and governance. Use when fixing broad regressions, release drift, or requests involving agents, ho",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-research-paper-writer",
+        "name": "Research Paper Writer",
+        "description": "Specialized in writing academic, IEEE, or white-paper style documents.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-responsive-system-designer",
+        "name": "Responsive System Designer",
+        "description": "Mobile-first layouts and fluid scaling.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-rust-expert",
+        "name": "Rust Expert",
+        "description": "Rust programming language expert.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-sales-executive",
+        "name": "Sales Executive",
+        "description": "Focuses on conversion and direct sales copy.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-scaffold",
+        "name": "Scaffold",
+        "description": "Generate deployment-ready infrastructure code from an architecture plan, verify it with adversarial self-review, and bridge to validation — all without deploying.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-se-model-specialist",
+        "name": "Se Model Specialist",
+        "description": "Expert in Software Engineering architectural models (Waterfall, Agile, etc).",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-seo",
+        "name": "Seo",
+        "description": ">-",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-seo-specialist",
+        "name": "Seo Specialist",
+        "description": "Search Engine Optimization specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-shift-engineer",
+        "name": "Shift Engineer",
+        "description": "Handles short, isolated tasks.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-skill-creator",
+        "name": "Skill Creator",
+        "description": "Autonomously writes new agent skills and pushes to Firebase.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-software-business-analyst",
+        "name": "Software Business Analyst",
+        "description": "Cost to market analysis, competitive pricing, plans and strategies.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-specialized-developer",
+        "name": "Specialized Developer",
+        "description": "Specialized Developer performing high-tech global industry level coding. Use proactively to implement assigned subtasks, fix bugs, and refactor code safely.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-spidernet",
+        "name": "Spidernet",
+        "description": "The Spidernet multi-agent workflow coordinator.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-sqa",
+        "name": "Sqa",
+        "description": "The Senior QA. Runs automated tests, reviews edge cases, and checks accessibility/security.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-sqa-lead",
+        "name": "Sqa Lead",
+        "description": "High-tech global industry level 20+ years experienced SQA with development background. Use proactively for deep testing, edge-case analysis, finding bugs, and comprehensive test suite generation.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-srs-analyzer",
+        "name": "Srs Analyzer",
+        "description": "Software Requirements Specification analyzer.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-store-specialist",
+        "name": "Store Specialist",
+        "description": "Deployment to App Store, Play Store, and Package Managers.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-streamvar-theme-architect",
+        "name": "Streamvar Theme Architect",
+        "description": "Principal Frontend UI/UX Architect & Systems Designer for Loragent. Uses Next.js App Router, React 19, Tailwind CSS, and Framer Motion.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-teacher",
+        "name": "Teacher",
+        "description": "The prompt clarifier. Asks the human user questions to ensure the Boss designs the plan perfectly.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-team-lead",
+        "name": "Team Lead",
+        "description": "The Team Lead. Coordinates the tech team, assigns engineering tasks, and conducts primary code reviews.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-tech-director",
+        "name": "Tech Director",
+        "description": "The Tech Director (Architect). Defines technical architecture, stack, and data models.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-test-sentinel",
+        "name": "Test Sentinel",
+        "description": "Specialized subagent responsible for test execution, corner-case test expansion, and verifying zero regression across all test suites.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-themeguy",
+        "name": "Themeguy",
+        "description": "Global UI theme and styling connoisseur.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-thewikiboy",
+        "name": "Thewikiboy",
+        "description": "Deep-dive researcher for scraping and finding all data/sources.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-token-auditor",
+        "name": "Token Auditor",
+        "description": "Specialized subagent responsible for auditing token consumption, context payload efficiency, and enforcing token conservation rules across agent workflows.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-token-sniper",
+        "name": "Token Sniper",
+        "description": "Premium context optimization agent. Slashes AI token usage by >70% using AST pruning, skeletonization, and diff-only parsing.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-tools-specialist",
+        "name": "Tools Specialist",
+        "description": "Tooling & Package Expert. Suggests optimal packages and provides robust installation mechanics.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-ui-ux-professional",
+        "name": "Ui Ux Professional",
+        "description": "World-class UI/UX design and wireframing.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-validator",
+        "name": "Validator",
+        "description": "Deep data and list validation logic.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-vercel-expert",
+        "name": "Vercel Expert",
+        "description": "Vercel deployment and Edge functions specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-version-bumper",
+        "name": "Version Bumper",
+        "description": "Handles version bumping mechanism professionally. Uses LVP for Pro users, and standard SemVer for free users.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-vidman",
+        "name": "Vidman",
+        "description": "Generates prompts and scripts for marketing reels and video content.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-vue-specialist",
+        "name": "Vue Specialist",
+        "description": "Vue.js framework specialist.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-web-design-guidelines",
+        "name": "Web Design Guidelines",
+        "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\".",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-workflow-automation-specialist",
+        "name": "Workflow Automation Specialist",
+        "description": "n8n, OpenClaw, and low-code orchestrations.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-workflow-manager",
+        "name": "Workflow Manager",
+        "description": "Fine-tunes the physical office flow and handles the logistics of the Hub-and-Spoke model.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-workspace-guard",
+        "name": "Workspace Guard",
+        "description": "Security enforcer that prevents unauthorized deletions or destructive commands.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-wrangler-specialist",
+        "name": "Wrangler Specialist",
+        "description": "Cloudflare Wrangler CLI Specialist. Automates deployment of Workers, Pages, KV, D1, R2, Vectorize, Queues, and Secrets with Zero-Trust Credential Vault integration.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-amo-mcp",
+        "name": "Amo Mcp",
+        "description": "MCP-orchestrated Firefox AMO publishing for Lorapok extensions.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-amo-publish",
+        "name": "Amo Publish",
+        "description": "Firefox AMO publish pipeline for Lorapok browser extensions — web-ext sign, amo-metadata, CI, Mission Control, credential vault.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-deploy",
+        "name": "Deploy",
+        "description": "Handles all deployment operations: Vercel (frontend/serverless), Railway (backend/databases), Docker (containerized), and multi-platform. Invoke after code is complete and SQA-approved. ALWAYS requires workspace-guard confirmation for production. Preview/staging deploys are auto.",
+        "layer": "loom"
+      },
+      {
+        "slug": "loragent-marketplace-crosslink",
+        "name": "Marketplace Crosslink",
+        "description": "Add consistent \"Also available on\" platform links across IDE extensions, browser add-ons, AMO, VSCE, Open VSX, README, and marketing site.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-mission-control",
+        "name": "Mission Control",
+        "description": "Operate Lorapok Mission Control admin panel — deployments, notices, mailbox, marketplace sync, and infra-only publishes.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-openvsx-publish",
+        "name": "Openvsx Publish",
+        "description": "Open VSX publishing for Lorapok VS Code extensions — canonical lorapok-labs namespace, duplicate listing fixes, CI sync.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-unified-deployment",
+        "name": "Unified Deployment",
+        "description": "Mission Control–only unified deployment for Lorapok projects — release, marketplace publish, admin panel, and website via mission-control.lorapok.tech.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-vscode-publish",
+        "name": "Vscode Publish",
+        "description": "VS Code Marketplace publishing for Lorapok extensions — VSCE token, publisher LorapokLabs, CI and Mission Control wiring.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-website-design",
+        "name": "Website Design",
+        "description": "Design and refresh Lorapok marketing sites — gallery images, platform ribbons, KPI stats, SEO, and Mission Control infra deploy.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-amo-mcp",
+        "name": "Amo Mcp",
+        "description": "MCP-orchestrated Firefox AMO publishing for Lorapok extensions.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-amo-publish",
+        "name": "Amo Publish",
+        "description": "Firefox AMO publish pipeline for Lorapok browser extensions — web-ext sign, amo-metadata, CI, Mission Control, credential vault.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-backend-se",
+        "name": "Backend Se",
+        "description": "The Backend Senior Software Engineer. Implements APIs, core player logic, and data structures.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-bug-hunter",
+        "name": "Bug Hunter",
+        "description": "The Chela. Most critical problem solver developer. Vibes with devs to fix things.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-deploy",
+        "name": "Deploy",
+        "description": "Handles all deployment operations: Vercel (frontend/serverless), Railway (backend/databases), Docker (containerized), and multi-platform. Invoke after code is complete and SQA-approved. ALWAYS requires workspace-guard confirmation for production. Preview/staging deploys are auto.",
+        "layer": "loom"
+      },
+      {
+        "slug": "loragent-frontend-se",
+        "name": "Frontend Se",
+        "description": "The Frontend Senior Software Engineer. Implements UI/UX using biological/sensory computing aesthetics.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-marketplace-crosslink",
+        "name": "Marketplace Crosslink",
+        "description": "Add consistent \"Also available on\" platform links across IDE extensions, browser add-ons, AMO, VSCE, Open VSX, README, and marketing site.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-mission-control",
+        "name": "Mission Control",
+        "description": "Operate Lorapok Mission Control admin panel — deployments, notices, mailbox, marketplace sync, and infra-only publishes.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-openvsx-publish",
+        "name": "Openvsx Publish",
+        "description": "Open VSX publishing for Lorapok VS Code extensions — canonical lorapok-labs namespace, duplicate listing fixes, CI sync.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-spidernet",
+        "name": "Spidernet",
+        "description": "The Spidernet multi-agent workflow coordinator.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-sqa",
+        "name": "Sqa",
+        "description": "The Senior QA. Runs automated tests, reviews edge cases, and checks accessibility/security.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-system-knowledge",
+        "name": "System Knowledge",
+        "description": "Complete architectural reference for the Loragent 165-agent ecosystem — LLDP layers, naming conventions, agent hierarchy, sync pipeline, cross-OS paths, and CLI commands.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-teacher",
+        "name": "Teacher",
+        "description": "The prompt clarifier. Asks the human user questions to ensure the Boss designs the plan perfectly.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-tech-director",
+        "name": "Tech Director",
+        "description": "The Tech Director (Architect). Defines technical architecture, stack, and data models.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-unified-deployment",
+        "name": "Unified Deployment",
+        "description": "Mission Control–only unified deployment for Lorapok projects — release, marketplace publish, admin panel, and website via mission-control.lorapok.tech.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-vscode-publish",
+        "name": "Vscode Publish",
+        "description": "VS Code Marketplace publishing for Lorapok extensions — VSCE token, publisher LorapokLabs, CI and Mission Control wiring.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-website-design",
+        "name": "Website Design",
+        "description": "Design and refresh Lorapok marketing sites — gallery images, platform ribbons, KPI stats, SEO, and Mission Control infra deploy.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-workspace-guard",
+        "name": "Workspace Guard",
+        "description": "Security enforcer that prevents unauthorized deletions or destructive commands.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-wrangler-specialist",
+        "name": "Wrangler Specialist",
+        "description": "Cloudflare Wrangler CLI Specialist. Automates deployment of Workers, Pages, KV, D1, R2, Vectorize, Queues, and Secrets with Zero-Trust Credential Vault integration.",
+        "layer": "cross"
+      },
+      {
+        "slug": "ui-ux-specialist",
+        "name": "Ui Ux Specialist",
+        "description": "Expert UI/UX Engineering skill for web development. Focuses on modern React, Tailwind CSS, advanced accessibility (a11y), responsive design, and integrating Figma-to-code or Frontend Design MCPs.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-boss",
+        "name": "Boss",
+        "description": "The Main Boss. Orchestrates the whole workflow, delegates to subagents, and compiles final outputs.",
+        "layer": "cross"
+      },
+      {
+        "slug": "lorapok-marketing-gen",
+        "name": "Lorapok Marketing Gen",
+        "description": "Generates high-fidelity, sensory computing and biological UI marketing assets for the Lorapok Ecosystem.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-package-expert",
+        "name": "Package Expert",
+        "description": "Professional Package JSON Writer and strict metadata enforcer.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-spidernet",
+        "name": "Spidernet",
+        "description": "The Spidernet multi-agent workflow coordinator.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-streamvar-theme-architect",
+        "name": "Streamvar Theme Architect",
+        "description": "Principal Frontend UI/UX Architect & Systems Designer for Loragent. Uses Next.js App Router, React 19, Tailwind CSS, and Framer Motion.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-teacher",
+        "name": "Teacher",
+        "description": "The prompt clarifier. Asks the human user questions to ensure the Boss designs the plan perfectly.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-watchman",
+        "name": "Watchman",
+        "description": "Watches the system. Maintains a cache file to allow uninterrupted recovery of stuck processes via /loragent-watchman continue.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-workspace-guard",
+        "name": "Workspace Guard",
+        "description": "Security enforcer that prevents unauthorized deletions or destructive commands.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-business-expert",
+        "name": "Business Expert",
+        "description": "Manages Lorapok Labs monetization, subscription logic, marketing campaigns, and upsells.",
+        "layer": "cross"
+      }
+    ],
+    "orchestrator": [
+      {
+        "slug": "loragent-boss",
+        "name": "Boss",
+        "description": "Central orchestrator of the 108-agent Loragent ecosystem. Invoke first for any multi-step or complex task. Boss analyzes scope, selects the correct formation (Auto/Office/Chela/Freelance), summons specialist agents via MCP, and manages the full execution pipeline. Do NOT invoke when a single specialist is clearly sufficient — invoke that specialist directly instead.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-boss",
+        "name": "Boss",
+        "description": "Central orchestrator of the 108-agent Loragent ecosystem. Invoke first for any multi-step or complex task. Boss analyzes scope, selects the correct formation (Auto/Office/Chela/Freelance), summons specialist agents via MCP, and manages the full execution pipeline. Do NOT invoke when a single specialist is clearly sufficient — invoke that specialist directly instead.",
+        "layer": "cross"
+      }
+    ],
+    "freelance": [
+      {
+        "slug": "loragent-gif-create",
+        "name": "Gif Create",
+        "description": "Creates, optimizes, and delivers animated GIFs and short video clips. Invoke when: converting video to GIF, creating loading animations, Slack GIFs, banner animations, sprite sheets, or any looping media asset. Do NOT invoke for static images or long-form video editing.",
+        "layer": "face"
+      },
+      {
+        "slug": "loragent-image-generate",
+        "name": "Image Generate",
+        "description": "Generates production-quality images using Fal.ai (primary) or Replicate (fallback). Invoke when any agent or the user needs: concept art, hero images, UI backgrounds, logo concepts, marketing visuals, poster generation, or any AI image output. Do NOT invoke for SVG icons, code-generated graphics, or chart/data visualization.",
+        "layer": "face"
+      },
+      {
+        "slug": "loragent-tools-install",
+        "name": "Tools Install",
+        "description": "Detects, installs, and verifies any tool, package, or binary required by other agents. Invoke when any agent reports a missing tool or dependency. Handles npm, pip/uv, composer, system packages, and binary tools. Includes rollback on failure. Do NOT invoke for application-level code dependencies (that is the backend-se's job).",
+        "layer": "loom"
+      },
+      {
+        "slug": "loragent-gif-create",
+        "name": "Gif Create",
+        "description": "Creates, optimizes, and delivers animated GIFs and short video clips. Invoke when: converting video to GIF, creating loading animations, Slack GIFs, banner animations, sprite sheets, or any looping media asset. Do NOT invoke for static images or long-form video editing.",
+        "layer": "face"
+      },
+      {
+        "slug": "loragent-image-generate",
+        "name": "Image Generate",
+        "description": "Generates production-quality images using Fal.ai (primary) or Replicate (fallback). Invoke when any agent or the user needs: concept art, hero images, UI backgrounds, logo concepts, marketing visuals, poster generation, or any AI image output. Do NOT invoke for SVG icons, code-generated graphics, or chart/data visualization.",
+        "layer": "face"
+      },
+      {
+        "slug": "loragent-tools-install",
+        "name": "Tools Install",
+        "description": "Detects, installs, and verifies any tool, package, or binary required by other agents. Invoke when any agent reports a missing tool or dependency. Handles npm, pip/uv, composer, system packages, and binary tools. Includes rollback on failure. Do NOT invoke for application-level code dependencies (that is the backend-se's job).",
+        "layer": "loom"
+      },
+      {
+        "slug": "loragent-gif-create",
+        "name": "Gif Create",
+        "description": "Creates, optimizes, and delivers animated GIFs and short video clips. Invoke when: converting video to GIF, creating loading animations, Slack GIFs, banner animations, sprite sheets, or any looping media asset. Do NOT invoke for static images or long-form video editing.",
+        "layer": "face"
+      },
+      {
+        "slug": "loragent-image-generate",
+        "name": "Image Generate",
+        "description": "Generates production-quality images using Fal.ai (primary) or Replicate (fallback). Invoke when any agent or the user needs: concept art, hero images, UI backgrounds, logo concepts, marketing visuals, poster generation, or any AI image output. Do NOT invoke for SVG icons, code-generated graphics, or chart/data visualization.",
+        "layer": "face"
+      },
+      {
+        "slug": "loragent-tools-install",
+        "name": "Tools Install",
+        "description": "Detects, installs, and verifies any tool, package, or binary required by other agents. Invoke when any agent reports a missing tool or dependency. Handles npm, pip/uv, composer, system packages, and binary tools. Includes rollback on failure. Do NOT invoke for application-level code dependencies (that is the backend-se's job).",
+        "layer": "loom"
+      }
+    ],
+    "observer": [
+      {
+        "slug": "loragent-watchman",
+        "name": "Watchman",
+        "description": "Session state guardian and crash recovery agent. Invoke with /loragent-watchman continue to resume a crashed or token-limited session. Automatically activated by the post-task-watchman-save hook after every major agent task. Do NOT invoke manually mid-task — the hook handles automatic saves.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-watchman",
+        "name": "Watchman",
+        "description": "Session state guardian and crash recovery agent. Invoke with /loragent-watchman continue to resume a crashed or token-limited session. Automatically activated by the post-task-watchman-save hook after every major agent task. Do NOT invoke manually mid-task — the hook handles automatic saves.",
+        "layer": "cross"
+      },
+      {
+        "slug": "loragent-watchman",
+        "name": "Watchman",
+        "description": "Session state guardian and crash recovery agent. Invoke with /loragent-watchman continue to resume a crashed or token-limited session. Automatically activated by the post-task-watchman-save hook after every major agent task. Do NOT invoke manually mid-task — the hook handles automatic saves.",
+        "layer": "cross"
+      }
+    ]
+  }
+}
