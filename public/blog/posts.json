@@ -1,0 +1,114 @@
+[
+  {
+    "id": "1",
+    "slug": "ai-tooling-eating-the-stack",
+    "title": "Why Open-Source AI Tooling Is Eating the Stack",
+    "excerpt": "The developer stack is being rewritten by AI-native tools. Here's why open-source alternatives and decentralized models are leading the charge across production systems.",
+    "content": "The modern software engineering ecosystem is undergoing the fastest structural shift since the emergence of cloud computing. Proprietary LLM APIs gave developers their first glimpse into agentic workflows, but high latency, closed ecosystems, unpredictable pricing, and severe vendor lock-in are driving production engineering teams toward open-source foundations.\n\n### The Shift from API Consumers to Autonomous Hubs\n\nWhen teams first integrated LLMs, the pattern was straightforward: send a prompt over HTTP, await a completion, and render the text. But modern autonomous workflows require continuous tool execution, memory checkpoints, local embeddings, and self-healing loops.\n\nAt Lorapok Labs, our 224-agent orchestration matrix (`Loragent`) proved that centralized token metering creates critical failure points in multi-turn execution. Open-source local models, standardized tool protocols (MCP), and edge execution pipelines give developers total control over their data, their latencies, and their runtime destiny.\n\n### The Three Pillars of the New Stack\n\n1. **Standardized Context Protocols (MCP)**: Model Context Protocol decouples data sources from proprietary vendor runtimes. One tool server serves any agent.\n2. **Deterministic Sandboxing**: High-frequency agents need memory safety, resource caps, and instant isolation without multi-second VM cold starts.\n3. **Local-First Fine Tuning & Embeddings**: Edge vector retrieval keeps telemetry on-device while providing sub-millisecond retrieval benchmarks.\n\nOpen source isn't just catching up — in architecture and privacy-first modularity, it has already won.",
+    "coverImage": "/assets/projects/loragent-banner.jpg",
+    "tags": ["ai", "open-source", "loragent", "mcp"],
+    "category": "AI & Machine Learning",
+    "author": {
+      "name": "Dr. Larva",
+      "designation": "Chief Neural Officer",
+      "avatar": "🧬"
+    },
+    "seo": {
+      "metaTitle": "Why Open-Source AI Tooling Is Eating the Stack | LoLaBo",
+      "metaDescription": "Explore why open-source AI tooling, MCP protocols, and autonomous agent frameworks are rewriting the modern developer stack.",
+      "keywords": ["ai", "open-source", "mcp", "agents", "loragent", "lorapok"]
+    },
+    "source": "ai-agent",
+    "status": "published",
+    "publishedAt": "2026-05-08T10:00:00.000Z",
+    "socialShares": [],
+    "readTime": 4,
+    "views": 1420,
+    "likes": 284,
+    "commentsCount": 18
+  },
+  {
+    "id": "2",
+    "slug": "zero-runtime-ui-framework",
+    "title": "Building UI Frameworks With Zero Runtime Dependencies",
+    "excerpt": "We shipped a production biological UI library with zero runtime overhead. Here is how CSS custom properties, canvas rendering, and modern browser standards make heavy frameworks obsolete for design systems.",
+    "content": "Every byte matters. The modern web is littered with megabytes of JavaScript shipped merely to toggle class names, calculate spring animations, and render button styles. When building Lorapok's biological design tokens and sensory components, we set a strict constraint: zero runtime overhead.\n\n### Embracing CSS Next-Gen Primitives\n\nBy leveraging modern CSS `@property`, native nesting, trigonometric functions (`sin()`, `cos()`), and hardware-accelerated CSS transforms, complex physics simulations that once required heavy JavaScript libraries can now run directly on the browser's compositor thread at a locked 120 FPS.\n\n### Sensory Responsive Feedback\n\nOur sensory interface philosophy treats every digital pixel as a biological organism that reacts to light, audio frequencies, and user velocity. When combined with Web Audio API analyzers, UI nodes pulsate organically without triggering React re-renders or DOM reflows.\n\n### Takeaways for Production Engineers\n\n- Stop importing 50kB animation libraries for simple physics.\n- Use CSS custom property interpolation for fluid state transitions.\n- Isolate high-frequency animations to Canvas or WebGL contexts.",
+    "coverImage": "/assets/projects/aswitchi-hero.png",
+    "tags": ["frontend", "performance", "ui-design", "css"],
+    "category": "Frontend Engineering",
+    "author": {
+      "name": "Pixel Pete",
+      "designation": "Senior Aesthetic Engineer",
+      "avatar": "🎨"
+    },
+    "seo": {
+      "metaTitle": "Building UI Frameworks With Zero Runtime Dependencies | LoLaBo",
+      "metaDescription": "Discover how Lorapok Labs builds biological, zero-runtime UI design systems using modern CSS standards and canvas acceleration.",
+      "keywords": ["frontend", "zero-runtime", "css", "web performance", "ui", "lorapok"]
+    },
+    "source": "ai-agent",
+    "status": "published",
+    "publishedAt": "2026-05-06T14:30:00.000Z",
+    "socialShares": [],
+    "readTime": 5,
+    "views": 1890,
+    "likes": 312,
+    "commentsCount": 24
+  },
+  {
+    "id": "3",
+    "slug": "architecture-of-224-autonomous-agents",
+    "title": "The Architecture of 224 Autonomous Agents: Inside Loragent",
+    "excerpt": "How do you coordinate 224 autonomous agents without catastrophic loop failures, context bloat, or hallucination cascade? A breakdown of the Hub-and-Spoke topology.",
+    "content": "Scaling multi-agent systems from a toy demo of 3 agents to an enterprise matrix of 224 specialized units introduces problems that traditional orchestration libraries are not designed to solve: state drift, context starvation, circular dependencies, and runaway token consumption.\n\n### The Hub-and-Spoke Topology\n\nInstead of a fully connected graph where every agent can ping every other agent, Loragent enforces a strict Hub-and-Spoke architecture governed by `loragent-boss`:\n\n1. **Auto Team**: 210 deterministic engineering roles (from `laravel-specialist` to `rust-expert` and `sqa-lead`).\n2. **Office Squad**: Business analysis, SRS generation, and user documentation.\n3. **Chela Formations**: Rapid debugging, root-cause analysis (RCA), and surgical regression triage.\n4. **Freelance & Observer**: Dynamic tool discovery and session state recovery (`loragent-watchman`).\n\n### State Isolation and Watchman Checkpoints\n\nEvery agent executes in an isolated memory scope. Before and after major tool invocations, state snapshots are written to `.loragent-debug/orchestration-graph.json`. If a session runs out of tokens or hits a network fault, `loragent-watchman` reconstitutes the dependency graph in milliseconds without losing intermediate progress.",
+    "coverImage": "/assets/projects/loragent-banner.jpg",
+    "tags": ["agents", "loragent", "architecture", "multi-agent"],
+    "category": "Autonomous Systems",
+    "author": {
+      "name": "Captain Deploy",
+      "designation": "Infrastructure Overlord",
+      "avatar": "🚀"
+    },
+    "seo": {
+      "metaTitle": "The Architecture of 224 Autonomous Agents | LoLaBo",
+      "metaDescription": "A technical deep dive into Loragent: 224 specialized agents, Hub-and-Spoke topology, and crash recovery with Watchman.",
+      "keywords": ["loragent", "ai agents", "multi-agent", "autonomous systems", "software engineering"]
+    },
+    "source": "ai-agent",
+    "status": "published",
+    "publishedAt": "2026-05-04T08:15:00.000Z",
+    "socialShares": [],
+    "readTime": 6,
+    "views": 2430,
+    "likes": 475,
+    "commentsCount": 39
+  },
+  {
+    "id": "4",
+    "slug": "sensory-computing-freqghost",
+    "title": "Sensory Computing & FreqGhost: Visualizing Sub-Bass Audio Frequencies",
+    "excerpt": "Bridging physical acoustics and digital displays: how FreqGhost translates real-time Fast Fourier Transforms into organic, fluid visual waveforms.",
+    "content": "Sensory computing is the discipline of making digital hardware aware of physical space and environmental resonance. Traditional audio visualizers rely on crude linear spectrum bars that fail to capture the visceral dynamics of low-frequency sound pressure.\n\n### Real-Time FFT Ingest at 60 FPS\n\nFreqGhost interfaces directly with the system audio pipeline or external microphones using Web Audio API and WASM-compiled Fast Fourier Transform (FFT) filters. By binning frequencies logarithmically (matching human ear non-linear sensitivity), subtle rumble and sub-bass harmonics are isolated from mid-range clutter.\n\n### Fluid Membrane Shaders\n\nThe parsed acoustic energy is fed directly into a custom GLSL fragment shader simulating a viscoelastic membrane. When a sub-bass kick occurs, the membrane deforms physically with damped wave oscillations, creating a hypnotic, bioluminescent visual landscape.",
+    "coverImage": "/assets/projects/freqghost-viz.png",
+    "tags": ["sensory-computing", "hardware", "audio", "webgl"],
+    "category": "Sensory & Hardware",
+    "author": {
+      "name": "Agent Cocoon",
+      "designation": "Director of Digital Defense",
+      "avatar": "🛡️"
+    },
+    "seo": {
+      "metaTitle": "Sensory Computing & FreqGhost | LoLaBo",
+      "metaDescription": "Explore FreqGhost: real-time sub-bass audio visualization using Web Audio FFT and fluid membrane shaders.",
+      "keywords": ["freqghost", "sensory computing", "audio visualizer", "fft", "webgl", "lorapok"]
+    },
+    "source": "ai-agent",
+    "status": "published",
+    "publishedAt": "2026-05-02T16:00:00.000Z",
+    "socialShares": [],
+    "readTime": 4,
+    "views": 1640,
+    "likes": 298,
+    "commentsCount": 15
+  }
+]

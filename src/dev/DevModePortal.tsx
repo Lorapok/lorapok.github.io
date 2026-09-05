@@ -1,6 +1,6 @@
 // src/dev/DevModePortal.tsx
 // The full Lorapok Labs Developer Mode workspace
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { DevAuthProvider, useDevAuth } from "./DevAuth";
 import AILabsPanel from "./panels/AILabsPanel";
 import BlogPanel from "./panels/BlogPanel";
@@ -13,49 +13,70 @@ import ComparePanel from "./panels/ComparePanel";
 import DashboardPanel from "./panels/DashboardPanel";
 import ReadmePanel from "./panels/ReadmePanel";
 import CommitsPanel from "./panels/CommitsPanel";
+import LoLaBoPanel from "./panels/LoLaBoPanel";
 import UserProfilePanel from "./panels/UserProfilePanel";
+import { 
+  Home, 
+  Hexagon, 
+  FileText, 
+  Play, 
+  Globe, 
+  Layout, 
+  Terminal, 
+  FileCode, 
+  Zap, 
+  Shield, 
+  Bot, 
+  BarChart3
+} from "lucide-react";
 import "./DevMode.css";
 
 
-type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics";
+type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo";
 
 
 const devBadgeImage = "/assets/lorapok-dev-logo.png";
 
 interface NavItem {
   id: PanelId;
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   badge?: string;
   count?: number;
 }
 
 const WORKSPACE_ITEMS: NavItem[] = [
-  { id: "dashboard", icon: "⌂", label: "Dashboard" },
-  { id: "ai-labs", icon: "⬡", label: "AI Labs" },
-  { id: "blog", icon: "✦", label: "Blog System", badge: "NEW" },
-  { id: "playground", icon: "⌥", label: "Playground" },
-  { id: "projects", icon: "◈", label: "Projects", count: 6 },
+  { id: "dashboard", icon: <Home size={18} />, label: "Dashboard" },
+  { id: "ai-labs", icon: <Hexagon size={18} />, label: "AI Labs" },
+  { id: "blog", icon: <FileText size={18} />, label: "Blog System", badge: "NEW" },
+  { id: "playground", icon: <Play size={18} />, label: "Playground" },
+  { id: "projects", icon: <Globe size={18} />, label: "Projects", count: 8 },
 ];
 
 const TOOL_ITEMS: NavItem[] = [
-  { id: "compare", icon: "⊟", label: "AI Compare", badge: "β" },
-  { id: "prompts", icon: "⊕", label: "Prompt Library" },
-  { id: "readme", icon: "📄", label: "README Gen" },
-  { id: "commits", icon: "⚡", label: "Commit Explain" },
+  { id: "compare", icon: <Layout size={18} />, label: "AI Compare", badge: "P" },
+  { id: "prompts", icon: <Terminal size={18} />, label: "Prompt Library" },
+  { id: "readme", icon: <FileCode size={18} />, label: "README Gen" },
+  { id: "commits", icon: <Zap size={18} />, label: "Commit Explain" },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
-  { id: "admin", icon: "⊛", label: "Admin Panel" },
-  { id: "analytics", icon: "⊜", label: "Analytics" },
+  { id: "admin", icon: <Shield size={18} />, label: "Admin Panel" },
+  { id: "lolabo", icon: <Bot size={18} />, label: "LoLaBo Agent", badge: "AI" },
+  { id: "analytics", icon: <BarChart3 size={18} />, label: "Analytics" },
 ];
 
 function NavItem({ item, active, onClick }: { item: NavItem; active: boolean; onClick: () => void }) {
   return (
     <button className={`dev-sidebar-item ${active ? "active" : ""}`} onClick={onClick}>
-      <span className="dev-sidebar-icon">{item.icon}</span>
+      <span className="dev-sidebar-icon" style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
       {item.label}
-      {item.badge && <span className="dev-sidebar-new">{item.badge}</span>}
+      {item.badge && (
+        <span className="dev-sidebar-new" style={{ 
+          background: item.badge === 'AI' ? '#f59e0b' : 'var(--dev-amber)',
+          color: item.badge === 'AI' ? '#000' : '#000'
+        }}>{item.badge}</span>
+      )}
       {item.count !== undefined && <span className="dev-sidebar-count">{item.count}</span>}
     </button>
   );
@@ -83,7 +104,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
   const switchPanel = (id: string) => {
     if (id === "dashboard" || id === "profile" || id === "ai-labs" || id === "blog" || id === "playground" || id === "projects" ||
       id === "readme" || id === "commits" || id === "compare" || id === "prompts" ||
-      id === "admin" || id === "analytics") {
+      id === "admin" || id === "analytics" || id === "lolabo") {
       setActivePanel(id as PanelId);
     }
   };
@@ -101,6 +122,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
       case "readme": return <ReadmePanel />;
       case "commits": return <CommitsPanel />;
       case "admin": return <AdminPanel />;
+      case "lolabo": return <LoLaBoPanel />;
       case "analytics": return <AnalyticsPanel />;
       default: return <DashboardPanel onSwitchPanel={switchPanel} />;
     }

@@ -1,0 +1,51 @@
+name: LoLaBo AI Agent
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Run every hour to check for updates or triggers
+  workflow_dispatch:         # Manual trigger
+    inputs:
+      force:
+        description: 'Force run ignoring interval'
+        required: false
+        default: 'false'
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Agent Dependencies
+        run: |
+          cd agent
+          npm install
+
+      - name: Run LoLaBo Agent
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          FORCE_RUN: ${{ github.event.inputs.force }}
+        run: |
+          cd agent
+          npx ts-node index.ts
+          npx ts-node exportData.ts
+
+      - name: Commit and Push (if needed)
+        # In this architecture, posts are saved to Firestore, 
+        # but we might want to update a local sitemap or JSON backup for SEO.
+        run: |
+          git config --global user.name "LoLaBo Agent"
+          git config --global user.email "agent@lorapok.labs"
+          git add .
+          git diff-index --quiet HEAD || git commit -m "chore: updated by LoLaBo Agent [skip ci]"
+          git push

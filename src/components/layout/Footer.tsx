@@ -52,6 +52,7 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Organization & Resources</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li><Link to="/agents" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Agents & Skills Directory</Link></li>
+              <li><Link to="/blog" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">LoLaBo Tech Blog</Link></li>
               <li><Link to="/team" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Team & Collective</Link></li>
               <li><Link to="/changelog" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Changelog & Releases</Link></li>
               <li><Link to="/about" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Founder & Mission</Link></li>
