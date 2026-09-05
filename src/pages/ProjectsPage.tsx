@@ -21,11 +21,22 @@ export default function ProjectsPage() {
         project.tagline.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.description.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const matchesCategory = activeCategory === 'all' || project.category === activeCategory;
+      const matchesCategory = activeCategory.toLowerCase() === 'all' || project.category.toLowerCase() === activeCategory.toLowerCase();
       
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, activeCategory]);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      All: projects.length,
+      all: projects.length,
+    };
+    for (const p of projects) {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    }
+    return counts;
+  }, []);
 
   return (
     <motion.div
@@ -47,6 +58,7 @@ export default function ProjectsPage() {
             categories={categories}
             activeCategory={activeCategory}
             onChange={setActiveCategory}
+            counts={categoryCounts}
           />
         </div>
       </div>

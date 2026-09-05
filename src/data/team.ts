@@ -28,7 +28,6 @@ export interface TeammateProfile {
   avatar: string;
   location: string;
   email?: string;
-  phone?: string;
   tagline: string;
   bio: string;
   cvSummary?: string;
@@ -142,7 +141,6 @@ export const teamMembers: TeammateProfile[] = [
     avatar: "/assets/team/touker.jpg",
     location: "Dhaka, Bangladesh",
     email: "ahamed.touker@gmail.com",
-    phone: "+8801794621250",
     tagline: "Scalable enterprise web applications, role-based security, and cloud APIs.",
     bio: "Analytical, flexible Computer Science engineer with comprehensive experience building responsive, high-performance web applications and backend systems in Laravel, PHP, React, and TypeScript.",
     cvSummary:
@@ -224,7 +222,7 @@ export const teamMembers: TeammateProfile[] = [
     handle: "@RXX17",
     role: "Senior AI & Computer Vision Research Engineer",
     department: "AI Research & Agents",
-    avatar: "https://github.com/RXX17.png",
+    avatar: "/assets/team/meem.png",
     location: "Dhaka, Bangladesh",
     email: "r.f.meem@gmail.com",
     tagline: "Deep learning, YOLO real-time vision, and clinical AI transfer learning models.",
@@ -304,7 +302,6 @@ export const teamMembers: TeammateProfile[] = [
     avatar: "/assets/team/rabiul.jpg",
     location: "Chittagong, Bangladesh",
     email: "piashcmc@gmail.com",
-    phone: "01971629209",
     tagline: "Clinical healthcare administration, SGBV trauma care, and medical systems.",
     bio: "MBBS Physician with extensive expertise in hospital administration, clinical care, emergency medicine, and public health interventions. Medical Officer with Médecins Sans Frontières (MSF).",
     cvSummary:
@@ -375,10 +372,9 @@ export const teamMembers: TeammateProfile[] = [
     handle: "@NusratSupti",
     role: "Speech-Language Pathologist & Sensory Accessibility Specialist",
     department: "Clinical & Sensory Tech",
-    avatar: "https://ui-avatars.com/api/?name=Nusrat+Jahan+Supti&background=0a0a0f&color=67ff8f&size=256",
+    avatar: "/assets/team/supti.png",
     location: "Dhaka, Bangladesh",
     email: "raiafnan141015@gmail.com",
-    phone: "+8801941607981",
     tagline: "Sensory computing, augmentative communication (AAC), and speech therapy.",
     bio: "Compassionate Speech-Language Pathologist with clinical experience at BSMMU (PG Hospital). Specialized in Augmentative and Alternative Communication (AAC) devices, sensory stimulation, and voice rehabilitation.",
     cvSummary:
@@ -441,10 +437,9 @@ export const teamMembers: TeammateProfile[] = [
     handle: "@Songket",
     role: "Lead Brand Strategist, Storyteller & Communications Director",
     department: "Brand Strategy & DevRel",
-    avatar: "https://ui-avatars.com/api/?name=Wahid+Khan+Songket&background=0a0a0f&color=22d3ee&size=256",
+    avatar: "/assets/team/songket.png",
     location: "Gulshan 2, Dhaka, Bangladesh",
     email: "s.songket@gmail.com",
-    phone: "+8801780503993",
     tagline: "Narrative architecture, brand development, scriptwriting, and video storytelling.",
     bio: "Sociology graduate from the University of Dhaka with a decade of creative storytelling experience across Leo Burnett, RedOrange, and Next Bell. Co-author of published humanitarian research.",
     cvSummary:

@@ -1,6 +1,6 @@
 import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./styles/tokens.css";
 import "./styles/animations.css";
 import "./styles/components.css";
@@ -15,7 +15,6 @@ const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
 const TeamPage = lazy(() => import("./pages/TeamPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ChangelogPage = lazy(() => import("./pages/ChangelogPage"));
-const SupportPage = lazy(() => import("./pages/SupportPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const DevModePortal = lazy(() => import("./dev/DevModePortal"));
 
@@ -52,7 +51,7 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<Layout><TeamPage /></Layout>} path="/team" />
           <Route element={<Layout><AboutPage /></Layout>} path="/about" />
           <Route element={<Layout><ChangelogPage /></Layout>} path="/changelog" />
-          <Route element={<Layout><SupportPage /></Layout>} path="/support" />
+          <Route element={<Navigate to="/" replace />} path="/support" />
           <Route element={<Layout><ContactPage /></Layout>} path="/contact" />
 
           {/* Dev Mode (authenticated, no public layout) */}

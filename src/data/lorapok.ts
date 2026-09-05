@@ -7,7 +7,8 @@ export type ProjectCategory =
   | "Desktop/Linux"
   | "Browser Extensions"
   | "Games/Utilities"
-  | "Mobile Apps";
+  | "Mobile Apps"
+  | "Sensory & Hardware";
 
 export type ProjectLink = {
   label: string;
@@ -27,6 +28,8 @@ export type Project = {
   category: ProjectCategory;
   language: string;
   featured?: boolean;
+  image?: string;
+  badge?: string;
   links: ProjectLink[];
 };
 
@@ -66,7 +69,7 @@ export const founder = {
 };
 
 export const support = {
-  bkash: "01629158131",
+  bkash: "",
   note: "Only send USDT to the matching network. Do not send NFTs or other tokens.",
   addresses: [
     {
@@ -123,6 +126,7 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "TypeScript",
     featured: true,
+    image: "/assets/projects/atlas-preview.png",
     links: [
       { label: "Live", url: "https://atlas.lorapok.tech/", icon: "web" },
       { label: "npm", url: "https://www.npmjs.com/package/lorapok-atlas", icon: "npm" },
@@ -334,6 +338,7 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "JavaScript",
     featured: true,
+    image: "/assets/projects/cursor-monitor-preview.png",
     links: [
       { label: "Live", url: "https://cursor.lorapok.tech/", icon: "web" },
       { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor", icon: "vscode" },
@@ -350,6 +355,7 @@ export const projects: Project[] = [
     category: "AI",
     language: "JavaScript",
     featured: true,
+    image: "/assets/projects/loragent-banner.jpg",
     links: [
       { label: "Live", url: "https://loragent.lorapok.tech/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Loragent", icon: "github" },
@@ -373,6 +379,8 @@ export const projects: Project[] = [
       "Native macOS Launchpad & AI Switcher for Ubuntu Linux. Built by Lorapok Labs.",
     category: "Desktop/Linux",
     language: "Python",
+    featured: true,
+    image: "/assets/projects/aswitchi-hero.png",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/AswitchI", icon: "github" },
     ],
@@ -522,12 +530,51 @@ export const projects: Project[] = [
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Querycraft", icon: "github" },
     ],
   },
+  {
+    name: "FreqGhost",
+    tagline: "WiFi DensePose Sensing Observatory",
+    description:
+      "Advanced through-wall sensing and 3D spatial visualization platform inspired by WiFi DensePose. Detects human presence, room movement, and respiratory vital signs via radio frequency CSI disturbance.",
+    category: "Sensory & Hardware",
+    language: "Python / Three.js",
+    featured: true,
+    image: "/assets/projects/freqghost-viz.png",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/FreqGhost", icon: "github" },
+    ],
+  },
+  {
+    name: "LARVOX",
+    tagline: "Linux Voice Operating eXperience",
+    description:
+      "Next-generation, offline-first voice assistant engineered for Linux environments. Blends Biological UI aesthetics with local IPC control, screen parsing, and container orchestration.",
+    category: "AI",
+    language: "Python",
+    featured: true,
+    image: "/assets/projects/larvox-logo.png",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/larvox", icon: "github" },
+    ],
+  },
+  {
+    name: "Cursor Duplicator",
+    tagline: "Multi-instance Cursor IDE environment manager",
+    description:
+      "Enterprise developer tool for spinning up isolated, parallel Cursor AI development environments with separate keyrings, profiles, and extensions.",
+    category: "Developer Tools",
+    language: "Shell",
+    image: "/assets/projects/dcursor-logo.png",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Cursor-Duplicator", icon: "github" },
+    ],
+  },
 ];
 
 export const categories: ("All" | ProjectCategory)[] = [
   "All",
   "AI",
   "Developer Tools",
+  "Sensory & Hardware",
   "Media",
   "Language/Input",
   "Laravel/PHP",

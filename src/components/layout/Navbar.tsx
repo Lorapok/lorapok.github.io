@@ -10,7 +10,6 @@ const navLinks = [
   { name: 'Team', path: '/team' },
   { name: 'About', path: '/about' },
   { name: 'Changelog', path: '/changelog' },
-  { name: 'Support', path: '/support' },
 ];
 
 export default function Navbar() {

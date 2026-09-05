@@ -551,7 +551,7 @@ function App() {
                   Sending from Bangladesh? Support via <strong>bKash Send Money</strong>:
                 </p>
                 <div className="bkash-qr-wrap">
-                  <img src={bkashQrImage} alt="bKash QR code for 01629158131" className="bkash-qr" />
+                  <img src={bkashQrImage} alt="bKash QR code" className="bkash-qr" />
                 </div>
                 <div className="bkash-number-row">
                   <span className="bkash-label">bKash Number:</span>

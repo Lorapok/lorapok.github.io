@@ -55,7 +55,6 @@ export default function Footer() {
               <li><Link to="/changelog" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Changelog & Releases</Link></li>
               <li><Link to="/about" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Founder & Mission</Link></li>
               <li><Link to="/contact" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Contact Labs</Link></li>
-              <li><Link to="/support" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Support & Donate</Link></li>
             </ul>
           </div>
 

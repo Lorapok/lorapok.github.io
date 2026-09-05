@@ -12,7 +12,6 @@ import {
   Sparkles,
   Layers,
   Download,
-  Phone,
   Award,
 } from "lucide-react";
 import type { TeammateProfile } from "../../data/team";
@@ -123,15 +122,6 @@ export function TeammateModal({ member, onClose }: TeammateModalProps) {
                     >
                       <Mail size={13} className="text-[#67ff8f]" />
                       {member.email}
-                    </a>
-                  )}
-                  {member.phone && (
-                    <a
-                      href={`tel:${member.phone}`}
-                      className="flex items-center gap-1.5 hover:text-[#67ff8f] transition-colors"
-                    >
-                      <Phone size={13} className="text-[#67ff8f]" />
-                      {member.phone}
                     </a>
                   )}
                 </div>
