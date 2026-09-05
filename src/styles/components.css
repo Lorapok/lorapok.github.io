@@ -1,0 +1,266 @@
+/* ============================================
+   LORAPOK LABS v2.0 — Reusable Component Styles
+   ============================================ */
+
+/* ─── Glass Card ─── */
+.lp-card {
+  background: var(--lp-bg-glass);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-lg);
+  backdrop-filter: blur(var(--lp-blur-md));
+  transition: all var(--lp-duration-normal) var(--lp-ease-out);
+}
+
+.lp-card:hover {
+  background: var(--lp-bg-glass-hover);
+  border-color: var(--lp-border-hover);
+  box-shadow: var(--lp-shadow-md);
+  transform: translateY(-2px);
+}
+
+.lp-card-flat {
+  background: var(--lp-bg-glass);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-lg);
+}
+
+/* ─── Buttons ─── */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lp-space-2);
+  padding: var(--lp-space-2) var(--lp-space-4);
+  font-family: var(--lp-font-sans);
+  font-size: var(--lp-text-sm);
+  font-weight: 600;
+  letter-spacing: var(--lp-tracking-wide);
+  text-transform: uppercase;
+  border-radius: var(--lp-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--lp-duration-fast) var(--lp-ease-out);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.lp-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lp-btn-primary {
+  background: var(--lp-accent);
+  color: var(--lp-text-inverse);
+  border-color: var(--lp-accent);
+}
+
+.lp-btn-primary:hover:not(:disabled) {
+  background: var(--lp-accent-hover);
+  box-shadow: var(--lp-shadow-glow);
+}
+
+.lp-btn-secondary {
+  background: var(--lp-bg-glass);
+  color: var(--lp-text-primary);
+  border-color: var(--lp-border);
+}
+
+.lp-btn-secondary:hover:not(:disabled) {
+  background: var(--lp-bg-glass-hover);
+  border-color: var(--lp-border-hover);
+}
+
+.lp-btn-ghost {
+  background: transparent;
+  color: var(--lp-text-secondary);
+  border-color: transparent;
+}
+
+.lp-btn-ghost:hover:not(:disabled) {
+  color: var(--lp-text-primary);
+  background: var(--lp-bg-glass);
+}
+
+.lp-btn-sm {
+  padding: var(--lp-space-1) var(--lp-space-3);
+  font-size: var(--lp-text-xs);
+}
+
+.lp-btn-lg {
+  padding: var(--lp-space-3) var(--lp-space-6);
+  font-size: var(--lp-text-base);
+}
+
+/* ─── Badges ─── */
+.lp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lp-space-1);
+  padding: 2px var(--lp-space-2);
+  font-size: var(--lp-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--lp-tracking-wide);
+  text-transform: uppercase;
+  border-radius: var(--lp-radius-full);
+  background: var(--lp-bg-glass);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text-secondary);
+}
+
+.lp-badge-accent {
+  background: var(--lp-accent-glow);
+  border-color: rgba(103, 255, 143, 0.2);
+  color: var(--lp-accent);
+}
+
+.lp-badge-cyan {
+  background: rgba(34, 211, 238, 0.1);
+  border-color: rgba(34, 211, 238, 0.2);
+  color: var(--lp-cyan);
+}
+
+.lp-badge-purple {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.2);
+  color: var(--lp-purple);
+}
+
+/* ─── Container ─── */
+.lp-container {
+  width: 100%;
+  max-width: var(--lp-container-xl);
+  margin: 0 auto;
+  padding: 0 var(--lp-space-6);
+}
+
+.lp-container-narrow {
+  max-width: var(--lp-container-lg);
+}
+
+.lp-container-wide {
+  max-width: var(--lp-container-2xl);
+}
+
+/* ─── Section ─── */
+.lp-section {
+  padding: var(--lp-space-24) 0;
+}
+
+.lp-section-sm {
+  padding: var(--lp-space-16) 0;
+}
+
+/* ─── Typography ─── */
+.lp-heading-hero {
+  font-size: var(--lp-text-hero);
+  font-weight: 800;
+  line-height: var(--lp-leading-tight);
+  letter-spacing: var(--lp-tracking-tight);
+  color: var(--lp-text-primary);
+}
+
+.lp-heading-section {
+  font-size: var(--lp-text-3xl);
+  font-weight: 700;
+  line-height: var(--lp-leading-tight);
+  letter-spacing: var(--lp-tracking-tight);
+  color: var(--lp-text-primary);
+}
+
+.lp-eyebrow {
+  font-size: var(--lp-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--lp-tracking-wider);
+  text-transform: uppercase;
+  color: var(--lp-accent);
+}
+
+.lp-body {
+  font-size: var(--lp-text-base);
+  line-height: var(--lp-leading-normal);
+  color: var(--lp-text-secondary);
+}
+
+.lp-mono {
+  font-family: var(--lp-font-mono);
+}
+
+/* ─── Grid ─── */
+.lp-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--lp-space-6);
+}
+
+.lp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--lp-space-6);
+}
+
+.lp-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--lp-space-6);
+}
+
+@media (max-width: 1024px) {
+  .lp-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .lp-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .lp-grid-4 { grid-template-columns: 1fr; }
+  .lp-grid-3 { grid-template-columns: 1fr; }
+  .lp-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ─── Divider ─── */
+.lp-divider {
+  height: 1px;
+  background: var(--lp-border);
+  border: none;
+  margin: var(--lp-space-8) 0;
+}
+
+/* ─── Input ─── */
+.lp-input {
+  width: 100%;
+  padding: var(--lp-space-3) var(--lp-space-4);
+  background: var(--lp-bg-glass);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-md);
+  color: var(--lp-text-primary);
+  font-family: var(--lp-font-sans);
+  font-size: var(--lp-text-sm);
+  transition: border-color var(--lp-duration-fast) var(--lp-ease-out);
+  outline: none;
+}
+
+.lp-input:focus {
+  border-color: var(--lp-accent);
+  box-shadow: 0 0 0 3px var(--lp-accent-glow);
+}
+
+.lp-input::placeholder {
+  color: var(--lp-text-muted);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

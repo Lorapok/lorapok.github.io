@@ -1,109 +1,87 @@
-# 🧬 Lorapok Labs — Digital Ecosystem & Developer Portal
+# 🧬 Lorapok Labs — Digital Ecosystem & Developer Portal v2.0
 
 [![Deployment](https://github.com/Lorapok/lorapok.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/Lorapok/lorapok.github.io/actions/workflows/deploy.yml)
-[![Live Site](https://img.shields.io/badge/Live-lorapok.github.io-67ff8f?style=flat-square&logo=github)](https://lorapok.github.io/)
+[![Live Site](https://img.shields.io/badge/Live-lorapok.tech-67ff8f?style=flat-square&logo=cloudflare)](https://lorapok.tech)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Lorapok Labs** is a premium, open-source software collective focused on **Sensory Computing** and **Biological UI**. This portal is a high-fidelity bridge between high-performance developer tools and a stunning, living user interface.
+**Lorapok Labs** is an open-source software collective focused on **Sensory Computing** and **Biological UI**. This portal serves as the definitive hub for 24+ open-source products across 7 global distribution platforms.
 
 ---
 
-## 🌓 The Dual-Mode Architecture
+## 🌐 The Multi-Page Architecture (v2.0)
 
-The portal operates as a unified platform with two distinct environments:
+Lorapok Labs v2.0 transitions the ecosystem from a single-page portfolio into a full-fledged, multi-page open-source product organization:
 
-### 1. Standard Mode (Public Portfolio)
-A high-performance landing page showcasing the Lorapok ecosystem, vision, and core products.
-- **Aesthetic:** Glassmorphism, 4K ambient grids, and biological micro-animations.
-- **Content:** Curated project cards, founder philosophy, and a secure contact bridge.
+| Route | Page | Description |
+| :--- | :--- | :--- |
+| `/` | **Home** | Cinematic hero, real-time animated stats, 3-pillar philosophy, and featured tools. |
+| `/projects` | **Product Directory** | Filterable catalog across 10 categories with real-time `⌘K` search. |
+| `/about` | **Founder & Mission** | Story of founder Mohammad Maizied Hasan Majumder, team, and the Lorapok Way. |
+| `/changelog` | **Release Timeline** | Chronological timeline of releases, major updates, and platform milestones. |
+| `/support` | **Ecosystem Support** | bKash donation channel and verified multi-chain crypto addresses. |
+| `/contact` | **Contact Bridge** | Structured contact channels with direct routing for partnerships and developer inquiries. |
+| `/dev` | **Developer Workspace** | Authenticated workspace with multi-provider AI Labs, API Playground, and admin metrics. |
 
-### 2. Developer Mode (Integrated Workspace)
-An authenticated, full-screen workspace for developers and administrators.
-- **AI Labs:** Multi-provider chat (Claude, OpenAI, Gemini) and productivity tools.
-- **Blog CMS:** AI-assisted blog generation with real-time Firestore persistence.
-- **API Playground:** A live environment to test prompts and inspect raw API responses.
-- **Admin Panel:** Google-authenticated control center for analytics and site management.
+---
+
+## 🚀 Marketplace Ecosystem & Distribution
+
+Lorapok products are distributed across 7 major registries and marketplaces:
+
+* **VS Code Marketplace:** [LorapokLabs](https://marketplace.visualstudio.com/publishers/LorapokLabs) — *Cursor Curse Monitor, Lorapok Atlas*
+* **Open VSX Registry:** [LorapokLabs](https://open-vsx.org/namespace/LorapokLabs) — *Cursor Curse Monitor, Lorapok Atlas*
+* **Firefox AMO:** [Lorapok Add-ons](https://addons.mozilla.org/firefox/user/lorapok/) — *Atlas API Directory, XSnap Media Downloader, SubtitleMaster*
+* **npm Registry:** Packages include `lorapok-atlas`, `lorapok-atlas-mcp`, `roast-api`, `lorapok-player`, and `@lorapok-labs/reportkit-ui`
+* **PyPI:** `roast-api`
+* **Packagist:** `lorapok/laravel-execution-monitor`, `maizied/roast-api`
+* **Snapcraft:** `lorapokmediaplayer`
+* **Product Hunt:** [Lorapok Atlas Launch](https://www.producthunt.com/posts/lorapok-atlas)
 
 ---
 
 ## 🛠 Technology Stack
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React 19, Vite, TypeScript |
-| **Logic** | Framer Motion (Animations), React Router |
-| **Styling** | Tailwind CSS 4, Custom "DevMode" CSS system |
-| **Backend** | Firebase (Auth & Firestore), Cloudflare Workers (Mail Proxy) |
-| **AI Tools** | Anthropic Claude, OpenAI GPT, Google Gemini integrations |
-| **Editors** | CodeMirror (API Playground) |
+* **Frontend Framework:** React 19, Vite 8, TypeScript ~6.0
+* **Routing:** React Router v7 with route-level code splitting (`React.lazy`)
+* **Styling & UI Tokens:** Tailwind CSS v4, custom CSS token system (`src/styles/tokens.css`)
+* **Motion & Animation:** Framer Motion (reduced-motion accessible)
+* **Icons:** Lucide React
+* **Backend Services:** Firebase Auth & Cloud Firestore (Admin & Dev Portal)
+* **Edge Proxy:** Cloudflare Workers (Email proxy)
+* **SEO & Metadata:** Open Graph, Twitter Cards, XML Sitemap, JSON-LD Schema.org Organization data
+* **Hosting:** GitHub Pages with custom domain `lorapok.tech` via GitHub Actions
 
 ---
 
-## ⚙ Configuration & Environment
-
-To unlock the full potential of Developer Mode, you must configure your environment variables.
-
-### 1. Firebase Backend (Auth & Database)
-Required for the Admin Panel, Blog system, and Analytics.
-
-1.  Create a project at [Firebase Console](https://console.firebase.google.com/).
-2.  Enable **Google Authentication** in the "Authentication" tab.
-3.  Create a **Firestore Database** in production or test mode.
-4.  Add a Web App to get your config.
-
-Create a `.env` file in the root directory:
-```env
-# Firebase Configuration
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
-
-# Mail Proxy (Cloudflare/Resend)
-VITE_MAIL_PROXY_URL=your_proxy_url
-```
-
-### 2. AI Provider Keys
-Individual developer tools in **AI Labs** require provider-specific keys.
-- **Security:** These keys are stored **locally in your browser's `localStorage`**. They are never transmitted to Lorapok servers or Firebase.
-- **Setup:** Simply paste your key into the "Active Provider" chip in Developer Mode.
-
----
-
-## 📂 Project Structure
+## ⚙️ Development & Local Setup
 
 ```bash
-src/
-├── components/     # High-fidelity UI components
-├── data/           # lorapok.ts (Ecosystem source of truth)
-├── dev/            # Developer Mode ecosystem
-│   ├── panels/     # AI Labs, Blog, Playground, etc.
-│   ├── DevAuth.tsx # Firebase Auth logic
-│   └── DevMode.css # Workspace styling
-├── lib/            # firebase.ts, api.ts
-└── App.tsx         # Main entry with Dual-Mode toggle
-```
+# Clone the repository
+git clone https://github.com/Lorapok/lorapok.github.io.git
+cd lorapok.github.io
 
----
-
-## 🚀 Getting Started
-
-```bash
-# Install the ecosystem
+# Install dependencies
 npm install
 
-# Start the sensory development environment
+# Start local sensory development server
 npm run dev
 
-# Build for high-fidelity production
+# Run type check and production build
 npm run build
 ```
 
 ---
 
-## 🤝 Contributing
-Lorapok Labs is community-driven. All libraries under the ecosystem are MIT licensed. Whether you're fixing a bug in `formkraft` or adding a new prompt to the `Library`, your contributions power the open-source future.
+## 🔐 Credentials & Secrets Management
 
-© 2026 Lorapok Labs. Biological UI & Sensory Computing. 🌿
+Per project standards, API credentials and environment secrets are never committed or exposed in chat. They are managed through the centralized credential vault:
+
+```bash
+cred get cloudflare account_id_lorapok
+```
+
+---
+
+## 📜 License
+
+Designed and maintained by [Mohammad Maizied Hasan Majumder (@Maijied)](https://github.com/Maijied) and the [Lorapok Labs](https://github.com/Lorapok) collective. Released under the [MIT License](LICENSE).

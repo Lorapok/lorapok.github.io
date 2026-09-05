@@ -1,0 +1,116 @@
+/* ============================================
+   LORAPOK LABS v2.0 — Design Tokens
+   ============================================ */
+
+:root {
+  /* ─── Colors ─── */
+  --lp-bg-primary: #0a0a0f;
+  --lp-bg-secondary: #111118;
+  --lp-bg-tertiary: #16161f;
+  --lp-bg-glass: rgba(255, 255, 255, 0.03);
+  --lp-bg-glass-hover: rgba(255, 255, 255, 0.06);
+  --lp-bg-glass-active: rgba(255, 255, 255, 0.08);
+
+  --lp-border: rgba(255, 255, 255, 0.06);
+  --lp-border-hover: rgba(255, 255, 255, 0.12);
+  --lp-border-active: rgba(255, 255, 255, 0.18);
+
+  --lp-text-primary: rgba(255, 255, 255, 0.95);
+  --lp-text-secondary: rgba(255, 255, 255, 0.6);
+  --lp-text-muted: rgba(255, 255, 255, 0.35);
+  --lp-text-inverse: #0a0a0f;
+
+  --lp-accent: #67ff8f;
+  --lp-accent-glow: rgba(103, 255, 143, 0.15);
+  --lp-accent-hover: #8affab;
+  --lp-accent-dim: rgba(103, 255, 143, 0.6);
+
+  --lp-cyan: #22d3ee;
+  --lp-purple: #a78bfa;
+  --lp-amber: #fbbf24;
+  --lp-rose: #fb7185;
+  --lp-blue: #60a5fa;
+
+  /* ─── Typography ─── */
+  --lp-font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --lp-font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  --lp-font-display: var(--lp-font-sans);
+
+  --lp-text-xs: 0.75rem;
+  --lp-text-sm: 0.875rem;
+  --lp-text-base: 1rem;
+  --lp-text-lg: 1.125rem;
+  --lp-text-xl: 1.25rem;
+  --lp-text-2xl: 1.5rem;
+  --lp-text-3xl: 1.875rem;
+  --lp-text-4xl: 2.25rem;
+  --lp-text-5xl: 3rem;
+  --lp-text-6xl: 3.75rem;
+  --lp-text-hero: clamp(2.5rem, 5vw, 4.5rem);
+
+  --lp-leading-tight: 1.15;
+  --lp-leading-snug: 1.3;
+  --lp-leading-normal: 1.6;
+  --lp-leading-relaxed: 1.75;
+
+  --lp-tracking-tight: -0.02em;
+  --lp-tracking-normal: 0;
+  --lp-tracking-wide: 0.05em;
+  --lp-tracking-wider: 0.1em;
+
+  /* ─── Spacing ─── */
+  --lp-space-1: 0.25rem;
+  --lp-space-2: 0.5rem;
+  --lp-space-3: 0.75rem;
+  --lp-space-4: 1rem;
+  --lp-space-5: 1.25rem;
+  --lp-space-6: 1.5rem;
+  --lp-space-8: 2rem;
+  --lp-space-10: 2.5rem;
+  --lp-space-12: 3rem;
+  --lp-space-16: 4rem;
+  --lp-space-20: 5rem;
+  --lp-space-24: 6rem;
+  --lp-space-32: 8rem;
+
+  --lp-container-sm: 640px;
+  --lp-container-md: 768px;
+  --lp-container-lg: 1024px;
+  --lp-container-xl: 1200px;
+  --lp-container-2xl: 1400px;
+
+  /* ─── Border Radius ─── */
+  --lp-radius-sm: 6px;
+  --lp-radius-md: 10px;
+  --lp-radius-lg: 16px;
+  --lp-radius-xl: 24px;
+  --lp-radius-full: 9999px;
+
+  /* ─── Shadows ─── */
+  --lp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --lp-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --lp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --lp-shadow-glow: 0 0 40px var(--lp-accent-glow);
+
+  /* ─── Transitions ─── */
+  --lp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --lp-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --lp-duration-fast: 150ms;
+  --lp-duration-normal: 250ms;
+  --lp-duration-slow: 400ms;
+
+  /* ─── Z-Index ─── */
+  --lp-z-base: 0;
+  --lp-z-dropdown: 100;
+  --lp-z-sticky: 200;
+  --lp-z-overlay: 300;
+  --lp-z-modal: 400;
+  --lp-z-toast: 500;
+  --lp-z-max: 9999;
+
+  /* ─── Blur ─── */
+  --lp-blur-sm: 8px;
+  --lp-blur-md: 16px;
+  --lp-blur-lg: 24px;
+  --lp-blur-xl: 40px;
+}

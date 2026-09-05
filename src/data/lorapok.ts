@@ -12,7 +12,12 @@ export type ProjectCategory =
 export type ProjectLink = {
   label: string;
   url: string;
-  icon?: "web" | "npm" | "github" | "vscode" | "api" | "snap" | "download" | "pypi" | "packagist" | "firefox" | "chrome" | "terminal" | "android" | "gamepad" | "monitor" | "book" | "cloud" | "box" | "cpu" | "server" | "layers";
+  icon?: "web" | "npm" | "github" | "vscode" | "openvsx" | "api" | "snap" | "download" | "pypi" | "packagist" | "firefox" | "chrome" | "terminal" | "android" | "gamepad" | "monitor" | "book" | "cloud" | "box" | "cpu" | "server" | "layers";
+};
+
+export type MarketplaceBadge = {
+  platform: "npm" | "pypi" | "packagist" | "vscode" | "openvsx" | "amo" | "snap" | "producthunt";
+  url: string;
 };
 
 export type Project = {
@@ -313,6 +318,79 @@ export const projects: Project[] = [
     links: [
       { label: "Web", url: "https://maijied.github.io/Lorapok-Windows-Activator/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Windows-Activator", icon: "github" },
+    ],
+  },
+  {
+    name: "Cursor Curse Monitor",
+    tagline: "Live Cursor usage dashboard",
+    description:
+      "Real-time dashboard for Cursor AI usage limits, budget tracking, billing cycles, and free-fallback model switching.",
+    category: "Developer Tools",
+    language: "JavaScript",
+    featured: true,
+    links: [
+      { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor", icon: "vscode" },
+      { label: "Open VSX", url: "https://open-vsx.org/extension/LorapokLabs/cursor-curse-monitor", icon: "openvsx" },
+      { label: "Firefox", url: "https://addons.mozilla.org/firefox/addon/cursor-curse-monitor/", icon: "firefox" },
+      { label: "GitHub", url: "https://github.com/Maijied/Cursor-Curse-Monitor-by-Lorapok", icon: "github" },
+    ],
+  },
+  {
+    name: "Loragent",
+    tagline: "Enterprise multi-agent orchestration",
+    description:
+      "Universal, enterprise-grade multi-agent orchestration framework with a 250-resource AI marketplace.",
+    category: "AI",
+    language: "JavaScript",
+    featured: true,
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Loragent", icon: "github" },
+    ],
+  },
+  {
+    name: "ReportKit Core",
+    tagline: "Zero re-query PHP report stack",
+    description:
+      "Chunked prepare, secure store, zero re-query PHP reporting engine for Laravel applications.",
+    category: "Laravel/PHP",
+    language: "JavaScript",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Reportkit-Core", icon: "github" },
+    ],
+  },
+  {
+    name: "AswitchI",
+    tagline: "macOS Launchpad for Linux",
+    description:
+      "Native macOS Launchpad & AI Switcher for Ubuntu Linux. Built by Lorapok Labs.",
+    category: "Desktop/Linux",
+    language: "Python",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/AswitchI", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok Atlas Firefox",
+    tagline: "API directory in your browser sidebar",
+    description:
+      "Browse, search, and live-test 2,100+ free APIs directly from the Firefox sidebar.",
+    category: "Browser Extensions",
+    language: "JavaScript",
+    links: [
+      { label: "AMO", url: "https://addons.mozilla.org/firefox/addon/lorapok-atlas/", icon: "firefox" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-API_Atlas", icon: "github" },
+    ],
+  },
+  {
+    name: "XSnap Media Downloader",
+    tagline: "Download media from X/Twitter",
+    description:
+      "Download videos, GIFs, and images from X (Twitter) in various resolutions.",
+    category: "Browser Extensions",
+    language: "JavaScript",
+    links: [
+      { label: "Firefox", url: "https://addons.mozilla.org/firefox/addon/xsnap-media-downloader/", icon: "firefox" },
+      { label: "GitHub", url: "https://github.com/Maijied/xsnap-media-downloader_Opera", icon: "github" },
     ],
   },
 ];

@@ -1,0 +1,165 @@
+/* ============================================
+   LORAPOK LABS v2.0 — Animations
+   ============================================ */
+
+@keyframes lp-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes lp-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lp-fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lp-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes lp-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes lp-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes lp-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--lp-accent-glow);
+  }
+  50% {
+    box-shadow: 0 0 40px var(--lp-accent-glow), 0 0 60px rgba(103, 255, 143, 0.08);
+  }
+}
+
+@keyframes lp-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes lp-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes lp-grid-pulse {
+  0%, 100% {
+    opacity: 0.015;
+  }
+  50% {
+    opacity: 0.04;
+  }
+}
+
+@keyframes lp-counter-tick {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Utility Classes ─── */
+
+.lp-animate-fade-in {
+  animation: lp-fade-in var(--lp-duration-normal) var(--lp-ease-out) both;
+}
+
+.lp-animate-fade-in-up {
+  animation: lp-fade-in-up var(--lp-duration-slow) var(--lp-ease-out) both;
+}
+
+.lp-animate-scale-in {
+  animation: lp-scale-in var(--lp-duration-normal) var(--lp-ease-out) both;
+}
+
+.lp-animate-pulse-glow {
+  animation: lp-pulse-glow 3s ease-in-out infinite;
+}
+
+.lp-animate-float {
+  animation: lp-float 4s ease-in-out infinite;
+}
+
+.lp-animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: lp-shimmer 2s linear infinite;
+}
+
+/* Staggered children delays */
+.lp-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.lp-stagger > *:nth-child(2) { animation-delay: 60ms; }
+.lp-stagger > *:nth-child(3) { animation-delay: 120ms; }
+.lp-stagger > *:nth-child(4) { animation-delay: 180ms; }
+.lp-stagger > *:nth-child(5) { animation-delay: 240ms; }
+.lp-stagger > *:nth-child(6) { animation-delay: 300ms; }
+.lp-stagger > *:nth-child(7) { animation-delay: 360ms; }
+.lp-stagger > *:nth-child(8) { animation-delay: 420ms; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .lp-animate-fade-in,
+  .lp-animate-fade-in-up,
+  .lp-animate-scale-in,
+  .lp-animate-pulse-glow,
+  .lp-animate-float,
+  .lp-animate-shimmer {
+    animation: none !important;
+  }
+}
