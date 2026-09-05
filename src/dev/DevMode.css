@@ -254,13 +254,11 @@
   margin: 0 auto;
   padding: 2.5rem 2rem;
   opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s ease;
+  transition: opacity 0.4s ease;
 }
 
 .dev-panel.active {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .dev-panel-header {

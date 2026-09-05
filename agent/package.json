@@ -1,0 +1,15 @@
+{
+  "name": "lolabo-agent",
+  "version": "1.0.0",
+  "description": "LoLaBo Autonomous Blogging Agent",
+  "main": "index.ts",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "rss-parser": "^3.13.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.1"
+  }
+}

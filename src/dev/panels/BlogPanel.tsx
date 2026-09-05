@@ -1,50 +1,41 @@
 // src/dev/panels/BlogPanel.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDevAuth } from "../DevAuth";
 import { AI_PROVIDERS } from "../constants/providers";
 import { 
   FileText, 
   Sparkles, 
-  Save, 
-  Send, 
   ChevronLeft, 
   Plus, 
   BookOpen, 
   Clock, 
   ExternalLink,
-  Copy,
-  CheckCircle2,
   Layout,
   Type,
-  Users
+  Users,
+  Search,
+  Edit
 } from "lucide-react";
+import { blogService } from "../../lib/blogService";
+import type { BlogPost as LivePost } from "../../blog/BlogApp";
+import { Timestamp } from "firebase/firestore";
 
 const AUDIENCE_OPTIONS = ["Developers", "Open-source contributors", "Tech community", "General public"];
 const TONE_OPTIONS = ["Technical & precise", "Conversational", "Inspirational", "Tutorial-style"];
 
-interface BlogPost {
-  id: string;
-  title: string;
-  status: "published" | "draft" | "scheduled";
-  readTime: string;
-  date: string;
-  icon: string;
-}
-
-const DEMO_POSTS: BlogPost[] = [
-  { id: "1", title: "Why open-source AI tooling is eating the stack", status: "published", readTime: "4 min", date: "May 2025", icon: "🤖" },
-  { id: "2", title: "Building Lorapok UI with zero runtime dependencies", status: "draft", readTime: "6 min", date: "May 2025", icon: "⚙️" },
-  { id: "3", title: "relay-db: SQLite at the edge without the overhead", status: "scheduled", readTime: "3 min", date: "Jun 2025", icon: "🦀" },
-];
-
-const BADGE_MAP = {
+const BADGE_MAP: Record<string, string> = {
   published: "dev-badge-green",
   draft: "dev-badge-amber",
   scheduled: "dev-badge-muted",
 };
 
 export default function BlogPanel() {
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [posts, setPosts] = useState<LivePost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [selectedPost, setSelectedPost] = useState<LivePost | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [publishing, setPublishing] = useState(false);
+
   const [topic, setTopic] = useState("");
   const [context, setContext] = useState("");
   const [audience, setAudience] = useState("Developers");
@@ -52,11 +43,24 @@ export default function BlogPanel() {
   const [tags, setTags] = useState("");
   const [generating, setGenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState("");
-  const [genTime, setGenTime] = useState("");
   const [copied, setCopied] = useState(false);
   
   const { activeProvider, apiKeys } = useDevAuth();
   const activeP = AI_PROVIDERS.find(p => p.id === activeProvider) || AI_PROVIDERS[0];
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const live = await blogService.getPublishedPosts(50);
+        setPosts(live);
+      } catch (e) {
+        console.error("Failed to load blog posts:", e);
+      } finally {
+        setLoadingPosts(false);
+      }
+    };
+    loadPosts();
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedPost);
@@ -73,7 +77,6 @@ export default function BlogPanel() {
     }
     setGenerating(true);
     setGeneratedPost("");
-    const start = Date.now();
 
     const prompt = `Write a professional blog post for Lorapok Labs (nonprofit open-source collective) with these details:
 Topic: ${topic || "(use context below)"}
@@ -147,12 +150,92 @@ Write the full blog post now. Output only the Markdown.`;
       if (activeProvider === "claude") result = data.content?.[0]?.text || "Generation failed.";
       else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(activeProvider)) result = data.choices?.[0]?.message?.content || "Generation failed.";
       setGeneratedPost(result);
-      setGenTime(((Date.now() - start) / 1000).toFixed(1));
     } catch (e: any) {
       setGeneratedPost(`⚠ Network error: ${e.message}. Please try again.`);
     } finally {
       setGenerating(false);
     }
+  };
+
+  const handlePublish = async () => {
+    if (!generatedPost || !topic) return;
+    setPublishing(true);
+    try {
+      const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const newPost: Omit<LivePost, 'id'> = {
+        slug,
+        title: topic,
+        excerpt: context.slice(0, 150) + "...",
+        content: generatedPost,
+        coverImage: "",
+        tags: tags.split(',').map(t => t.trim()),
+        category: "General Tech",
+        author: { name: "Lorapok Admin", designation: "Maintainer", avatar: "👨‍💻" },
+        seo: { 
+          metaTitle: `${topic} | LoLaBo`, 
+          metaDescription: context.slice(0, 150),
+          keywords: tags.split(',').map(t => t.trim())
+        },
+        source: "manual",
+        status: "published",
+        publishedAt: Timestamp.now(),
+        socialShares: [],
+        readTime: Math.ceil(generatedPost.split(' ').length / 200),
+        views: 0,
+        likes: 0,
+        commentsCount: 0
+      };
+      await blogService.createPost(newPost);
+      alert("Post published successfully to LoLaBo!");
+      // Refresh list
+      const live = await blogService.getPublishedPosts(50);
+      setPosts(live);
+      setGeneratedPost("");
+    } catch (e) {
+      console.error("Publishing failed:", e);
+      alert("Failed to publish post.");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const renderContentLibrary = () => {
+    if (loadingPosts) return <div style={{ textAlign: 'center', opacity: 0.5, padding: '2rem' }}>Scanning library...</div>;
+    
+    const filtered = posts.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (filtered.length === 0) return <div style={{ textAlign: 'center', opacity: 0.5, padding: '2rem' }}>No publications found.</div>;
+    
+    return filtered.map((post: LivePost) => {
+      const isSelected = selectedPost && selectedPost.id === post.id;
+      return (
+        <button 
+          key={post.id} 
+          onClick={() => setSelectedPost(post)}
+          className="dev-card"
+          style={{ 
+            padding: '1rem', 
+            textAlign: 'left', 
+            width: '100%',
+            background: isSelected ? 'var(--dev-accent-dim)' : 'rgba(255,255,255,0.02)',
+            borderColor: isSelected ? 'var(--dev-accent)' : 'rgba(255,255,255,0.05)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{post.title}</div>
+            <div style={{ fontSize: '0.7rem', opacity: 0.5, display: 'flex', gap: '0.75rem' }}>
+              <span>{post.readTime} min</span>
+              <span>{post.publishedAt?.toDate?.().toLocaleDateString()}</span>
+            </div>
+          </div>
+          <div className={`dev-badge ${BADGE_MAP[post.status] || 'dev-badge-muted'}`} style={{ fontSize: '0.6rem' }}>
+            {post.status.toUpperCase()}
+          </div>
+        </button>
+      );
+    });
   };
 
   if (selectedPost) {
@@ -170,32 +253,16 @@ Write the full blog post now. Output only the Markdown.`;
         
         <div className="dev-card" style={{ padding: '3rem', background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ marginBottom: '2.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '2rem' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{selectedPost.icon}</div>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '1.25rem', lineHeight: 1.1, letterSpacing: '-0.02em' }}>{selectedPost.title}</h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: '0.85rem', opacity: 0.5 }}>
-              <span className={`dev-badge ${BADGE_MAP[selectedPost.status]}`} style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>{selectedPost.status}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Clock size={14} /> {selectedPost.readTime} reading time</span>
-              <span>Published {selectedPost.date}</span>
+              <span className={`dev-badge ${BADGE_MAP[selectedPost.status] || 'dev-badge-muted'}`} style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>{selectedPost.status}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Clock size={14} /> {selectedPost.readTime} min read</span>
+              <span>{selectedPost.publishedAt?.toDate?.().toLocaleDateString()}</span>
             </div>
           </div>
           
           <div style={{ fontSize: '1.1rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.8)', maxWidth: '700px' }}>
-            <p style={{ marginBottom: '1.5rem' }}>This is a full preview of the blog post as it would appear on the live site. The content is parsed from Markdown and styled with Lorapok's high-fidelity theme.</p>
-            <p style={{ marginBottom: '1.5rem' }}>Lorapok Labs focuses on building tools that are radically open. This post explores the technical architecture of our latest CLI tools and how we integrate AI to enhance the developer experience without adding bloat.</p>
-            <div style={{ 
-              background: 'rgba(255,255,255,0.03)', 
-              border: '1px dashed rgba(255,255,255,0.1)', 
-              borderRadius: '12px', 
-              padding: '3rem', 
-              textAlign: 'center', 
-              fontFamily: 'var(--dev-font-mono)', 
-              fontSize: '0.8rem', 
-              color: 'var(--dev-muted)',
-              margin: '2rem 0'
-            }}>
-              [ Full Markdown Content would render here ]
-            </div>
-            <p>We believe that open-source is not just about the code, but about the community and the knowledge sharing that happens around it. Stay tuned for more technical deep-dives.</p>
+             <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{selectedPost.content}</pre>
           </div>
           
           <div style={{ marginTop: '4rem', display: 'flex', gap: '1rem' }}>
@@ -227,36 +294,21 @@ Write the full blog post now. Output only the Markdown.`;
           <div className="dev-stitle" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <BookOpen size={18} /> CONTENT LIBRARY
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {DEMO_POSTS.map(post => (
-              <div 
-                key={post.id} 
-                className="dev-card" 
-                onClick={() => setSelectedPost(post)} 
-                style={{ 
-                  cursor: "pointer", 
-                  padding: '1rem', 
-                  transition: 'all 0.2s', 
-                  border: '1px solid rgba(255,255,255,0.05)',
-                  background: 'rgba(255,255,255,0.01)'
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.background = 'rgba(255,255,255,0.01)'; }}
-              >
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                  <div style={{ width: 40, height: 40, background: 'rgba(255,255,255,0.05)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-                    {post.icon}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.25rem', lineHeight: 1.2 }}>{post.title}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.7rem', opacity: 0.4 }}>
-                      <span className={`dev-badge ${BADGE_MAP[post.status]}`} style={{ fontSize: '0.6rem', padding: '1px 6px' }}>{post.status}</span>
-                      <span>{post.readTime}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          
+          <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
+            <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.3 }} />
+            <input 
+              type="text" 
+              placeholder="Search library..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="dev-form-input"
+              style={{ paddingLeft: '36px', fontSize: '0.8rem' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {renderContentLibrary()}
           </div>
         </div>
 
@@ -277,7 +329,7 @@ Write the full blog post now. Output only the Markdown.`;
                 placeholder="e.g. Why open-source software needs a non-profit future" 
                 value={topic} 
                 onChange={e => setTopic(e.target.value)} 
-                style={{ fontSize: '1.1rem', padding: '12px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ fontSize: '1.1rem', padding: '12px 16px' }}
               />
             </div>
 
@@ -287,10 +339,10 @@ Write the full blog post now. Output only the Markdown.`;
               </label>
               <textarea 
                 className="dev-form-textarea" 
-                placeholder="Paste your raw notes, bullet points, or research here. AI will craft the narrative..." 
+                placeholder="Paste your raw notes, bullet points, or research here..." 
                 value={context} 
                 onChange={e => setContext(e.target.value)} 
-                style={{ minHeight: '150px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ minHeight: '150px' }}
               />
             </div>
 
@@ -299,7 +351,7 @@ Write the full blog post now. Output only the Markdown.`;
                 <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <Users size={14} /> TARGET AUDIENCE
                 </label>
-                <select className="dev-form-select" value={audience} onChange={e => setAudience(e.target.value)} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <select className="dev-form-select" value={audience} onChange={e => setAudience(e.target.value)}>
                   {AUDIENCE_OPTIONS.map(o => <option key={o}>{o}</option>)}
                 </select>
               </div>
@@ -307,7 +359,7 @@ Write the full blog post now. Output only the Markdown.`;
                 <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <Sparkles size={14} /> EDITORIAL TONE
                 </label>
-                <select className="dev-form-select" value={tone} onChange={e => setTone(e.target.value)} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <select className="dev-form-select" value={tone} onChange={e => setTone(e.target.value)}>
                   {TONE_OPTIONS.map(o => <option key={o}>{o}</option>)}
                 </select>
               </div>
@@ -317,7 +369,7 @@ Write the full blog post now. Output only the Markdown.`;
               <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                 <FileText size={14} /> TAGS
               </label>
-              <input className="dev-form-input" type="text" placeholder="ai, dev-tools, opensource" value={tags} onChange={e => setTags(e.target.value)} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }} />
+              <input className="dev-form-input" type="text" placeholder="ai, dev-tools" value={tags} onChange={e => setTags(e.target.value)} />
             </div>
 
             <div style={{ display: "flex", gap: "1rem", alignItems: "center", borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2rem' }}>
@@ -325,47 +377,27 @@ Write the full blog post now. Output only the Markdown.`;
                 className="dev-btn dev-btn-primary" 
                 onClick={generatePost} 
                 disabled={generating}
-                style={{ padding: '0.8rem 1.5rem', fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+                style={{ padding: '0.8rem 1.5rem', fontSize: '1rem', fontWeight: 800 }}
               >
-                {generating ? "CRAFTING CONTENT..." : <><Sparkles size={18} /> GENERATE PUBLICATION</>}
+                {generating ? "CRAFTING CONTENT..." : "GENERATE PUBLICATION"}
               </button>
-              <button className="dev-btn dev-btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Save size={18} /> SAVE AS DRAFT</button>
             </div>
 
             {generatedPost && (
-              <div style={{ marginTop: "3rem", animation: 'dev-fade-in 0.4s ease-out' }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: 'space-between', marginBottom: "1.5rem" }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
-                    <span style={{ fontWeight: 800, letterSpacing: '0.1em', fontSize: '0.75rem', opacity: 0.6 }}>READY FOR REVIEW</span>
-                    <span style={{ fontSize: "0.75rem", color: "var(--dev-muted)", fontFamily: 'var(--dev-font-mono)' }}>[{genTime}s]</span>
-                  </div>
+              <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div style={{ fontWeight: 'bold' }}>PREVIEW</div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={handleCopy} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      {copied ? <CheckCircle2 size={14} color="#10b981" /> : <Copy size={14} />} {copied ? 'COPIED' : 'COPY'}
-                    </button>
+                    <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={handleCopy}>{copied ? "COPIED" : "COPY"}</button>
                     <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={() => setGeneratedPost("")}>CLEAR</button>
                   </div>
                 </div>
-                
-                <div style={{ 
-                  background: '#000', 
-                  borderRadius: '16px', 
-                  border: '1px solid rgba(255,255,255,0.1)', 
-                  padding: '2rem', 
-                  maxHeight: '500px', 
-                  overflowY: 'auto',
-                  fontFamily: 'inherit',
-                  lineHeight: 1.6,
-                  color: 'rgba(255,255,255,0.9)',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {generatedPost}
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', maxHeight: '400px', overflowY: 'auto' }}>
+                  <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>{generatedPost}</pre>
                 </div>
-
-                <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
-                  <button className="dev-btn dev-btn-primary" style={{ flex: 1, padding: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-                    <Send size={18} /> PUBLISH TO LORAPOK.GITHUB.IO
+                <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
+                   <button className="dev-btn" style={{ background: 'var(--dev-accent)', color: '#000' }} onClick={handlePublish} disabled={publishing}>
+                    {publishing ? "PUBLISHING..." : "PUBLISH TO LOLABO"}
                   </button>
                 </div>
               </div>
@@ -376,10 +408,3 @@ Write the full blog post now. Output only the Markdown.`;
     </div>
   );
 }
-
-// Add missing icon
-const Edit = ({ size, style }: any) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-  </svg>
-);

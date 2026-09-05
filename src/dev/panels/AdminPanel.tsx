@@ -15,9 +15,7 @@ import {
   Search,
   MessageSquare,
   X,
-  Clock,
   MoreVertical,
-  ExternalLink,
   ArrowDown
 } from "lucide-react";
 
@@ -389,40 +387,45 @@ function AdminContent() {
 
       {/* ─── MODAL SYSTEM ─── */}
       {selectedUser && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
           <div 
-            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)' }} 
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(12px)' }} 
             onClick={() => setSelectedUser(null)}
           />
           <div 
             style={{ 
               position: 'relative', 
               width: '100%', 
-              maxWidth: '850px', 
+              maxWidth: '800px', 
               background: '#0a0a0a', 
               borderRadius: '24px', 
               border: '1px solid rgba(255,255,255,0.1)', 
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+              boxShadow: '0 30px 60px -12px rgba(0,0,0,0.8)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              maxHeight: '90vh'
+              maxHeight: '85vh'
             }}
           >
             {/* Modal Header */}
-            <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.01)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                <img src={selectedUser.photoURL} alt="" style={{ width: 60, height: 60, borderRadius: '16px', border: '2px solid rgba(255,255,255,0.1)' }} />
+            <div style={{ padding: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <div style={{ position: 'relative' }}>
+                  <img src={selectedUser.photoURL} alt="" style={{ width: 64, height: 64, borderRadius: '14px', border: '2px solid rgba(255,255,255,0.1)' }} />
+                  <div style={{ position: 'absolute', bottom: -5, right: -5, background: 'var(--dev-accent)', color: '#000', padding: '2px 6px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900 }}>{selectedUser.role.toUpperCase()}</div>
+                </div>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>{selectedUser.displayName}</h3>
-                    <div className={`dev-badge ${selectedUser.role === 'admin' ? 'dev-badge-purple' : 'dev-badge-muted'}`}>{selectedUser.role.toUpperCase()}</div>
-                  </div>
-                  <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.9rem', opacity: 0.5 }}>{selectedUser.email}</p>
+                  <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.01em' }}>{selectedUser.displayName}</h3>
+                  <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', opacity: 0.4, fontWeight: 500 }}>{selectedUser.email}</p>
                 </div>
               </div>
-              <button onClick={() => setSelectedUser(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#fff', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
-                <X size={24} />
+              <button 
+                onClick={() => setSelectedUser(null)} 
+                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#fff', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              >
+                <X size={20} />
               </button>
             </div>
 
@@ -440,15 +443,17 @@ function AdminContent() {
                     padding: '1.25rem 1.5rem', 
                     background: 'none', 
                     border: 'none', 
-                    color: activeTab === tab.id ? 'var(--dev-accent)' : 'var(--dev-muted)', 
-                    fontSize: '0.9rem', 
-                    fontWeight: 700,
+                    color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.4)', 
+                    fontSize: '0.75rem', 
+                    fontWeight: 800,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.7rem',
-                    borderBottom: `3px solid ${activeTab === tab.id ? 'var(--dev-accent)' : 'transparent'}`,
-                    transition: 'all 0.2s'
+                    gap: '0.6rem',
+                    borderBottom: `2px solid ${activeTab === tab.id ? 'var(--dev-accent)' : 'transparent'}`,
+                    transition: 'all 0.2s',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
                   }}
                 >
                   {tab.icon} {tab.label}
@@ -459,63 +464,52 @@ function AdminContent() {
             {/* Modal Body */}
             <div style={{ flex: 1, padding: '2.5rem', overflowY: 'auto' }}>
               {loadingDetails ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', gap: '1.5rem', opacity: 0.4 }}>
-                  <div className="dev-auth-spinner" style={{ width: '40px', height: '40px' }} />
-                  <span style={{ letterSpacing: '0.1em', fontSize: '0.8rem' }}>SYNCING USER TELEMETRY...</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '250px', gap: '1.5rem', opacity: 0.4 }}>
+                  <div className="dev-auth-spinner" style={{ width: '32px', height: '32px' }} />
+                  <span style={{ letterSpacing: '0.1em', fontSize: '0.7rem', fontWeight: 700 }}>SYNCHRONIZING TELEMETRY...</span>
                 </div>
               ) : (
                 <>
                   {activeTab === 'info' && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
                       <div>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '1.25rem', letterSpacing: '0.15em' }}>ENCRYPTED CREDENTIALS</div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.3, marginBottom: '1.25rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Encrypted Credentials</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                           {Object.entries(selectedUser.apiKeys || {}).map(([p, k]) => (
-                            <div key={p} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div key={p} style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div>
-                                <div style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.8rem', color: 'var(--dev-accent)', marginBottom: '0.2rem' }}>{p}</div>
-                                <div style={{ fontSize: '0.75rem', fontFamily: 'var(--dev-font-mono)', opacity: k ? 0.6 : 0.2 }}>
-                                  {k ? (k.length > 25 ? `${k.substring(0, 15)}...${k.slice(-4)}` : k) : 'No key provided'}
+                                <div style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '0.8rem', color: '#fff', marginBottom: '0.25rem' }}>{p}</div>
+                                <div style={{ fontSize: '0.75rem', fontFamily: 'var(--dev-font-mono)', opacity: 0.4 }}>
+                                  {k ? '••••••••••••' + k.slice(-4) : 'No key detected'}
                                 </div>
                               </div>
                               {k && (
                                 <button 
-                                  onClick={(e) => {
-                                    navigator.clipboard.writeText(k);
-                                    const target = e.currentTarget as HTMLButtonElement;
-                                    const oldText = target.innerText;
-                                    target.innerText = "COPIED";
-                                    target.style.color = "#10b981";
-                                    setTimeout(() => {
-                                      target.innerText = oldText;
-                                      target.style.color = "";
-                                    }, 1500);
-                                  }}
-                                  className="dev-btn dev-btn-ghost dev-btn-sm" 
-                                  style={{ fontSize: '0.7rem', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 700, padding: '4px 10px' }}
+                                  onClick={() => { navigator.clipboard.writeText(k); alert("Key copied to clipboard."); }}
+                                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer' }}
                                 >
                                   COPY
                                 </button>
                               )}
                             </div>
                           ))}
-                          {Object.keys(selectedUser.apiKeys || {}).length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>No keys set.</div>}
+                          {Object.keys(selectedUser.apiKeys || {}).length === 0 && <div style={{ padding: '2.5rem', textAlign: 'center', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px', fontSize: '0.8rem' }}>No API vault records.</div>}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '1.25rem', letterSpacing: '0.15em' }}>WORKSPACE CONFIG</div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.3, marginBottom: '1.25rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Workspace Config</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                              <div style={{ fontSize: '0.7rem', opacity: 0.4, fontWeight: 700, marginBottom: '0.4rem' }}>ACTIVE PROVIDER</div>
-                              <div style={{ textTransform: 'capitalize', fontWeight: 700, fontSize: '1rem' }}>{selectedUser.activeProvider || 'Not set'}</div>
+                           <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ fontSize: '0.65rem', opacity: 0.4, fontWeight: 800, marginBottom: '0.5rem', textTransform: 'uppercase' }}>Active Provider</div>
+                              <div style={{ textTransform: 'capitalize', fontWeight: 800, fontSize: '1rem' }}>{selectedUser.activeProvider || 'None'}</div>
                            </div>
-                           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                              <div style={{ fontSize: '0.7rem', opacity: 0.4, fontWeight: 700, marginBottom: '0.4rem' }}>UID REFERENCE</div>
-                              <div style={{ fontSize: '0.8rem', fontFamily: 'var(--dev-font-mono)', opacity: 0.7, wordBreak: 'break-all' }}>{selectedUser.uid}</div>
+                           <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ fontSize: '0.65rem', opacity: 0.4, fontWeight: 800, marginBottom: '0.5rem', textTransform: 'uppercase' }}>UID Reference</div>
+                              <div style={{ fontSize: '0.75rem', fontFamily: 'var(--dev-font-mono)', opacity: 0.5, wordBreak: 'break-all' }}>{selectedUser.uid}</div>
                            </div>
-                           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                              <div style={{ fontSize: '0.7rem', opacity: 0.4, fontWeight: 700, marginBottom: '0.4rem' }}>LAST SEEN</div>
-                              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{selectedUser.lastLogin?.toDate ? selectedUser.lastLogin.toDate().toLocaleString() : 'Recently'}</div>
+                           <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div style={{ fontSize: '0.65rem', opacity: 0.4, fontWeight: 800, marginBottom: '0.5rem', textTransform: 'uppercase' }}>Last Seen</div>
+                              <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{selectedUser.lastLogin?.toDate ? selectedUser.lastLogin.toDate().toLocaleString() : 'Just now'}</div>
                            </div>
                         </div>
                       </div>
@@ -524,54 +518,46 @@ function AdminContent() {
 
                   {activeTab === 'data' && (
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '1.5rem', letterSpacing: '0.15em' }}>CLOUD DATA PERSISTENCE ({userData.length} OBJECTS)</div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.3, marginBottom: '1.5rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Cloud Data Persistence ({userData.length} Objects)</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                         {userData.map(d => (
-                          <div key={d.id} style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
-                            <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--dev-accent)' }}>{d.key}</div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.5, fontFamily: 'var(--dev-font-mono)', lineHeight: 1.5, maxHeight: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.value}</div>
-                            <div style={{ position: 'absolute', right: '1rem', top: '1rem', opacity: 0.2 }}><ExternalLink size={14} /></div>
+                          <div key={d.id} style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ fontWeight: 900, fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--dev-accent)' }}>{d.key}</div>
+                            <div style={{ fontSize: '0.75rem', opacity: 0.5, fontFamily: 'var(--dev-font-mono)', lineHeight: 1.5 }}>{d.value}</div>
                           </div>
                         ))}
-                        {userData.length === 0 && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px' }}>Maintainer has no active cloud data.</div>}
+                        {userData.length === 0 && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px' }}>Maintainer has no cloud data.</div>}
                       </div>
                     </div>
                   )}
 
                   {activeTab === 'chats' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.4, marginBottom: '0.5rem', letterSpacing: '0.15em' }}>AI INTERACTION STREAM</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.3, marginBottom: '0.5rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>AI Interaction Stream</div>
                       {userChats.map(session => (
-                        <div key={session.id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                          <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <div style={{ background: 'var(--dev-accent)', color: '#000', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800 }}>{session.provider.toUpperCase()}</div>
-                              <span style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.6 }}>{session.model}</span>
+                        <div key={session.id} style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+                          <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div style={{ background: 'var(--dev-accent)', color: '#000', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 900 }}>{session.provider.toUpperCase()}</div>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 800, opacity: 0.5 }}>{session.model}</span>
                             </div>
-                            <div style={{ fontSize: '0.7rem', opacity: 0.4, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              <Clock size={14} /> {session.timestamp?.toDate ? session.timestamp.toDate().toLocaleString() : 'Recently'}
+                            <div style={{ fontSize: '0.7rem', opacity: 0.3, fontWeight: 700 }}>
+                              {session.timestamp?.toDate ? session.timestamp.toDate().toLocaleString() : 'Recently'}
                             </div>
                           </div>
-                          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                            {session.messages.slice(0, 4).map((msg, midx) => (
-                              <div key={midx} style={{ display: 'flex', gap: '1.25rem', opacity: msg.role === 'assistant' ? 0.9 : 1 }}>
-                                <div style={{ 
-                                  width: '32px', height: '32px', borderRadius: '10px', 
-                                  background: msg.role === 'assistant' ? 'var(--dev-accent)' : 'rgba(255,255,255,0.1)',
-                                  color: msg.role === 'assistant' ? '#000' : '#fff',
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0,
-                                  boxShadow: msg.role === 'assistant' ? '0 0 15px var(--dev-accent-50)' : 'none'
-                                }}>
+                          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {session.messages.slice(0, 3).map((msg, midx) => (
+                              <div key={midx} style={{ display: 'flex', gap: '1rem' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: msg.role === 'assistant' ? 'var(--dev-accent)' : 'rgba(255,255,255,0.1)', color: msg.role === 'assistant' ? '#000' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900, flexShrink: 0 }}>
                                   {msg.role === 'assistant' ? 'AI' : 'U'}
                                 </div>
-                                <div style={{ fontSize: '0.95rem', lineHeight: 1.6, opacity: msg.role === 'assistant' ? 0.8 : 1, paddingTop: '4px' }}>{msg.content}</div>
+                                <div style={{ fontSize: '0.85rem', opacity: 0.8, lineHeight: 1.5 }}>{msg.content.substring(0, 200)}...</div>
                               </div>
                             ))}
-                            {session.messages.length > 4 && <div style={{ fontSize: '0.75rem', opacity: 0.3, textAlign: 'center', padding: '0.75rem 0', borderTop: '1px dashed rgba(255,255,255,0.05)', marginTop: '0.5rem' }}>+ {session.messages.length - 4} MORE MESSAGES IN SESSION</div>}
                           </div>
                         </div>
                       ))}
-                      {userChats.length === 0 && <div style={{ textAlign: 'center', padding: '5rem', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px' }}>No chat telemetry recorded.</div>}
+                      {userChats.length === 0 && <div style={{ textAlign: 'center', padding: '5rem', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px' }}>No interaction telemetry.</div>}
                     </div>
                   )}
                 </>
