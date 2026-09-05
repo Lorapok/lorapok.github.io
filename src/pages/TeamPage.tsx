@@ -40,6 +40,16 @@ export default function TeamPage() {
     });
   }, [searchQuery, activeDepartment]);
 
+  const departmentCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      All: teamMembers.length,
+    };
+    for (const m of teamMembers) {
+      counts[m.department] = (counts[m.department] || 0) + 1;
+    }
+    return counts;
+  }, []);
+
   return (
     <>
       <SEOHead
@@ -73,6 +83,7 @@ export default function TeamPage() {
             departments={teamDepartments}
             activeDepartment={activeDepartment}
             onChange={setActiveDepartment}
+            counts={departmentCounts}
           />
         </div>
 

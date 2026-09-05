@@ -12,6 +12,15 @@ export const changelog: ChangelogEntry[] = [
   {
     date: "2026-09-05",
     product: "lorapok.tech",
+    title: "Brand Showcase, Sensory Media Banners & Privacy Guard",
+    description:
+      "Ingested flagship systems from personal projects (FreqGhost, LARVOX, Cursor Duplicator), authentic CV portraits, dynamic category count filtering, and complete contact privacy hardening.",
+    type: "feature",
+    links: [{ label: "Product Catalog", url: "/projects" }],
+  },
+  {
+    date: "2026-09-05",
+    product: "lorapok.tech",
     title: "Collective Showcase & CV Directory Launched",
     description:
       "Interactive collective directory showcasing 6 core engineering, AI, clinical, and strategy specialists with comprehensive career histories, verified credentials, and downloadable CV PDFs.",

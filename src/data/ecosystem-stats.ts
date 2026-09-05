@@ -1,15 +1,16 @@
 export const ecosystemStats = {
-  totalProducts: 32,
+  totalProducts: 35,
   npmPackages: 5,
   marketplaces: 7,
   githubRepos: 133,
   apisCatalogued: 2100,
-  categories: 10,
+  categories: 11,
   productHuntLaunch: "2026-05-06",
   languages: [
     "TypeScript",
     "JavaScript",
     "Python",
+    "Go",
     "PHP",
     "Kotlin",
     "Java",

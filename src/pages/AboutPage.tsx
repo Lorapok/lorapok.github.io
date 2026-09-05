@@ -121,8 +121,8 @@ export default function AboutPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {teamMembers.slice(0, 2).map((member) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {teamMembers.slice(1).map((member) => (
               <TeammateCard
                 key={member.id}
                 member={member}
