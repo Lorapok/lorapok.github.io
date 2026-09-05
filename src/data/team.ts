@@ -59,7 +59,7 @@ export const teamMembers: TeammateProfile[] = [
     location: "Dhaka, Bangladesh",
     email: "mdshvo40@gmail.com",
     tagline: "Building biological UI, sensory computing, and high-throughput developer platforms.",
-    bio: "Full Stack Software Engineer designing digital products with performance, precision, and sensory computing at the core. Architect of the Lorapok ecosystem spanning 24+ products across 7 global distribution platforms.",
+    bio: "Full Stack Software Engineer designing digital products with performance, precision, and sensory computing at the core. Architect of the Lorapok ecosystem spanning 35+ products across 7 global distribution platforms.",
     cvSummary:
       "Senior Software Engineer at Shohoz with extensive background in distributed systems, high-concurrency ticketing, edge computing, and open-source collective engineering.",
     skills: [
