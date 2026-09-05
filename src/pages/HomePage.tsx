@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Code2 } from 'lucide-react';
+import { ArrowRight, Code2, Users, ExternalLink, Activity } from 'lucide-react';
 import { brand, philosophy, projects } from '../data/lorapok';
 import { ecosystemStats } from '../data/ecosystem-stats';
+import { teamMembers } from '../data/team';
 import { StatsCounter } from '../components/ui/StatsCounter';
 import { Card } from '../components/ui/Card';
 
@@ -75,10 +76,10 @@ export default function HomePage() {
           viewport={{ once: true }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto"
         >
-          <StatsCounter label="Products" value={24} />
-          <StatsCounter label="Marketplaces" value={7} />
-          <StatsCounter label="APIs" value={2100} prefix="+" />
-          <StatsCounter label="Repos" value={133} />
+          <StatsCounter label="Products" value={ecosystemStats.totalProducts} />
+          <StatsCounter label="Marketplaces" value={ecosystemStats.marketplaces} />
+          <StatsCounter label="APIs" value={ecosystemStats.apisCatalogued} prefix="+" />
+          <StatsCounter label="Repos" value={ecosystemStats.githubRepos} />
         </motion.div>
       </section>
 
@@ -129,6 +130,106 @@ export default function HomePage() {
             </motion.div>
           ))}
         </motion.div>
+      </section>
+
+      {/* Live Cloud Subdomains */}
+      <section className="px-4 max-w-7xl mx-auto w-full">
+        <div className="bg-gradient-to-r from-white/[0.03] to-[#67ff8f]/[0.02] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#67ff8f] uppercase tracking-wider mb-1">
+                <Activity size={14} className="animate-pulse" /> Edge & Cloud Services
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Live lorapok.tech Subdomains</h2>
+            </div>
+            <span className="text-xs font-mono text-gray-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+              Global CDN • Zero Latency
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              { name: "Atlas Console", sub: "atlas.lorapok.tech", url: "https://atlas.lorapok.tech/", tag: "2.1k APIs" },
+              { name: "Cursor Monitor", sub: "cursor.lorapok.tech", url: "https://cursor.lorapok.tech/", tag: "Live Limits" },
+              { name: "Loragent AI", sub: "loragent.lorapok.tech", url: "https://loragent.lorapok.tech/", tag: "Multi-Agent" },
+              { name: "Media Engine", sub: "media.lorapok.tech", url: "https://media.lorapok.tech/", tag: "Sensory UI" },
+              { name: "AI Coding Agent", sub: "ai.lorapok.tech", url: "https://ai.lorapok.tech/", tag: "Autonomous" },
+            ].map((sub) => (
+              <a
+                key={sub.sub}
+                href={sub.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-4 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 hover:border-[#67ff8f]/40 transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#67ff8f]">
+                      <span className="w-2 h-2 rounded-full bg-[#67ff8f] animate-ping" />
+                      ONLINE
+                    </span>
+                    <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white group-hover:text-[#67ff8f] transition-colors">{sub.name}</h3>
+                  <p className="text-xs font-mono text-gray-400">{sub.sub}</p>
+                </div>
+                <div className="mt-4 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-gray-400">
+                  <span>{sub.tag}</span>
+                  <span className="text-[#67ff8f] group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Collective & Team Spotlight */}
+      <section className="px-4 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#67ff8f] uppercase tracking-wider mb-1">
+              <Users size={14} /> Open-Source Collective
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">The Minds Behind Lorapok</h2>
+            <p className="text-gray-400 max-w-xl">
+              Systems architects, AI researchers, clinical specialists, speech pathologists, and creative storytellers collaborating on open technology.
+            </p>
+          </div>
+          <Link
+            to="/team"
+            className="text-[#67ff8f] hover:underline flex items-center gap-1.5 mt-4 md:mt-0 text-sm font-mono"
+          >
+            Meet Full Collective & View CVs <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {teamMembers.map((member) => (
+            <Link
+              key={member.id}
+              to="/team"
+              className="group p-4 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 hover:border-[#67ff8f]/40 transition-all text-center flex flex-col items-center"
+            >
+              <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 mb-3 bg-white/5 group-hover:border-[#67ff8f]/50 transition-colors">
+                <img
+                  src={member.avatar}
+                  alt={member.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=0a0a0f&color=67ff8f&size=128`;
+                  }}
+                />
+              </div>
+              <h4 className="text-xs font-bold text-white group-hover:text-[#67ff8f] transition-colors truncate w-full">
+                {member.name.split(' ')[0]} {member.name.split(' ').slice(-1)[0]}
+              </h4>
+              <p className="text-[10px] font-mono text-gray-400 truncate w-full mt-0.5">
+                {member.department.split('&')[0]}
+              </p>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* Ecosystem Section */}

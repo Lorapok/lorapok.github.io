@@ -41,9 +41,12 @@ export const brand = {
   shortName: "Lorapok",
   tagline: "Open-source products that feel alive.",
   description:
-    "Lorapok blends biological UI, sensory computing, and practical engineering into products that feel fast, intuitive, and alive.",
+    "Lorapok blends biological UI, sensory computing, and practical engineering into products that feel fast, intuitive, and alive. From Dhaka 🇧🇩 to the world 🌍.",
   githubOrg: "https://github.com/lorapok",
   sourceOrg: "https://github.com/Maijied",
+  twitter: "https://x.com/LorapokLabs",
+  linkedin: "https://www.linkedin.com/showcase/lorapok/",
+  reddit: "https://www.reddit.com/r/LorapokLabs/",
 };
 
 export const founder = {
@@ -52,12 +55,13 @@ export const founder = {
   role: "Senior Software Engineer @ Shohoz",
   location: "Dhaka, Bangladesh",
   email: "mdshvo40@gmail.com",
-  bio: "Full Stack Software Engineer building premium digital products with performance, precision, and modern technology at the core.",
+  bio: "Full Stack Systems Architect and open-source engineer building biological UI, sensory computing systems, and high-concurrency digital platforms. Leading infrastructure at Shohoz and directing 28+ open-source Lorapok products.",
   links: {
     portfolio: "https://maijied.github.io/Maijied/",
     github: "https://github.com/Maijied",
-    linkedin: "https://www.linkedin.com/in/maizied",
+    linkedin: "https://www.linkedin.com/in/maijied/",
     telegram: "https://t.me/Maijied",
+    twitter: "https://x.com/LorapokLabs",
   },
 };
 
@@ -120,12 +124,12 @@ export const projects: Project[] = [
     language: "TypeScript",
     featured: true,
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-API_Atlas/", icon: "web" },
+      { label: "Live", url: "https://atlas.lorapok.tech/", icon: "web" },
       { label: "npm", url: "https://www.npmjs.com/package/lorapok-atlas", icon: "npm" },
-      { label: "MCP npm", url: "https://www.npmjs.com/package/lorapok-atlas-mcp", icon: "box" },
+      { label: "MCP", url: "https://www.npmjs.com/package/lorapok-atlas-mcp", icon: "box" },
       { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=lorapok.lorapok-atlas", icon: "vscode" },
-      { label: "Cloudflare API", url: "https://github.com/Maijied/Lorapok-API_Atlas/tree/main/packages/lorapok-atlas-api", icon: "cloud" },
-      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-API_Atlas", icon: "github" },
+      { label: "Firefox", url: "https://addons.mozilla.org/firefox/addon/lorapok-atlas/", icon: "firefox" },
+      { label: "GitHub", url: "https://github.com/Lorapok/Lorapok-API_Atlas", icon: "github" },
     ],
   },
   {
@@ -136,7 +140,7 @@ export const projects: Project[] = [
     language: "TypeScript",
     featured: true,
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok_Media_Player/", icon: "web" },
+      { label: "Live", url: "https://media.lorapok.tech/", icon: "web" },
       { label: "npm", url: "https://www.npmjs.com/package/lorapok-player", icon: "npm" },
       { label: "Snap", url: "https://snapcraft.io/lorapokmediaplayer", icon: "snap" },
       { label: "CI/CD", url: "https://github.com/Maijied/Lorapok_Media_Player/blob/main/.github/workflows/workflow-unified.yml", icon: "server" },
@@ -163,6 +167,7 @@ export const projects: Project[] = [
     language: "JavaScript",
     featured: true,
     links: [
+      { label: "Live", url: "https://ai.lorapok.tech/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok_AI_Agent", icon: "github" },
     ],
   },
@@ -228,12 +233,13 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "xsnap Media Downloader",
-    tagline: "Media capture utility",
-    description: "Opera & Mozilla browser addon for downloading and managing media assets from supported sources.",
-    category: "Media",
+    name: "XSnap Media Downloader",
+    tagline: "Cross-browser media capture utility",
+    description: "Opera & Firefox browser extension for downloading and capturing videos, GIFs, and images in high fidelity.",
+    category: "Browser Extensions",
     language: "JavaScript",
     links: [
+      { label: "AMO", url: "https://addons.mozilla.org/firefox/addon/xsnap-media-downloader/", icon: "firefox" },
       { label: "GitHub", url: "https://github.com/Maijied/xsnap-media-downloader_Opera", icon: "github" },
     ],
   },
@@ -329,6 +335,7 @@ export const projects: Project[] = [
     language: "JavaScript",
     featured: true,
     links: [
+      { label: "Live", url: "https://cursor.lorapok.tech/", icon: "web" },
       { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor", icon: "vscode" },
       { label: "Open VSX", url: "https://open-vsx.org/extension/LorapokLabs/cursor-curse-monitor", icon: "openvsx" },
       { label: "Firefox", url: "https://addons.mozilla.org/firefox/addon/cursor-curse-monitor/", icon: "firefox" },
@@ -344,6 +351,7 @@ export const projects: Project[] = [
     language: "JavaScript",
     featured: true,
     links: [
+      { label: "Live", url: "https://loragent.lorapok.tech/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Loragent", icon: "github" },
     ],
   },
@@ -382,15 +390,136 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "XSnap Media Downloader",
-    tagline: "Download media from X/Twitter",
+    name: "Bab.La",
+    tagline: "Omni-channel content broadcasting engine",
     description:
-      "Download videos, GIFs, and images from X (Twitter) in various resolutions.",
+      "Greek for 'All in One' — an open-source broadcasting platform. Post text, images, videos, GIFs, links, and documents simultaneously across all connected channels from a single composer.",
+    category: "Developer Tools",
+    language: "TypeScript",
+    featured: true,
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Bab.La/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Bab.La", icon: "github" },
+    ],
+  },
+  {
+    name: "IrrigationPlanner",
+    tagline: "Full-stack visual irrigation design platform",
+    description:
+      "A professional, full-stack irrigation system design tool — plan, calculate hydraulic flow, and order your irrigation installation directly from an interactive canvas.",
+    category: "Developer Tools",
+    language: "TypeScript",
+    featured: true,
+    links: [
+      { label: "Live", url: "https://irrigationplanner.craftechbd.com/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Lorapok/IrrigationPlanner", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok BrainSpark",
+    tagline: "Daily cognitive training engine",
+    description:
+      "A free, open-source daily brain training app. Three short cognitive challenges exercise memory, pattern recognition, and vocabulary with zero distractions.",
+    category: "Games/Utilities",
+    language: "TypeScript",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-GameSpark/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-GameSpark", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok TabMan",
+    tagline: "High-performance memory & tab manager",
+    description:
+      "A Firefox tab management engine for reclaiming RAM and focus. Features background hibernation, tab workspaces, and biological responsiveness.",
+    category: "Browser Extensions",
+    language: "TypeScript",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-TabMan/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-TabMan", icon: "github" },
+    ],
+  },
+  {
+    name: "LoraSports",
+    tagline: "The Tactician's Logbook — FIFA World Cup 2026",
+    description:
+      "Real-time tactical intelligence, live match logs, and tournament tracking for FIFA World Cup 2026, embedded directly into your Firefox toolbar.",
     category: "Browser Extensions",
     language: "JavaScript",
     links: [
-      { label: "Firefox", url: "https://addons.mozilla.org/firefox/addon/xsnap-media-downloader/", icon: "firefox" },
-      { label: "GitHub", url: "https://github.com/Maijied/xsnap-media-downloader_Opera", icon: "github" },
+      { label: "Web", url: "https://maijied.github.io/LoraSports/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/LoraSports", icon: "github" },
+    ],
+  },
+  {
+    name: "LoraPok LaraTest",
+    tagline: "Zero-latency automated Laravel test runner",
+    description:
+      "Automatically executes relevant Laravel unit and feature tests the instant test files are modified, compatible across all modern Laravel versions.",
+    category: "Laravel/PHP",
+    language: "PHP",
+    links: [
+      { label: "KiroHub", url: "https://kirohub.dev/resource/kirohub-generate/lorapok-laratest", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/LoraPok-LaraTest", icon: "github" },
+    ],
+  },
+  {
+    name: "LoraCon",
+    tagline: "Sensory data and format converter",
+    description:
+      "High-speed, client-side data, format, and unit conversion engine built with instant feedback loops and zero server dependencies.",
+    category: "Developer Tools",
+    language: "JavaScript",
+    links: [
+      { label: "Web", url: "https://lorapok.github.io/LoraCon/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Lorapok/LoraCon", icon: "github" },
+    ],
+  },
+  {
+    name: "LoraBet",
+    tagline: "Sports analytics and probability engine",
+    description:
+      "Native Kotlin predictive analytics engine for modeling event probabilities and statistical performance vectors.",
+    category: "Mobile Apps",
+    language: "Kotlin",
+    links: [
+      { label: "GitHub", url: "https://github.com/Lorapok/LoraBet", icon: "github" },
+    ],
+  },
+  {
+    name: "Hadi Memoriam",
+    tagline: "Open memorial and civic tribute portal",
+    description:
+      "A tribute repository, README banner, and hosted memorial portal built to preserve truth, transparency, and civil justice.",
+    category: "Games/Utilities",
+    language: "HTML",
+    links: [
+      { label: "Web", url: "https://hadi-memoriam.vercel.app", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Lorapok/Hadi-Memoriam", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok Red Bot",
+    tagline: "Autonomous community Reddit bot",
+    description:
+      "AI-driven moderation and developer community engagement bot designed for Reddit subreddits including r/LorapokLabs.",
+    category: "AI",
+    language: "JavaScript",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Red-Bot/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Red-Bot", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok Querycraft",
+    tagline: "Interactive SQL and schema designer",
+    description:
+      "Visual query builder and database schema simulation environment for testing relational joins and indexing strategies in real-time.",
+    category: "Developer Tools",
+    language: "HTML",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Querycraft/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Querycraft", icon: "github" },
     ],
   },
 ];

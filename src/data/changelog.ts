@@ -12,9 +12,27 @@ export const changelog: ChangelogEntry[] = [
   {
     date: "2026-09-05",
     product: "lorapok.tech",
+    title: "Collective Showcase & CV Directory Launched",
+    description:
+      "Interactive collective directory showcasing 6 core engineering, AI, clinical, and strategy specialists with comprehensive career histories, verified credentials, and downloadable CV PDFs.",
+    type: "launch",
+    links: [{ label: "Team Directory", url: "/team" }],
+  },
+  {
+    date: "2026-09-05",
+    product: "Ecosystem Infra",
+    title: "5 Live Cloud Subdomains Activated",
+    description:
+      "Zero-latency edge routing activated for atlas.lorapok.tech, cursor.lorapok.tech, loragent.lorapok.tech, media.lorapok.tech, and ai.lorapok.tech.",
+    type: "milestone",
+    links: [{ label: "Atlas Console", url: "https://atlas.lorapok.tech" }],
+  },
+  {
+    date: "2026-09-05",
+    product: "lorapok.tech",
     title: "Lorapok Labs v2.0 — Complete Redesign",
     description:
-      "Multi-page architecture, 24+ products catalogued, global search, SEO overhaul, and performance optimization.",
+      "Multi-page architecture, 32+ products catalogued, global search, SEO overhaul, and sensory dark glassmorphism design.",
     type: "launch",
     links: [{ label: "Live Site", url: "https://lorapok.tech" }],
   },

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Code2, BriefcaseBusiness, Globe, Users, ArrowRight } from 'lucide-react';
+import { Code2, BriefcaseBusiness, Globe, Users, ArrowRight, MessageSquare, Mail } from 'lucide-react';
 import { founder, philosophy, brand } from '../data/lorapok';
 import { teamMembers, type TeammateProfile } from '../data/team';
 import { TeammateCard } from '../components/team/TeammateCard';
@@ -67,6 +67,24 @@ export default function AboutPage() {
                 <a href={founder.links.portfolio} target="_blank" rel="noopener noreferrer" title="Portfolio" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
                   <Globe size={18} />
                   <span>Portfolio</span>
+                </a>
+              )}
+              {founder.links.twitter && (
+                <a href={founder.links.twitter} target="_blank" rel="noopener noreferrer" title="X / Twitter" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                  <MessageSquare size={18} />
+                  <span>X / Twitter</span>
+                </a>
+              )}
+              {founder.links.telegram && (
+                <a href={founder.links.telegram} target="_blank" rel="noopener noreferrer" title="Telegram" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                  <MessageSquare size={18} />
+                  <span>Telegram</span>
+                </a>
+              )}
+              {founder.email && (
+                <a href={`mailto:${founder.email}`} title="Email Founder" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                  <Mail size={18} />
+                  <span>Email</span>
                 </a>
               )}
             </div>

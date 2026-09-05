@@ -13,6 +13,7 @@ import {
   Layers,
   Download,
   Phone,
+  Award,
 } from "lucide-react";
 import type { TeammateProfile } from "../../data/team";
 import { Badge } from "../ui/Badge";
@@ -256,6 +257,26 @@ export function TeammateModal({ member, onClose }: TeammateModalProps) {
                         <p className="text-xs text-gray-400">{edu.institution}</p>
                       </div>
                       <span className="text-xs font-mono text-[#67ff8f]">{edu.year}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Honors & Key Achievements */}
+            {member.achievements && member.achievements.length > 0 && (
+              <div>
+                <h3 className="text-xs font-mono uppercase tracking-widest text-[#67ff8f] mb-3 flex items-center gap-2">
+                  <Award size={14} /> Honors, Certifications & Achievements
+                </h3>
+                <div className="space-y-2">
+                  {member.achievements.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-start gap-3"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#67ff8f] mt-1.5 shrink-0" />
+                      <p className="text-xs text-gray-200 leading-relaxed">{item}</p>
                     </div>
                   ))}
                 </div>

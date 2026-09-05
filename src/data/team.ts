@@ -35,6 +35,7 @@ export interface TeammateProfile {
   skills: string[];
   experience?: TeammateExperience[];
   education?: TeammateEducation[];
+  achievements?: string[];
   featuredProjects?: string[]; // Names matching projects in lorapok.ts
   social: {
     github?: string;
@@ -105,9 +106,15 @@ export const teamMembers: TeammateProfile[] = [
     education: [
       {
         degree: "B.Sc. in Computer Science & Engineering",
-        institution: "Leading University, Bangladesh",
-        year: "2018",
+        institution: "Shahjalal University of Science and Technology (SUST)",
+        year: "2019",
       },
+    ],
+    achievements: [
+      "🥉 3rd Place — IUT National Hackathon (Islamic University of Technology)",
+      "Productivity Management & Leadership Certified — Maslow Bangladesh (Cert ID: 000439)",
+      "Mozilla Firefox Help — Open Source Localization Contributor (5+ years)",
+      "CSE Society, SUST — Career Development Seminar Organizer (4 years)",
     ],
     featuredProjects: [
       "Cursor Curse Monitor",
@@ -118,7 +125,7 @@ export const teamMembers: TeammateProfile[] = [
     ],
     social: {
       github: "https://github.com/Maijied",
-      linkedin: "https://www.linkedin.com/in/maizied",
+      linkedin: "https://www.linkedin.com/in/maijied/",
       portfolio: "https://maijied.github.io/Maijied/",
       telegram: "https://t.me/Maijied",
       twitter: "https://x.com/LorapokLabs",
@@ -192,6 +199,11 @@ export const teamMembers: TeammateProfile[] = [
         year: "2019",
       },
     ],
+    achievements: [
+      "Enterprise Multi-Tenant Systems Architect (DebugVision & Avanteca)",
+      "Role-Based Access Control (RBAC) & High-Performance DB Indexing Specialist",
+      "Lead Systems Developer for Scalable Healthcare Operations Platforms",
+    ],
     featuredProjects: [
       "ReportKit Core",
       "Laravel Execution Monitor",
@@ -263,6 +275,11 @@ export const teamMembers: TeammateProfile[] = [
         institution: "Khulna University of Engineering and Technology (KUET)",
         year: "2017",
       },
+    ],
+    achievements: [
+      "🏆 Vice-Chancellor's Best Thesis Gold Medal & Award Recipient (AIUB)",
+      "Author of 3+ high-impact research publications in Computer Vision & Oncology (arXiv, Journal of Carcinogenesis)",
+      "Edge Computer Vision Specialist with 98.9% target classification benchmarks",
     ],
     featuredProjects: [
       "Loragent",
@@ -336,6 +353,11 @@ export const teamMembers: TeammateProfile[] = [
         year: "2014",
       },
     ],
+    achievements: [
+      "Registered Clinical Physician — Bangladesh Medical & Dental Council (BMDC Reg: A-132333)",
+      "Advanced Cardiac Life Support (ACLS) & Basic Life Support (BLS) Certified",
+      "Specialist in Clinical Health Informatics & Sensory Accessibility Tech",
+    ],
     featuredProjects: [
       "Lorapok Media Player",
       "Hadi-Memoriam",
@@ -397,6 +419,10 @@ export const teamMembers: TeammateProfile[] = [
         institution: "University of Dhaka",
         year: "2017",
       },
+    ],
+    achievements: [
+      "Certified Speech-Language Pathologist & Clinical Communication Specialist (University of Dhaka)",
+      "Clinical Intervention Specialist for Autism Spectrum Disorder (ASD) & AAC Assistive Tech",
     ],
     featuredProjects: [
       "Lorapok Keyboard",
@@ -473,6 +499,11 @@ export const teamMembers: TeammateProfile[] = [
         institution: "University of Dhaka",
         year: "2018",
       },
+    ],
+    achievements: [
+      "Lead Creative Strategist for National Brand Campaigns (IMF, Chevron, United Group, National Bank)",
+      "Co-Author of Published Qualitative Field & Humanitarian Development Research",
+      "Executive Narrative Director for Over 20+ Commercial & Social Impact Video Productions",
     ],
     featuredProjects: [
       "Roast as a Service",

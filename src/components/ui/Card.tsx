@@ -77,7 +77,7 @@ export const Card = (props: CardProps) => {
         
         <div className="flex gap-2" onClick={e => e.stopPropagation()}>
           {links.map((link, idx) => (
-            <Button key={idx} variant="ghost" size="sm" href={link.url} className="px-2">
+            <Button key={idx} variant="ghost" size="sm" href={link.url} className="px-2" title={link.label}>
               {getIcon(link.icon)}
               <span className="sr-only">{link.label}</span>
             </Button>

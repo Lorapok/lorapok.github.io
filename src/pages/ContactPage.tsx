@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MessageSquare, Send, Code2, BriefcaseBusiness, Briefcase } from 'lucide-react';
+import { Mail, MessageSquare, Send, Code2, BriefcaseBusiness, Briefcase, Globe } from 'lucide-react';
 import { brand, founder } from '../data/lorapok';
 
 const contactTargets = [
@@ -96,9 +96,17 @@ export default function ContactPage() {
               <a href="https://x.com/LorapokLabs" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
                 <MessageSquare size={16} className="text-[#67ff8f]" /> X / Twitter (@LorapokLabs)
               </a>
+              <a href="https://www.reddit.com/r/LorapokLabs/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
+                <Globe size={16} className="text-[#67ff8f]" /> Reddit (r/LorapokLabs)
+              </a>
               {founder.links.telegram && (
                 <a href={founder.links.telegram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
                   <MessageSquare size={16} className="text-[#67ff8f]" /> Telegram (@Maijied)
+                </a>
+              )}
+              {founder.email && (
+                <a href={`mailto:${founder.email}`} className="flex items-center gap-2 hover:text-white transition-colors">
+                  <Mail size={16} className="text-[#67ff8f]" /> Direct Founder Email
                 </a>
               )}
             </div>
