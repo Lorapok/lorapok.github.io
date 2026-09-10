@@ -59,9 +59,9 @@ OUTPUT FORMAT (JSON):
 
   // Dynamic API Calling (Simplified for the script)
   let response;
-  const apiKey = process.env.AI_API_KEY;
+  const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY;
 
-  if (!apiKey) throw new Error("AI_API_KEY not found in environment.");
+  if (!apiKey) throw new Error("Neither AI_API_KEY nor GEMINI_API_KEY found in environment.");
 
   // Logic for different providers (Gemini, OpenAI, Claude, Groq)
   // We'll implement a generic fetch for simplicity in this draft

@@ -9,20 +9,38 @@ import { generateCoverImage } from './imageGen';
 import { distributeSocially } from './distributor';
 
 // ─── Firebase Initialization ───
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-
-if (serviceAccount.project_id) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-} else {
-  console.warn("⚠️ FIREBASE_SERVICE_ACCOUNT not found. Running in dry-run mode.");
+let serviceAccount: any = {};
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  }
+} catch (err) {
+  console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT JSON:", err);
 }
 
-const db = admin.firestore();
+let db: FirebaseFirestore.Firestore | null = null;
+if (serviceAccount && serviceAccount.project_id) {
+  try {
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+    }
+    db = admin.firestore();
+  } catch (err) {
+    console.error("❌ Failed to initialize Firebase Admin:", err);
+  }
+} else {
+  console.warn("⚠️ FIREBASE_SERVICE_ACCOUNT not found or missing project_id. Running in dry-run mode.");
+}
 
 async function runAgent() {
   console.log("🚀 Starting LoLaBo Agent...");
+
+  if (!db) {
+    console.warn("⚠️ No Firestore connection available. Exiting safely.");
+    return;
+  }
 
   // 1. Fetch Config
   const configDoc = await db.collection('agent_config').doc('lolabo_settings').get();

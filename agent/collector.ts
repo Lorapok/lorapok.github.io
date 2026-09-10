@@ -4,7 +4,9 @@
 
 import Parser from 'rss-parser';
 
-const parser = new Parser();
+// Support both ES default import and CommonJS export shapes
+const RSSParser: any = typeof Parser === 'function' ? Parser : ((Parser as any)?.default || Parser);
+const parser = new RSSParser();
 
 const FEEDS = [
   { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },

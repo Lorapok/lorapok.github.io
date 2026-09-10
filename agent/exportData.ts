@@ -8,18 +8,36 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // ─── Firebase Initialization ───
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-
-if (!admin.apps.length && serviceAccount.project_id) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+let serviceAccount: any = {};
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  }
+} catch (err) {
+  console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT JSON:", err);
 }
 
-const db = admin.firestore();
+let db: FirebaseFirestore.Firestore | null = null;
+if (serviceAccount && serviceAccount.project_id) {
+  try {
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+    }
+    db = admin.firestore();
+  } catch (err) {
+    console.error("❌ Failed to initialize Firebase Admin:", err);
+  }
+}
 
 async function exportBlogData() {
   console.log("🚀 Exporting Firestore posts to static JSON...");
+  
+  if (!db) {
+    console.warn("⚠️ No Firestore connection available. Skipping blog data export.");
+    return;
+  }
   
   try {
     const snap = await db.collection('blog_posts')

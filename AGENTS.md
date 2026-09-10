@@ -21,6 +21,7 @@ npm test                          # run test suites across all layers
 
 ## Hard Rules
 - NEVER emit plaintext secrets — use Machine AES-256 vault via `loragent-accounts-specialist`
+- ALWAYS sync all credentials and passwords from the canonical machine vault (`/mnt/NewVolume/Personal_Projects/cred/credentials.json.gpg` via `cred` / `titi` / `/secure-cred-vault`) directly to deployment environments (GitHub Secrets, Cloudflare Pages/Workers) — never commit credentials or passphrases to Git, argv, or chat transcripts
 - NEVER run destructive commands (`rm -rf`, DROP TABLE) without `loragent-workspace-guard` confirmation
 - ALL agent-to-agent traffic routes through `loragent_steer` MCP — no direct unauthorized calls
 - ALL specialist agents are summoned via `loragent_summon_agent`, dismissed after task
