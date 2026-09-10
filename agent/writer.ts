@@ -91,16 +91,49 @@ async function callAIProvider(provider: string, key: string, system: string, use
   // Defaulting to a standard POST structure used by many (like OpenAI/Groq compatible)
   console.log(`Calling ${provider} API...`);
   
+  if (provider === 'gemini') {
+    const candidateModels = [
+      'gemini-flash-latest',
+      'gemini-3.6-flash',
+      'gemini-3.7-flash',
+      'gemini-3.8-flash',
+      'gemini-2.5-flash-lite'
+    ];
+    let lastError: any = null;
+
+    for (const model of candidateModels) {
+      try {
+        console.log(`Attempting Gemini generation with ${model}...`);
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+        const body = {
+          contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
+          generationConfig: { responseMimeType: "application/json" }
+        };
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data: any = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          console.log(`✅ Generation succeeded with ${model}`);
+          return text;
+        }
+        console.warn(`⚠️ Model ${model} unavailable (${data?.error?.code || 'status'}): ${data?.error?.message || 'Empty'}. Trying next model...`);
+        lastError = new Error(data?.error?.message || 'Empty response');
+      } catch (err) {
+        lastError = err;
+        console.warn(`⚠️ Exception calling ${model}:`, err);
+      }
+    }
+    throw lastError || new Error("All Gemini model candidates failed.");
+  }
+
   let url = '';
   let body = {};
-  
-  if (provider === 'gemini') {
-    url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`;
-    body = {
-      contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
-      generationConfig: { responseMimeType: "application/json" }
-    };
-  } else if (provider === 'groq') {
+
+  if (provider === 'groq') {
     url = 'https://api.groq.com/openai/v1/chat/completions';
     body = {
       model: 'llama3-8b-8192',
@@ -121,21 +154,12 @@ async function callAIProvider(provider: string, key: string, system: string, use
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
-      ...(provider !== 'gemini' && { 'Authorization': `Bearer ${key}` })
+      'Authorization': `Bearer ${key}`
     },
     body: JSON.stringify(body)
   });
 
   const data: any = await res.json();
-  
-  if (provider === 'gemini') {
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) {
-      console.error("Gemini API Error details:", JSON.stringify(data));
-      throw new Error(`Gemini response missing content: ${data?.error?.message || JSON.stringify(data)}`);
-    }
-    return text;
-  }
   const content = data?.choices?.[0]?.message?.content;
   if (!content) {
     console.error("AI API Error details:", JSON.stringify(data));
