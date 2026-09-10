@@ -1,5 +1,5 @@
 export const ecosystemStats = {
-  totalProducts: 41,
+  totalProducts: 42,
   totalAgents: 242,
   npmPackages: 5,
   marketplaces: 7,

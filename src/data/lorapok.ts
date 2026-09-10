@@ -610,6 +610,21 @@ export const projects: Project[] = [
     ],
   },
   {
+    name: "CLoraMF",
+    tagline: "AI Companion Dashboard for CMF Watch",
+    description:
+      "Advanced AI-powered companion dashboard for CMF Watch (Nothing ecosystem). Connects wearable biometrics (heart rate, step cadence, sleep metrics) with Git repository monitoring and Google Gemini multimodal assistant.",
+    category: "Sensory & Hardware",
+    language: "TypeScript",
+    featured: true,
+    image: "/assets/projects/cloramf-icon.png",
+    badge: "Wearable AI & IoT",
+    links: [
+      { label: "Live Web", url: "https://maijied.github.io/CLoraMF/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/CLoraMF", icon: "github" },
+    ],
+  },
+  {
     name: "LARVOX",
     tagline: "Linux Voice Operating eXperience",
     description:

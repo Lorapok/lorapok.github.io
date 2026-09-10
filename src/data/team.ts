@@ -119,6 +119,7 @@ export const teamMembers: TeammateProfile[] = [
       "Cursor Curse Monitor",
       "Lorapok API Atlas",
       "Loragent",
+      "CLoraMF",
       "Lorapok Media Player",
       "ReportKit Core",
     ],
