@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-qc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f14" />
+      <stop offset="50%" stop-color="#121e24" />
+      <stop offset="100%" stop-color="#06090e" />
+    </linearGradient>
+    <radialGradient id="glow-qc" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg-qc)" />
+  <circle cx="400" cy="200" r="260" fill="url(#glow-qc)" />
+
+  <g transform="translate(180, 50)">
+    <rect x="0" y="0" width="440" height="280" rx="16" fill="rgba(18,30,36,0.75)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" />
+    
+    <text x="30" y="45" fill="#f59e0b" font-family="ui-monospace, monospace" font-size="14" font-weight="800">EXPLAIN ANALYZE</text>
+    <text x="30" y="75" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="12">SELECT * FROM transactions WHERE indexed_status = 1</text>
+    
+    <g transform="translate(30, 100)">
+      <rect x="0" y="0" width="180" height="36" rx="6" fill="rgba(103,255,143,0.15)" stroke="#67ff8f" stroke-width="1" />
+      <text x="14" y="23" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="11">Index Scan (cost=0.42)</text>
+
+      <line x1="180" y1="18" x2="210" y2="18" stroke="#f59e0b" stroke-width="2" />
+
+      <rect x="210" y="0" width="160" height="36" rx="6" fill="rgba(56,189,248,0.15)" stroke="#38bdf8" stroke-width="1" />
+      <text x="18" y="23" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="11">Hash Aggregate</text>
+    </g>
+
+    <rect x="30" y="170" width="380" height="85" rx="8" fill="rgba(0,0,0,0.5)" />
+    <text x="50" y="202" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="13" font-weight="700">EXEC TIME: 1.2ms (98% faster)</text>
+    <text x="50" y="226" fill="#f59e0b" font-family="ui-monospace, monospace" font-size="11">Dynamic query builder &amp; execution plan visualizer</text>
+  </g>
+
+  <g transform="translate(400, 385)" text-anchor="middle">
+    <text fill="#ffffff" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="1">LORAPOK QUERYCRAFT</text>
+    <text y="20" fill="#f59e0b" font-family="ui-monospace, monospace" font-size="12" letter-spacing="2">HIGH-PERFORMANCE SQL QUERY FORGE &amp; OPTIMIZER</text>
+  </g>
+</svg>

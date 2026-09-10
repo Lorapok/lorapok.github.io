@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-babla" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#060c14" />
+      <stop offset="50%" stop-color="#0a192f" />
+      <stop offset="100%" stop-color="#040910" />
+    </linearGradient>
+    <radialGradient id="glow-babla" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg-babla)" />
+  <circle cx="400" cy="210" r="270" fill="url(#glow-babla)" />
+
+  <g transform="translate(200, 70)">
+    <rect x="0" y="0" width="400" height="260" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(56,189,248,0.3)" stroke-width="1.5" />
+    
+    <g transform="translate(30, 30)">
+      <rect x="0" y="0" width="100" height="80" rx="10" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1" />
+      <text x="50" y="38" fill="#38bdf8" font-family="sans-serif" font-size="20" font-weight="800" text-anchor="middle">NEWS</text>
+      <text x="50" y="60" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">Live Feeds</text>
+
+      <rect x="120" y="0" width="100" height="80" rx="10" fill="rgba(103,255,143,0.12)" stroke="#67ff8f" stroke-width="1" />
+      <text x="170" y="38" fill="#67ff8f" font-family="sans-serif" font-size="20" font-weight="800" text-anchor="middle">MEDIA</text>
+      <text x="170" y="60" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">Streams</text>
+
+      <rect x="240" y="0" width="100" height="80" rx="10" fill="rgba(168,85,247,0.12)" stroke="#a855f7" stroke-width="1" />
+      <text x="290" y="38" fill="#a855f7" font-family="sans-serif" font-size="20" font-weight="800" text-anchor="middle">TECH</text>
+      <text x="290" y="60" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">Articles</text>
+    </g>
+
+    <rect x="30" y="130" width="340" height="100" rx="12" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+    <text x="50" y="162" fill="#ffffff" font-family="sans-serif" font-size="15" font-weight="700">Bab.La • All In One Hub</text>
+    <text x="50" y="185" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="11">Real-time syndicated multi-source browser</text>
+    <text x="50" y="208" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="11">Unified responsive content reader</text>
+  </g>
+
+  <g transform="translate(400, 385)" text-anchor="middle">
+    <text fill="#ffffff" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="1">BAB.LA CONTENT AGGREGATOR</text>
+    <text y="20" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="12" letter-spacing="2">OMNI-CHANNEL INFORMATION EXPLORER</text>
+  </g>
+</svg>

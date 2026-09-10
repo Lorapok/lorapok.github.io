@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-rklg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#08070d" />
+      <stop offset="50%" stop-color="#14101e" />
+      <stop offset="100%" stop-color="#06050a" />
+    </linearGradient>
+    <radialGradient id="glow-rklg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg-rklg)" />
+  <circle cx="400" cy="200" r="260" fill="url(#glow-rklg)" />
+
+  <g transform="translate(200, 50)">
+    <rect x="0" y="0" width="400" height="270" rx="16" fill="rgba(20,16,30,0.75)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" />
+    
+    <rect x="30" y="30" width="340" height="80" rx="10" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" stroke-width="1" />
+    <text x="200" y="65" fill="#f59e0b" font-family="sans-serif" font-size="18" font-weight="800" text-anchor="middle">REPORTKIT LEGACY LTS</text>
+    <text x="200" y="90" fill="#cbd5e1" font-family="ui-monospace, monospace" font-size="12" text-anchor="middle">Targeting Laravel 4.1 — 5.4 Architectures</text>
+
+    <rect x="30" y="130" width="340" height="110" rx="10" fill="rgba(0,0,0,0.5)" />
+    <text x="50" y="162" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="12" font-weight="700">● Mission-Critical Enterprise Support</text>
+    <text x="50" y="188" fill="#ffffff" font-family="ui-monospace, monospace" font-size="12">● Backward Compatible Chunk Streams</text>
+    <text x="50" y="214" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="11">Packagist: reportkit/laravel-legacy</text>
+  </g>
+
+  <g transform="translate(400, 385)" text-anchor="middle">
+    <text fill="#ffffff" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="1">REPORTKIT LEGACY LARAVEL</text>
+    <text y="20" fill="#f59e0b" font-family="ui-monospace, monospace" font-size="12" letter-spacing="2">ROCK-SOLID COMPATIBILITY FOR LEGACY CORES</text>
+  </g>
+</svg>

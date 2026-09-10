@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-ollama" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07090e" />
+      <stop offset="50%" stop-color="#0a121e" />
+      <stop offset="100%" stop-color="#060c14" />
+    </linearGradient>
+    <linearGradient id="neon-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#67ff8f" />
+    </linearGradient>
+    <radialGradient id="glow-ollama" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid-ollama" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(56,189,248,0.06)" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg-ollama)" />
+  <rect width="800" height="450" fill="url(#grid-ollama)" />
+  <circle cx="400" cy="225" r="280" fill="url(#glow-ollama)" />
+
+  <g transform="translate(160, 60)">
+    <rect x="0" y="0" width="480" height="300" rx="16" fill="rgba(15,23,42,0.7)" stroke="rgba(56,189,248,0.3)" stroke-width="1.5" />
+    <rect x="0" y="0" width="480" height="44" rx="16" fill="rgba(30,41,59,0.8)" />
+    <circle cx="24" cy="22" r="6" fill="#ef4444" opacity="0.8" />
+    <circle cx="44" cy="22" r="6" fill="#f59e0b" opacity="0.8" />
+    <circle cx="64" cy="22" r="6" fill="#10b981" opacity="0.8" />
+    <text x="96" y="27" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="13" font-weight="600">ollama://localhost:11434 • llama3:8b</text>
+
+    <rect x="180" y="64" width="276" height="48" rx="12" fill="rgba(56,189,248,0.15)" stroke="rgba(56,189,248,0.4)" stroke-width="1" />
+    <text x="196" y="93" fill="#e2e8f0" font-family="sans-serif" font-size="13" font-weight="500">How fast is local biological inference?</text>
+
+    <rect x="24" y="128" width="432" height="100" rx="12" fill="rgba(103,255,143,0.08)" stroke="rgba(103,255,143,0.3)" stroke-width="1" />
+    <circle cx="50" cy="154" r="12" fill="#67ff8f" opacity="0.2" />
+    <circle cx="50" cy="154" r="5" fill="#67ff8f" />
+    <text x="74" y="159" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="13" font-weight="700">OLLAMA-CORE</text>
+    <text x="210" y="159" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="11">124 tok/s • zero cloud latency</text>
+
+    <text x="44" y="195" fill="#cbd5e1" font-family="ui-monospace, monospace" font-size="12">Streaming dynamic weights across local GPU VRAM...</text>
+    <rect x="44" y="210" width="180" height="4" rx="2" fill="url(#neon-cyan)" />
+
+    <rect x="24" y="246" width="432" height="34" rx="8" fill="rgba(0,0,0,0.4)" />
+    <text x="40" y="268" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="11">✦ MULTI-MODEL</text>
+    <text x="160" y="268" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="11">● STREAM ACTIVE</text>
+    <text x="310" y="268" fill="#a855f7" font-family="ui-monospace, monospace" font-size="11">⚡ PRIVATE ENGINE</text>
+  </g>
+
+  <g transform="translate(400, 400)" text-anchor="middle">
+    <text fill="#ffffff" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="1">DYNAMIC OLLAMA LLM CHAT</text>
+    <text y="20" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="12" letter-spacing="2">ZERO-TELEMETRY LOCAL AI INTERFACE</text>
+  </g>
+</svg>
