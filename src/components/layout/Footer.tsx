@@ -42,7 +42,7 @@ export default function Footer() {
               <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Lorapok API Atlas</Link></li>
               <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Cursor Curse Monitor</Link></li>
               <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Loragent AI Framework</Link></li>
-              <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">ReportKit Core</Link></li>
+              <li><a href="https://reportkit.lorapok.tech/" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">ReportKit Stack</a></li>
               <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Lorapok Media Player</Link></li>
             </ul>
           </div>

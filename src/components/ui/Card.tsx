@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, Globe, ExternalLink, Code2, Terminal, Layers } from 'lucide-react';
+import { Star, Globe, ExternalLink, Code2, Terminal, Layers, BookOpen, Box } from 'lucide-react';
 import { Badge } from './Badge';
 import { Button } from './Button';
 import type { Project } from '../../data/lorapok';
@@ -29,6 +29,11 @@ const getIcon = (iconName?: string) => {
     case 'github': return <Code2 size={16} />;
     case 'web': return <Globe size={16} />;
     case 'terminal': return <Terminal size={16} />;
+    case 'book':
+    case 'docs': return <BookOpen size={16} />;
+    case 'packagist':
+    case 'npm':
+    case 'box': return <Box size={16} />;
     case 'vscode':
     case 'openvsx': return <Code2 size={16} />;
     case 'layers': return <Layers size={16} />;
