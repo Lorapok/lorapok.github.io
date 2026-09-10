@@ -38,12 +38,16 @@ TONE: ${config.tone}
 
 INSTRUCTIONS:
 1. Review the provided news context and pick the MOST IMPACTFUL story or synthesize a trend.
-2. Write a comprehensive, Medium-quality article (~800-1200 words).
-3. Use Markdown formatting (H1, H2, H3, bold, lists).
-4. Include an 'Excerpt' (2 sentences) and a 'Title'.
-5. Include 'Tags' (comma separated) and a 'Category' from: AI & Machine Learning, Backend & Infrastructure, Security, Frontend Engineering, Open Source, Mobile & UX, General Tech.
-6. Create an SEO meta title and description.
-7. Credit the original sources.
+2. Write a comprehensive, Medium-quality technical article (~800-1200 words).
+3. Use Markdown formatting (H1, H2, H3, bold, lists, code blocks).
+4. Include an 'Excerpt' (2 concise sentences) and an engaging, click-worthy 'Title'.
+5. Include 'Tags' array: MUST always include 'LorapokLabs' and 'Lorapok', plus 3-5 specific technical tags (e.g., 'WebDev', 'Architecture', 'AI', 'OpenSource', 'Cloud').
+6. Category must be chosen from: AI & Machine Learning, Backend & Infrastructure, Security, Frontend Engineering, Open Source, Mobile & UX, General Tech.
+7. Create an SEO object:
+   - 'metaTitle': Search-optimized title (50-60 characters, mentioning topic & Lorapok Labs)
+   - 'metaDescription': Compelling search snippet (140-160 characters)
+   - 'keywords': Array of 5-8 SEO keywords
+8. Credit the original sources.
 
 OUTPUT FORMAT (JSON):
 {
@@ -51,26 +55,49 @@ OUTPUT FORMAT (JSON):
   "excerpt": "...",
   "content": "...",
   "category": "...",
-  "tags": ["...", "..."],
-  "seo": { "metaTitle": "...", "metaDescription": "..." }
+  "tags": ["LorapokLabs", "Lorapok", "..."],
+  "seo": { 
+    "metaTitle": "... | LoLaBo — Lorapok Labs", 
+    "metaDescription": "...",
+    "keywords": ["LorapokLabs", "Lorapok", "..."]
+  }
 }`;
 
   const userPrompt = `TRENDING NEWS CONTEXT:\n${newsContext}\n\nPlease write a masterpiece article for the Lorapok Labs ecosystem based on this data.`;
 
-  // Dynamic API Calling (Simplified for the script)
+  // Dynamic API Calling
   let response;
   const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!apiKey) throw new Error("Neither AI_API_KEY nor GEMINI_API_KEY found in environment.");
 
-  // Logic for different providers (Gemini, OpenAI, Claude, Groq)
-  // We'll implement a generic fetch for simplicity in this draft
-  // Actual implementation would use specific SDKs or REST APIs
-  
-  // For the purpose of this script, we'll assume a helper handles the multi-provider routing
   response = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt);
 
   const blogData = parseLLMJson(response);
+
+  // Enforce Lorapok Labs tags and sanitize
+  const rawTags: string[] = Array.isArray(blogData.tags) ? blogData.tags : [];
+  const cleanTags = rawTags
+    .map((t: string) => String(t).trim().replace(/^#/, ''))
+    .filter((t: string) => t.length > 0);
+  const finalTags = Array.from(new Set(['LorapokLabs', 'Lorapok', ...cleanTags]));
+  blogData.tags = finalTags;
+
+  // Enforce hashtags in markdown content footer
+  const hashtags = finalTags.map(t => '#' + t.replace(/[^a-zA-Z0-9]/g, '')).join(' ');
+  if (!blogData.content.includes('#LorapokLabs')) {
+    blogData.content = blogData.content.trim() + `\n\n---\n*Authored autonomously by LoLaBo Agent • Powered by Lorapok Labs.*\n\n${hashtags}\n`;
+  }
+
+  // Enforce SEO metadata
+  if (!blogData.seo) blogData.seo = {};
+  if (!blogData.seo.metaTitle) {
+    blogData.seo.metaTitle = `${blogData.title.slice(0, 48)} | LoLaBo — Lorapok Labs`;
+  }
+  if (!blogData.seo.metaDescription) {
+    blogData.seo.metaDescription = (blogData.excerpt || blogData.title).slice(0, 155);
+  }
+  blogData.seo.keywords = finalTags;
   
   // Attach Author
   const author = AUTHOR_PERSONAS[blogData.category] || AUTHOR_PERSONAS['General Tech'];
@@ -82,7 +109,7 @@ OUTPUT FORMAT (JSON):
     status: 'published',
     publishedAt: new Date(),
     views: 0,
-    readTime: Math.ceil(blogData.content.split(' ').length / 200)
+    readTime: Math.max(3, Math.ceil(blogData.content.split(/\s+/).length / 200))
   };
 }
 

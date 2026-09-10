@@ -35,13 +35,13 @@ export interface AgentConfig {
 }
 
 export const DEFAULT_AGENT_CONFIG: AgentConfig = {
-  isEnabled: false,
-  intervalHours: 24,
+  isEnabled: true,
+  intervalHours: 1,
   lastRunAt: null,
   writingProvider: 'gemini',
   imageGenMode: 'auto',
   enabledSocials: ['discord'],
-  targetAudience: 'Developers',
+  targetAudience: 'Developers & Engineers',
   tone: 'Technical & precise',
   discordWebhookUrl: ''
 };

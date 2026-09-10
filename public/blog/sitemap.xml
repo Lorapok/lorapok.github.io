@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://lorapok.github.io/blog</loc>
+    <loc>https://lorapok.tech/blog</loc>
     <lastmod>2026-09-10</lastmod>
-    <changefreq>daily</changefreq>
+    <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://lorapok.github.io/blog/deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis</loc>
+    <loc>https://lorapok.tech/blog/deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lorapok.github.io/blog/the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development</loc>
+    <loc>https://lorapok.tech/blog/the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
 </urlset>

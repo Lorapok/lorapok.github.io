@@ -26,22 +26,32 @@ async function postToDiscord(post: any, customWebhook?: string) {
   const webhookUrl = customWebhook || process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) return { platform: 'discord', status: 'skipped', reason: 'No webhook URL' };
 
-  console.log("Posting to Discord...");
+  console.log("Posting to Discord with Lorapok Labs hashtags...");
   
+  const rawTags: string[] = Array.isArray(post.tags) ? post.tags : ['LorapokLabs', 'Lorapok'];
+  const hashtags = Array.from(new Set(['#LorapokLabs', '#Lorapok', ...rawTags.map((t: string) => '#' + String(t).replace(/[^a-zA-Z0-9]/g, ''))])).join(' ');
+  const canonicalUrl = `https://lorapok.tech/blog/${post.slug}`;
+
   const payload = {
     username: "LoLaBo Agent",
-    avatar_url: "https://lorapok.github.io/assets/lorapok-badge.png",
+    avatar_url: "https://lorapok.tech/assets/lorapok-badge.png",
+    content: `🚀 **New LoLaBo Article Published** | ${hashtags}`,
     embeds: [{
       title: post.title,
       description: post.excerpt,
-      url: `https://lorapok.github.io/blog#/post/${post.slug}`,
+      url: canonicalUrl,
       color: 0x00ff88,
       author: {
-        name: `${post.author.name} (${post.author.designation})`,
-        icon_url: "https://lorapok.github.io/assets/lorapok-dev-logo.png"
+        name: `${post.author?.name || 'LoLaBo AI'} (${post.author?.designation || 'Autonomous Writer'})`,
+        icon_url: "https://lorapok.tech/assets/lorapok-badge.png"
       },
+      fields: [
+        { name: "Category", value: post.category || "Technology", inline: true },
+        { name: "Read Time", value: `${post.readTime || 5} min read`, inline: true },
+        { name: "Hashtags", value: hashtags, inline: false }
+      ],
       image: { url: post.coverImage },
-      footer: { text: "🐛 Written by the LoLaBo Autonomous Agent" },
+      footer: { text: "🐛 LoLaBo Autonomous Agent • Lorapok Labs #LorapokLabs" },
       timestamp: new Date().toISOString()
     }]
   };

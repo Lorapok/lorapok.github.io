@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -42,12 +43,26 @@ jobs:
           npx ts-node index.ts
           npx ts-node exportData.ts
 
-      - name: Commit and Push (if needed)
-        # In this architecture, posts are saved to Firestore, 
-        # but we might want to update a local sitemap or JSON backup for SEO.
+      - name: Commit and Push SEO Updates
+        id: git-push
         run: |
           git config --global user.name "LoLaBo Agent"
           git config --global user.email "agent@lorapok.labs"
           git add .
-          git diff-index --quiet HEAD || git commit -m "chore: updated by LoLaBo Agent [skip ci]"
-          git push
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "chore(blog): new post by LoLaBo Agent with SEO updates"
+            git push
+            echo "pushed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No file changes detected. Skipping push."
+            echo "pushed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger Automatic Website Deployment & SEO Rebuild
+        if: steps.git-push.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🚀 Triggering Deploy Lorapok Labs workflow for live SEO deployment..."
+          gh workflow run deploy.yml --ref main || echo "Deploy workflow dispatched or queued."
+

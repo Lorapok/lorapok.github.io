@@ -50,18 +50,18 @@ async function runAgent() {
     console.log("ℹ️ Agent config not found in Firestore. Initializing default config...");
     config = {
       isEnabled: true,
-      intervalHours: 24,
+      intervalHours: 1,
       lastRunAt: null,
       writingProvider: 'gemini',
       imageGenMode: 'auto',
       enabledSocials: ['discord'],
-      targetAudience: 'Developers',
+      targetAudience: 'Developers & Engineers',
       tone: 'Technical & precise',
       triggerRequested: true
     };
     try {
       await db.collection('agent_config').doc('lolabo_settings').set(config);
-      console.log("✅ Default agent config initialized in Firestore.");
+      console.log("✅ Default agent config initialized in Firestore (1-hour publishing interval).");
     } catch (err) {
       console.warn("⚠️ Could not persist default config to Firestore:", err);
     }
@@ -72,7 +72,7 @@ async function runAgent() {
     return;
   }
 
-  // 2. Check Interval or Manual Trigger
+  // 2. Check Interval or Manual Trigger (Hourly schedule with jitter margin)
   let lastRun = new Date(0);
   if (config.lastRunAt && typeof config.lastRunAt.toDate === 'function') {
     lastRun = config.lastRunAt.toDate();
@@ -81,15 +81,20 @@ async function runAgent() {
   }
   const now = new Date();
   const hoursSinceLastRun = (now.getTime() - lastRun.getTime()) / (1000 * 60 * 60);
+  const targetInterval = typeof config.intervalHours === 'number' ? config.intervalHours : 1;
+  // Allow a 15% tolerance margin for GitHub Actions cron scheduling jitter
+  const jitterThreshold = Math.max(0.75, targetInterval * 0.85);
   const isManualTrigger = config.triggerRequested === true || process.env.FORCE_RUN === 'true';
 
-  if (hoursSinceLastRun < config.intervalHours && !process.env.FORCE_RUN && !isManualTrigger) {
-    console.log(`⏳ Only ${hoursSinceLastRun.toFixed(1)}h since last run. Interval is ${config.intervalHours}h. Skipping.`);
+  if (hoursSinceLastRun < jitterThreshold && !process.env.FORCE_RUN && !isManualTrigger) {
+    console.log(`⏳ Only ${hoursSinceLastRun.toFixed(2)}h since last run. Interval target is ${targetInterval}h (jitter threshold: ${jitterThreshold.toFixed(2)}h). Skipping.`);
     return;
   }
 
   if (isManualTrigger) {
     console.log("⚡ Manual trigger detected. Bypassing interval.");
+  } else {
+    console.log(`⏱️ Hourly cycle triggered (${hoursSinceLastRun.toFixed(2)}h elapsed >= ${jitterThreshold.toFixed(2)}h threshold). Generating post...`);
   }
 
   try {
