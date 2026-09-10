@@ -95,7 +95,7 @@ async function callAIProvider(provider: string, key: string, system: string, use
   let body = {};
   
   if (provider === 'gemini') {
-    url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+    url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`;
     body = {
       contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
       generationConfig: { responseMimeType: "application/json" }
@@ -126,10 +126,20 @@ async function callAIProvider(provider: string, key: string, system: string, use
     body: JSON.stringify(body)
   });
 
-  const data = await res.json();
+  const data: any = await res.json();
   
   if (provider === 'gemini') {
-    return data.candidates[0].content.parts[0].text;
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      console.error("Gemini API Error details:", JSON.stringify(data));
+      throw new Error(`Gemini response missing content: ${data?.error?.message || JSON.stringify(data)}`);
+    }
+    return text;
   }
-  return data.choices[0].message.content;
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) {
+    console.error("AI API Error details:", JSON.stringify(data));
+    throw new Error(`AI response missing content: ${data?.error?.message || JSON.stringify(data)}`);
+  }
+  return content;
 }
