@@ -31,6 +31,7 @@ export interface AgentConfig {
   tone: string;
   triggerRequested?: boolean;
   lastTriggerAt?: Timestamp | null;
+  discordWebhookUrl?: string;
 }
 
 export const DEFAULT_AGENT_CONFIG: AgentConfig = {
@@ -41,7 +42,8 @@ export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   imageGenMode: 'auto',
   enabledSocials: ['discord'],
   targetAudience: 'Developers',
-  tone: 'Technical & precise'
+  tone: 'Technical & precise',
+  discordWebhookUrl: ''
 };
 
 export const blogService = {

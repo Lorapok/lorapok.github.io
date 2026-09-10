@@ -249,6 +249,27 @@ export default function LoLaBoPanel() {
                     })}
                   </div>
                 </div>
+
+                <div className="dev-form-group" style={{ margin: 0 }}>
+                  <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <MessageSquare size={12} /> Discord Webhook URL
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 600 }}>CONNECTED</span>
+                  </label>
+                  <input
+                    type="password"
+                    className="dev-form-input"
+                    value={config.discordWebhookUrl || ''}
+                    placeholder="https://discord.com/api/webhooks/..."
+                    onChange={e => setConfig(prev => ({ ...prev, discordWebhookUrl: e.target.value }))}
+                    onBlur={e => handleUpdateConfig({ discordWebhookUrl: e.target.value })}
+                    style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}
+                  />
+                  <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.25rem', display: 'block' }}>
+                    Broadcasts newly generated blog articles and announcements to Discord channel in real time.
+                  </span>
+                </div>
               </div>
             </div>
           </section>

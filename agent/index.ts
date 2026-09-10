@@ -119,7 +119,7 @@ async function runAgent() {
     console.log(`✅ Post saved with ID: ${postRef.id}`);
 
     // 8. Social Distribution
-    const socialResults = await distributeSocially(blogPost, config.enabledSocials || []);
+    const socialResults = await distributeSocially(blogPost, config.enabledSocials || [], config.discordWebhookUrl);
     
     // 9. Update Config & Reset Trigger
     await db.collection('agent_config').doc('lolabo_settings').update({

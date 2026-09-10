@@ -2,13 +2,13 @@
 // Social Media Distribution Module for LoLaBo
 // Posts eye-catching snippets to Discord, X, LinkedIn, etc.
 
-export async function distributeSocially(post: any, enabledSocials: string[]) {
+export async function distributeSocially(post: any, enabledSocials: string[], customDiscordWebhook?: string) {
   console.log(`📢 Distributing post socially: ${enabledSocials.join(', ')}`);
 
   const results = [];
 
   if (enabledSocials.includes('discord')) {
-    results.push(await postToDiscord(post));
+    results.push(await postToDiscord(post, customDiscordWebhook));
   }
   
   if (enabledSocials.includes('twitter')) {
@@ -22,8 +22,8 @@ export async function distributeSocially(post: any, enabledSocials: string[]) {
   return results;
 }
 
-async function postToDiscord(post: any) {
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+async function postToDiscord(post: any, customWebhook?: string) {
+  const webhookUrl = customWebhook || process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) return { platform: 'discord', status: 'skipped', reason: 'No webhook URL' };
 
   console.log("Posting to Discord...");
