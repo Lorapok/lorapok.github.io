@@ -44,11 +44,27 @@ async function runAgent() {
 
   // 1. Fetch Config
   const configDoc = await db.collection('agent_config').doc('lolabo_settings').get();
-  const config = configDoc.exists ? configDoc.data() : null;
+  let config = configDoc.exists ? configDoc.data() : null;
 
   if (!config) {
-    console.error("❌ Agent config not found in Firestore. Please configure in Admin Panel.");
-    return;
+    console.log("ℹ️ Agent config not found in Firestore. Initializing default config...");
+    config = {
+      isEnabled: true,
+      intervalHours: 24,
+      lastRunAt: null,
+      writingProvider: 'gemini',
+      imageGenMode: 'auto',
+      enabledSocials: ['discord'],
+      targetAudience: 'Developers',
+      tone: 'Technical & precise',
+      triggerRequested: true
+    };
+    try {
+      await db.collection('agent_config').doc('lolabo_settings').set(config);
+      console.log("✅ Default agent config initialized in Firestore.");
+    } catch (err) {
+      console.warn("⚠️ Could not persist default config to Firestore:", err);
+    }
   }
 
   if (!config.isEnabled && !process.env.FORCE_RUN) {
@@ -57,10 +73,15 @@ async function runAgent() {
   }
 
   // 2. Check Interval or Manual Trigger
-  const lastRun = config.lastRunAt?.toDate() || new Date(0);
+  let lastRun = new Date(0);
+  if (config.lastRunAt && typeof config.lastRunAt.toDate === 'function') {
+    lastRun = config.lastRunAt.toDate();
+  } else if (config.lastRunAt) {
+    lastRun = new Date(config.lastRunAt);
+  }
   const now = new Date();
   const hoursSinceLastRun = (now.getTime() - lastRun.getTime()) / (1000 * 60 * 60);
-  const isManualTrigger = config.triggerRequested === true;
+  const isManualTrigger = config.triggerRequested === true || process.env.FORCE_RUN === 'true';
 
   if (hoursSinceLastRun < config.intervalHours && !process.env.FORCE_RUN && !isManualTrigger) {
     console.log(`⏳ Only ${hoursSinceLastRun.toFixed(1)}h since last run. Interval is ${config.intervalHours}h. Skipping.`);

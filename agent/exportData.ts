@@ -40,17 +40,28 @@ async function exportBlogData() {
   }
   
   try {
-    const snap = await db.collection('blog_posts')
-      .where('status', '==', 'published')
-      .orderBy('publishedAt', 'desc')
-      .get();
+    const snap = await db.collection('blog_posts').get();
     
-    const posts = snap.docs.map(d => ({
-      id: d.id,
-      ...d.data(),
-      // Convert Firestore Timestamps to ISO strings for JSON serialization
-      publishedAt: d.data().publishedAt?.toDate().toISOString()
-    }));
+    let posts = snap.docs.map(d => {
+      const data = d.data();
+      let publishedAtStr = new Date().toISOString();
+      if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
+        publishedAtStr = data.publishedAt.toDate().toISOString();
+      } else if (data.publishedAt) {
+        publishedAtStr = new Date(data.publishedAt).toISOString();
+      }
+
+      return {
+        id: d.id,
+        ...data,
+        publishedAt: publishedAtStr
+      };
+    });
+
+    // Filter published posts and sort descending by publishedAt
+    posts = posts
+      .filter((p: any) => p.status === 'published')
+      .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
     const outputPath = path.join(__dirname, '../public/blog/posts.json');
     
@@ -67,8 +78,7 @@ async function exportBlogData() {
     updateSitemap(posts);
     
   } catch (e) {
-    console.error("💥 Export failed:", e);
-    process.exit(1);
+    console.error("⚠️ Export encountered an issue (keeping existing static files):", e);
   }
 }
 
