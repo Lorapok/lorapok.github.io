@@ -512,6 +512,76 @@ export const teamMembers: TeammateProfile[] = [
     status: "core",
     featured: true,
   },
+  {
+    id: "toufiq-ahmed",
+    name: "Toufiq Ahmed",
+    handle: "@ToufiqLarvox",
+    role: "Junior Software Engineer & Full-Stack Developer",
+    department: "Core Engineering",
+    avatar: "/assets/team/toufiq.jpg",
+    location: "Dhaka, Bangladesh",
+    email: "toufiqahmed650@gmail.com",
+    tagline: "Full-stack web engineering, C#/.NET services, and graphics programming.",
+    bio: "Junior Software Engineer and Full-Stack Developer at Lorapok Labs with a solid foundation in object-oriented architecture, data structures, algorithms, and web application development. Experienced across C, C++, C#, Java, Python, and JavaScript with practical experience in .NET, Node.js, SQL database pipelines, and OpenGL graphics.",
+    cvSummary:
+      "B.Sc. in Computer Science & Engineering from American International University-Bangladesh (AIUB). Passionate about reliable full-stack software solutions, algorithmic problem solving, and open-source collective engineering.",
+    skills: [
+      "C# / .NET",
+      "Node.js",
+      "JavaScript",
+      "C++",
+      "C",
+      "Java",
+      "Python",
+      "SQL & Relational DBs",
+      "Data Structures & Algorithms",
+      "Object-Oriented Programming (OOP)",
+      "OpenGL Graphics",
+      "Git & GitHub",
+      "Full-Stack Development",
+      "Software Debugging",
+    ],
+    experience: [
+      {
+        role: "Junior Software Engineer (Intern)",
+        organization: "Lorapok Labs",
+        period: "September 2026 — Present",
+        description:
+          "Contributing to development and maintenance of full-stack software and web applications across the Lorapok ecosystem.",
+        highlights: [
+          "Developing responsive application features across frontend and backend components.",
+          "Building backend services and data workflows using .NET, Node.js, JavaScript, and SQL.",
+          "Writing clean, maintainable, reusable code and implementing effective debugging solutions.",
+          "Collaborating with engineering team members throughout development, peer review, and testing.",
+        ],
+      },
+    ],
+    education: [
+      {
+        degree: "B.Sc. in Computer Science & Engineering",
+        institution: "American International University-Bangladesh (AIUB)",
+        year: "2026",
+      },
+    ],
+    achievements: [
+      "Developed School Management System in C# leveraging structured object-oriented programming",
+      "Implemented comprehensive Data Structures & Algorithms suite in C++ (trees, queues, sorting, searching)",
+      "Engineered 2D rendering and coordinate primitive scenes using C++ and OpenGL graphics pipelines",
+      "Active open-source contributor and software developer under @ToufiqLarvox",
+    ],
+    featuredProjects: [
+      "LARVOX",
+      "ReportKit",
+      "Cursor Duplicator",
+    ],
+    social: {
+      github: "https://github.com/ToufiqLarvox",
+      linkedin: "https://www.linkedin.com/in/toufiq-ahmed",
+    },
+    resumeUrl: "/assets/team/toufiq-ahmed-cv.pdf",
+    status: "contributor",
+    featured: true,
+  },
 ];
 
 export const teamDepartments: TeamDepartment[] = [
