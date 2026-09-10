@@ -15,7 +15,7 @@ export async function generateCoverImage(title: string, tags: string[], mode: 'g
   }
 
   // Fallback to Unsplash
-  return await getStockPhoto(tags[0] || 'technology');
+  return await getStockPhoto(tags?.[0] || 'technology');
 }
 
 async function callGeminiImageGen(prompt: string) {

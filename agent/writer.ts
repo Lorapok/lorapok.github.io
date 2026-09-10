@@ -70,7 +70,7 @@ OUTPUT FORMAT (JSON):
   // For the purpose of this script, we'll assume a helper handles the multi-provider routing
   response = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt);
 
-  const blogData = JSON.parse(response);
+  const blogData = parseLLMJson(response);
   
   // Attach Author
   const author = AUTHOR_PERSONAS[blogData.category] || AUTHOR_PERSONAS['General Tech'];
@@ -142,4 +142,61 @@ async function callAIProvider(provider: string, key: string, system: string, use
     throw new Error(`AI response missing content: ${data?.error?.message || JSON.stringify(data)}`);
   }
   return content;
+}
+
+function parseLLMJson(raw: string): any {
+  let cleaned = raw.trim();
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.replace(/^```json\s*/i, '').replace(/\s*```$/, '');
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+  }
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    try {
+      let inString = false;
+      let escaped = false;
+      let result = '';
+
+      for (let i = 0; i < cleaned.length; i++) {
+        const char = cleaned[i];
+        if (escaped) {
+          result += char;
+          escaped = false;
+          continue;
+        }
+        if (char === '\\') {
+          result += char;
+          escaped = true;
+          continue;
+        }
+        if (char === '"') {
+          inString = !inString;
+          result += char;
+          continue;
+        }
+        if (inString) {
+          if (char === '\n') {
+            result += '\\n';
+          } else if (char === '\r') {
+            result += '\\r';
+          } else if (char === '\t') {
+            result += '\\t';
+          } else if (char.charCodeAt(0) < 32) {
+            // omit invalid ASCII control characters
+          } else {
+            result += char;
+          }
+        } else {
+          result += char;
+        }
+      }
+      return JSON.parse(result);
+    } catch (innerErr) {
+      console.error("Failed to parse LLM JSON output:", raw.slice(0, 500));
+      throw innerErr;
+    }
+  }
 }
