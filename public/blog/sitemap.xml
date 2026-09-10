@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.github.io/blog/deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://lorapok.github.io/blog/the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
