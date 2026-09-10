@@ -137,8 +137,8 @@ async function runAgent() {
             targetAudience: config.targetAudience || 'Developers',
             tone: config.tone || 'Technical'
         });
-        // 5. Image Generation
-        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'auto');
+        // 5. Image Generation (Distinct, topic-relevant editorial cover)
+        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'auto', blogPost.category, blogPost.imageKeywords || [], blogPost.imagePrompt);
         // 6. Generate Slug
         blogPost.slug = blogPost.title
             .toLowerCase()

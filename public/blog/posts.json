@@ -37,8 +37,8 @@
     "publishedAt": "2026-09-10T23:12:05.975Z",
     "views": 0,
     "readTime": 6,
-    "coverImage": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200&h=630",
-    "slug": "reverse-engineering-frontier-models-inside-the-mechanics-of-llm-distillation-campaigns-and-evasion-defenses"
+    "slug": "reverse-engineering-frontier-models-inside-the-mechanics-of-llm-distillation-campaigns-and-evasion-defenses",
+    "coverImage": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=85&w=1200&h=630"
   },
   {
     "id": "FGPqrWVU3cvnFxnHzxiD",
@@ -68,8 +68,8 @@
     "publishedAt": "2026-09-10T22:57:45.608Z",
     "views": 0,
     "readTime": 8,
-    "coverImage": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200&h=630",
-    "slug": "deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis"
+    "slug": "deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis",
+    "coverImage": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=85&w=1200&h=630"
   },
   {
     "id": "YIZpiDOyXCcnNq9TDEVa",
@@ -99,7 +99,7 @@
     "publishedAt": "2026-09-10T21:25:11.256Z",
     "views": 0,
     "readTime": 6,
-    "coverImage": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200&h=630",
-    "slug": "the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development"
+    "slug": "the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development",
+    "coverImage": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&q=85&w=1200&h=630"
   }
 ]

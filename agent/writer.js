@@ -35,7 +35,8 @@ INSTRUCTIONS:
    - 'metaTitle': Search-optimized title (50-60 characters, mentioning topic & Lorapok Labs)
    - 'metaDescription': Compelling search snippet (140-160 characters)
    - 'keywords': Array of 5-8 SEO keywords
-8. Credit the original sources.
+8. Include 'imageKeywords' (array of 2-3 specific technical keywords for the cover image) and 'imagePrompt' (a descriptive visual prompt for an editorial tech magazine cover, e.g., 'Futuristic 3D visualization of...').
+9. Credit the original sources.
 
 OUTPUT FORMAT (JSON):
 {
@@ -44,6 +45,8 @@ OUTPUT FORMAT (JSON):
   "content": "...",
   "category": "...",
   "tags": ["LorapokLabs", "Lorapok", "..."],
+  "imageKeywords": ["...", "..."],
+  "imagePrompt": "Futuristic 3D render of ..., dark tech aesthetic, 8k",
   "seo": { 
     "metaTitle": "... | LoLaBo — Lorapok Labs", 
     "metaDescription": "...",

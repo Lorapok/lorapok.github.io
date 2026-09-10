@@ -109,8 +109,15 @@ async function runAgent() {
       tone: config.tone || 'Technical'
     });
 
-    // 5. Image Generation
-    blogPost.coverImage = await generateCoverImage(blogPost.title, blogPost.tags, config.imageGenMode || 'auto');
+    // 5. Image Generation (Distinct, topic-relevant editorial cover)
+    blogPost.coverImage = await generateCoverImage(
+      blogPost.title,
+      blogPost.tags,
+      config.imageGenMode || 'auto',
+      blogPost.category,
+      blogPost.imageKeywords || [],
+      blogPost.imagePrompt
+    );
 
     // 6. Generate Slug
     blogPost.slug = blogPost.title
