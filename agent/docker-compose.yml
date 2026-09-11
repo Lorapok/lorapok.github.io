@@ -7,6 +7,11 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    env_file:
+      - path: .env
+        required: false
+      - path: ../.env
+        required: false
     environment:
       - PORT=8080
       - HOST=0.0.0.0
@@ -16,6 +21,7 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
       - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT:-}
+      - FIREBASE_SERVICE_ACCOUNT_BASE64=${FIREBASE_SERVICE_ACCOUNT_BASE64:-}
     volumes:
       - lolabo-blog-data:/app/public/blog
     healthcheck:

@@ -32,16 +32,63 @@ const SERVICE_TOKEN = process.env.LOLABO_API_KEY || process.env.SERVICE_TOKEN ||
 const POSTS_JSON_PATH = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
 
 // ─── Firebase Initialization ───
-let serviceAccount: any = {};
-try {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+function loadServiceAccount(): any {
+  // 1. Base64 encoded JSON
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+    try {
+      const decoded = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64.trim(), 'base64').toString('utf8');
+      const parsed = JSON.parse(decoded);
+      if (parsed && parsed.project_id) return parsed;
+    } catch (e) {}
   }
-} catch (err) {
-  console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT JSON:", err);
+
+  // 2. Direct string or file path in FIREBASE_SERVICE_ACCOUNT
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    let raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+    if (raw.startsWith('"') && raw.endsWith('"')) {
+      try { raw = JSON.parse(raw); } catch (e) {}
+    }
+    if (typeof raw === 'string' && raw.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.project_id) return parsed;
+      } catch (e) {}
+    } else if (typeof raw === 'string' && fs.existsSync(raw)) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(raw, 'utf8'));
+        if (parsed && parsed.project_id) return parsed;
+      } catch (e) {}
+    }
+  }
+
+  // 3. Known file paths
+  const candidatePaths = [
+    process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
+    process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    path.resolve(__dirname, '.credentials/lorapok-labs-sa.json'),
+    path.resolve(__dirname, 'agent/.credentials/lorapok-labs-sa.json'),
+    path.resolve(__dirname, '../agent/.credentials/lorapok-labs-sa.json'),
+    path.resolve(__dirname, '../.credentials/lorapok-labs-sa.json'),
+    '/app/.credentials/lorapok-labs-sa.json'
+  ].filter(Boolean) as string[];
+
+  for (const cp of candidatePaths) {
+    if (fs.existsSync(cp)) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(cp, 'utf8'));
+        if (parsed && parsed.project_id) {
+          console.log(`🔐 Loaded Firebase Service Account from: ${cp}`);
+          return parsed;
+        }
+      } catch (e) {}
+    }
+  }
+  return null;
 }
 
+const serviceAccount = loadServiceAccount();
 let db: FirebaseFirestore.Firestore | null = null;
+
 if (serviceAccount && serviceAccount.project_id) {
   try {
     if (!admin.apps.length) {
@@ -50,8 +97,49 @@ if (serviceAccount && serviceAccount.project_id) {
       });
     }
     db = admin.firestore();
+    console.log(`🔥 Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
   } catch (err) {
-    console.error("❌ Failed to initialize Firebase Admin:", err);
+    console.error("❌ Failed to initialize Firebase Admin with service account:", err);
+  }
+} else {
+  // Try Application Default Credentials fallback
+  try {
+    if (!admin.apps.length) {
+      admin.initializeApp();
+    }
+    db = admin.firestore();
+    console.log("🔥 Connected to Cloud Firestore via Application Default Credentials.");
+  } catch {
+    console.log("⚡ Standalone / Local mode active (Cloud Firestore not configured).");
+  }
+}
+
+async function syncDatabaseOnStartup() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('blog_posts').limit(1).get();
+    if (snap.empty) {
+      console.log("📦 Cloud Firestore collection 'blog_posts' is empty. Seeding from local catalog...");
+      const localPosts = getCachedPosts();
+      if (localPosts.length > 0) {
+        const batch = db.batch();
+        for (const p of localPosts) {
+          const docId = p.id || ('local-' + (p.slug || Math.random().toString(36).substring(7)));
+          const docRef = db.collection('blog_posts').doc(docId);
+          batch.set(docRef, {
+            ...p,
+            id: docId,
+            publishedAt: p.publishedAt || new Date().toISOString()
+          });
+        }
+        await batch.commit();
+        console.log(`✅ Successfully seeded ${localPosts.length} posts into Cloud Firestore.`);
+      }
+    } else {
+      console.log("🔥 Cloud Firestore collection 'blog_posts' is active and synchronized.");
+    }
+  } catch (err: any) {
+    console.warn("⚠️ Cloud Firestore startup sync notice:", err.message);
   }
 }
 
@@ -143,25 +231,34 @@ async function exportStaticData(): Promise<number> {
   let posts: any[] = [];
 
   if (db) {
-    const snap = await db.collection('blog_posts').get();
-    posts = snap.docs.map(d => {
-      const data = d.data();
-      let publishedAtStr = new Date().toISOString();
-      if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
-        publishedAtStr = data.publishedAt.toDate().toISOString();
-      } else if (data.publishedAt) {
-        publishedAtStr = new Date(data.publishedAt).toISOString();
+    try {
+      const snap = await db.collection('blog_posts').get();
+      if (!snap.empty) {
+        posts = snap.docs.map(d => {
+          const data = d.data();
+          let publishedAtStr = new Date().toISOString();
+          if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
+            publishedAtStr = data.publishedAt.toDate().toISOString();
+          } else if (data.publishedAt) {
+            publishedAtStr = new Date(data.publishedAt).toISOString();
+          }
+          return { id: d.id, ...data, publishedAt: publishedAtStr };
+        });
+
+        posts = posts
+          .filter((p: any) => p.status === 'published')
+          .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
+        const dir = path.dirname(POSTS_JSON_PATH);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(posts, null, 2), 'utf8');
+      } else {
+        posts = getCachedPosts();
       }
-      return { id: d.id, ...data, publishedAt: publishedAtStr };
-    });
-
-    posts = posts
-      .filter((p: any) => p.status === 'published')
-      .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-
-    const dir = path.dirname(POSTS_JSON_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(posts, null, 2), 'utf8');
+    } catch (dbErr) {
+      console.warn("⚠️ Error fetching from Firestore for export, falling back to local posts:", dbErr);
+      posts = getCachedPosts();
+    }
   } else {
     posts = getCachedPosts();
   }
@@ -265,31 +362,42 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
-    // 5. Persist to Firestore or local filesystem
+    // 5. Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
     let postId = 'local-' + Date.now();
-    if (db) {
-      console.log(`💾 Persisting post to Firestore: ${blogPost.title}`);
-      const postRef = await db.collection('blog_posts').add(blogPost);
-      postId = postRef.id;
+    const newPostEntry = {
+      id: postId,
+      ...blogPost,
+      publishedAt: new Date().toISOString()
+    };
 
-      await db.collection('agent_config').doc('lolabo_settings').update({
-        lastRunAt: admin.firestore.Timestamp.now(),
-        triggerRequested: false
-      }).catch(() => {});
-    } else {
-      console.log(`💾 [Local Microservice] Persisting post to local catalog: ${blogPost.title}`);
-      const currentPosts = getCachedPosts();
-      const newPostEntry = {
-        id: postId,
-        ...blogPost,
-        publishedAt: new Date().toISOString()
-      };
-      const updatedPosts = [newPostEntry, ...currentPosts.filter((p: any) => p.slug !== blogPost.slug)];
-      const dir = path.dirname(POSTS_JSON_PATH);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(updatedPosts, null, 2), 'utf8');
-      console.log(`✅ Post saved locally to ${POSTS_JSON_PATH} (${updatedPosts.length} total posts)`);
+    if (db) {
+      try {
+        console.log(`🔥 [Cloud Firestore] Persisting post to Firestore: ${blogPost.title}`);
+        const postRef = await db.collection('blog_posts').add({
+          ...blogPost,
+          publishedAt: new Date().toISOString()
+        });
+        postId = postRef.id;
+        newPostEntry.id = postId;
+
+        await db.collection('agent_config').doc('lolabo_settings').set({
+          lastRunAt: admin.firestore.Timestamp.now(),
+          triggerRequested: false
+        }, { merge: true }).catch(() => {});
+        console.log(`✅ [Cloud Firestore] Document ${postId} committed.`);
+      } catch (firestoreErr) {
+        console.error("⚠️ [Cloud Firestore] Write error (relying on local store):", firestoreErr);
+      }
     }
+
+    // Always persist to local catalog as well (for dual-tier high-availability)
+    console.log(`💾 [Local Microservice] Persisting post to local catalog: ${blogPost.title}`);
+    const currentPosts = getCachedPosts();
+    const updatedPosts = [newPostEntry, ...currentPosts.filter((p: any) => p.slug !== blogPost.slug)];
+    const dir = path.dirname(POSTS_JSON_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(updatedPosts, null, 2), 'utf8');
+    console.log(`✅ Post saved locally to ${POSTS_JSON_PATH} (${updatedPosts.length} total posts)`);
 
     // 6. Social Distribution (Discord)
     const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
@@ -374,11 +482,17 @@ const server = http.createServer(async (req, res) => {
 
   // 1. Healthcheck (GET / or GET /health)
   if (pathname === '/' || pathname === '/health') {
+    const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
     return sendJson(res, 200, {
       status: "ok",
       service: telemetry.service,
       version: telemetry.version,
       uptimeSeconds: Math.round(process.uptime()),
+      databaseConnected: Boolean(db),
+      databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
+      aiConfigured: hasAiKey,
+      aiProvider: hasAiKey ? 'Google Gemini' : 'Offline Synthesis Engine',
+      aiModel: hasAiKey ? 'gemini-3.6-flash' : 'offline-synthesis',
       timestamp: new Date().toISOString(),
       nodeVersion: process.version
     });
@@ -387,9 +501,14 @@ const server = http.createServer(async (req, res) => {
   // 2. Microservice Telemetry & Status (GET /api/status)
   if (pathname === '/api/status' && method === 'GET') {
     const posts = getCachedPosts();
+    const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
     return sendJson(res, 200, {
       telemetry,
       databaseConnected: Boolean(db),
+      databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
+      aiConfigured: hasAiKey,
+      aiProvider: hasAiKey ? 'Google Gemini' : 'Offline Synthesis Engine',
+      aiModel: hasAiKey ? 'gemini-3.6-flash' : 'offline-synthesis',
       cachedPostsCount: posts.length,
       memory: process.memoryUsage(),
       system: {
@@ -402,7 +521,27 @@ const server = http.createServer(async (req, res) => {
 
   // 3. Posts Catalog (GET /api/posts)
   if (pathname === '/api/posts' && method === 'GET') {
-    const posts = getCachedPosts();
+    let posts = getCachedPosts();
+    if (db) {
+      try {
+        const snap = await db.collection('blog_posts').orderBy('publishedAt', 'desc').limit(100).get();
+        if (!snap.empty) {
+          posts = snap.docs.map(d => {
+            const data = d.data();
+            let pDate = data.publishedAt;
+            if (pDate && typeof pDate.toDate === 'function') {
+              pDate = pDate.toDate().toISOString();
+            } else if (pDate) {
+              pDate = new Date(pDate).toISOString();
+            }
+            return { id: d.id, ...data, publishedAt: pDate };
+          });
+        }
+      } catch (err) {
+        // Fall back to local posts cache smoothly
+      }
+    }
+
     const tag = reqUrl.searchParams.get('tag') || undefined;
     const category = reqUrl.searchParams.get('category') || undefined;
     const limit = parseInt(reqUrl.searchParams.get('limit') || '50', 10);
@@ -479,6 +618,7 @@ const server = http.createServer(async (req, res) => {
   // 8. Prometheus / OpenTelemetry Metrics (GET /metrics)
   if (pathname === '/metrics' && method === 'GET') {
     const mem = process.memoryUsage();
+    const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
     const metrics = [
       `# HELP lolabo_uptime_seconds Process uptime in seconds`,
       `# TYPE lolabo_uptime_seconds counter`,
@@ -486,6 +626,12 @@ const server = http.createServer(async (req, res) => {
       `# HELP lolabo_dispatches_total Total autonomous dispatches executed`,
       `# TYPE lolabo_dispatches_total counter`,
       `lolabo_dispatches_total ${telemetry.totalDispatches}`,
+      `# HELP lolabo_firestore_connected Cloud Firestore connection status (1 = connected, 0 = offline)`,
+      `# TYPE lolabo_firestore_connected gauge`,
+      `lolabo_firestore_connected ${db ? 1 : 0}`,
+      `# HELP lolabo_ai_configured Gemini AI configuration status (1 = active, 0 = offline)`,
+      `# TYPE lolabo_ai_configured gauge`,
+      `lolabo_ai_configured ${hasAiKey ? 1 : 0}`,
       `# HELP lolabo_memory_rss_bytes Process RSS memory`,
       `# TYPE lolabo_memory_rss_bytes gauge`,
       `lolabo_memory_rss_bytes ${mem.rss}`,
@@ -516,6 +662,9 @@ const server = http.createServer(async (req, res) => {
 
 // ─── Startup Handler ───
 export function startServer(port = PORT, host = HOST) {
+  // Run startup database synchronization in background
+  syncDatabaseOnStartup();
+
   server.listen(port, host, () => {
     console.log(`\n======================================================`);
     console.log(`🚀 [LoLaBo Microservice Engine] Live on http://${host}:${port}`);

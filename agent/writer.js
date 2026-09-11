@@ -97,10 +97,11 @@ OUTPUT FORMAT (JSON):
     };
 }
 async function callAIProvider(provider, key, system, user) {
-    // Implementation of different AI APIs
-    // Defaulting to a standard POST structure used by many (like OpenAI/Groq compatible)
-    console.log(`Calling ${provider} API...`);
-    if (provider === 'gemini') {
+    // If key is a Gemini API key or provider is gemini, prioritize Gemini
+    const isGeminiKey = key.startsWith('AQ.') || key.startsWith('AIza') || Boolean(process.env.GEMINI_API_KEY);
+    const effectiveProvider = (provider === 'gemini' || isGeminiKey) ? 'gemini' : provider;
+    console.log(`Calling ${effectiveProvider} API...`);
+    if (effectiveProvider === 'gemini') {
         const candidateModels = [
             'gemini-3.6-flash',
             'gemini-3.5-flash',
@@ -184,6 +185,11 @@ function parseLLMJson(raw) {
     }
     else if (cleaned.startsWith('```')) {
         cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        cleaned = cleaned.slice(firstBrace, lastBrace + 1);
     }
     try {
         return JSON.parse(cleaned);

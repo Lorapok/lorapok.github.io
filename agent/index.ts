@@ -24,16 +24,63 @@ try {
 } catch (e) {}
 
 // ─── Firebase Initialization ───
-let serviceAccount: any = {};
-try {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+function loadServiceAccount(): any {
+  // 1. Base64 encoded JSON
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+    try {
+      const decoded = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64.trim(), 'base64').toString('utf8');
+      const parsed = JSON.parse(decoded);
+      if (parsed && parsed.project_id) return parsed;
+    } catch (e) {}
   }
-} catch (err) {
-  console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT JSON:", err);
+
+  // 2. Direct string or file path in FIREBASE_SERVICE_ACCOUNT
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    let raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+    if (raw.startsWith('"') && raw.endsWith('"')) {
+      try { raw = JSON.parse(raw); } catch (e) {}
+    }
+    if (typeof raw === 'string' && raw.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.project_id) return parsed;
+      } catch (e) {}
+    } else if (typeof raw === 'string' && fs.existsSync(raw)) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(raw, 'utf8'));
+        if (parsed && parsed.project_id) return parsed;
+      } catch (e) {}
+    }
+  }
+
+  // 3. Known file paths
+  const candidatePaths = [
+    process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
+    process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    path.resolve(__dirname, '.credentials/lorapok-labs-sa.json'),
+    path.resolve(__dirname, 'agent/.credentials/lorapok-labs-sa.json'),
+    path.resolve(__dirname, '../agent/.credentials/lorapok-labs-sa.json'),
+    path.resolve(__dirname, '../.credentials/lorapok-labs-sa.json'),
+    '/app/.credentials/lorapok-labs-sa.json'
+  ].filter(Boolean) as string[];
+
+  for (const cp of candidatePaths) {
+    if (fs.existsSync(cp)) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(cp, 'utf8'));
+        if (parsed && parsed.project_id) {
+          console.log(`🔐 Loaded Firebase Service Account from: ${cp}`);
+          return parsed;
+        }
+      } catch (e) {}
+    }
+  }
+  return null;
 }
 
+const serviceAccount = loadServiceAccount();
 let db: FirebaseFirestore.Firestore | null = null;
+
 if (serviceAccount && serviceAccount.project_id) {
   try {
     if (!admin.apps.length) {
@@ -42,12 +89,21 @@ if (serviceAccount && serviceAccount.project_id) {
       });
     }
     db = admin.firestore();
-    console.log("🔥 Connected to Firebase Firestore successfully.");
+    console.log(`🔥 Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
   } catch (err) {
-    console.error("❌ Failed to initialize Firebase Admin:", err);
+    console.error("❌ Failed to initialize Firebase Admin with service account:", err);
   }
 } else {
-  console.log("⚡ Standalone / Local mode active (no remote FIREBASE_SERVICE_ACCOUNT configured).");
+  // Try Application Default Credentials fallback
+  try {
+    if (!admin.apps.length) {
+      admin.initializeApp();
+    }
+    db = admin.firestore();
+    console.log("🔥 Connected to Cloud Firestore via Application Default Credentials.");
+  } catch {
+    console.log("⚡ Standalone / Local mode active (Cloud Firestore not configured).");
+  }
 }
 
 function updateFeedsLocally(posts: any[], baseDir: string) {
