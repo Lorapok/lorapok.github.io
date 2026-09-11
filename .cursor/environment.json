@@ -1,0 +1,17 @@
+{
+  "name": "Lorapok Labs",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "Dev Server",
+      "command": "npm run dev",
+      "description": "Vite dev server for the Lorapok Labs React site. Serves the site at http://localhost:5173 with hot module reload."
+    }
+  ],
+  "ports": [
+    {
+      "name": "Vite dev server",
+      "port": 5173
+    }
+  ]
+}
