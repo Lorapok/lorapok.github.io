@@ -12,6 +12,19 @@ import { writeBlogPost } from './writer';
 import { generateCoverImage } from './imageGen';
 import { distributeSocially } from './distributor';
 
+// ─── Environment Auto-loading ───
+try {
+  const rootEnv = path.resolve(__dirname, '../.env');
+  const localEnv = path.resolve(__dirname, '.env');
+  if (typeof (process as any).loadEnvFile === 'function') {
+    if (fs.existsSync(localEnv)) {
+      (process as any).loadEnvFile(localEnv);
+    } else if (fs.existsSync(rootEnv)) {
+      (process as any).loadEnvFile(rootEnv);
+    }
+  }
+} catch (e) {}
+
 // ─── Environment & Config ───
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -127,29 +140,31 @@ function getCachedPosts(): any[] {
 
 // ─── Export Data Helper ───
 async function exportStaticData(): Promise<number> {
-  if (!db) {
-    console.warn("⚠️ No Firestore connection. Skipping export.");
-    return 0;
+  let posts: any[] = [];
+
+  if (db) {
+    const snap = await db.collection('blog_posts').get();
+    posts = snap.docs.map(d => {
+      const data = d.data();
+      let publishedAtStr = new Date().toISOString();
+      if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
+        publishedAtStr = data.publishedAt.toDate().toISOString();
+      } else if (data.publishedAt) {
+        publishedAtStr = new Date(data.publishedAt).toISOString();
+      }
+      return { id: d.id, ...data, publishedAt: publishedAtStr };
+    });
+
+    posts = posts
+      .filter((p: any) => p.status === 'published')
+      .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
+    const dir = path.dirname(POSTS_JSON_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(posts, null, 2), 'utf8');
+  } else {
+    posts = getCachedPosts();
   }
-  const snap = await db.collection('blog_posts').get();
-  let posts = snap.docs.map(d => {
-    const data = d.data();
-    let publishedAtStr = new Date().toISOString();
-    if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
-      publishedAtStr = data.publishedAt.toDate().toISOString();
-    } else if (data.publishedAt) {
-      publishedAtStr = new Date(data.publishedAt).toISOString();
-    }
-    return { id: d.id, ...data, publishedAt: publishedAtStr };
-  });
-
-  posts = posts
-    .filter((p: any) => p.status === 'published')
-    .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-
-  const dir = path.dirname(POSTS_JSON_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(posts, null, 2), 'utf8');
 
   // Regenerate XML Sitemaps and RSS
   const sitemapDir = path.dirname(POSTS_JSON_PATH);
@@ -158,7 +173,7 @@ async function exportStaticData(): Promise<number> {
   sitemapXml += `  <url>\n    <loc>https://lorapok.tech/blog</loc>\n    <lastmod>${nowIso}</lastmod>\n    <changefreq>hourly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
   for (const p of (posts as any[])) {
     if (!p.slug) continue;
-    const pDate = p.publishedAt ? p.publishedAt.split('T')[0] : nowIso;
+    const pDate = p.publishedAt ? String(p.publishedAt).split('T')[0] : nowIso;
     sitemapXml += `  <url>\n    <loc>https://lorapok.tech/blog/${p.slug}</loc>\n    <lastmod>${pDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
   }
   sitemapXml += `</urlset>\n`;
@@ -168,7 +183,7 @@ async function exportStaticData(): Promise<number> {
   rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
   for (const p of (posts as any[]).slice(0, 20)) {
     if (!p.slug) continue;
-    rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>https://lorapok.tech/blog/${p.slug}</link>\n    <guid>https://lorapok.tech/blog/${p.slug}</guid>\n    <pubDate>${new Date(p.publishedAt).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt}]]></description>\n  </item>\n`;
+    rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>https://lorapok.tech/blog/${p.slug}</link>\n    <guid>https://lorapok.tech/blog/${p.slug}</guid>\n    <pubDate>${new Date(p.publishedAt || Date.now()).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt}]]></description>\n  </item>\n`;
   }
   rssXml += `</channel>\n</rss>\n`;
   fs.writeFileSync(path.join(sitemapDir, 'rss.xml'), rssXml, 'utf8');
@@ -245,7 +260,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
-    // 5. Persist to Firestore
+    // 5. Persist to Firestore or local filesystem
     let postId = 'local-' + Date.now();
     if (db) {
       console.log(`💾 Persisting post to Firestore: ${blogPost.title}`);
@@ -256,6 +271,19 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
         lastRunAt: admin.firestore.Timestamp.now(),
         triggerRequested: false
       }).catch(() => {});
+    } else {
+      console.log(`💾 [Local Microservice] Persisting post to local catalog: ${blogPost.title}`);
+      const currentPosts = getCachedPosts();
+      const newPostEntry = {
+        id: postId,
+        ...blogPost,
+        publishedAt: new Date().toISOString()
+      };
+      const updatedPosts = [newPostEntry, ...currentPosts.filter((p: any) => p.slug !== blogPost.slug)];
+      const dir = path.dirname(POSTS_JSON_PATH);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(updatedPosts, null, 2), 'utf8');
+      console.log(`✅ Post saved locally to ${POSTS_JSON_PATH} (${updatedPosts.length} total posts)`);
     }
 
     // 6. Social Distribution (Discord)
