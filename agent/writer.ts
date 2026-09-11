@@ -27,8 +27,7 @@ export async function writeBlogPost(
   console.log(`🧠 Writing blog post using ${config.provider}...`);
 
   // 1. Selection Strategy: AI picks the most relevant/trending news item to expand
-  // For now, we take the top few items and ask the AI to synthesize or pick the best one.
-  const newsContext = newsItems.map(n => `[${n.source}] ${n.title}\n${n.content.slice(0, 200)}...`).join('\n\n');
+  const newsContext = newsItems.map(n => `[${n.source || 'Tech News'}] ${n.title || ''}\n${(n.content || n.title || '').slice(0, 200)}...`).join('\n\n');
 
   const systemPrompt = `You are the LoLaBo (Lorapok Labs Blog) Autonomous Writer Agent.
 Your goal is to write a high-fidelity, professional tech blog post based on trending news.

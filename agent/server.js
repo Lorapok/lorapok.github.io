@@ -239,7 +239,12 @@ async function executeDispatch(options = {}) {
         // 1. Ingest News or use custom topic
         let news = [];
         if (options.customTopic) {
-            news = [{ title: options.customTopic, url: 'https://lorapok.tech/blog', source: 'Microservice Trigger' }];
+            news = [{
+                    title: options.customTopic,
+                    content: `In-depth architectural investigation into ${options.customTopic}`,
+                    url: 'https://lorapok.tech/blog',
+                    source: 'Microservice Trigger'
+                }];
         }
         else {
             news = await (0, collector_1.collectNews)();

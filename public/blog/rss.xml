@@ -5,7 +5,14 @@
   <link>https://lorapok.tech/blog</link>
   <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>
   <language>en-us</language>
-  <lastBuildDate>Fri, 11 Sep 2026 03:10:23 GMT</lastBuildDate>
+  <lastBuildDate>Fri, 11 Sep 2026 03:18:51 GMT</lastBuildDate>
+  <item>
+    <title><![CDATA[Architectural Deep Dive: Zero-Trust Service Mesh Architecture with eBPF]]></title>
+    <link>https://lorapok.tech/blog/architectural-deep-dive-zero-trust-service-mesh-architecture-with-ebpf</link>
+    <guid>https://lorapok.tech/blog/architectural-deep-dive-zero-trust-service-mesh-architecture-with-ebpf</guid>
+    <pubDate>Fri, 11 Sep 2026 03:18:51 GMT</pubDate>
+    <description><![CDATA[A rigorous systems architecture investigation analyzing concurrency guarantees, state isolation, and zero-downtime execution in Zero-Trust Service Mesh Architecture with eBPF.]]></description>
+  </item>
   <item>
     <title><![CDATA[Architectural Deep Dive: Thrive Capital led VCs into pro sports ownership Collaborative Fund just upped that play]]></title>
     <link>https://lorapok.tech/blog/architectural-deep-dive-thrive-capital-led-vcs-into-pro-sports-ownership-collaborative-fund-just-upped-that-play</link>
