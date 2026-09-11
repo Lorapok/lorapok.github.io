@@ -101,11 +101,12 @@ async function callAIProvider(provider, key, system, user) {
     console.log(`Calling ${provider} API...`);
     if (provider === 'gemini') {
         const candidateModels = [
-            'gemini-flash-latest',
             'gemini-3.6-flash',
-            'gemini-3.7-flash',
-            'gemini-3.8-flash',
-            'gemini-2.5-flash-lite'
+            'gemini-3.5-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-flash-latest',
+            'gemini-flash-lite-latest',
+            'gemini-3-flash-preview'
         ];
         let lastError = null;
         for (const model of candidateModels) {
@@ -129,10 +130,13 @@ async function callAIProvider(provider, key, system, user) {
                 }
                 console.warn(`⚠️ Model ${model} unavailable (${data?.error?.code || 'status'}): ${data?.error?.message || 'Empty'}. Trying next model...`);
                 lastError = new Error(data?.error?.message || 'Empty response');
+                // Brief pause before fallback to avoid hitting concurrency limits
+                await new Promise((resolve) => setTimeout(resolve, 1200));
             }
             catch (err) {
                 lastError = err;
                 console.warn(`⚠️ Exception calling ${model}:`, err);
+                await new Promise((resolve) => setTimeout(resolve, 1200));
             }
         }
         throw lastError || new Error("All Gemini model candidates failed.");
