@@ -11,6 +11,7 @@ import { collectNews } from './collector';
 import { writeBlogPost } from './writer';
 import { generateCoverImage } from './imageGen';
 import { distributeSocially } from './distributor';
+import { validateDuplicatePost } from './validator';
 
 // ─── Environment Auto-loading ───
 try {
@@ -226,6 +227,29 @@ function getCachedPosts(): any[] {
   return [];
 }
 
+async function getActivePosts(): Promise<any[]> {
+  if (db) {
+    try {
+      const snap = await db.collection('blog_posts').orderBy('publishedAt', 'desc').limit(100).get();
+      if (!snap.empty) {
+        return snap.docs.map(d => {
+          const data = d.data();
+          let pDate = data.publishedAt;
+          if (pDate && typeof pDate.toDate === 'function') {
+            pDate = pDate.toDate().toISOString();
+          } else if (pDate) {
+            pDate = new Date(pDate).toISOString();
+          }
+          return { id: d.id, ...data, publishedAt: pDate };
+        });
+      }
+    } catch (err) {
+      console.warn("⚠️ Error fetching active posts from Firestore, falling back to cache:", err);
+    }
+  }
+  return getCachedPosts();
+}
+
 // ─── Export Data Helper ───
 async function exportStaticData(): Promise<number> {
   let posts: any[] = [];
@@ -320,6 +344,9 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       }
     }
 
+    // 0. Load active catalog for anti-duplication baseline
+    const currentPosts = await getActivePosts();
+
     // 1. Ingest News or use custom topic
     let news: any[] = [];
     if (options.customTopic) {
@@ -330,7 +357,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
         source: 'Microservice Trigger'
       }];
     } else {
-      news = await collectNews();
+      news = await collectNews(currentPosts);
     }
 
     if (!news || news.length === 0) {
@@ -343,9 +370,38 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       provider: config.writingProvider || 'gemini',
       targetAudience: config.targetAudience || 'Developers',
       tone: config.tone || 'Technical'
-    });
+    }, currentPosts);
 
-    // 3. Generate Editorial Visual
+    // 3. Sluggify
+    blogPost.slug = blogPost.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    // 4. Duplicate Validation Barrier
+    const validation = validateDuplicatePost({
+      title: blogPost.title,
+      slug: blogPost.slug
+    }, currentPosts);
+
+    if (validation.isDuplicate) {
+      console.warn(`🛑 [LoLaBo Duplicate Rejection] Candidate article rejected: ${validation.reason}`);
+      if (!options.force) {
+        telemetry.lastDispatchStatus = "skipped_duplicate";
+        telemetry.lastDispatchAt = new Date().toISOString();
+        return {
+          success: false,
+          duplicate: true,
+          reason: validation.reason,
+          title: blogPost.title,
+          slug: blogPost.slug
+        };
+      } else {
+        console.log("⚠️ Force flag active: Proceeding with publication despite duplicate detection.");
+      }
+    }
+
+    // 5. Generate Editorial Visual
     console.log("🎨 Generating topic-relevant cover visual...");
     blogPost.coverImage = await generateCoverImage(
       blogPost.title,
@@ -356,14 +412,9 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       blogPost.imagePrompt
     );
 
-    // 4. Sluggify
-    blogPost.slug = blogPost.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
-    // 5. Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
-    let postId = 'local-' + Date.now();
+    // 6. Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
+    // Deterministic slug-based ID prevents duplicate document creations in Firestore
+    const postId = blogPost.slug;
     const newPostEntry = {
       id: postId,
       ...blogPost,
@@ -372,19 +423,18 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
 
     if (db) {
       try {
-        console.log(`🔥 [Cloud Firestore] Persisting post to Firestore: ${blogPost.title}`);
-        const postRef = await db.collection('blog_posts').add({
+        console.log(`🔥 [Cloud Firestore] Persisting post idempotently to Firestore: ${blogPost.title} (doc: ${postId})`);
+        await db.collection('blog_posts').doc(postId).set({
           ...blogPost,
-          publishedAt: new Date().toISOString()
-        });
-        postId = postRef.id;
-        newPostEntry.id = postId;
+          id: postId,
+          publishedAt: newPostEntry.publishedAt
+        }, { merge: true });
 
         await db.collection('agent_config').doc('lolabo_settings').set({
           lastRunAt: admin.firestore.Timestamp.now(),
           triggerRequested: false
         }, { merge: true }).catch(() => {});
-        console.log(`✅ [Cloud Firestore] Document ${postId} committed.`);
+        console.log(`✅ [Cloud Firestore] Document '${postId}' committed successfully.`);
       } catch (firestoreErr) {
         console.error("⚠️ [Cloud Firestore] Write error (relying on local store):", firestoreErr);
       }
@@ -392,25 +442,26 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
 
     // Always persist to local catalog as well (for dual-tier high-availability)
     console.log(`💾 [Local Microservice] Persisting post to local catalog: ${blogPost.title}`);
-    const currentPosts = getCachedPosts();
     const updatedPosts = [newPostEntry, ...currentPosts.filter((p: any) => p.slug !== blogPost.slug)];
     const dir = path.dirname(POSTS_JSON_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(updatedPosts, null, 2), 'utf8');
     console.log(`✅ Post saved locally to ${POSTS_JSON_PATH} (${updatedPosts.length} total posts)`);
 
-    // 6. Social Distribution (Discord)
+    // 7. Social Distribution (Discord)
     const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
-    if (webhookUrl) {
+    if (webhookUrl && webhookUrl.trim()) {
       console.log("📢 Broadcasting to Discord webhook...");
       await distributeSocially(blogPost, ['discord'], webhookUrl);
+    } else {
+      console.log("ℹ️ [Discord Broadcast] Skipped: No DISCORD_WEBHOOK_URL configured. (Set DISCORD_WEBHOOK_URL in environment or Firestore).");
     }
 
-    // 7. Update Static JSON & Sitemaps
+    // 8. Update Static JSON & Sitemaps
     console.log("📁 Updating static posts.json and XML feeds...");
     await exportStaticData();
 
-    // 8. Update Telemetry
+    // 9. Update Telemetry
     telemetry.lastDispatchAt = new Date().toISOString();
     telemetry.lastDispatchStatus = "success";
     telemetry.lastError = null;
@@ -422,10 +473,13 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       postId,
       title: blogPost.title,
       slug: blogPost.slug,
+      type: blogPost.type,
+      citationsCount: (blogPost.citations || []).length,
       coverImage: blogPost.coverImage,
       category: blogPost.category,
       publishedAt: telemetry.lastDispatchAt
     };
+
   } catch (err: any) {
     telemetry.lastDispatchStatus = "failed";
     telemetry.lastError = err.message || String(err);
@@ -577,7 +631,8 @@ const server = http.createServer(async (req, res) => {
 
     try {
       const body = await parseJsonBody(req);
-      const result = await executeDispatch({ force: true, customTopic: body.topic });
+      const forceFlag = body.force === true || body.force === 'true';
+      const result = await executeDispatch({ force: forceFlag, customTopic: body.topic });
       return sendJson(res, 200, result);
     } catch (err: any) {
       return sendJson(res, 500, { error: err.message || 'Dispatch failed' });
@@ -595,14 +650,84 @@ const server = http.createServer(async (req, res) => {
       if (!body.topic) {
         return sendJson(res, 400, { error: 'Missing required field "topic" in payload.' });
       }
-      const result = await executeDispatch({ force: true, customTopic: body.topic });
+      const forceFlag = body.force === true || body.force === 'true';
+      const result = await executeDispatch({ force: forceFlag, customTopic: body.topic });
       return sendJson(res, 200, result);
     } catch (err: any) {
       return sendJson(res, 500, { error: err.message || 'Generation failed' });
     }
   }
 
-  // 7. Refresh Static Data & Sitemaps (POST /api/export)
+  // 7. Test Discord Webhook Notification & Rich Embed Template (POST /api/test-discord)
+  if (pathname === '/api/test-discord' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const targetWebhook = body.webhookUrl || process.env.DISCORD_WEBHOOK_URL;
+      if (!targetWebhook || !String(targetWebhook).trim()) {
+        return sendJson(res, 400, {
+          error: 'No Discord webhook URL provided in payload {"webhookUrl": "https://..."} or DISCORD_WEBHOOK_URL environment variable.',
+          tip: 'Configure DISCORD_WEBHOOK_URL in .env or pass {"webhookUrl": "https://discord.com/api/webhooks/..."} in the JSON body.'
+        });
+      }
+
+      const samplePost = {
+        title: body.title || 'Kernel-Bypass Networking in Rust: Production io_uring vs DPDK Benchmarks',
+        slug: body.slug || 'kernel-bypass-networking-in-rust',
+        excerpt: body.excerpt || 'Zero-copy packet ring buffers, non-blocking asynchronous system calls, and sub-microsecond P99 tail latency in high-throughput cloud networking architectures.',
+        category: body.category || 'Backend & Infrastructure',
+        tags: body.tags || ['Rust', 'Networking', 'io_uring', 'Performance', 'SystemsArchitecture'],
+        coverImage: body.coverImage || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=630&fit=crop&q=80',
+        readTime: body.readTime || 11,
+        author: body.author || {
+          name: 'Captain Deploy',
+          designation: 'Infrastructure Overlord',
+          avatar: '🚀'
+        },
+        type: body.type || 'DEEP DIVE',
+        publishedAt: new Date().toISOString()
+      };
+
+      const results = await distributeSocially(samplePost, ['discord'], String(targetWebhook).trim());
+      return sendJson(res, 200, {
+        success: true,
+        message: 'Discord rich embed test notification dispatched.',
+        webhookTarget: String(targetWebhook).trim().slice(0, 35) + '...',
+        post: {
+          title: samplePost.title,
+          category: samplePost.category,
+          slug: samplePost.slug
+        },
+        distributionResults: results
+      });
+    } catch (err: any) {
+      return sendJson(res, 500, { error: err.message || 'Failed to dispatch Discord test notification' });
+    }
+  }
+
+  // 8. Validate Candidate Post Duplication (POST /api/validate-post)
+  if (pathname === '/api/validate-post' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      if (!body.title) {
+        return sendJson(res, 400, { error: 'Missing "title" in request body.' });
+      }
+      const posts = await getActivePosts();
+      const validation = validateDuplicatePost({
+        title: body.title,
+        slug: body.slug
+      }, posts, body.threshold ? parseFloat(body.threshold) : 0.55);
+
+      return sendJson(res, 200, {
+        candidateTitle: body.title,
+        validation,
+        catalogSize: posts.length
+      });
+    } catch (err: any) {
+      return sendJson(res, 500, { error: err.message || 'Validation failed' });
+    }
+  }
+
+  // 9. Refresh Static Data & Sitemaps (POST /api/export)
   if (pathname === '/api/export' && method === 'POST') {
     if (!checkAuth(req, reqUrl)) {
       return sendJson(res, 401, { error: 'Unauthorized' });
@@ -615,7 +740,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 8. Prometheus / OpenTelemetry Metrics (GET /metrics)
+  // 10. Prometheus / OpenTelemetry Metrics (GET /metrics)
   if (pathname === '/metrics' && method === 'GET') {
     const mem = process.memoryUsage();
     const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
@@ -654,6 +779,8 @@ const server = http.createServer(async (req, res) => {
       'GET  /api/posts/:slug',
       'POST /api/dispatch',
       'POST /api/generate',
+      'POST /api/test-discord',
+      'POST /api/validate-post',
       'POST /api/export',
       'GET  /metrics'
     ]

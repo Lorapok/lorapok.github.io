@@ -1,8 +1,9 @@
 // agent/collector.ts
 // News Collector Module for LoLaBo
-// Fetches trending tech news from curated RSS feeds
+// Fetches trending tech news from curated RSS feeds and filters duplicates
 
 import Parser from 'rss-parser';
+import { validateDuplicatePost } from './validator';
 
 // Support both ES default import and CommonJS export shapes
 const RSSParser: any = typeof Parser === 'function' ? Parser : ((Parser as any)?.default || Parser);
@@ -25,18 +26,18 @@ export interface NewsItem {
   source: string;
 }
 
-export async function collectNews(): Promise<NewsItem[]> {
+export async function collectNews(existingPosts: any[] = []): Promise<NewsItem[]> {
   console.log("📡 Collecting news from RSS feeds...");
   const allItems: NewsItem[] = [];
 
   for (const feed of FEEDS) {
     try {
       const result = await parser.parseURL(feed.url);
-      const items = result.items.slice(0, 5).map(item => ({
-        title: item.title || '',
-        link: item.link || '',
-        pubDate: item.pubDate || '',
-        content: item.contentSnippet || item.content || '',
+      const items = (result.items || []).slice(0, 5).map(item => ({
+        title: (item.title || '').trim(),
+        link: (item.link || '').trim(),
+        pubDate: (item.pubDate || '').trim(),
+        content: (item.contentSnippet || item.content || '').trim(),
         source: feed.name
       }));
       allItems.push(...items);
@@ -46,6 +47,23 @@ export async function collectNews(): Promise<NewsItem[]> {
     }
   }
 
-  // Basic filtering: remove items without title or link
-  return allItems.filter(item => item.title && item.link);
+  // 1. Basic filtering: remove items without title or link
+  const validItems = allItems.filter(item => item.title && item.link);
+
+  // 2. Intelligent Duplicate Filtering against active catalog
+  if (existingPosts && existingPosts.length > 0) {
+    const novelItems = validItems.filter(item => {
+      const check = validateDuplicatePost({ title: item.title, url: item.link }, existingPosts, 0.55);
+      if (check.isDuplicate) {
+        console.log(`⏭️ [Collector] Skipping already-covered story: "${item.title}" (${check.reason})`);
+        return false;
+      }
+      return true;
+    });
+
+    console.log(`🔍 [Collector] Filtered ${validItems.length - novelItems.length} duplicate stories. Returning ${novelItems.length} fresh candidates.`);
+    return novelItems.length > 0 ? novelItems : validItems;
+  }
+
+  return validItems;
 }

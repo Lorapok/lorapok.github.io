@@ -43,6 +43,7 @@ const collector_1 = require("./collector");
 const writer_1 = require("./writer");
 const imageGen_1 = require("./imageGen");
 const distributor_1 = require("./distributor");
+const validator_1 = require("./validator");
 // ─── Environment Auto-loading ───
 try {
     const rootEnv = path.resolve(__dirname, '../.env');
@@ -235,61 +236,84 @@ async function runAgent() {
         console.log(`⏱️ Hourly cycle triggered (${hoursSinceLastRun.toFixed(2)}h elapsed >= ${jitterThreshold.toFixed(2)}h threshold). Generating post...`);
     }
     try {
-        // 3. News Collection
-        const news = await (0, collector_1.collectNews)();
+        // 0. Load active catalog for anti-duplication baseline
+        const postsJsonPath = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
+        let currentPosts = [];
+        try {
+            if (fs.existsSync(postsJsonPath)) {
+                currentPosts = JSON.parse(fs.readFileSync(postsJsonPath, 'utf8'));
+            }
+        }
+        catch (err) { }
+        // 3. News Collection (with catalog duplicate exclusion)
+        const news = await (0, collector_1.collectNews)(currentPosts);
         if (news.length === 0)
             throw new Error("No news collected.");
-        // 4. Content Generation
+        // 4. Content Generation (with anti-duplication prompt guidance)
         const blogPost = await (0, writer_1.writeBlogPost)(news, {
             provider: config.writingProvider || 'gemini',
             targetAudience: config.targetAudience || 'Developers',
             tone: config.tone || 'Technical'
-        });
-        // 5. Image Generation (Distinct, topic-relevant editorial cover)
-        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'auto', blogPost.category, blogPost.imageKeywords || [], blogPost.imagePrompt);
-        // 6. Generate Slug
+        }, currentPosts);
+        // 5. Generate Slug
         blogPost.slug = blogPost.title
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');
-        // 7. Save to Firestore or local filesystem
-        const postsJsonPath = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
+        // 6. Duplicate Post Validation Barrier
+        const validation = (0, validator_1.validateDuplicatePost)({
+            title: blogPost.title,
+            slug: blogPost.slug
+        }, currentPosts);
+        if (validation.isDuplicate) {
+            console.warn(`🛑 [LoLaBo Duplicate Rejection] Candidate article rejected: ${validation.reason}`);
+            const isForced = process.argv.includes('--force') || process.env.FORCE_RUN === 'true';
+            if (!isForced) {
+                console.log("⏸️ Skipping publication to preserve catalog uniqueness. Run with --force to override.");
+                return;
+            }
+            console.log("⚠️ Force flag detected: Proceeding with publication despite duplicate detection.");
+        }
+        // 7. Image Generation (Distinct, topic-relevant editorial cover)
+        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'auto', blogPost.category, blogPost.imageKeywords || [], blogPost.imagePrompt);
+        // 8. Deterministic Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
+        const docId = blogPost.slug;
+        const newPost = {
+            id: docId,
+            ...blogPost,
+            publishedAt: new Date().toISOString()
+        };
         if (db) {
-            console.log(`📝 Publishing post to Firestore: ${blogPost.title}`);
-            const postRef = await db.collection('blog_posts').add(blogPost);
-            console.log(`✅ Post saved to Firestore with ID: ${postRef.id}`);
+            console.log(`📝 [Cloud Firestore] Publishing post idempotently to Firestore: ${blogPost.title} (doc: ${docId})`);
+            await db.collection('blog_posts').doc(docId).set({
+                ...blogPost,
+                id: docId,
+                publishedAt: newPost.publishedAt
+            }, { merge: true });
+            console.log(`✅ [Cloud Firestore] Post committed with deterministic document ID: ${docId}`);
             await db.collection('agent_config').doc('lolabo_settings').update({
                 lastRunAt: admin.firestore.Timestamp.now(),
                 triggerRequested: false
             }).catch(() => { });
         }
-        else {
-            console.log(`📝 [Local Standalone] Publishing post to local catalog: ${blogPost.title}`);
-            let currentPosts = [];
-            try {
-                if (fs.existsSync(postsJsonPath)) {
-                    currentPosts = JSON.parse(fs.readFileSync(postsJsonPath, 'utf8'));
-                }
-            }
-            catch (err) { }
-            const newPost = {
-                id: 'local-' + Date.now(),
-                ...blogPost,
-                publishedAt: new Date().toISOString()
-            };
-            const updatedPosts = [newPost, ...currentPosts.filter((p) => p.slug !== blogPost.slug)];
-            const dir = path.dirname(postsJsonPath);
-            if (!fs.existsSync(dir))
-                fs.mkdirSync(dir, { recursive: true });
-            fs.writeFileSync(postsJsonPath, JSON.stringify(updatedPosts, null, 2), 'utf8');
-            console.log(`✅ Post persisted locally to ${postsJsonPath} (${updatedPosts.length} total posts)`);
-            // Update sitemaps & RSS feed
-            updateFeedsLocally(updatedPosts, dir);
-        }
-        // 8. Social Distribution
+        // Always persist to local catalog as well
+        console.log(`📝 [Local Catalog] Persisting post: ${blogPost.title}`);
+        const updatedPosts = [newPost, ...currentPosts.filter((p) => p.slug !== blogPost.slug)];
+        const dir = path.dirname(postsJsonPath);
+        if (!fs.existsSync(dir))
+            fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(postsJsonPath, JSON.stringify(updatedPosts, null, 2), 'utf8');
+        console.log(`✅ Post persisted locally to ${postsJsonPath} (${updatedPosts.length} total posts)`);
+        // Update sitemaps & RSS feed
+        updateFeedsLocally(updatedPosts, dir);
+        // 9. Social Distribution
         const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
-        if (webhookUrl) {
+        if (webhookUrl && webhookUrl.trim()) {
+            console.log("📢 Broadcasting to Discord webhook...");
             await (0, distributor_1.distributeSocially)(blogPost, config.enabledSocials || ['discord'], webhookUrl);
+        }
+        else {
+            console.log("ℹ️ [Discord Broadcast] Skipped: No DISCORD_WEBHOOK_URL configured in environment or Firestore.");
         }
         console.log("🎉 LoLaBo Agent run completed successfully!");
     }

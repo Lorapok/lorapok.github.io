@@ -35,6 +35,7 @@ import {
   Activity,
   FileText,
   ShieldCheck,
+  BookmarkCheck,
 } from "lucide-react";
 import { blogService } from "../lib/blogService";
 import SEOHead from "./components/SEOHead";
@@ -48,12 +49,24 @@ export interface BlogAuthor {
   avatar: string;
 }
 
+export interface Citation {
+  id?: string;
+  title: string;
+  source: string;
+  url?: string;
+  author?: string;
+  year?: number | string;
+  relevance?: string;
+}
+
 export interface BlogPost {
   id: string;
   slug: string;
   title: string;
   excerpt: string;
   content: string;
+  type?: string;
+  citations?: Citation[];
   coverImage: string;
   tags: string[];
   category: string;
@@ -114,6 +127,22 @@ export const EDITORIAL_TYPES: EditorialTypeMeta[] = [
 ];
 
 export function getPostEditorialType(post: BlogPost): EditorialTypeMeta {
+  if (post.type) {
+    const normalized = post.type.toLowerCase().trim();
+    if (normalized.includes("architecture") || normalized.includes("blueprint")) {
+      return EDITORIAL_TYPES.find((t) => t.id === "architecture")!;
+    }
+    if (normalized.includes("deep") || normalized.includes("dive") || normalized.includes("spec")) {
+      return EDITORIAL_TYPES.find((t) => t.id === "deep-dive")!;
+    }
+    if (normalized.includes("benchmark") || normalized.includes("perf")) {
+      return EDITORIAL_TYPES.find((t) => t.id === "benchmark")!;
+    }
+    if (normalized.includes("case") || normalized.includes("study")) {
+      return EDITORIAL_TYPES.find((t) => t.id === "case-study")!;
+    }
+  }
+
   const text = `${post.title} ${post.excerpt || ""} ${(post.tags || []).join(" ")}`.toLowerCase();
   if (text.startsWith("architectural deep dive") || text.includes("architecture blueprint") || text.includes("systems architecture") || text.includes("topology specification")) {
     return EDITORIAL_TYPES.find((t) => t.id === "architecture")!;
@@ -780,6 +809,9 @@ export default function BlogApp() {
               <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-[var(--lp-accent,#67ff8f)]/10 text-[var(--lp-accent,#67ff8f)] border border-[var(--lp-accent,#67ff8f)]/20">
                 {currentPost.category}
               </span>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-mono uppercase tracking-wider border ${getPostEditorialType(currentPost).badgeClass}`}>
+                {currentPost.type || getPostEditorialType(currentPost).label}
+              </span>
               <span className="text-xs font-mono text-gray-400 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-gray-500" />
                 {currentPost.readTime} MIN READ
@@ -788,6 +820,16 @@ export default function BlogApp() {
               <span className="text-xs font-mono text-gray-400">
                 {formatPublishDate(currentPost.publishedAt)}
               </span>
+              {currentPost.citations && currentPost.citations.length > 0 && (
+                <a
+                  href="#citations-panel"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all shadow-sm"
+                  title="Jump to verified technical citations"
+                >
+                  <BookmarkCheck className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{currentPost.citations.length} CITATIONS TAGGED</span>
+                </a>
+              )}
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.12] tracking-tight mb-6">
@@ -906,6 +948,14 @@ export default function BlogApp() {
                         {h.text}
                       </a>
                     ))}
+                    {currentPost.citations && currentPost.citations.length > 0 && (
+                      <a
+                        href="#citations-panel"
+                        className="block text-xs text-purple-400 hover:text-purple-300 transition-colors leading-relaxed py-1 line-clamp-2 border-l border-purple-500/30 pl-2.5 hover:border-purple-400 font-mono font-medium"
+                      >
+                        📚 Citations ({currentPost.citations.length})
+                      </a>
+                    )}
                   </nav>
                 </div>
               )}
@@ -1030,6 +1080,70 @@ export default function BlogApp() {
                   {preprocessMarkdown(currentPost.content)}
                 </ReactMarkdown>
               </div>
+
+              {/* Technical Citations & Formal References Panel */}
+              {currentPost.citations && currentPost.citations.length > 0 && (
+                <section
+                  id="citations-panel"
+                  className="scroll-mt-24 mt-12 p-6 sm:p-8 rounded-2xl bg-[#080b11] border border-white/10 shadow-2xl space-y-5"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-2.5 text-sm font-mono font-bold text-white uppercase tracking-wider">
+                      <BookmarkCheck className="w-5 h-5 text-[var(--lp-accent,#67ff8f)]" />
+                      <span>Technical Citations & References ({currentPost.citations.length})</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono text-purple-300 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+                        Formal Specifications & Papers
+                      </span>
+                      <span className="text-[11px] font-mono text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                        Peer-Reviewed
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {currentPost.citations.map((cite, i) => (
+                      <div
+                        key={cite.id || i}
+                        className="p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/20 transition-all flex flex-col justify-between space-y-2.5"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <span className="text-xs font-mono font-bold text-[var(--lp-accent,#67ff8f)] px-2 py-0.5 rounded bg-[var(--lp-accent,#67ff8f)]/10 border border-[var(--lp-accent,#67ff8f)]/20">
+                              [{cite.id || (i + 1)}]
+                            </span>
+                            {cite.year && (
+                              <span className="text-[11px] font-mono text-gray-400">{cite.year}</span>
+                            )}
+                          </div>
+                          <h5 className="font-bold text-sm text-white leading-snug">{cite.title}</h5>
+                          {cite.author && (
+                            <p className="text-xs text-gray-400 mt-1">Author: {cite.author}</p>
+                          )}
+                          <p className="text-xs text-gray-400 italic mt-0.5">{cite.source}</p>
+                          {cite.relevance && (
+                            <p className="text-xs text-gray-300 mt-2 border-t border-white/5 pt-2 leading-relaxed">
+                              <strong className="text-gray-400">Relevance:</strong> {cite.relevance}
+                            </p>
+                          )}
+                        </div>
+                        {cite.url && (
+                          <a
+                            href={cite.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--lp-accent,#67ff8f)] hover:underline pt-2"
+                          >
+                            <span>View Source Document</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* Tags Cloud */}
               <div className="mt-14 pt-8 border-t border-white/10">
@@ -1236,7 +1350,15 @@ export default function BlogApp() {
                           <span>{post.author.avatar}</span>
                           <span className="text-gray-300">{post.author.name}</span>
                         </div>
-                        <span>{post.readTime}m read</span>
+                        <div className="flex items-center gap-2">
+                          {post.citations && post.citations.length > 0 && (
+                            <span className="text-[10px] text-purple-300 bg-purple-500/10 px-1.5 py-0.5 rounded border border-purple-500/20 flex items-center gap-1">
+                              <BookmarkCheck className="w-2.5 h-2.5 text-purple-400" />
+                              <span>{post.citations.length}</span>
+                            </span>
+                          )}
+                          <span>{post.readTime}m read</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1589,6 +1711,15 @@ export default function BlogApp() {
                 </span>
                 <span>•</span>
                 <span>{featuredPost.readTime} MIN READ</span>
+                {featuredPost.citations && featuredPost.citations.length > 0 && (
+                  <>
+                    <span>•</span>
+                    <span className="text-purple-300 flex items-center gap-1 font-mono">
+                      <BookmarkCheck className="w-3 h-3 text-purple-400" />
+                      <span>{featuredPost.citations.length} CITATIONS</span>
+                    </span>
+                  </>
+                )}
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white group-hover:text-[var(--lp-accent,#67ff8f)] transition-colors mb-4 leading-tight">
                 {featuredPost.title}
@@ -1652,7 +1783,13 @@ export default function BlogApp() {
                       <span className="text-base">{post.author.avatar}</span>
                       <span className="font-medium text-gray-300">{post.author.name}</span>
                     </div>
-                    <div className="post-card-meta font-mono">
+                    <div className="post-card-meta font-mono flex items-center gap-2">
+                      {post.citations && post.citations.length > 0 && (
+                        <span className="text-[10px] text-purple-300 bg-purple-500/10 px-1.5 py-0.5 rounded border border-purple-500/20 flex items-center gap-1">
+                          <BookmarkCheck className="w-2.5 h-2.5 text-purple-400" />
+                          <span>{post.citations.length}</span>
+                        </span>
+                      )}
                       <span>{post.readTime}m read</span>
                     </div>
                   </div>
