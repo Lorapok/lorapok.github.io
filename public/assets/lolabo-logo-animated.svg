@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 240" width="920" height="240" fill="none">
+  <defs>
+    <!-- Tri-Color Gradients -->
+    <linearGradient id="llb-ha-lo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67ff8f" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+
+    <linearGradient id="llb-ha-la" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <linearGradient id="llb-ha-bo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc" />
+      <stop offset="100%" stop-color="#9333ea" />
+    </linearGradient>
+
+    <linearGradient id="llb-ha-divider" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#67ff8f" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+
+    <filter id="llb-ha-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <style>
+      @keyframes llb-spin-h {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes llb-spark-pulse {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px #38bdf8); }
+        50% { transform: scale(1.25); filter: drop-shadow(0 0 16px #c084fc); }
+      }
+      @keyframes llb-node-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+      }
+      @keyframes llb-badge-glow {
+        0%, 100% { stroke-opacity: 0.4; }
+        50% { stroke-opacity: 1; filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5)); }
+      }
+      @keyframes llb-radar-ring {
+        0% { r: 15px; opacity: 0.8; }
+        100% { r: 95px; opacity: 0; }
+      }
+
+      .llb-h-spin {
+        transform-origin: 115px 115px;
+        animation: llb-spin-h 20s linear infinite;
+      }
+      .llb-h-spark {
+        transform-origin: 115px 115px;
+        animation: llb-spark-pulse 2.2s ease-in-out infinite;
+      }
+      .llb-h-node1 {
+        transform-origin: 85px 82px;
+        animation: llb-node-float 3s ease-in-out infinite;
+      }
+      .llb-h-node2 {
+        transform-origin: 145px 82px;
+        animation: llb-node-float 3s ease-in-out infinite 1s;
+      }
+      .llb-h-node3 {
+        transform-origin: 115px 155px;
+        animation: llb-node-float 3s ease-in-out infinite 2s;
+      }
+      .llb-h-pulse {
+        transform-origin: 115px 115px;
+        animation: llb-radar-ring 2.8s cubic-bezier(0.1, 0.7, 0.1, 1) infinite;
+      }
+      .llb-h-badge {
+        animation: llb-badge-glow 3s ease-in-out infinite;
+      }
+    </style>
+  </defs>
+
+  <!-- Left Icon Mark (center: 115, 120) -->
+  <g transform="translate(15, 5)">
+    <!-- Broadcast Radar Pulse -->
+    <circle class="llb-h-pulse" cx="115" cy="115" r="15" stroke="#38bdf8" stroke-width="1.5" fill="none" />
+
+    <!-- Rotating Hex Frame -->
+    <g class="llb-h-spin">
+      <circle cx="115" cy="115" r="95" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.4" />
+      <circle cx="115" cy="115" r="82" stroke="#c084fc" stroke-width="1.5" stroke-dasharray="10 8" opacity="0.45" />
+      <polygon points="115,25 190,68 190,162 115,205 40,162 40,68" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.3" stroke-dasharray="6 6" fill="none" />
+      <circle cx="115" cy="25" r="3" fill="#38bdf8" />
+      <circle cx="190" cy="162" r="3" fill="#c084fc" />
+      <circle cx="40" cy="162" r="3" fill="#67ff8f" />
+    </g>
+
+    <!-- Vectors to Central Nexus -->
+    <line x1="115" y1="115" x2="85" y2="82" stroke="#67ff8f" stroke-width="2.5" stroke-linecap="round" opacity="0.75" />
+    <line x1="115" y1="115" x2="145" y2="82" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.75" />
+    <line x1="115" y1="115" x2="115" y2="155" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" opacity="0.75" />
+
+    <!-- Node 1: Lo (Animated Float) -->
+    <g class="llb-h-node1">
+      <circle cx="85" cy="82" r="16" fill="#07090e" stroke="url(#llb-ha-lo)" stroke-width="2.5" filter="url(#llb-ha-glow)" />
+      <circle cx="85" cy="82" r="10" fill="url(#llb-ha-lo)" opacity="0.9" />
+      <circle cx="85" cy="82" r="5" fill="#ffffff" />
+    </g>
+
+    <!-- Node 2: La (Animated Float) -->
+    <g class="llb-h-node2">
+      <circle cx="145" cy="82" r="16" fill="#07090e" stroke="url(#llb-ha-la)" stroke-width="2.5" filter="url(#llb-ha-glow)" />
+      <circle cx="145" cy="82" r="10" fill="url(#llb-ha-la)" opacity="0.9" />
+      <circle cx="145" cy="82" r="5" fill="#ffffff" />
+    </g>
+
+    <!-- Node 3: Bo (Animated Float) -->
+    <g class="llb-h-node3">
+      <circle cx="115" cy="155" r="16" fill="#07090e" stroke="url(#llb-ha-bo)" stroke-width="2.5" filter="url(#llb-ha-glow)" />
+      <circle cx="115" cy="155" r="10" fill="url(#llb-ha-bo)" opacity="0.9" />
+      <circle cx="115" cy="155" r="5" fill="#ffffff" />
+    </g>
+
+    <!-- Central Spark (Animated Pulse) -->
+    <g class="llb-h-spark">
+      <circle cx="115" cy="115" r="11" fill="#ffffff" filter="url(#llb-ha-glow)" />
+      <circle cx="115" cy="115" r="4.5" fill="#07090e" />
+    </g>
+  </g>
+
+  <!-- High-Tech Divider -->
+  <line x1="260" y1="45" x2="260" y2="195" stroke="url(#llb-ha-divider)" stroke-width="2" opacity="0.45" stroke-linecap="round" />
+
+  <!-- Typography (Right) -->
+  <!-- "LoLaBo" Master Wordmark -->
+  <text x="295" y="125" font-family="'Inter', -apple-system, sans-serif" font-weight="900" font-size="82" letter-spacing="-2">
+    <tspan fill="#67ff8f">Lo</tspan><tspan fill="#38bdf8">La</tspan><tspan fill="#c084fc">Bo</tspan>
+  </text>
+
+  <!-- Autonomous Engine Badge -->
+  <g class="llb-h-badge">
+    <rect x="635" y="70" width="235" height="54" rx="10" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-width="1.8" />
+    <text x="752" y="104" font-family="'JetBrains Mono', monospace" font-weight="800" font-size="14" fill="#38bdf8" text-anchor="middle" letter-spacing="2">
+      AI CONTENT ENGINE
+    </text>
+    <circle cx="655" cy="97" r="4" fill="#67ff8f" />
+  </g>
+
+  <!-- Editorial Subtitle -->
+  <text x="298" y="165" font-family="'JetBrains Mono', monospace" font-weight="600" font-size="13.5" fill="#e2e8f0" letter-spacing="3" opacity="0.95">
+    SYSTEMS ARCHITECTURE &amp; AUTONOMOUS DISPATCH
+  </text>
+
+  <!-- Parent Attribution -->
+  <circle cx="298" cy="188" r="3" fill="#67ff8f" />
+  <text x="310" y="192" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888" letter-spacing="2">
+    AN AUTONOMOUS PUBLICATION OF <tspan fill="#67ff8f" font-weight="700">LORAPOK LABS</tspan>
+  </text>
+</svg>

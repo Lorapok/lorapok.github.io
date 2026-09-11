@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { blogService } from "../lib/blogService";
 import SEOHead from "./components/SEOHead";
+import LoLaBoLogo from "./components/LoLaBoLogo";
 import "./BlogApp.css";
 
 // ─── Types ───
@@ -315,9 +316,10 @@ export default function BlogApp() {
             <div className="flex items-center gap-3 overflow-hidden">
               <button
                 onClick={() => navigate("/blog")}
-                className="inline-flex items-center gap-1.5 text-xs font-mono tracking-wider text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
+                className="inline-flex items-center gap-2 text-xs font-mono tracking-wider text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
               >
                 <ArrowLeft className="w-4 h-4 text-[var(--lp-accent,#67ff8f)]" />
+                <LoLaBoLogo variant="icon" animated size={20} />
                 <span className="hidden sm:inline">ALL ARTICLES</span>
               </button>
               <span className="text-white/20">/</span>
@@ -677,8 +679,8 @@ export default function BlogApp() {
             <aside className="hidden xl:block xl:col-span-3 sticky top-24 space-y-6">
               {/* About LoLaBo Card */}
               <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4 text-[var(--lp-accent,#67ff8f)]" />
+                <div className="flex items-center gap-2.5 mb-3">
+                  <LoLaBoLogo variant="icon" animated size={24} />
                   <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">About LoLaBo</span>
                 </div>
                 <p className="text-xs text-gray-400 leading-relaxed mb-4">
@@ -834,15 +836,13 @@ export default function BlogApp() {
       <section className="lolabo-hero relative overflow-hidden pt-12 pb-16 border-b border-white/5">
         <div className="hero-glow"></div>
         <div className="hero-content text-center max-w-4xl mx-auto px-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono tracking-widest text-[var(--lp-accent,#67ff8f)] mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono tracking-widest text-[var(--lp-accent,#67ff8f)] mb-6">
             <Sparkles className="w-3.5 h-3.5" />
             AUTONOMOUS CONTENT ENGINE // LoLaBo
           </div>
-          <h1 className="hero-title text-4xl sm:text-6xl font-black tracking-tight mb-4 text-white">
-            <span className="hero-lo text-[var(--lp-accent,#67ff8f)]">Lo</span>
-            <span className="hero-la text-[#38bdf8]">La</span>
-            <span className="hero-bo text-[#c084fc]">Bo</span>
-          </h1>
+          <div className="flex items-center justify-center mb-6">
+            <LoLaBoLogo variant="full" animated size={76} />
+          </div>
           <p className="hero-subtitle text-gray-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Exploring the frontiers of open-source intelligence, neural systems telemetry, and autonomous multi-agent engineering.
           </p>
