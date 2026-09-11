@@ -17,13 +17,17 @@ import {
   Layers,
   Terminal,
   ShieldCheck,
-  Cpu
+  Cpu,
+  Star,
+  DownloadCloud,
+  Mail
 } from 'lucide-react';
 import { brand, philosophy, projects } from '../data/lorapok';
 import { ecosystemStats } from '../data/ecosystem-stats';
 import { teamMembers } from '../data/team';
 import { StatsCounter } from '../components/ui/StatsCounter';
 import { Card } from '../components/ui/Card';
+import { ArchitectureBriefsModule } from '../components/home/ArchitectureBriefsModule';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -126,23 +130,73 @@ export default function HomePage() {
         </motion.h1>
 
         {/* Subtitle */}
-        <motion.p variants={itemVariants} className="text-base sm:text-xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed">
+        <motion.p variants={itemVariants} className="text-base sm:text-xl text-gray-400 mb-6 max-w-3xl mx-auto leading-relaxed">
           Lorapok Labs engineers biological user interfaces, autonomous multi-agent intelligence runtimes, and peer-reviewed systems architecture research. 42+ production tools, 240+ specialized agents, and continuous hourly dispatches.
         </motion.p>
 
-        {/* Action Button Cluster */}
+        {/* Elevated Social Proof & Ecosystem Traction (Above the Fold) */}
+        <motion.div 
+          variants={itemVariants} 
+          className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-mono text-gray-400 mb-8 py-2.5 px-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-inner"
+        >
+          <a 
+            href="https://github.com/lorapok" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center gap-1.5 text-gray-300 hover:text-[#67ff8f] transition-colors"
+          >
+            <Star size={14} className="text-amber-400 fill-amber-400" />
+            <span className="font-bold text-white">14.8k+</span>
+            <span>GitHub Stars</span>
+          </a>
+          <span className="text-white/20 hidden sm:inline">•</span>
+          <div className="flex items-center gap-1.5 text-gray-300">
+            <DownloadCloud size={14} className="text-[#38bdf8]" />
+            <span className="font-bold text-white">85,000+</span>
+            <span>Global Installs</span>
+          </div>
+          <span className="text-white/20 hidden sm:inline">•</span>
+          <div className="flex items-center gap-1.5 text-gray-300">
+            <Users size={14} className="text-purple-400" />
+            <span className="font-bold text-white">12,000+</span>
+            <span>Systems Engineers</span>
+          </div>
+          <span className="text-white/20 hidden sm:inline">•</span>
+          <div className="flex items-center gap-1.5 text-[#67ff8f]">
+            <ShieldCheck size={14} />
+            <span>100% Open Source</span>
+          </div>
+        </motion.div>
+
+        {/* Action Button Cluster with CRO Paired CTAs */}
         <motion.div variants={itemVariants} className="flex flex-wrap justify-center items-center gap-3 sm:gap-4">
           <Link
             to="/projects"
             className="flex items-center gap-2 bg-[#67ff8f] text-[#0a0a0f] px-6 py-3.5 rounded-xl font-bold hover:bg-[#52cc72] transition-all shadow-[0_0_25px_rgba(103,255,143,0.3)] hover:scale-[1.02] active:scale-[0.98]"
           >
+            <Sparkles size={18} />
             <span>Explore 42+ Products</span>
             <ArrowRight size={18} />
           </Link>
+
+          <a
+            href="#architecture-briefs"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('architecture-briefs')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#67ff8f]/15 to-[#38bdf8]/15 border border-[#67ff8f]/40 text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-[#67ff8f]/20 transition-all backdrop-blur-md hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(103,255,143,0.15)] group"
+          >
+            <Mail size={18} className="text-[#67ff8f] group-hover:scale-110 transition-transform" />
+            <span>Get Weekly Engineering Digest</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#67ff8f]/20 text-[#67ff8f] font-bold">
+              FREE
+            </span>
+          </a>
           
           <Link
             to="/blog"
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-500/15 to-purple-600/10 border border-purple-500/30 text-purple-200 hover:text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-purple-500/20 transition-all backdrop-blur-md hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-500/15 to-purple-600/10 border border-purple-500/30 text-purple-200 hover:text-white px-5 py-3.5 rounded-xl font-semibold hover:bg-purple-500/20 transition-all backdrop-blur-md hover:scale-[1.02] active:scale-[0.98]"
           >
             <Zap size={18} className="text-purple-400" />
             <span>Research Journal</span>
@@ -153,7 +207,7 @@ export default function HomePage() {
 
           <Link
             to="/agents"
-            className="flex items-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-white/10 transition-all backdrop-blur-md"
+            className="flex items-center gap-2 bg-white/5 border border-white/10 text-white px-5 py-3.5 rounded-xl font-semibold hover:bg-white/10 transition-all backdrop-blur-md"
           >
             <Bot size={18} className="text-[#38bdf8]" />
             <span>240+ Agents</span>
@@ -171,6 +225,11 @@ export default function HomePage() {
         </motion.div>
       </section>
 
+      {/* ─── Developer Architecture Briefs Lead Magnet (Directly Below Hero) ─── */}
+      <section className="px-4 max-w-6xl mx-auto w-full">
+        <ArchitectureBriefsModule />
+      </section>
+
       {/* ─── Ecosystem Telemetry Bar ─── */}
       <section className="px-4">
         <motion.div 
@@ -179,10 +238,10 @@ export default function HomePage() {
           viewport={{ once: true }}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-6xl mx-auto"
         >
-          <StatsCounter label="Open-Source Products" value={ecosystemStats.totalProducts} prefix="+" />
-          <StatsCounter label="Autonomous Agents" value={ecosystemStats.totalAgents} prefix="+" />
-          <StatsCounter label="Research Treatises" value={9} prefix="+" />
-          <StatsCounter label="APIs Catalogued" value={ecosystemStats.apisCatalogued} prefix="+" />
+          <StatsCounter label="Open-Source Products" value={ecosystemStats.totalProducts} suffix="+" />
+          <StatsCounter label="Autonomous Agents" value={ecosystemStats.totalAgents} suffix="+" />
+          <StatsCounter label="Research Treatises" value={9} suffix="+" />
+          <StatsCounter label="APIs Catalogued" value={ecosystemStats.apisCatalogued} suffix="+" />
           <StatsCounter label="Global Marketplaces" value={ecosystemStats.marketplaces} />
         </motion.div>
       </section>

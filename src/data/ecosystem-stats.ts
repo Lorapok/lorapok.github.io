@@ -1,6 +1,9 @@
 export const ecosystemStats = {
   totalProducts: 42,
   totalAgents: 242,
+  ecosystemStars: 14800,
+  totalDownloads: 85000,
+  activeEngineers: 12000,
   npmPackages: 5,
   marketplaces: 7,
   githubRepos: 133,
