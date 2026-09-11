@@ -63,7 +63,7 @@ async function exportBlogData() {
       .filter((p: any) => p.status === 'published')
       .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-    const outputPath = path.join(__dirname, '../public/blog/posts.json');
+    const outputPath = process.env.POSTS_JSON_PATH || path.join(__dirname, '../public/blog/posts.json');
     
     // Ensure directory exists
     const dir = path.dirname(outputPath);

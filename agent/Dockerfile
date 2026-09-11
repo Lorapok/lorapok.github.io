@@ -28,6 +28,7 @@ RUN npm install --only=production
 # Copy compiled JavaScript from builder
 COPY --from=builder /app/*.js ./
 COPY --from=builder /app/package.json ./
+RUN mkdir -p /app/public/blog
 
 EXPOSE 8080
 

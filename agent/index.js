@@ -190,7 +190,7 @@ async function runAgent() {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');
         // 7. Save to Firestore or local filesystem
-        const postsJsonPath = path.resolve(__dirname, '../public/blog/posts.json');
+        const postsJsonPath = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
         if (db) {
             console.log(`📝 Publishing post to Firestore: ${blogPost.title}`);
             const postRef = await db.collection('blog_posts').add(blogPost);

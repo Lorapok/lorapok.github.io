@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   lolabo:
     build:
@@ -14,11 +12,17 @@ services:
       - HOST=0.0.0.0
       - DAEMON=true
       - INTERVAL_HOURS=1
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
-      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
+      - POSTS_JSON_PATH=/app/public/blog/posts.json
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT:-}
+    volumes:
+      - lolabo-blog-data:/app/public/blog
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+
+volumes:
+  lolabo-blog-data:

@@ -64,7 +64,7 @@ catch (e) { }
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 const SERVICE_TOKEN = process.env.LOLABO_API_KEY || process.env.SERVICE_TOKEN || '';
-const POSTS_JSON_PATH = path.resolve(__dirname, '../public/blog/posts.json');
+const POSTS_JSON_PATH = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
 // ─── Firebase Initialization ───
 let serviceAccount = {};
 try {
