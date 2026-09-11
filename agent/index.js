@@ -151,27 +151,56 @@ else {
 }
 function updateFeedsLocally(posts, baseDir) {
     try {
+        const domain = 'https://lorapok.tech';
+        const blogBaseUrl = `${domain}/blog`;
         const nowIso = new Date().toISOString().split('T')[0];
+        // 1. Blog Sitemap
         let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-        sitemapXml += `  <url>\n    <loc>https://lorapok.tech/blog</loc>\n    <lastmod>${nowIso}</lastmod>\n    <changefreq>hourly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+        sitemapXml += `  <url>\n    <loc>${blogBaseUrl}</loc>\n    <lastmod>${nowIso}</lastmod>\n    <changefreq>hourly</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
         for (const p of posts) {
             if (!p.slug)
                 continue;
             const pDate = p.publishedAt ? String(p.publishedAt).split('T')[0] : nowIso;
-            sitemapXml += `  <url>\n    <loc>https://lorapok.tech/blog/${p.slug}</loc>\n    <lastmod>${pDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+            sitemapXml += `  <url>\n    <loc>${blogBaseUrl}/${p.slug}/</loc>\n    <lastmod>${pDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
         }
         sitemapXml += `</urlset>\n`;
         fs.writeFileSync(path.join(baseDir, 'sitemap.xml'), sitemapXml, 'utf8');
-        let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
-        rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
-        for (const p of posts.slice(0, 20)) {
+        // 2. Root SEO Sitemap
+        const rootDir = path.resolve(baseDir, '..');
+        const coreRoutes = [
+            { path: '', priority: '1.0', changefreq: 'weekly' },
+            { path: 'projects', priority: '0.9', changefreq: 'weekly' },
+            { path: 'agents', priority: '0.9', changefreq: 'weekly' },
+            { path: 'blog', priority: '0.95', changefreq: 'hourly' },
+            { path: 'team', priority: '0.8', changefreq: 'weekly' },
+            { path: 'about', priority: '0.7', changefreq: 'monthly' },
+            { path: 'changelog', priority: '0.6', changefreq: 'weekly' },
+            { path: 'contact', priority: '0.5', changefreq: 'monthly' },
+        ];
+        let rootSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+        for (const route of coreRoutes) {
+            const loc = route.path ? `${domain}/${route.path}` : `${domain}/`;
+            rootSitemap += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${nowIso}</lastmod>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
+        }
+        for (const p of posts) {
             if (!p.slug)
                 continue;
-            rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>https://lorapok.tech/blog/${p.slug}</link>\n    <guid>https://lorapok.tech/blog/${p.slug}</guid>\n    <pubDate>${new Date(p.publishedAt || Date.now()).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt}]]></description>\n  </item>\n`;
+            const pDate = p.publishedAt ? String(p.publishedAt).split('T')[0] : nowIso;
+            rootSitemap += `  <url>\n    <loc>${blogBaseUrl}/${p.slug}/</loc>\n    <lastmod>${pDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
+        }
+        rootSitemap += `</urlset>\n`;
+        fs.writeFileSync(path.join(rootDir, 'sitemap.xml'), rootSitemap, 'utf8');
+        // 3. Blog RSS 2.0 Feed
+        let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
+        rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>${blogBaseUrl}</link>\n  <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n  <atom:link href="${blogBaseUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
+        for (const p of posts.slice(0, 30)) {
+            if (!p.slug)
+                continue;
+            rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>${blogBaseUrl}/${p.slug}/</link>\n    <guid isPermaLink="true">${blogBaseUrl}/${p.slug}/</guid>\n    <pubDate>${new Date(p.publishedAt || Date.now()).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt || p.title}]]></description>\n  </item>\n`;
         }
         rssXml += `</channel>\n</rss>\n`;
         fs.writeFileSync(path.join(baseDir, 'rss.xml'), rssXml, 'utf8');
-        console.log("📁 Sitemaps and RSS feed regenerated at", baseDir);
+        console.log("📁 Sitemaps (root & blog) and RSS feed regenerated at", baseDir);
     }
     catch (err) {
         console.warn("⚠️ Could not update feeds locally:", err);
@@ -281,14 +310,14 @@ async function runAgent() {
         const newPost = {
             id: docId,
             ...blogPost,
+            status: 'published',
             publishedAt: new Date().toISOString()
         };
         if (db) {
             console.log(`📝 [Cloud Firestore] Publishing post idempotently to Firestore: ${blogPost.title} (doc: ${docId})`);
             await db.collection('blog_posts').doc(docId).set({
-                ...blogPost,
-                id: docId,
-                publishedAt: newPost.publishedAt
+                ...newPost,
+                id: docId
             }, { merge: true });
             console.log(`✅ [Cloud Firestore] Post committed with deterministic document ID: ${docId}`);
             await db.collection('agent_config').doc('lolabo_settings').update({
@@ -310,7 +339,7 @@ async function runAgent() {
         const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
         if (webhookUrl && webhookUrl.trim()) {
             console.log("📢 Broadcasting to Discord webhook...");
-            await (0, distributor_1.distributeSocially)(blogPost, config.enabledSocials || ['discord'], webhookUrl);
+            await (0, distributor_1.distributeSocially)(newPost, config.enabledSocials || ['discord'], webhookUrl);
         }
         else {
             console.log("ℹ️ [Discord Broadcast] Skipped: No DISCORD_WEBHOOK_URL configured in environment or Firestore.");

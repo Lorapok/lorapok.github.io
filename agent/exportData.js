@@ -1,8 +1,8 @@
 "use strict";
 // agent/exportData.ts
 // Static Data Export Module for LoLaBo
-// Fetches all published posts from Firestore and saves them to public/blog/posts.json
-// This improves SEO and significantly speeds up initial blog loads.
+// Fetches published posts from Firestore, merges with existing catalog, and writes to public/blog/posts.json
+// This improves SEO, guarantees zero data-loss, and speeds up initial blog loads.
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -40,16 +40,83 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const admin = __importStar(require("firebase-admin"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-// ─── Firebase Initialization ───
-let serviceAccount = {};
+// ─── Environment Auto-loading ───
 try {
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    const rootEnv = path.resolve(__dirname, '../.env');
+    const localEnv = path.resolve(__dirname, '.env');
+    if (typeof process.loadEnvFile === 'function') {
+        if (fs.existsSync(localEnv)) {
+            process.loadEnvFile(localEnv);
+        }
+        else if (fs.existsSync(rootEnv)) {
+            process.loadEnvFile(rootEnv);
+        }
     }
 }
-catch (err) {
-    console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT JSON:", err);
+catch (e) { }
+// ─── Robust Firebase Initialization ───
+function loadServiceAccount() {
+    // 1. Base64 encoded JSON
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+        try {
+            const decoded = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64.trim(), 'base64').toString('utf8');
+            const parsed = JSON.parse(decoded);
+            if (parsed && parsed.project_id)
+                return parsed;
+        }
+        catch (e) { }
+    }
+    // 2. Direct string or file path in FIREBASE_SERVICE_ACCOUNT
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        let raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+        if (raw.startsWith('"') && raw.endsWith('"')) {
+            try {
+                raw = JSON.parse(raw);
+            }
+            catch (e) { }
+        }
+        if (typeof raw === 'string' && raw.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && parsed.project_id)
+                    return parsed;
+            }
+            catch (e) { }
+        }
+        else if (typeof raw === 'string' && fs.existsSync(raw)) {
+            try {
+                const parsed = JSON.parse(fs.readFileSync(raw, 'utf8'));
+                if (parsed && parsed.project_id)
+                    return parsed;
+            }
+            catch (e) { }
+        }
+    }
+    // 3. Known file paths
+    const candidatePaths = [
+        process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
+        process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        path.resolve(__dirname, '.credentials/lorapok-labs-sa.json'),
+        path.resolve(__dirname, 'agent/.credentials/lorapok-labs-sa.json'),
+        path.resolve(__dirname, '../agent/.credentials/lorapok-labs-sa.json'),
+        path.resolve(__dirname, '../.credentials/lorapok-labs-sa.json'),
+        '/app/.credentials/lorapok-labs-sa.json'
+    ].filter(Boolean);
+    for (const cp of candidatePaths) {
+        if (fs.existsSync(cp)) {
+            try {
+                const parsed = JSON.parse(fs.readFileSync(cp, 'utf8'));
+                if (parsed && parsed.project_id) {
+                    console.log(`🔐 [Export] Loaded Firebase Service Account from: ${cp}`);
+                    return parsed;
+                }
+            }
+            catch (e) { }
+        }
+    }
+    return null;
 }
+const serviceAccount = loadServiceAccount();
 let db = null;
 if (serviceAccount && serviceAccount.project_id) {
     try {
@@ -59,52 +126,90 @@ if (serviceAccount && serviceAccount.project_id) {
             });
         }
         db = admin.firestore();
+        console.log(`🔥 [Export] Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
     }
     catch (err) {
-        console.error("❌ Failed to initialize Firebase Admin:", err);
+        console.error("❌ [Export] Failed to initialize Firebase Admin with service account:", err);
+    }
+}
+else {
+    try {
+        if (!admin.apps.length) {
+            admin.initializeApp();
+        }
+        db = admin.firestore();
+        console.log("🔥 [Export] Connected to Cloud Firestore via Application Default Credentials.");
+    }
+    catch {
+        console.log("⚡ [Export] Standalone / Local mode active (Cloud Firestore not configured).");
     }
 }
 async function exportBlogData() {
-    console.log("🚀 Exporting Firestore posts to static JSON...");
-    if (!db) {
-        console.warn("⚠️ No Firestore connection available. Skipping blog data export.");
-        return;
-    }
-    try {
-        const snap = await db.collection('blog_posts').get();
-        let posts = snap.docs.map(d => {
-            const data = d.data();
-            let publishedAtStr = new Date().toISOString();
-            if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
-                publishedAtStr = data.publishedAt.toDate().toISOString();
+    console.log("🚀 Exporting and consolidating blog posts to static JSON...");
+    const outputPath = process.env.POSTS_JSON_PATH || path.join(__dirname, '../public/blog/posts.json');
+    // 1. Load existing local posts baseline
+    const postMap = new Map();
+    if (fs.existsSync(outputPath)) {
+        try {
+            const existing = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+            if (Array.isArray(existing)) {
+                for (const p of existing) {
+                    const key = p.slug || p.id;
+                    if (key)
+                        postMap.set(key, p);
+                }
+                console.log(`📁 Loaded ${postMap.size} existing local posts from ${outputPath}`);
             }
-            else if (data.publishedAt) {
-                publishedAtStr = new Date(data.publishedAt).toISOString();
-            }
-            return {
-                id: d.id,
-                ...data,
-                publishedAt: publishedAtStr
-            };
-        });
-        // Filter published posts and sort descending by publishedAt
-        posts = posts
-            .filter((p) => p.status === 'published')
-            .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-        const outputPath = process.env.POSTS_JSON_PATH || path.join(__dirname, '../public/blog/posts.json');
-        // Ensure directory exists
-        const dir = path.dirname(outputPath);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
         }
-        fs.writeFileSync(outputPath, JSON.stringify(posts, null, 2));
-        console.log(`✅ Exported ${posts.length} posts to ${outputPath}`);
-        // Update Sitemaps and RSS Feed
-        updateSitemapsAndRss(posts);
+        catch (err) {
+            console.warn("⚠️ Could not read existing local posts.json:", err);
+        }
     }
-    catch (e) {
-        console.error("⚠️ Export encountered an issue (keeping existing static files):", e);
+    // 2. Fetch and merge remote Firestore posts if available
+    if (db) {
+        try {
+            const snap = await db.collection('blog_posts').get();
+            console.log(`📥 Fetched ${snap.size} posts from Cloud Firestore.`);
+            for (const doc of snap.docs) {
+                const data = doc.data();
+                let publishedAtStr = new Date().toISOString();
+                if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
+                    publishedAtStr = data.publishedAt.toDate().toISOString();
+                }
+                else if (data.publishedAt) {
+                    publishedAtStr = new Date(data.publishedAt).toISOString();
+                }
+                const postObj = {
+                    id: doc.id,
+                    ...data,
+                    status: data.status || 'published',
+                    publishedAt: publishedAtStr
+                };
+                const key = (postObj.slug || postObj.id);
+                // Merge or update with Firestore data
+                postMap.set(key, postObj);
+            }
+        }
+        catch (dbErr) {
+            console.warn("⚠️ Error querying Firestore, preserving existing local posts:", dbErr);
+        }
     }
+    else {
+        console.log("ℹ️ Skipping Firestore query; maintaining existing local catalog.");
+    }
+    // 3. Filter published posts and sort descending by publishedAt
+    const mergedPosts = Array.from(postMap.values())
+        .filter((p) => p.status === 'published')
+        .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    // 4. Ensure output directory exists and write
+    const dir = path.dirname(outputPath);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(outputPath, JSON.stringify(mergedPosts, null, 2), 'utf8');
+    console.log(`✅ Consolidated and saved ${mergedPosts.length} posts to ${outputPath}`);
+    // 5. Update Sitemaps and RSS Feed
+    updateSitemapsAndRss(mergedPosts);
 }
 function escapeXml(unsafe) {
     if (!unsafe)
@@ -128,13 +233,15 @@ function updateSitemapsAndRss(posts) {
     let blogSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     blogSitemap += `  <url>\n    <loc>${blogBaseUrl}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>hourly</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
     for (const post of posts) {
-        const postDate = post.publishedAt ? post.publishedAt.split('T')[0] : today;
-        blogSitemap += `  <url>\n    <loc>${blogBaseUrl}/${post.slug}</loc>\n    <lastmod>${postDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
+        if (!post.slug)
+            continue;
+        const postDate = post.publishedAt ? String(post.publishedAt).split('T')[0] : today;
+        blogSitemap += `  <url>\n    <loc>${blogBaseUrl}/${post.slug}/</loc>\n    <lastmod>${postDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
     }
     blogSitemap += `</urlset>\n`;
     const blogSitemapPath = path.join(__dirname, '../public/blog/sitemap.xml');
-    fs.writeFileSync(blogSitemapPath, blogSitemap);
-    console.log(`✅ Blog sitemap updated at ${blogSitemapPath}`);
+    fs.writeFileSync(blogSitemapPath, blogSitemap, 'utf8');
+    console.log(`✅ Blog sitemap updated with ${posts.length} posts at ${blogSitemapPath}`);
     // 2. Generate Primary Root Sitemap (public/sitemap.xml)
     const coreRoutes = [
         { path: '', priority: '1.0', changefreq: 'weekly' },
@@ -152,12 +259,14 @@ function updateSitemapsAndRss(posts) {
         rootSitemap += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
     }
     for (const post of posts) {
-        const postDate = post.publishedAt ? post.publishedAt.split('T')[0] : today;
-        rootSitemap += `  <url>\n    <loc>${blogBaseUrl}/${post.slug}</loc>\n    <lastmod>${postDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
+        if (!post.slug)
+            continue;
+        const postDate = post.publishedAt ? String(post.publishedAt).split('T')[0] : today;
+        rootSitemap += `  <url>\n    <loc>${blogBaseUrl}/${post.slug}/</loc>\n    <lastmod>${postDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
     }
     rootSitemap += `</urlset>\n`;
     const rootSitemapPath = path.join(__dirname, '../public/sitemap.xml');
-    fs.writeFileSync(rootSitemapPath, rootSitemap);
+    fs.writeFileSync(rootSitemapPath, rootSitemap, 'utf8');
     console.log(`✅ Root SEO sitemap updated with ${posts.length} posts at ${rootSitemapPath}`);
     // 3. Generate RSS 2.0 Feed (public/blog/rss.xml)
     let rss = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n  <channel>\n`;
@@ -167,9 +276,11 @@ function updateSitemapsAndRss(posts) {
     rss += `    <language>en-us</language>\n`;
     rss += `    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
     rss += `    <atom:link href="${blogBaseUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
-    for (const post of posts) {
+    for (const post of posts.slice(0, 30)) {
+        if (!post.slug)
+            continue;
         const pubDate = post.publishedAt ? new Date(post.publishedAt).toUTCString() : new Date().toUTCString();
-        const postUrl = `${blogBaseUrl}/${post.slug}`;
+        const postUrl = `${blogBaseUrl}/${post.slug}/`;
         const categories = (post.tags || ['LorapokLabs']).map((t) => `    <category>${escapeXml(t)}</category>`).join('\n');
         rss += `    <item>\n`;
         rss += `      <title>${escapeXml(post.title)}</title>\n`;
@@ -183,7 +294,7 @@ function updateSitemapsAndRss(posts) {
     }
     rss += `  </channel>\n</rss>\n`;
     const rssPath = path.join(__dirname, '../public/blog/rss.xml');
-    fs.writeFileSync(rssPath, rss);
+    fs.writeFileSync(rssPath, rss, 'utf8');
     console.log(`✅ Blog RSS 2.0 feed updated at ${rssPath}`);
 }
 exportBlogData();

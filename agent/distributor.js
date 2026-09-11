@@ -51,31 +51,36 @@ function buildDiscordPayload(post) {
         ...(hasCitations ? ['#CitationsAvailable', '#PeerReviewed'] : []),
         ...rawTags.map((t) => '#' + String(t).trim().replace(/^#/, '').replace(/[^a-zA-Z0-9]/g, ''))
     ])).join(' ');
-    const canonicalUrl = `https://lorapok.tech/blog/${post.slug}`;
+    const canonicalUrl = `https://lorapok.tech/blog/${post.slug}/`;
     const embedColor = CATEGORY_COLORS[post.category] || 0x38bdf8;
     const editorialFormat = post.type || detectEditorialFormat(post.title, post.content);
     const authorName = post.author?.name || 'Dr. Larva';
     const authorTitle = post.author?.designation || 'Systems Intelligence';
     const authorAvatar = post.author?.avatar || '🧬';
     const citationsCount = Array.isArray(post.citations) ? post.citations.length : (hasCitations ? 4 : 0);
-    // Format excerpt as clean blockquote
-    const cleanExcerpt = (post.excerpt || post.title)
-        .replace(/^#+\s+/g, '')
+    // Sanitize title and excerpt strictly for Discord embed limits
+    const cleanTitle = (post.title || 'Autonomous Technical Dispatch')
+        .replace(/^#+\s*/, '')
+        .replace(/^\*\*|\*\*$/g, '')
         .trim();
+    const displayTitle = cleanTitle.length > 200 ? cleanTitle.slice(0, 197) + '...' : cleanTitle;
+    const rawExcerpt = (post.excerpt || cleanTitle).replace(/^#+\s+/g, '').trim();
+    const cleanExcerpt = rawExcerpt.length > 800 ? rawExcerpt.slice(0, 797) + '...' : rawExcerpt;
+    const neuralEngine = post.engine || post.model || 'Google Gemini 3.6 Flash';
     return {
         username: "LoLaBo • Lorapok Labs",
-        avatar_url: "https://lorapok.tech/assets/lolabo-icon.png",
-        content: `⚡ **NEW TECHNICAL DISPATCH** | **LoLaBo Intelligence Engine**\n> 🌐 Read full architectural breakdown: <${canonicalUrl}>`,
+        avatar_url: "https://lorapok.tech/assets/lolabo-apple-touch-icon.png",
+        content: `⚡ **NEW TECHNICAL DISPATCH** | **LoLaBo Intelligence Engine**\n> 🌐 **Full Architecture Breakdown:** [${displayTitle}](${canonicalUrl})`,
         embeds: [
             {
-                title: `[ ${editorialFormat} ] ${post.title}`,
+                title: `[ ${editorialFormat} ] ${displayTitle}`,
                 url: canonicalUrl,
                 description: `> *${cleanExcerpt}*\n\nRead the full investigation on **[lorapok.tech/blog](${canonicalUrl})** or subscribe via [RSS Feed](https://lorapok.tech/blog/rss.xml).`,
                 color: embedColor,
                 author: {
                     name: `${authorAvatar} ${authorName} — ${authorTitle}`,
                     url: "https://lorapok.tech/blog",
-                    icon_url: "https://lorapok.tech/assets/lolabo-icon.png"
+                    icon_url: "https://lorapok.tech/assets/lolabo-apple-touch-icon.png"
                 },
                 fields: [
                     {
@@ -100,7 +105,7 @@ function buildDiscordPayload(post) {
                         }] : []),
                     {
                         name: "🧠 Neural Engine",
-                        value: "`Google Gemini 3.6 Flash`",
+                        value: `\`${neuralEngine}\``,
                         inline: true
                     },
                     {
@@ -115,7 +120,7 @@ function buildDiscordPayload(post) {
                     },
                     {
                         name: "🏷️ Topics & Tags",
-                        value: hashtags,
+                        value: hashtags.length > 1000 ? hashtags.slice(0, 997) + '...' : hashtags,
                         inline: false
                     },
                     {
@@ -124,10 +129,12 @@ function buildDiscordPayload(post) {
                         inline: false
                     }
                 ],
-                image: post.coverImage ? { url: post.coverImage } : undefined,
+                image: (post.coverImage && typeof post.coverImage === 'string' && post.coverImage.startsWith('http'))
+                    ? { url: post.coverImage }
+                    : undefined,
                 footer: {
                     text: `⚡ LoLaBo Autonomous Dispatch • Lorapok Labs Microservice Engine v2.0 • #LorapokLabs`,
-                    icon_url: "https://lorapok.tech/assets/lorapok-icon.png"
+                    icon_url: "https://lorapok.tech/assets/apple-touch-icon.png"
                 },
                 timestamp: post.publishedAt ? new Date(post.publishedAt).toISOString() : new Date().toISOString()
             }

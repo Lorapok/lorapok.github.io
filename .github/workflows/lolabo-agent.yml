@@ -2,7 +2,9 @@ name: LoLaBo AI Agent
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Run every hour to check for updates or triggers
+    # Staggered twice-hourly checks avoid GitHub Actions minute :00 runner congestion.
+    # The agent script gates on hoursSinceLastRun >= 0.75h so it only publishes once per hour.
+    - cron: '17,47 * * * *'
   workflow_dispatch:         # Manual trigger
     inputs:
       force:

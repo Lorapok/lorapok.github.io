@@ -38,6 +38,7 @@ import {
   BookmarkCheck,
 } from "lucide-react";
 import { blogService } from "../lib/blogService";
+import { isFirebaseConfigured } from "../lib/firebase";
 import SEOHead from "./components/SEOHead";
 import LoLaBoLogo from "./components/LoLaBoLogo";
 import "./BlogApp.css";
@@ -422,7 +423,8 @@ export default function BlogApp() {
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        const staticRes = await fetch("/blog/posts.json");
+        const cacheBuster = `?_t=${Date.now()}`;
+        const staticRes = await fetch(`/blog/posts.json${cacheBuster}`, { cache: "no-store" });
         if (staticRes.ok) {
           const staticPosts = await staticRes.json();
           const formatted = staticPosts.map((p: any) => ({
@@ -431,19 +433,54 @@ export default function BlogApp() {
           }));
           setPosts(formatted);
           setLoading(false);
-          return;
         }
 
-        const live = await blogService.getPublishedPosts(20);
-        if (live.length > 0) setPosts(live);
+        // Live Firestore synchronization: merge newly published articles into state
+        if (isFirebaseConfigured) {
+          try {
+            const live = await blogService.getPublishedPosts(30);
+            if (live.length > 0) {
+              setPosts((prev) => {
+                const map = new Map<string, any>();
+                prev.forEach((p) => map.set(p.slug || p.id, p));
+                live.forEach((p) => map.set(p.slug || p.id, p));
+                return Array.from(map.values()).sort((a: any, b: any) => {
+                  const dateA = a.publishedAt?.toDate ? a.publishedAt.toDate().getTime() : new Date(a.publishedAt).getTime();
+                  const dateB = b.publishedAt?.toDate ? b.publishedAt.toDate().getTime() : new Date(b.publishedAt).getTime();
+                  return dateB - dateA;
+                });
+              });
+            }
+          } catch (liveErr) {
+            console.warn("Live Firestore sync skipped:", liveErr);
+          }
+        }
       } catch (e) {
-        console.warn("Using demo posts");
+        console.warn("Using demo posts or local cache fallback");
       } finally {
         setLoading(false);
       }
     };
     loadPosts();
   }, []);
+
+  // Direct slug lookup fallback: if URL has an individual article slug not in initial list, load it from Firestore
+  useEffect(() => {
+    if (!slug || loading) return;
+    const exists = posts.some((p) => p.slug === slug);
+    if (!exists && isFirebaseConfigured) {
+      let active = true;
+      blogService.getPostBySlug(slug).then((livePost) => {
+        if (active && livePost) {
+          setPosts((prev) => {
+            if (prev.some((p) => p.slug === slug)) return prev;
+            return [livePost, ...prev];
+          });
+        }
+      }).catch(() => {});
+      return () => { active = false; };
+    }
+  }, [slug, loading, posts.length]);
 
   const currentPost = posts.find((p) => p.slug === slug);
 
@@ -1366,6 +1403,32 @@ export default function BlogApp() {
             </div>
           </section>
         </main>
+      </div>
+    );
+  }
+
+  // If a slug was specifically requested in the URL but could not be located in local or remote catalog
+  if (slug && !currentPost) {
+    return (
+      <div className="lolabo min-h-[65vh] flex flex-col items-center justify-center text-center px-4 py-20">
+        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl mb-4">
+          📡
+        </div>
+        <span className="font-mono text-xs text-[var(--lp-accent,#67ff8f)] uppercase tracking-widest mb-2">
+          AUTONOMOUS ARCHIVE
+        </span>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
+          Dispatch Synchronizing or Relocated
+        </h1>
+        <p className="text-sm text-gray-400 max-w-md mb-6 leading-relaxed">
+          The requested technical treatise may still be compiling from our autonomous agent squads, or the slug has been updated.
+        </p>
+        <button
+          onClick={() => navigate("/blog")}
+          className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wider transition-all cursor-pointer border border-white/10 hover:border-white/20"
+        >
+          ← Return to All Dispatches
+        </button>
       </div>
     );
   }

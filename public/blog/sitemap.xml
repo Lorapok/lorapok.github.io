@@ -7,37 +7,79 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/enforcing-cryptographically-provable-append-only-semantics-at-the-database-layer-beyond-application-level-trust</loc>
+    <loc>https://lorapok.tech/blog/enforcing-cryptographically-provable-append-only-semantics-at-the-database-layer-beyond-application-level-trust/</loc>
     <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/architecting-a-stateful-ai-agent-orchestration-engine-distributed-event-loops-wasm-sandboxing-and-adaptive-backpressure</loc>
+    <loc>https://lorapok.tech/blog/architecting-a-stateful-ai-agent-orchestration-engine-distributed-event-loops-wasm-sandboxing-and-adaptive-backpressure/</loc>
     <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/beyond-the-bridge-analyzing-shopify-s-architectural-shift-back-to-native-swift-and-kotlin</loc>
+    <loc>https://lorapok.tech/blog/ebpf-kernel-probes-vs-user-space-telemetry-formal-micro-architectural-analysis-and-concurrency-limits/</loc>
     <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/reverse-engineering-frontier-models-inside-the-mechanics-of-llm-distillation-campaigns-and-evasion-defenses</loc>
+    <loc>https://lorapok.tech/blog/beyond-c-interop-engineering-production-rust-migration-pipelines-for-mission-critical-microservices/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/demystifying-zero-copy-serialization-in-rust-deep-dive-into-rkyv-and-flatbuffers/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/beyond-epoll-building-high-throughput-async-i-o-runtimes-in-rust-with-io-uring/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/kernel-bypass-networking-in-rust-building-sub-microsecond-hft-engines-with-dpdk/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/architectural-deep-dive-zero-trust-service-mesh-architecture-with-ebpf/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/architectural-deep-dive-thrive-capital-led-vcs-into-pro-sports-ownership-collaborative-fund-just-upped-that-play/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/beyond-the-bridge-analyzing-shopify-s-architectural-shift-back-to-native-swift-and-kotlin/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/reverse-engineering-frontier-models-inside-the-mechanics-of-llm-distillation-campaigns-and-evasion-defenses/</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis</loc>
+    <loc>https://lorapok.tech/blog/deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis/</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development</loc>
+    <loc>https://lorapok.tech/blog/the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development/</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
