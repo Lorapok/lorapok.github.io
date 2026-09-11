@@ -115,6 +115,9 @@ export const EDITORIAL_TYPES: EditorialTypeMeta[] = [
 
 export function getPostEditorialType(post: BlogPost): EditorialTypeMeta {
   const text = `${post.title} ${post.excerpt || ""} ${(post.tags || []).join(" ")}`.toLowerCase();
+  if (text.startsWith("architectural deep dive") || text.includes("architecture blueprint") || text.includes("systems architecture") || text.includes("topology specification")) {
+    return EDITORIAL_TYPES.find((t) => t.id === "architecture")!;
+  }
   if (text.includes("deep dive") || text.includes("inside the mechanics") || text.includes("reverse engineering") || text.includes("distillation")) {
     return EDITORIAL_TYPES.find((t) => t.id === "deep-dive")!;
   }
@@ -134,12 +137,13 @@ export function matchesCategory(post: BlogPost, catId: string): boolean {
   if (catId === "all") return true;
   const postCat = (post.category || "").toLowerCase();
   const tagsStr = (post.tags || []).join(" ").toLowerCase();
+  const titleStr = (post.title || "").toLowerCase();
   const slugCat = postCat.replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
 
   if (slugCat === catId) return true;
 
   if (catId === "architecture") {
-    return postCat.includes("architecture") || postCat.includes("infra") || tagsStr.includes("architecture");
+    return postCat.includes("architecture") || postCat.includes("infra") || tagsStr.includes("architecture") || titleStr.includes("architectur");
   }
   if (catId === "ai") {
     return postCat.includes("ai") || postCat.includes("machine") || tagsStr.includes("ai") || tagsStr.includes("llm") || tagsStr.includes("model") || tagsStr.includes("neural");
@@ -157,13 +161,13 @@ export function matchesCategory(post: BlogPost, catId: string): boolean {
     return postCat.includes("distributed") || tagsStr.includes("distributed") || tagsStr.includes("distributedsystems") || tagsStr.includes("concurrency");
   }
   if (catId === "devops") {
-    return postCat.includes("devops") || postCat.includes("deploy") || tagsStr.includes("devops") || tagsStr.includes("docker") || tagsStr.includes("kubernetes");
+    return postCat.includes("devops") || postCat.includes("deploy") || postCat.includes("infra") || tagsStr.includes("devops") || tagsStr.includes("docker") || tagsStr.includes("kubernetes") || tagsStr.includes("cloudnative");
   }
   if (catId === "performance") {
     return postCat.includes("performance") || tagsStr.includes("performance") || tagsStr.includes("concurrency") || tagsStr.includes("latency") || tagsStr.includes("optimization");
   }
   if (catId === "agentic") {
-    return postCat.includes("agent") || tagsStr.includes("agent") || tagsStr.includes("autonomous") || tagsStr.includes("multi-agent") || tagsStr.includes("loragent");
+    return postCat.includes("agent") || tagsStr.includes("agent") || tagsStr.includes("autonomous") || tagsStr.includes("multi-agent") || tagsStr.includes("loragent") || tagsStr.includes("lorapok");
   }
   return false;
 }
@@ -495,7 +499,8 @@ export default function BlogApp() {
       }
     });
 
-    return list;
+    // Only surface categories that actually contain published dispatches (plus 'all')
+    return list.filter((cat) => cat.id === "all" || (cat.count || 0) > 0);
   }, [posts]);
 
   const dynamicTypes = useMemo(() => {
@@ -507,7 +512,7 @@ export default function BlogApp() {
     return EDITORIAL_TYPES.map((t) => ({
       ...t,
       count: counts[t.id] || 0,
-    }));
+    })).filter((t) => t.id === "all" || (t.count || 0) > 0);
   }, [posts]);
 
   const dynamicTrendingTags = useMemo(() => {
@@ -597,6 +602,102 @@ export default function BlogApp() {
         return dateB - dateA;
       });
   }, [posts, selectedCategory, selectedType, selectedTag, searchQuery, sortBy]);
+
+  // ─── Smart Filter Actions & Conflict Sanitization ───
+  const handleResetFilters = () => {
+    setSelectedCategory("all");
+    setSelectedType("all");
+    setSelectedTag(null);
+    setSearchQuery("");
+    setSortBy("newest");
+  };
+
+  const handleCategoryClick = (catId: string) => {
+    if (selectedCategory === catId) {
+      // Toggle off back to all
+      setSelectedCategory("all");
+      return;
+    }
+    setSelectedCategory(catId);
+    // Conflict resolution: if the active tag or format type yields 0 results in this category, clear them automatically
+    if (selectedTag) {
+      const normTag = selectedTag.toLowerCase().replace(/^#/, "").trim();
+      const hasTagInCat = posts.some(
+        (p) =>
+          matchesCategory(p, catId) &&
+          (p.tags || []).some((t) => t.toLowerCase().replace(/^#/, "").trim() === normTag)
+      );
+      if (!hasTagInCat) {
+        setSelectedTag(null);
+      }
+    }
+    if (selectedType !== "all") {
+      const hasTypeInCat = posts.some(
+        (p) => matchesCategory(p, catId) && getPostEditorialType(p).id === selectedType
+      );
+      if (!hasTypeInCat) {
+        setSelectedType("all");
+      }
+    }
+  };
+
+  const handleTypeClick = (typeId: string) => {
+    if (selectedType === typeId) {
+      setSelectedType("all");
+      return;
+    }
+    setSelectedType(typeId);
+    if (selectedCategory !== "all") {
+      const hasCatInType = posts.some(
+        (p) =>
+          matchesCategory(p, selectedCategory) &&
+          (typeId === "all" || getPostEditorialType(p).id === typeId)
+      );
+      if (!hasCatInType) {
+        setSelectedCategory("all");
+      }
+    }
+    if (selectedTag) {
+      const normTag = selectedTag.toLowerCase().replace(/^#/, "").trim();
+      const hasTagInType = posts.some(
+        (p) =>
+          (typeId === "all" || getPostEditorialType(p).id === typeId) &&
+          (p.tags || []).some((t) => t.toLowerCase().replace(/^#/, "").trim() === normTag)
+      );
+      if (!hasTagInType) {
+        setSelectedTag(null);
+      }
+    }
+  };
+
+  const handleTagClick = (tag: string) => {
+    if (selectedTag === tag) {
+      setSelectedTag(null);
+      return;
+    }
+    setSelectedTag(tag);
+    const normTag = tag.toLowerCase().replace(/^#/, "").trim();
+    if (selectedCategory !== "all") {
+      const hasCatWithTag = posts.some(
+        (p) =>
+          matchesCategory(p, selectedCategory) &&
+          (p.tags || []).some((t) => t.toLowerCase().replace(/^#/, "").trim() === normTag)
+      );
+      if (!hasCatWithTag) {
+        setSelectedCategory("all");
+      }
+    }
+    if (selectedType !== "all") {
+      const hasTypeWithTag = posts.some(
+        (p) =>
+          getPostEditorialType(p).id === selectedType &&
+          (p.tags || []).some((t) => t.toLowerCase().replace(/^#/, "").trim() === normTag)
+      );
+      if (!hasTypeWithTag) {
+        setSelectedType("all");
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -1150,7 +1251,7 @@ export default function BlogApp() {
   // ═════════════════════════════════════════════════════════════════
   // ─── FEED VIEW (World-Class Editorial Masthead & Navigation) ───
   // ═════════════════════════════════════════════════════════════════
-  const isFiltering = Boolean(selectedTag || selectedCategory !== "all" || searchQuery.trim());
+  const isFiltering = Boolean(selectedTag || selectedCategory !== "all" || selectedType !== "all" || searchQuery.trim());
   const featuredPost = isFiltering ? null : filteredPosts[0];
   const gridPosts = isFiltering ? filteredPosts : filteredPosts.slice(1);
 
@@ -1316,7 +1417,7 @@ export default function BlogApp() {
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => handleCategoryClick(cat.id)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-wide whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
                     isActive
                       ? "bg-[var(--lp-accent,#67ff8f)] text-black font-bold shadow-[0_0_20px_rgba(103,255,143,0.3)]"
@@ -1351,7 +1452,7 @@ export default function BlogApp() {
               return (
                 <button
                   key={t.id}
-                  onClick={() => setSelectedType(t.id)}
+                  onClick={() => handleTypeClick(t.id)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border ${
                     isActive
                       ? "bg-white/15 text-white border-white/30 shadow-sm"
@@ -1376,7 +1477,7 @@ export default function BlogApp() {
               return (
                 <button
                   key={tag}
-                  onClick={() => setSelectedTag(isSelected ? null : tag)}
+                  onClick={() => handleTagClick(tag)}
                   className={`px-2.5 py-1 rounded-lg font-mono text-[11px] cursor-pointer transition-all shrink-0 border ${
                     isSelected
                       ? "bg-[var(--lp-accent,#67ff8f)]/15 text-[var(--lp-accent,#67ff8f)] border-[var(--lp-accent,#67ff8f)]/50 shadow-sm"
