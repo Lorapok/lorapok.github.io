@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   ArrowLeft,
   Clock,
@@ -22,6 +23,8 @@ import {
   Compass,
   Rss,
   Flame,
+  Cpu,
+  Layers,
 } from "lucide-react";
 import { blogService } from "../lib/blogService";
 import SEOHead from "./components/SEOHead";
@@ -124,7 +127,24 @@ function extractHeadings(markdown: string) {
   return matches;
 }
 
-// ─── Terminal Window / Code Block Component ───
+// ─── Markdown Normalizer for Robust Table & Diagram Parsing ───
+function preprocessMarkdown(content: string): string {
+  if (!content) return "";
+  let processed = content;
+
+  // 1. Fix single-line collapsed markdown tables where rows are separated by | | instead of newlines
+  processed = processed.replace(/\|\s*\|\s*(?=[^\n|])/g, "|\n|");
+
+  // 2. Fix tables where header separator row is immediately followed by data row on same line: | :--- | :--- | | Runtime
+  processed = processed.replace(/(\|(?:\s*:?-+:?\s*\|)+)\s*(\|[^:\n])/g, "$1\n$2");
+
+  // 3. Ensure tables have an empty line before and after so GFM table parser activates reliably
+  processed = processed.replace(/([^\n])\n(\|[^\n]+\|)\n(\|(?:\s*:?-+:?\s*\|)+)/g, "$1\n\n$2\n$3");
+
+  return processed;
+}
+
+// ─── Terminal Window / Code Block / Architecture Blueprint Component ───
 function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
   const [copied, setCopied] = useState(false);
   const codeContent = String(children).replace(/\n$/, "");
@@ -132,17 +152,17 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
   const match = /language-(\w+)/.exec(className || "");
   let language = match ? match[1].toUpperCase() : "";
 
-  if (!language) {
-    if (
-      codeContent.includes("+---") ||
-      codeContent.includes("┌──") ||
-      (codeContent.includes("|") && codeContent.includes("--->"))
-    ) {
-      language = "SYSTEM ARCHITECTURE";
-    } else {
-      language = "TERMINAL / CODE";
-    }
-  }
+  // Check if content is an ASCII systems architecture diagram
+  const isArchitecture =
+    language.includes("ARCH") ||
+    language === "SYSTEM" ||
+    codeContent.includes("+---") ||
+    codeContent.includes("┌──") ||
+    codeContent.includes("+===") ||
+    codeContent.includes("└──") ||
+    codeContent.includes("├──") ||
+    (codeContent.includes("|") && (codeContent.includes("--->") || codeContent.includes("<---") || codeContent.includes("──>"))) ||
+    (codeContent.includes("[") && codeContent.includes("]") && (codeContent.includes("──>") || codeContent.includes("-->")));
 
   const handleCopy = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -151,6 +171,62 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  // Dedicated High-Fidelity Architecture Blueprint Renderer
+  if (isArchitecture) {
+    return (
+      <div className="architecture-blueprint my-8 rounded-2xl overflow-hidden border border-[#38bdf8]/30 bg-[#05070e] shadow-[0_0_40px_rgba(56,189,248,0.12)]">
+        <div className="blueprint-header flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-r from-[#0a1224] to-[#070b16] border-b border-[#38bdf8]/20 select-none">
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8] animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#67ff8f]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#c084fc]" />
+            </div>
+            <div className="h-4 w-px bg-white/10 mx-1" />
+            <span className="font-mono text-xs tracking-wider text-[#38bdf8] font-bold uppercase flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-[var(--lp-accent,#67ff8f)]" />
+              SYSTEM ARCHITECTURE // SPECIFICATION
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-block font-mono text-[10px] tracking-widest px-2.5 py-0.5 rounded bg-white/5 border border-white/10 text-gray-400 uppercase">
+              ASCII BLUEPRINT
+            </span>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono tracking-wider text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-white/10"
+              title="Copy architecture diagram"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[var(--lp-accent,#67ff8f)]" />
+                  <span className="text-[var(--lp-accent,#67ff8f)] font-bold">COPIED</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>COPY</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+        <div className="blueprint-canvas relative p-4 sm:p-6 lg:p-8 overflow-x-auto bg-[#050811] [background-image:radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
+          <pre className="font-mono text-[13px] sm:text-[14px] leading-snug text-[#67ff8f] whitespace-pre select-text tracking-normal font-medium">
+            <code>{codeContent}</code>
+          </pre>
+        </div>
+        <div className="blueprint-footer px-4 py-2.5 bg-[#04060c] border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-gray-500">
+          <span>LoLaBo Autonomous Systems Telemetry</span>
+          <span className="text-[#38bdf8]">ZERO-ABSTRACTION EXECUTION</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard Terminal / Code Window
+  const displayLang = language || "TERMINAL / CODE";
 
   return (
     <div className="terminal-window my-8 rounded-xl overflow-hidden border border-white/10 bg-[#07090e] shadow-2xl">
@@ -163,7 +239,7 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
           </div>
           <span className="ml-2 font-mono text-[11px] tracking-wider text-gray-400 font-semibold uppercase flex items-center gap-1.5">
             <Terminal className="w-3.5 h-3.5 text-[var(--lp-accent,#67ff8f)]" />
-            {language}
+            {displayLang}
           </span>
         </div>
         <button
@@ -569,15 +645,21 @@ export default function BlogApp() {
                       <ol className="list-decimal pl-6 mb-6 space-y-2 text-[#d1d5db]" {...props} />
                     ),
                     table: ({ node, ...props }) => (
-                      <div className="overflow-x-auto my-8 rounded-xl border border-white/10 bg-white/[0.02]">
-                        <table className="w-full text-left text-sm" {...props} />
+                      <div className="overflow-x-auto my-8 rounded-xl border border-white/15 bg-[#07090e] shadow-2xl">
+                        <table className="w-full text-left text-sm border-collapse min-w-[620px]" {...props} />
                       </div>
                     ),
+                    thead: ({ node, ...props }) => (
+                      <thead className="bg-white/[0.05] border-b border-white/10" {...props} />
+                    ),
                     th: ({ node, ...props }) => (
-                      <th className="p-3 font-mono font-bold text-white border-b border-white/10 bg-white/5 uppercase tracking-wider text-xs" {...props} />
+                      <th className="px-4 py-3.5 font-mono font-bold text-[var(--lp-accent,#67ff8f)] border-r border-white/10 last:border-r-0 uppercase tracking-wider text-xs whitespace-nowrap" {...props} />
                     ),
                     td: ({ node, ...props }) => (
-                      <td className="p-3 border-b border-white/5 text-gray-300" {...props} />
+                      <td className="px-4 py-3 border-b border-white/5 border-r border-white/5 last:border-r-0 text-gray-300 font-sans leading-relaxed" {...props} />
+                    ),
+                    tr: ({ node, ...props }) => (
+                      <tr className="hover:bg-white/[0.02] transition-colors odd:bg-white/[0.01]" {...props} />
                     ),
                     hr: ({ node, ...props }) => (
                       <hr className="my-12 border-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" {...props} />
@@ -601,8 +683,9 @@ export default function BlogApp() {
                       return <>{children}</>;
                     },
                   }}
+                  remarkPlugins={[remarkGfm]}
                 >
-                  {currentPost.content}
+                  {preprocessMarkdown(currentPost.content)}
                 </ReactMarkdown>
               </div>
 
@@ -840,8 +923,20 @@ export default function BlogApp() {
             <Sparkles className="w-3.5 h-3.5" />
             AUTONOMOUS CONTENT ENGINE // LoLaBo
           </div>
-          <div className="flex items-center justify-center mb-6">
-            <LoLaBoLogo variant="full" animated size={76} />
+          <div className="flex flex-col items-center justify-center mb-6">
+            <div className="mb-4 transform hover:scale-105 transition-transform duration-300">
+              <LoLaBoLogo variant="icon" animated size={72} />
+            </div>
+            <h1 className="hero-title text-6xl sm:text-7xl md:text-8xl font-black tracking-tight mb-3 flex items-center justify-center gap-1 sm:gap-2 select-none">
+              <span className="text-[var(--lp-accent,#67ff8f)] drop-shadow-[0_0_35px_rgba(103,255,143,0.45)]">Lo</span>
+              <span className="text-[#38bdf8] drop-shadow-[0_0_35px_rgba(56,189,248,0.45)]">La</span>
+              <span className="text-[#c084fc] drop-shadow-[0_0_35px_rgba(192,132,252,0.45)]">Bo</span>
+            </h1>
+            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-mono tracking-[0.2em] text-gray-400 uppercase font-semibold">
+              <span className="text-[var(--lp-accent,#67ff8f)]">LORAPOK LABS</span>
+              <span className="text-white/20">•</span>
+              <span>AUTONOMOUS TECHNICAL PUBLICATION</span>
+            </div>
           </div>
           <p className="hero-subtitle text-gray-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Exploring the frontiers of open-source intelligence, neural systems telemetry, and autonomous multi-agent engineering.

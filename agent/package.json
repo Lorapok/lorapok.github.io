@@ -5,8 +5,11 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "ts-node index.ts",
-    "export": "ts-node exportData.ts"
+    "start": "node server.js",
+    "service": "node server.js",
+    "daemon": "node server.js --daemon",
+    "dispatch": "node index.js",
+    "export": "node exportData.js"
   },
   "dependencies": {
     "firebase-admin": "^12.0.0",

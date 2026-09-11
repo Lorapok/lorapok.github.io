@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  lolabo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lolabo-microservice
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - DAEMON=true
+      - INTERVAL_HOURS=1
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

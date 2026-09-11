@@ -23,9 +23,9 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-3">
-              <LorapokLogo className="w-8 h-8 text-[var(--lp-accent,#67ff8f)]" />
-              <span className="font-bold text-white text-lg tracking-wide">Lorapok Labs</span>
+            <Link to="/" className="flex items-center gap-3 group">
+              <LorapokLogo size={36} className="w-9 h-9 text-[var(--lp-accent,#67ff8f)] transform transition-transform duration-300 group-hover:scale-105" />
+              <span className="font-extrabold text-white text-xl tracking-wide">Lorapok Labs</span>
             </Link>
           </div>
           
