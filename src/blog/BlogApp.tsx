@@ -25,6 +25,10 @@ import {
   Flame,
   Cpu,
   Layers,
+  Search,
+  X,
+  Radio,
+  SlidersHorizontal,
 } from "lucide-react";
 import { blogService } from "../lib/blogService";
 import SEOHead from "./components/SEOHead";
@@ -66,6 +70,28 @@ const AUTHOR_POOL: BlogAuthor[] = [
   { name: "Captain Deploy", designation: "Infrastructure Overlord", avatar: "🚀" },
   { name: "Agent Cocoon", designation: "Director of Digital Defense", avatar: "🛡️" },
   { name: "Pixel Pete", designation: "Senior Aesthetic Engineer", avatar: "🎨" },
+];
+
+export const EDITORIAL_CATEGORIES = [
+  { id: "all", label: "All Dispatches" },
+  { id: "architecture", label: "Systems Architecture" },
+  { id: "ai", label: "AI & Neural Systems" },
+  { id: "backend", label: "Backend & Cloud" },
+  { id: "mobile", label: "Mobile & Native" },
+  { id: "security", label: "Security & Zero-Trust" },
+];
+
+export const CURATED_TRENDING_TAGS = [
+  "Architecture",
+  "Microservices",
+  "Swift",
+  "Kotlin",
+  "ReactNative",
+  "DistributedSystems",
+  "Security",
+  "CloudNative",
+  "Inference",
+  "LLM",
 ];
 
 const DEMO_POSTS: BlogPost[] = [
@@ -271,7 +297,9 @@ export default function BlogApp() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<BlogPost[]>(DEMO_POSTS);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   // Article View Interactive States
@@ -353,9 +381,52 @@ export default function BlogApp() {
     }
   };
 
-  const filteredPosts = selectedTag
-    ? posts.filter((p) => p.tags.includes(selectedTag))
-    : posts;
+  const filteredPosts = posts.filter((post) => {
+    // 1. Category Filter
+    if (selectedCategory !== "all") {
+      const cat = selectedCategory.toLowerCase();
+      const postCat = (post.category || "").toLowerCase();
+      const tagsStr = (post.tags || []).join(" ").toLowerCase();
+
+      let matches = false;
+      if (cat === "architecture") {
+        matches = postCat.includes("architecture") || postCat.includes("infra") || tagsStr.includes("architecture");
+      } else if (cat === "ai") {
+        matches = postCat.includes("ai") || postCat.includes("machine") || tagsStr.includes("ai") || tagsStr.includes("llm") || tagsStr.includes("model");
+      } else if (cat === "backend") {
+        matches = postCat.includes("backend") || postCat.includes("infra") || tagsStr.includes("backend") || tagsStr.includes("microservices") || tagsStr.includes("distributed");
+      } else if (cat === "mobile") {
+        matches = postCat.includes("mobile") || postCat.includes("ux") || tagsStr.includes("swift") || tagsStr.includes("reactnative") || tagsStr.includes("kotlin");
+      } else if (cat === "security") {
+        matches = postCat.includes("security") || tagsStr.includes("security") || tagsStr.includes("auth");
+      } else {
+        matches = postCat === cat;
+      }
+      if (!matches) return false;
+    }
+
+    // 2. Tag Filter
+    if (selectedTag) {
+      const normalizedSelected = selectedTag.toLowerCase().replace(/^#/, "").trim();
+      const hasTag = (post.tags || []).some(
+        (t) => t.toLowerCase().replace(/^#/, "").trim() === normalizedSelected
+      );
+      if (!hasTag) return false;
+    }
+
+    // 3. Search Query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const inTitle = post.title.toLowerCase().includes(q);
+      const inExcerpt = (post.excerpt || "").toLowerCase().includes(q);
+      const inCategory = (post.category || "").toLowerCase().includes(q);
+      const inAuthor = (post.author?.name || "").toLowerCase().includes(q);
+      const inTags = (post.tags || []).some((t) => t.toLowerCase().includes(q));
+      if (!inTitle && !inExcerpt && !inCategory && !inAuthor && !inTags) return false;
+    }
+
+    return true;
+  });
 
   if (loading) {
     return (
@@ -907,87 +978,257 @@ export default function BlogApp() {
   }
 
   // ═════════════════════════════════════════════════════════════════
-  // ─── FEED VIEW (Widescreen Hero + 3-Column Story Grid) ─────────
+  // ─── FEED VIEW (World-Class Editorial Masthead & Navigation) ───
   // ═════════════════════════════════════════════════════════════════
-  const featuredPost = filteredPosts[0];
-  const gridPosts = filteredPosts.slice(1);
+  const isFiltering = Boolean(selectedTag || selectedCategory !== "all" || searchQuery.trim());
+  const featuredPost = isFiltering ? null : filteredPosts[0];
+  const gridPosts = isFiltering ? filteredPosts : filteredPosts.slice(1);
 
   return (
     <div className="lolabo pb-24">
       <SEOHead />
 
-      <section className="lolabo-hero relative overflow-hidden pt-12 pb-16 border-b border-white/5">
-        <div className="hero-glow"></div>
-        <div className="hero-content text-center max-w-4xl mx-auto px-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono tracking-widest text-[var(--lp-accent,#67ff8f)] mb-6">
-            <Sparkles className="w-3.5 h-3.5" />
-            AUTONOMOUS CONTENT ENGINE // LoLaBo
+      {/* World-Class Editorial Masthead */}
+      <section className="lolabo-hero relative overflow-hidden pt-14 pb-14 border-b border-white/5 bg-[#06080e] [background-image:radial-gradient(ellipse_75%_60%_at_50%_0%,rgba(56,189,248,0.1),rgba(103,255,143,0.04)_45%,transparent_75%)]">
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40" />
+        <div className="hero-content relative z-10 text-center max-w-5xl mx-auto px-4">
+          
+          {/* Kicker Badge with Live Beacon */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-inner mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--lp-accent,#67ff8f)] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--lp-accent,#67ff8f)]" />
+            </span>
+            <span className="text-[11px] font-mono font-bold tracking-[0.2em] text-[var(--lp-accent,#67ff8f)] uppercase">
+              AUTONOMOUS RESEARCH PUBLICATION // HOURLY DISPATCH
+            </span>
           </div>
+
+          {/* Master Brand Typography & Insignia */}
           <div className="flex flex-col items-center justify-center mb-6">
-            <div className="mb-4 transform hover:scale-105 transition-transform duration-300">
-              <LoLaBoLogo variant="icon" animated size={72} />
+            <div className="relative mb-5 group">
+              <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-[#67ff8f]/20 via-[#38bdf8]/20 to-[#c084fc]/20 blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="relative transform hover:scale-105 transition-transform duration-300">
+                <LoLaBoLogo variant="icon" animated size={68} />
+              </div>
             </div>
-            <h1 className="hero-title text-6xl sm:text-7xl md:text-8xl font-black tracking-tight mb-3 flex items-center justify-center gap-1 sm:gap-2 select-none">
-              <span className="text-[var(--lp-accent,#67ff8f)] drop-shadow-[0_0_35px_rgba(103,255,143,0.45)]">Lo</span>
-              <span className="text-[#38bdf8] drop-shadow-[0_0_35px_rgba(56,189,248,0.45)]">La</span>
-              <span className="text-[#c084fc] drop-shadow-[0_0_35px_rgba(192,132,252,0.45)]">Bo</span>
+            
+            <h1 className="hero-title text-6xl sm:text-7xl md:text-8xl font-black tracking-[-0.04em] mb-2 flex items-center justify-center select-none">
+              <span className="bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent drop-shadow-[0_4px_35px_rgba(255,255,255,0.15)]">
+                LoLaBo
+              </span>
             </h1>
-            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-mono tracking-[0.2em] text-gray-400 uppercase font-semibold">
-              <span className="text-[var(--lp-accent,#67ff8f)]">LORAPOK LABS</span>
+            
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-mono tracking-[0.22em] text-gray-400 uppercase font-semibold">
+              <span className="text-[var(--lp-accent,#67ff8f)] font-bold">LORAPOK LABS</span>
               <span className="text-white/20">•</span>
-              <span>AUTONOMOUS TECHNICAL PUBLICATION</span>
+              <span className="text-gray-300">SYSTEMS ARCHITECTURE & ENGINEERING JOURNAL</span>
             </div>
           </div>
+
+          {/* Intellectual Manifesto */}
           <p className="hero-subtitle text-gray-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Exploring the frontiers of open-source intelligence, neural systems telemetry, and autonomous multi-agent engineering.
+            Rigorous systems architecture investigations, distributed runtime telemetry, and autonomous multi-agent engineering — synthesized and published every hour.
           </p>
+
+          {/* Live Publication Telemetry Bar */}
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs font-mono max-w-4xl mx-auto">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-gray-400">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
+                <span className="w-2 h-2 rounded-full bg-[var(--lp-accent,#67ff8f)] animate-pulse" />
+                <span>CADENCE: <strong className="text-white font-semibold">1-HOUR AUTONOMOUS</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
+                <span className="w-2 h-2 rounded-full bg-[#38bdf8]" />
+                <span>INDEXED: <strong className="text-white font-semibold">{posts.length} DISPATCHES</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 hidden md:flex">
+                <span className="w-2 h-2 rounded-full bg-[#c084fc]" />
+                <span>ENGINE: <strong className="text-white font-semibold">STANDALONE MICROSERVICE</strong></span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <a
+                href="/blog/rss.xml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"
+                title="Subscribe to RSS Feed"
+              >
+                <Rss className="w-3.5 h-3.5 text-[#f59e0b]" />
+                <span>RSS FEED</span>
+              </a>
+              <a
+                href="https://discord.com/api/webhooks/1547726176125059122/gR6aBXenu4RosF1IVXIUqzKjz0QuW0iLYqbCvo6-eLKaUiusVV8HrLRDyk2s_aq63t3u"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-[#5865F2] border border-white/10 transition-colors"
+                title="Lorapok Discord Feed"
+              >
+                <Radio className="w-3.5 h-3.5 text-[#5865F2]" />
+                <span>DISCORD</span>
+              </a>
+            </div>
+          </div>
+
         </div>
       </section>
 
       <main className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-        <div className="feed-header flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div className="feed-title text-xl font-bold text-white tracking-wide">
-            Latest Publications
+        
+        {/* Editorial Navigation & Search Console */}
+        <div className="mb-10 space-y-4">
+          {/* Header Row: Title & Real-Time Search */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+                <span>Publications & Research Index</span>
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-white/10 text-[var(--lp-accent,#67ff8f)] border border-white/10">
+                  {filteredPosts.length}
+                </span>
+              </h2>
+              <p className="text-xs text-gray-400 mt-1 font-mono">
+                PEER-REVIEWED SYSTEMS ARCHITECTURE & DECENTRALIZED INTELLIGENCE
+              </p>
+            </div>
+
+            {/* Instant Real-Time Search Input */}
+            <div className="relative w-full sm:w-72 lg:w-80">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search articles, architecture, tags..."
+                className="w-full bg-[#0b0d14] border border-white/10 focus:border-[var(--lp-accent,#67ff8f)] rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[var(--lp-accent,#67ff8f)]/40 transition-all font-sans"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-0.5 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
-          <div className="feed-tags flex flex-wrap gap-2">
-            <button
-              className={`feed-tag px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
-                !selectedTag ? "active bg-[var(--lp-accent,#67ff8f)] text-black font-semibold" : "bg-white/5 text-gray-400 hover:text-white"
-              }`}
-              onClick={() => setSelectedTag(null)}
-            >
-              All ({posts.length})
-            </button>
-            {Array.from(new Set(posts.flatMap((p) => p.tags))).map((tag) => (
+
+          {/* Primary Editorial Category Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {EDITORIAL_CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                    isActive
+                      ? "bg-[var(--lp-accent,#67ff8f)] text-black font-bold shadow-[0_0_20px_rgba(103,255,143,0.3)]"
+                      : "bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/[0.08] border border-white/5"
+                  }`}
+                >
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Curated Trending Topics Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-1 scrollbar-none text-xs">
+            <span className="font-mono text-[11px] text-gray-500 uppercase tracking-wider shrink-0 flex items-center gap-1.5 mr-1">
+              <SlidersHorizontal className="w-3 h-3 text-gray-400" />
+              <span>Trending:</span>
+            </span>
+            {CURATED_TRENDING_TAGS.map((tag) => {
+              const isSelected = selectedTag === tag;
+              return (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(isSelected ? null : tag)}
+                  className={`px-3 py-1 rounded-lg font-mono text-[11px] cursor-pointer transition-all shrink-0 border ${
+                    isSelected
+                      ? "bg-white/15 text-[var(--lp-accent,#67ff8f)] border-[var(--lp-accent,#67ff8f)]/50 shadow-sm"
+                      : "bg-white/[0.02] text-gray-400 hover:text-gray-200 border-white/5 hover:border-white/10"
+                  }`}
+                >
+                  #{tag}
+                </button>
+              );
+            })}
+            {isFiltering && (
               <button
-                key={tag}
-                className={`feed-tag px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
-                  selectedTag === tag ? "active bg-[var(--lp-accent,#67ff8f)] text-black font-semibold" : "bg-white/5 text-gray-400 hover:text-white"
-                }`}
-                onClick={() => setSelectedTag(tag)}
+                onClick={() => {
+                  setSelectedTag(null);
+                  setSelectedCategory("all");
+                  setSearchQuery("");
+                }}
+                className="ml-auto text-xs text-red-400 hover:text-red-300 underline font-mono shrink-0 cursor-pointer pl-2"
               >
-                #{tag}
+                Reset filters
               </button>
-            ))}
+            )}
           </div>
         </div>
 
-        {selectedTag && (
-          <div className="tag-filter-bar mb-8 p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
-            <span>
-              Filtering by <strong className="text-[var(--lp-accent,#67ff8f)]">#{selectedTag}</strong>
-            </span>
+        {/* Active Filter Notification Bar */}
+        {isFiltering && (
+          <div className="mb-8 p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-gray-300">
+              <span className="text-gray-500">Filtered view:</span>
+              {selectedCategory !== "all" && (
+                <span className="px-2 py-0.5 rounded bg-white/10 text-white font-semibold">
+                  Category: {EDITORIAL_CATEGORIES.find(c => c.id === selectedCategory)?.label}
+                </span>
+              )}
+              {selectedTag && (
+                <span className="px-2 py-0.5 rounded bg-[var(--lp-accent,#67ff8f)]/10 text-[var(--lp-accent,#67ff8f)] font-mono border border-[var(--lp-accent,#67ff8f)]/20">
+                  #{selectedTag}
+                </span>
+              )}
+              {searchQuery && (
+                <span className="px-2 py-0.5 rounded bg-[#38bdf8]/10 text-[#38bdf8] font-mono border border-[#38bdf8]/20">
+                  Query: "{searchQuery}"
+                </span>
+              )}
+              <span className="text-gray-500">({filteredPosts.length} matches)</span>
+            </div>
             <button
-              onClick={() => setSelectedTag(null)}
+              onClick={() => {
+                setSelectedTag(null);
+                setSelectedCategory("all");
+                setSearchQuery("");
+              }}
               className="text-gray-400 hover:text-white underline cursor-pointer"
             >
-              Clear filter
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Empty State when 0 posts match */}
+        {filteredPosts.length === 0 && (
+          <div className="text-center py-20 px-4 bg-[#0a0c12] rounded-3xl border border-white/10 my-8">
+            <BookOpen className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">No Matching Dispatches</h3>
+            <p className="text-sm text-gray-400 max-w-md mx-auto mb-6 leading-relaxed">
+              No technical articles matched your current query or category filter. Try broadening your keywords or resetting filters.
+            </p>
+            <button
+              onClick={() => {
+                setSelectedTag(null);
+                setSelectedCategory("all");
+                setSearchQuery("");
+              }}
+              className="px-5 py-2.5 rounded-xl bg-[var(--lp-accent,#67ff8f)] text-black font-semibold text-xs transition-opacity hover:opacity-90 cursor-pointer shadow-[0_0_20px_rgba(103,255,143,0.2)]"
+            >
+              Reset All Filters
             </button>
           </div>
         )}
 
         {/* Featured Top Story Banner if on unfiltered feed */}
-        {featuredPost && !selectedTag && (
+        {featuredPost && !isFiltering && (
           <div
             onClick={() => navigate(`/blog/${featuredPost.slug}`)}
             className="group cursor-pointer mb-12 p-6 sm:p-8 rounded-3xl bg-[#0b0d13] border border-white/10 hover:border-[var(--lp-accent,#67ff8f)]/50 transition-all duration-300 hover:shadow-[0_0_40px_rgba(103,255,143,0.15)] grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
@@ -1035,7 +1276,7 @@ export default function BlogApp() {
 
         {/* 3-Column Responsive Story Grid */}
         <div className="post-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(selectedTag ? filteredPosts : gridPosts).map((post) => (
+          {gridPosts.map((post) => (
             <div
               key={post.id}
               onClick={() => navigate(`/blog/${post.slug}`)}

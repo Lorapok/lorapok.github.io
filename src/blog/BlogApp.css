@@ -107,9 +107,8 @@ html {
 /* ─── Hero ─── */
 .lolabo-hero {
   position: relative;
-  max-width: var(--lb-max-w);
+  width: 100%;
   margin: 0 auto;
-  padding: 6rem 2rem 4rem;
   text-align: center;
   overflow: hidden;
 }
@@ -144,11 +143,9 @@ html {
 }
 
 .hero-title {
-  font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  letter-spacing: -0.05em;
-  line-height: 0.9;
-  margin: 0 0 2rem;
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
 
 .hero-lo { color: var(--lb-accent); }
@@ -156,11 +153,19 @@ html {
 .hero-bo { color: var(--lb-text); opacity: 0.9; }
 
 .hero-subtitle {
-  max-width: 600px;
+  max-width: 680px;
   margin: 0 auto;
-  font-size: 1.15rem;
-  line-height: 1.8;
+  font-size: 1.125rem;
+  line-height: 1.75;
   color: var(--lb-text-muted);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ─── Tag Filter Bar ─── */
