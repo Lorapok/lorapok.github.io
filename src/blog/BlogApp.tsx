@@ -2,7 +2,7 @@
 // LoLaBo — Lorapok Labs Blog
 // Premium tech blog with AI-powered content generation and Medium-grade editorial layout
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -29,6 +29,12 @@ import {
   X,
   Radio,
   SlidersHorizontal,
+  ArrowUpDown,
+  Filter,
+  Tag,
+  Activity,
+  FileText,
+  ShieldCheck,
 } from "lucide-react";
 import { blogService } from "../lib/blogService";
 import SEOHead from "./components/SEOHead";
@@ -72,27 +78,95 @@ const AUTHOR_POOL: BlogAuthor[] = [
   { name: "Pixel Pete", designation: "Senior Aesthetic Engineer", avatar: "🎨" },
 ];
 
-export const EDITORIAL_CATEGORIES = [
+export interface EditorialCategory {
+  id: string;
+  label: string;
+  count?: number;
+}
+
+export const CORE_EDITORIAL_CATEGORIES: EditorialCategory[] = [
   { id: "all", label: "All Dispatches" },
   { id: "architecture", label: "Systems Architecture" },
   { id: "ai", label: "AI & Neural Systems" },
   { id: "backend", label: "Backend & Cloud" },
   { id: "mobile", label: "Mobile & Native" },
   { id: "security", label: "Security & Zero-Trust" },
+  { id: "distributed", label: "Distributed Systems" },
+  { id: "devops", label: "DevOps & SRE" },
+  { id: "performance", label: "Performance & Concurrency" },
+  { id: "agentic", label: "Autonomous Agents" },
 ];
 
-export const CURATED_TRENDING_TAGS = [
-  "Architecture",
-  "Microservices",
-  "Swift",
-  "Kotlin",
-  "ReactNative",
-  "DistributedSystems",
-  "Security",
-  "CloudNative",
-  "Inference",
-  "LLM",
+export interface EditorialTypeMeta {
+  id: string;
+  label: string;
+  badgeClass: string;
+  count?: number;
+}
+
+export const EDITORIAL_TYPES: EditorialTypeMeta[] = [
+  { id: "all", label: "All Formats", badgeClass: "bg-white/10 text-gray-300 border-white/10" },
+  { id: "architecture", label: "Architecture Blueprint", badgeClass: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+  { id: "deep-dive", label: "Deep Dive", badgeClass: "bg-purple-500/15 text-purple-300 border-purple-500/30" },
+  { id: "case-study", label: "Case Study", badgeClass: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+  { id: "benchmark", label: "Benchmark & Perf", badgeClass: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
+  { id: "research-brief", label: "Research Brief", badgeClass: "bg-blue-500/15 text-blue-300 border-blue-500/30" },
 ];
+
+export function getPostEditorialType(post: BlogPost): EditorialTypeMeta {
+  const text = `${post.title} ${post.excerpt || ""} ${(post.tags || []).join(" ")}`.toLowerCase();
+  if (text.includes("deep dive") || text.includes("inside the mechanics") || text.includes("reverse engineering") || text.includes("distillation")) {
+    return EDITORIAL_TYPES.find((t) => t.id === "deep-dive")!;
+  }
+  if (text.includes("case study") || text.includes("shift back") || text.includes("shopify") || text.includes("migration") || text.includes("beyond the bridge")) {
+    return EDITORIAL_TYPES.find((t) => t.id === "case-study")!;
+  }
+  if (text.includes("benchmark") || text.includes("latency") || text.includes("throughput") || text.includes("tradeoff") || text.includes("metric")) {
+    return EDITORIAL_TYPES.find((t) => t.id === "benchmark")!;
+  }
+  if (text.includes("architecture") || text.includes("topology") || text.includes("microservice") || text.includes("systems") || text.includes("blueprint")) {
+    return EDITORIAL_TYPES.find((t) => t.id === "architecture")!;
+  }
+  return EDITORIAL_TYPES.find((t) => t.id === "research-brief")!;
+}
+
+export function matchesCategory(post: BlogPost, catId: string): boolean {
+  if (catId === "all") return true;
+  const postCat = (post.category || "").toLowerCase();
+  const tagsStr = (post.tags || []).join(" ").toLowerCase();
+  const slugCat = postCat.replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
+
+  if (slugCat === catId) return true;
+
+  if (catId === "architecture") {
+    return postCat.includes("architecture") || postCat.includes("infra") || tagsStr.includes("architecture");
+  }
+  if (catId === "ai") {
+    return postCat.includes("ai") || postCat.includes("machine") || tagsStr.includes("ai") || tagsStr.includes("llm") || tagsStr.includes("model") || tagsStr.includes("neural");
+  }
+  if (catId === "backend") {
+    return postCat.includes("backend") || postCat.includes("infra") || tagsStr.includes("backend") || tagsStr.includes("microservices") || tagsStr.includes("cloudnative") || tagsStr.includes("cloud");
+  }
+  if (catId === "mobile") {
+    return postCat.includes("mobile") || postCat.includes("ux") || tagsStr.includes("swift") || tagsStr.includes("kotlin") || tagsStr.includes("reactnative") || tagsStr.includes("android") || tagsStr.includes("ios");
+  }
+  if (catId === "security") {
+    return postCat.includes("security") || tagsStr.includes("security") || tagsStr.includes("defense") || tagsStr.includes("evasion") || tagsStr.includes("zero-trust") || tagsStr.includes("watermark");
+  }
+  if (catId === "distributed") {
+    return postCat.includes("distributed") || tagsStr.includes("distributed") || tagsStr.includes("distributedsystems") || tagsStr.includes("concurrency");
+  }
+  if (catId === "devops") {
+    return postCat.includes("devops") || postCat.includes("deploy") || tagsStr.includes("devops") || tagsStr.includes("docker") || tagsStr.includes("kubernetes");
+  }
+  if (catId === "performance") {
+    return postCat.includes("performance") || tagsStr.includes("performance") || tagsStr.includes("concurrency") || tagsStr.includes("latency") || tagsStr.includes("optimization");
+  }
+  if (catId === "agentic") {
+    return postCat.includes("agent") || tagsStr.includes("agent") || tagsStr.includes("autonomous") || tagsStr.includes("multi-agent") || tagsStr.includes("loragent");
+  }
+  return false;
+}
 
 const DEMO_POSTS: BlogPost[] = [
   {
@@ -298,8 +372,10 @@ export default function BlogApp() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<BlogPost[]>(DEMO_POSTS);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "readTime" | "claps">("newest");
   const [loading, setLoading] = useState(true);
 
   // Article View Interactive States
@@ -381,52 +457,146 @@ export default function BlogApp() {
     }
   };
 
-  const filteredPosts = posts.filter((post) => {
-    // 1. Category Filter
-    if (selectedCategory !== "all") {
-      const cat = selectedCategory.toLowerCase();
-      const postCat = (post.category || "").toLowerCase();
-      const tagsStr = (post.tags || []).join(" ").toLowerCase();
+  // ─── Dynamic Aggregations & Metrics (100% Data-Driven) ───
+  const dynamicCategories = useMemo(() => {
+    const counts: Record<string, number> = { all: posts.length };
+    CORE_EDITORIAL_CATEGORIES.forEach((cat) => {
+      if (cat.id === "all") return;
+      counts[cat.id] = posts.filter((p) => matchesCategory(p, cat.id)).length;
+    });
 
-      let matches = false;
-      if (cat === "architecture") {
-        matches = postCat.includes("architecture") || postCat.includes("infra") || tagsStr.includes("architecture");
-      } else if (cat === "ai") {
-        matches = postCat.includes("ai") || postCat.includes("machine") || tagsStr.includes("ai") || tagsStr.includes("llm") || tagsStr.includes("model");
-      } else if (cat === "backend") {
-        matches = postCat.includes("backend") || postCat.includes("infra") || tagsStr.includes("backend") || tagsStr.includes("microservices") || tagsStr.includes("distributed");
-      } else if (cat === "mobile") {
-        matches = postCat.includes("mobile") || postCat.includes("ux") || tagsStr.includes("swift") || tagsStr.includes("reactnative") || tagsStr.includes("kotlin");
-      } else if (cat === "security") {
-        matches = postCat.includes("security") || tagsStr.includes("security") || tagsStr.includes("auth");
-      } else {
-        matches = postCat === cat;
-      }
-      if (!matches) return false;
-    }
+    const list: EditorialCategory[] = CORE_EDITORIAL_CATEGORIES.map((cat) => ({
+      ...cat,
+      count: counts[cat.id] || 0,
+    }));
 
-    // 2. Tag Filter
-    if (selectedTag) {
-      const normalizedSelected = selectedTag.toLowerCase().replace(/^#/, "").trim();
-      const hasTag = (post.tags || []).some(
-        (t) => t.toLowerCase().replace(/^#/, "").trim() === normalizedSelected
+    // Dynamically surface any unexpected categories published by agents
+    posts.forEach((p) => {
+      if (!p.category) return;
+      const isCovered = CORE_EDITORIAL_CATEGORIES.some(
+        (c) => c.id !== "all" && matchesCategory(p, c.id)
       );
-      if (!hasTag) return false;
-    }
+      if (!isCovered) {
+        const slug = p.category
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
+        const existing = list.find((c) => c.id === slug);
+        if (existing) {
+          existing.count = (existing.count || 0) + 1;
+        } else {
+          list.push({
+            id: slug,
+            label: p.category,
+            count: 1,
+          });
+        }
+      }
+    });
 
-    // 3. Search Query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      const inTitle = post.title.toLowerCase().includes(q);
-      const inExcerpt = (post.excerpt || "").toLowerCase().includes(q);
-      const inCategory = (post.category || "").toLowerCase().includes(q);
-      const inAuthor = (post.author?.name || "").toLowerCase().includes(q);
-      const inTags = (post.tags || []).some((t) => t.toLowerCase().includes(q));
-      if (!inTitle && !inExcerpt && !inCategory && !inAuthor && !inTags) return false;
-    }
+    return list;
+  }, [posts]);
 
-    return true;
-  });
+  const dynamicTypes = useMemo(() => {
+    const counts: Record<string, number> = { all: posts.length };
+    posts.forEach((p) => {
+      const t = getPostEditorialType(p).id;
+      counts[t] = (counts[t] || 0) + 1;
+    });
+    return EDITORIAL_TYPES.map((t) => ({
+      ...t,
+      count: counts[t.id] || 0,
+    }));
+  }, [posts]);
+
+  const dynamicTrendingTags = useMemo(() => {
+    const counts: Record<string, number> = {};
+    posts.forEach((p) => {
+      (p.tags || []).forEach((tag) => {
+        const clean = tag.trim().replace(/^#/, "");
+        if (!clean) return;
+        counts[clean] = (counts[clean] || 0) + 1;
+      });
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([tag, count]) => ({ tag, count }));
+  }, [posts]);
+
+  const dynamicStats = useMemo(() => {
+    const totalPosts = posts.length;
+    const activeCategoriesCount = dynamicCategories.filter(
+      (c) => c.id !== "all" && (c.count || 0) > 0
+    ).length;
+    const totalReadTime = posts.reduce((acc, p) => acc + (p.readTime || 5), 0);
+    const avgRead = totalPosts > 0 ? Math.round(totalReadTime / totalPosts) : 5;
+    const totalTopics = dynamicTrendingTags.length;
+
+    return {
+      totalPosts,
+      activeCategoriesCount,
+      avgRead,
+      totalTopics,
+    };
+  }, [posts, dynamicCategories, dynamicTrendingTags]);
+
+  const filteredPosts = useMemo(() => {
+    return posts
+      .filter((post) => {
+        // 1. Dynamic Category Filter
+        if (selectedCategory !== "all") {
+          if (!matchesCategory(post, selectedCategory)) return false;
+        }
+
+        // 2. Dynamic Type Filter
+        if (selectedType !== "all") {
+          const typeMeta = getPostEditorialType(post);
+          if (typeMeta.id !== selectedType) return false;
+        }
+
+        // 3. Dynamic Tag Filter
+        if (selectedTag) {
+          const normalizedSelected = selectedTag.toLowerCase().replace(/^#/, "").trim();
+          const hasTag = (post.tags || []).some(
+            (t) => t.toLowerCase().replace(/^#/, "").trim() === normalizedSelected
+          );
+          if (!hasTag) return false;
+        }
+
+        // 4. Search Query (Multi-Dimensional Search)
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          const typeMeta = getPostEditorialType(post);
+          const inTitle = post.title.toLowerCase().includes(q);
+          const inExcerpt = (post.excerpt || "").toLowerCase().includes(q);
+          const inCategory = (post.category || "").toLowerCase().includes(q);
+          const inAuthor = (post.author?.name || "").toLowerCase().includes(q);
+          const inTags = (post.tags || []).some((t) => t.toLowerCase().includes(q));
+          const inType = typeMeta.label.toLowerCase().includes(q);
+          if (!inTitle && !inExcerpt && !inCategory && !inAuthor && !inTags && !inType) return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "oldest") {
+          const dateA = new Date(a.publishedAt?.toDate ? a.publishedAt.toDate() : a.publishedAt).getTime() || 0;
+          const dateB = new Date(b.publishedAt?.toDate ? b.publishedAt.toDate() : b.publishedAt).getTime() || 0;
+          return dateA - dateB;
+        }
+        if (sortBy === "readTime") {
+          return (b.readTime || 0) - (a.readTime || 0);
+        }
+        if (sortBy === "claps") {
+          return (b.likes || 0) - (a.likes || 0);
+        }
+        // default: newest
+        const dateA = new Date(a.publishedAt?.toDate ? a.publishedAt.toDate() : a.publishedAt).getTime() || 0;
+        const dateB = new Date(b.publishedAt?.toDate ? b.publishedAt.toDate() : b.publishedAt).getTime() || 0;
+        return dateB - dateA;
+      });
+  }, [posts, selectedCategory, selectedType, selectedTag, searchQuery, sortBy]);
 
   if (loading) {
     return (
@@ -1031,7 +1201,7 @@ export default function BlogApp() {
             Rigorous systems architecture investigations, distributed runtime telemetry, and autonomous multi-agent engineering — synthesized and published every hour.
           </p>
 
-          {/* Live Publication Telemetry Bar */}
+          {/* Dynamic Live Publication Telemetry Bar */}
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs font-mono max-w-4xl mx-auto">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-gray-400">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
@@ -1040,11 +1210,15 @@ export default function BlogApp() {
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-[#38bdf8]" />
-                <span>INDEXED: <strong className="text-white font-semibold">{posts.length} DISPATCHES</strong></span>
+                <span>INDEXED: <strong className="text-white font-semibold">{dynamicStats.totalPosts} DISPATCHES</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
+                <span className="w-2 h-2 rounded-full bg-[#c084fc]" />
+                <span>DOMAINS: <strong className="text-white font-semibold">{dynamicStats.activeCategoriesCount} ACTIVE</strong></span>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 hidden md:flex">
-                <span className="w-2 h-2 rounded-full bg-[#c084fc]" />
-                <span>ENGINE: <strong className="text-white font-semibold">STANDALONE MICROSERVICE</strong></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span>AVG READ: <strong className="text-white font-semibold">{dynamicStats.avgRead} MINS</strong></span>
               </div>
             </div>
             
@@ -1077,10 +1251,10 @@ export default function BlogApp() {
 
       <main className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         
-        {/* Editorial Navigation & Search Console */}
+        {/* Editorial Navigation & Dynamic Multi-Dimensional Search Console */}
         <div className="mb-10 space-y-4">
-          {/* Header Row: Title & Real-Time Search */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+          {/* Header Row: Title, Real-Time Search & Sort */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/10">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
                 <span>Publications & Research Index</span>
@@ -1089,83 +1263,137 @@ export default function BlogApp() {
                 </span>
               </h2>
               <p className="text-xs text-gray-400 mt-1 font-mono">
-                PEER-REVIEWED SYSTEMS ARCHITECTURE & DECENTRALIZED INTELLIGENCE
+                AUTONOMOUS KNOWLEDGE GRAPH // {dynamicStats.totalPosts} DISPATCHES ACROSS {dynamicStats.totalTopics} TRACKED TOPICS
               </p>
             </div>
 
-            {/* Instant Real-Time Search Input */}
-            <div className="relative w-full sm:w-72 lg:w-80">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search articles, architecture, tags..."
-                className="w-full bg-[#0b0d14] border border-white/10 focus:border-[var(--lp-accent,#67ff8f)] rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[var(--lp-accent,#67ff8f)]/40 transition-all font-sans"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-0.5 cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
+            {/* Controls: Search + Sort Dropdown */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+              {/* Instant Real-Time Search Input */}
+              <div className="relative w-full sm:w-64 lg:w-72">
+                <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search architecture, tags, types..."
+                  className="w-full bg-[#0b0d14] border border-white/10 focus:border-[var(--lp-accent,#67ff8f)] rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[var(--lp-accent,#67ff8f)]/40 transition-all font-sans"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-0.5 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Dynamic Sort Selector */}
+              <div className="relative shrink-0">
+                <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0b0d14] border border-white/10 text-xs font-mono text-gray-300">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-[var(--lp-accent,#67ff8f)]" />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="bg-transparent text-gray-300 text-xs focus:outline-none cursor-pointer pr-1"
+                  >
+                    <option value="newest" className="bg-[#0b0d14] text-white">Newest First</option>
+                    <option value="oldest" className="bg-[#0b0d14] text-white">Oldest First</option>
+                    <option value="readTime" className="bg-[#0b0d14] text-white">Longest Reads</option>
+                    <option value="claps" className="bg-[#0b0d14] text-white">Most Clapped</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Primary Editorial Category Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {EDITORIAL_CATEGORIES.map((cat) => {
+          {/* Primary Editorial Category Tabs with Live Counts */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {dynamicCategories.map((cat) => {
               const isActive = selectedCategory === cat.id;
+              const hasItems = (cat.count || 0) > 0;
               return (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-wide whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
                     isActive
                       ? "bg-[var(--lp-accent,#67ff8f)] text-black font-bold shadow-[0_0_20px_rgba(103,255,143,0.3)]"
                       : "bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/[0.08] border border-white/5"
                   }`}
                 >
                   <span>{cat.label}</span>
+                  <span
+                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                      isActive
+                        ? "bg-black/20 text-black font-bold"
+                        : hasItems
+                        ? "bg-white/10 text-[var(--lp-accent,#67ff8f)]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {cat.count || 0}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* Curated Trending Topics Bar */}
+          {/* Editorial Types / Formats Filter Strip */}
           <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-1 scrollbar-none text-xs">
             <span className="font-mono text-[11px] text-gray-500 uppercase tracking-wider shrink-0 flex items-center gap-1.5 mr-1">
-              <SlidersHorizontal className="w-3 h-3 text-gray-400" />
+              <FileText className="w-3 h-3 text-purple-400" />
+              <span>Format:</span>
+            </span>
+            {dynamicTypes.map((t) => {
+              const isActive = selectedType === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setSelectedType(t.id)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border ${
+                    isActive
+                      ? "bg-white/15 text-white border-white/30 shadow-sm"
+                      : "bg-white/[0.02] text-gray-400 hover:text-gray-200 border-white/5 hover:border-white/10"
+                  }`}
+                >
+                  <span>{t.label}</span>
+                  <span className="text-[10px] text-gray-500">({t.count})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Dynamic Trending Topics Bar (Computed directly from post tags) */}
+          <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-1 scrollbar-none text-xs">
+            <span className="font-mono text-[11px] text-gray-500 uppercase tracking-wider shrink-0 flex items-center gap-1.5 mr-1">
+              <Tag className="w-3 h-3 text-cyan-400" />
               <span>Trending:</span>
             </span>
-            {CURATED_TRENDING_TAGS.map((tag) => {
+            {dynamicTrendingTags.map(({ tag, count }) => {
               const isSelected = selectedTag === tag;
               return (
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(isSelected ? null : tag)}
-                  className={`px-3 py-1 rounded-lg font-mono text-[11px] cursor-pointer transition-all shrink-0 border ${
+                  className={`px-2.5 py-1 rounded-lg font-mono text-[11px] cursor-pointer transition-all shrink-0 border ${
                     isSelected
-                      ? "bg-white/15 text-[var(--lp-accent,#67ff8f)] border-[var(--lp-accent,#67ff8f)]/50 shadow-sm"
+                      ? "bg-[var(--lp-accent,#67ff8f)]/15 text-[var(--lp-accent,#67ff8f)] border-[var(--lp-accent,#67ff8f)]/50 shadow-sm"
                       : "bg-white/[0.02] text-gray-400 hover:text-gray-200 border-white/5 hover:border-white/10"
                   }`}
                 >
-                  #{tag}
+                  <span>#{tag}</span>
+                  <span className="text-[9px] text-gray-500 ml-1">({count})</span>
                 </button>
               );
             })}
             {isFiltering && (
               <button
-                onClick={() => {
-                  setSelectedTag(null);
-                  setSelectedCategory("all");
-                  setSearchQuery("");
-                }}
+                onClick={handleResetFilters}
                 className="ml-auto text-xs text-red-400 hover:text-red-300 underline font-mono shrink-0 cursor-pointer pl-2"
               >
-                Reset filters
+                Reset all
               </button>
             )}
           </div>
@@ -1174,11 +1402,16 @@ export default function BlogApp() {
         {/* Active Filter Notification Bar */}
         {isFiltering && (
           <div className="mb-8 p-3.5 rounded-xl bg-white/[0.03] border border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-gray-300">
+            <div className="flex flex-wrap items-center gap-2 text-gray-300">
               <span className="text-gray-500">Filtered view:</span>
               {selectedCategory !== "all" && (
                 <span className="px-2 py-0.5 rounded bg-white/10 text-white font-semibold">
-                  Category: {EDITORIAL_CATEGORIES.find(c => c.id === selectedCategory)?.label}
+                  Category: {dynamicCategories.find((c) => c.id === selectedCategory)?.label || selectedCategory}
+                </span>
+              )}
+              {selectedType !== "all" && (
+                <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono border border-purple-500/30">
+                  Format: {dynamicTypes.find((t) => t.id === selectedType)?.label || selectedType}
                 </span>
               )}
               {selectedTag && (
@@ -1191,14 +1424,15 @@ export default function BlogApp() {
                   Query: "{searchQuery}"
                 </span>
               )}
+              {sortBy !== "newest" && (
+                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono border border-amber-500/20">
+                  Sorted: {sortBy}
+                </span>
+              )}
               <span className="text-gray-500">({filteredPosts.length} matches)</span>
             </div>
             <button
-              onClick={() => {
-                setSelectedTag(null);
-                setSelectedCategory("all");
-                setSearchQuery("");
-              }}
+              onClick={handleResetFilters}
               className="text-gray-400 hover:text-white underline cursor-pointer"
             >
               Clear all
@@ -1212,14 +1446,10 @@ export default function BlogApp() {
             <BookOpen className="w-12 h-12 text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">No Matching Dispatches</h3>
             <p className="text-sm text-gray-400 max-w-md mx-auto mb-6 leading-relaxed">
-              No technical articles matched your current query or category filter. Try broadening your keywords or resetting filters.
+              No technical articles matched your current combination of categories, editorial formats, or keywords.
             </p>
             <button
-              onClick={() => {
-                setSelectedTag(null);
-                setSelectedCategory("all");
-                setSearchQuery("");
-              }}
+              onClick={handleResetFilters}
               className="px-5 py-2.5 rounded-xl bg-[var(--lp-accent,#67ff8f)] text-black font-semibold text-xs transition-opacity hover:opacity-90 cursor-pointer shadow-[0_0_20px_rgba(103,255,143,0.2)]"
             >
               Reset All Filters
@@ -1250,8 +1480,12 @@ export default function BlogApp() {
               </span>
             </div>
             <div className="lg:col-span-5 flex flex-col justify-center">
-              <div className="flex items-center gap-3 text-xs font-mono text-gray-400 mb-3">
+              <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono text-gray-400 mb-3 flex-wrap">
                 <span className="text-[var(--lp-accent,#67ff8f)] uppercase font-semibold">{featuredPost.category}</span>
+                <span>•</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase border ${getPostEditorialType(featuredPost).badgeClass}`}>
+                  {getPostEditorialType(featuredPost).label}
+                </span>
                 <span>•</span>
                 <span>{featuredPost.readTime} MIN READ</span>
               </div>
@@ -1274,49 +1508,57 @@ export default function BlogApp() {
           </div>
         )}
 
-        {/* 3-Column Responsive Story Grid */}
+        {/* 3-Column Responsive Story Grid with Dynamic Category & Format Badges */}
         <div className="post-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gridPosts.map((post) => (
-            <div
-              key={post.id}
-              onClick={() => navigate(`/blog/${post.slug}`)}
-              className="post-card group cursor-pointer bg-[#0e0e16] border border-white/5 hover:border-[var(--lp-accent,#67ff8f)]/40 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_25px_rgba(103,255,143,0.1)] flex flex-col"
-            >
-              <div className="post-card-image relative aspect-video overflow-hidden bg-black/40">
-                {post.coverImage ? (
-                  <img
-                    src={post.coverImage}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="post-card-placeholder flex items-center justify-center h-full text-4xl">
-                    <span>{post.author.avatar}</span>
+          {gridPosts.map((post) => {
+            const postType = getPostEditorialType(post);
+            return (
+              <div
+                key={post.id}
+                onClick={() => navigate(`/blog/${post.slug}`)}
+                className="post-card group cursor-pointer bg-[#0e0e16] border border-white/5 hover:border-[var(--lp-accent,#67ff8f)]/40 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_25px_rgba(103,255,143,0.1)] flex flex-col"
+              >
+                <div className="post-card-image relative aspect-video overflow-hidden bg-black/40">
+                  {post.coverImage ? (
+                    <img
+                      src={post.coverImage}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="post-card-placeholder flex items-center justify-center h-full text-4xl">
+                      <span>{post.author.avatar}</span>
+                    </div>
+                  )}
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10 flex-wrap">
+                    <span className="post-card-category px-2.5 py-1 rounded-md text-[10px] font-mono uppercase tracking-wider bg-black/80 backdrop-blur-md text-[var(--lp-accent,#67ff8f)] border border-white/10">
+                      {post.category}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-md text-[9px] font-mono uppercase tracking-wider backdrop-blur-md border ${postType.badgeClass} bg-black/70`}>
+                      {postType.label}
+                    </span>
                   </div>
-                )}
-                <span className="post-card-category absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-mono uppercase tracking-wider bg-black/80 backdrop-blur-md text-[var(--lp-accent,#67ff8f)] border border-white/10">
-                  {post.category}
-                </span>
-              </div>
-              <div className="post-card-body p-6 flex flex-col flex-grow">
-                <h2 className="post-card-title text-lg sm:text-xl font-bold text-white group-hover:text-[var(--lp-accent,#67ff8f)] transition-colors mb-2 line-clamp-2 leading-snug">
-                  {post.title}
-                </h2>
-                <p className="post-card-excerpt text-gray-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-                  {post.excerpt}
-                </p>
-                <div className="post-card-footer pt-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
-                  <div className="post-card-author flex items-center gap-2">
-                    <span className="text-base">{post.author.avatar}</span>
-                    <span className="font-medium text-gray-300">{post.author.name}</span>
-                  </div>
-                  <div className="post-card-meta font-mono">
-                    <span>{post.readTime}m read</span>
+                </div>
+                <div className="post-card-body p-6 flex flex-col flex-grow">
+                  <h2 className="post-card-title text-lg sm:text-xl font-bold text-white group-hover:text-[var(--lp-accent,#67ff8f)] transition-colors mb-2 line-clamp-2 leading-snug">
+                    {post.title}
+                  </h2>
+                  <p className="post-card-excerpt text-gray-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+                    {post.excerpt}
+                  </p>
+                  <div className="post-card-footer pt-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
+                    <div className="post-card-author flex items-center gap-2">
+                      <span className="text-base">{post.author.avatar}</span>
+                      <span className="font-medium text-gray-300">{post.author.name}</span>
+                    </div>
+                    <div className="post-card-meta font-mono">
+                      <span>{post.readTime}m read</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>
