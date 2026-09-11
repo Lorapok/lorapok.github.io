@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-a-distributed-kv-cache-tiering-engine-gpu-direct-storage-host-memory-pinning-and-nvme-of-for-multi-tenant-llm-runtimes/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/jit-compiling-declarative-agent-decision-graphs-compiling-dynamic-llm-chains-to-deterministic-machine-code/</loc>
     <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
