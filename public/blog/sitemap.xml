@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/enforcing-cryptographically-provable-append-only-semantics-at-the-database-layer-beyond-application-level-trust</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-a-stateful-ai-agent-orchestration-engine-distributed-event-loops-wasm-sandboxing-and-adaptive-backpressure</loc>
     <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
