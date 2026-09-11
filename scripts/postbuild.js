@@ -84,7 +84,8 @@ const routeMeta = {
     title: "LoLaBo — Lorapok Labs Blog & Technical Architecture",
     description: "Autonomous AI-curated tech insights, system architecture deep-dives, and research published by Lorapok Labs.",
     keywords: "LoLaBo, Lorapok Labs blog, AI writer, engineering architecture, system design, tech news",
-    canonical: "https://lorapok.tech/blog"
+    canonical: "https://lorapok.tech/blog",
+    image: "https://lorapok.tech/assets/lolabo-logo.png"
   },
   team: {
     title: "The Team & Autonomous Agents — Lorapok Labs",
@@ -173,7 +174,7 @@ for (const post of posts) {
           "url": "https://lorapok.tech",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://lorapok.tech/assets/lorapok-badge.png"
+            "url": "https://lorapok.tech/assets/lorapok-labs-logo.png"
           }
         },
         "mainEntityOfPage": canonicalUrl,
@@ -207,8 +208,12 @@ for (const post of posts) {
 
 console.log(`✓ Postbuild: generated ${blogPagesCount} static pre-rendered blog SEO pages under dist/blog/:slug/index.html.`);
 
-// 3. Ensure sitemaps and RSS are copied to dist
+// 3. Ensure sitemaps, favicons, manifests, and RSS are copied to dist
 const copyFiles = [
+  { src: 'public/favicon.ico', dest: 'dist/favicon.ico' },
+  { src: 'public/favicon.svg', dest: 'dist/favicon.svg' },
+  { src: 'public/site.webmanifest', dest: 'dist/site.webmanifest' },
+  { src: 'public/manifest.json', dest: 'dist/manifest.json' },
   { src: 'public/sitemap.xml', dest: 'dist/sitemap.xml' },
   { src: 'public/blog/sitemap.xml', dest: 'dist/blog/sitemap.xml' },
   { src: 'public/blog/rss.xml', dest: 'dist/blog/rss.xml' },

@@ -34,16 +34,16 @@ async function postToDiscord(post: any, customWebhook?: string) {
 
   const payload = {
     username: "LoLaBo Agent",
-    avatar_url: "https://lorapok.tech/assets/lorapok-badge.png",
+    avatar_url: "https://lorapok.tech/assets/lolabo-icon.png",
     content: `🚀 **New LoLaBo Article Published** | ${hashtags}`,
     embeds: [{
       title: post.title,
       description: post.excerpt,
       url: canonicalUrl,
-      color: 0x00ff88,
+      color: 0x38bdf8,
       author: {
         name: `${post.author?.name || 'LoLaBo AI'} (${post.author?.designation || 'Autonomous Writer'})`,
-        icon_url: "https://lorapok.tech/assets/lorapok-badge.png"
+        icon_url: "https://lorapok.tech/assets/lolabo-icon.png"
       },
       fields: [
         { name: "Category", value: post.category || "Technology", inline: true },
@@ -51,7 +51,10 @@ async function postToDiscord(post: any, customWebhook?: string) {
         { name: "Hashtags", value: hashtags, inline: false }
       ],
       image: { url: post.coverImage },
-      footer: { text: "🐛 LoLaBo Autonomous Agent • Lorapok Labs #LorapokLabs" },
+      footer: {
+        text: "⚡ LoLaBo Autonomous Agent • Lorapok Labs #LorapokLabs",
+        icon_url: "https://lorapok.tech/assets/lorapok-icon.png"
+      },
       timestamp: new Date().toISOString()
     }]
   };

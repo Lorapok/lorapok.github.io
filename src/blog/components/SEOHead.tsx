@@ -1,4 +1,6 @@
 // src/blog/components/SEOHead.tsx
+// Dynamic Client-Side SEO, OpenGraph, JSON-LD Schema, and Brand Icon Engine for LoLaBo
+
 import { useEffect } from "react";
 import type { BlogPost } from "../BlogApp";
 
@@ -8,15 +10,24 @@ interface SEOHeadProps {
 
 export default function SEOHead({ post }: SEOHeadProps) {
   useEffect(() => {
+    // Dynamically set LoLaBo brand favicon on blog routes
+    updateFavicon("/assets/lolabo-icon.svg", "image/svg+xml");
+
     if (!post) {
-      document.title = "LoLaBo — Lorapok Labs Blog & Technical Insights";
+      document.title = "LoLaBo — Lorapok Labs Blog & Technical Architecture";
       updateMeta("description", "Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.");
       updateMeta("keywords", "Lorapok Labs, LoLaBo, AI engineering, biological UI, autonomous agents, open source, tech blog");
-      updateMeta("og:title", "LoLaBo — Lorapok Labs Blog & Technical Insights", "property");
+      updateMeta("og:title", "LoLaBo — Lorapok Labs Blog & Technical Architecture", "property");
       updateMeta("og:description", "Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.", "property");
+      updateMeta("og:image", "https://lorapok.tech/assets/lolabo-logo.png", "property");
       updateMeta("og:url", "https://lorapok.tech/blog", "property");
+      updateMeta("twitter:title", "LoLaBo — Lorapok Labs Blog & Technical Architecture");
+      updateMeta("twitter:description", "Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.");
+      updateMeta("twitter:image", "https://lorapok.tech/assets/lolabo-logo.png");
       updateCanonical("https://lorapok.tech/blog");
-      return;
+      return () => {
+        updateFavicon("/assets/lorapok-icon.svg", "image/svg+xml");
+      };
     }
 
     const canonicalUrl = `https://lorapok.tech/blog/${post.slug}`;
@@ -31,7 +42,7 @@ export default function SEOHead({ post }: SEOHeadProps) {
     // Open Graph
     updateMeta("og:title", post.title, "property");
     updateMeta("og:description", post.excerpt, "property");
-    updateMeta("og:image", post.coverImage, "property");
+    updateMeta("og:image", post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png", "property");
     updateMeta("og:url", canonicalUrl, "property");
     updateMeta("og:type", "article", "property");
     updateMeta("og:site_name", "Lorapok Labs", "property");
@@ -41,7 +52,7 @@ export default function SEOHead({ post }: SEOHeadProps) {
     updateMeta("twitter:site", "@LorapokLabs");
     updateMeta("twitter:title", post.title);
     updateMeta("twitter:description", post.excerpt);
-    updateMeta("twitter:image", post.coverImage);
+    updateMeta("twitter:image", post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png");
 
     // Published date resolution
     let pubDateIso = new Date().toISOString();
@@ -65,7 +76,7 @@ export default function SEOHead({ post }: SEOHeadProps) {
           },
           "headline": post.title,
           "description": post.excerpt,
-          "image": [post.coverImage],
+          "image": [post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png"],
           "datePublished": pubDateIso,
           "dateModified": pubDateIso,
           "author": {
@@ -79,7 +90,7 @@ export default function SEOHead({ post }: SEOHeadProps) {
             "url": "https://lorapok.tech",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://lorapok.tech/assets/lorapok-badge.png"
+              "url": "https://lorapok.tech/assets/lorapok-labs-logo.png"
             }
           },
           "mainEntityOfPage": canonicalUrl,
@@ -121,9 +132,23 @@ export default function SEOHead({ post }: SEOHeadProps) {
     }
     script.text = JSON.stringify(schema);
 
+    return () => {
+      updateFavicon("/assets/lorapok-icon.svg", "image/svg+xml");
+    };
   }, [post]);
 
   return null;
+}
+
+function updateFavicon(href: string, type: string = "image/svg+xml") {
+  let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+  link.type = type;
+  link.href = href;
 }
 
 function updateMeta(name: string, content: string, attr: "name" | "property" = "name") {

@@ -3,3 +3,4 @@ Allow: /
 Disallow: /dev
 
 Sitemap: https://lorapok.tech/sitemap.xml
+Sitemap: https://lorapok.tech/blog/sitemap.xml
