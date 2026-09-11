@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-a-petabyte-scale-columnar-merge-tree-storage-engine-sparse-indexing-simd-accelerated-filter-execution-and-zero-copy-compaction/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-high-throughput-vector-search-engines-lock-free-hnsw-graph-mutation-avx-512-quantization-and-memory-mapped-wal-topologies/</loc>
     <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
