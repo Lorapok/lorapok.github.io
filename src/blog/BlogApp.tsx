@@ -41,6 +41,7 @@ import { blogService } from "../lib/blogService";
 import { isFirebaseConfigured } from "../lib/firebase";
 import SEOHead from "./components/SEOHead";
 import LoLaBoLogo from "./components/LoLaBoLogo";
+import LoLaBoImage, { preloadImages } from "./components/LoLaBoImage";
 import "./BlogApp.css";
 
 // ─── Types ───
@@ -433,6 +434,8 @@ export default function BlogApp() {
           }));
           setPosts(formatted);
           setLoading(false);
+          // Prefetch top hero images in background for instant side-loading
+          preloadImages(formatted.map((p: any) => p.coverImage));
         }
 
         // Live Firestore synchronization: merge newly published articles into state
@@ -948,13 +951,15 @@ export default function BlogApp() {
             </div>
           </header>
 
-          {/* Expansive Hero Image */}
+          {/* Expansive Hero Image with Progressive Loading & Zero-Fail Fallback */}
           {currentPost.coverImage && (
             <figure className="max-w-6xl mx-auto mb-14">
               <div className="relative aspect-[21/9] sm:aspect-[16/7] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/50">
-                <img
+                <LoLaBoImage
                   src={currentPost.coverImage}
                   alt={currentPost.title}
+                  priority={true}
+                  fallbackCategory={currentPost.category}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -1285,11 +1290,14 @@ export default function BlogApp() {
                         className="group cursor-pointer flex gap-3 items-start"
                       >
                         {p.coverImage ? (
-                          <img
-                            src={p.coverImage}
-                            alt={p.title}
-                            className="w-16 h-12 rounded-lg object-cover shrink-0 border border-white/10 group-hover:opacity-80 transition-opacity"
-                          />
+                          <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10 group-hover:opacity-80 transition-opacity">
+                            <LoLaBoImage
+                              src={p.coverImage}
+                              alt={p.title}
+                              fallbackCategory={p.category}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
                         ) : (
                           <div className="w-16 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-base">
                             {p.author.avatar}
@@ -1361,9 +1369,10 @@ export default function BlogApp() {
                   >
                     <div className="relative aspect-video overflow-hidden bg-black/40">
                       {post.coverImage ? (
-                        <img
+                        <LoLaBoImage
                           src={post.coverImage}
                           alt={post.title}
+                          fallbackCategory={post.category}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
@@ -1751,9 +1760,11 @@ export default function BlogApp() {
           >
             <div className="lg:col-span-7 relative aspect-[16/9] overflow-hidden rounded-2xl bg-black/40 border border-white/10">
               {featuredPost.coverImage ? (
-                <img
+                <LoLaBoImage
                   src={featuredPost.coverImage}
                   alt={featuredPost.title}
+                  priority={true}
+                  fallbackCategory={featuredPost.category}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
@@ -1761,7 +1772,7 @@ export default function BlogApp() {
                   {featuredPost.author.avatar}
                 </div>
               )}
-              <span className="absolute top-4 left-4 px-3 py-1 rounded-md text-xs font-mono uppercase tracking-wider bg-black/80 backdrop-blur-md text-[var(--lp-accent,#67ff8f)] border border-white/15">
+              <span className="absolute top-4 left-4 px-3 py-1 rounded-md text-xs font-mono uppercase tracking-wider bg-black/80 backdrop-blur-md text-[var(--lp-accent,#67ff8f)] border border-white/15 z-10">
                 FEATURED DISPATCH
               </span>
             </div>
@@ -1815,9 +1826,10 @@ export default function BlogApp() {
               >
                 <div className="post-card-image relative aspect-video overflow-hidden bg-black/40">
                   {post.coverImage ? (
-                    <img
+                    <LoLaBoImage
                       src={post.coverImage}
                       alt={post.title}
+                      fallbackCategory={post.category}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (

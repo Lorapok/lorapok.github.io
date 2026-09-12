@@ -148,6 +148,13 @@ Every article MUST incorporate formal technical citations and academic reference
 3. A structured 'citations' array in the JSON response containing the citation objects.
 4. Include 'CitationsAvailable' in the 'tags' array.
 
+RESEARCH-MATCHED TECHNICAL COVER IMAGE SPECIFICATION:
+The 'imagePrompt' MUST be an ultra-detailed, domain-specific visual blueprint prompt directly illustrating the core engineering mechanism, data structures, or hardware components analyzed in this research article:
+• Never produce generic sci-fi, abstract humans, or generic cityscapes.
+• Explicitly illustrate the exact technical subject (e.g., for eBPF: 'Isometric cutaway diagram of Linux kernel space and user space boundary with circular ring buffers, packet filtering execution path, glowing neon cyan memory registers, dark charcoal matte chassis, octane render, 8k, photorealistic technical blueprint, zero text, zero watermark').
+• For consensus/distributed systems: 'State machine replication network nodes arranged in quorum ring, Raft leader election pulse, write-ahead log entries in emerald holographic shards, dark server rack backdrop, volumetric depth of field, 8k, zero text, zero watermark'.
+• For compilers/runtimes: 'AST abstract syntax tree nodes transforming into optimized bytecode assembly instructions, zero-copy buffer pools, dark glass aesthetic, glowing fiber optic traces, octane render 8k'.
+
 OUTPUT FORMAT (JSON):
 {
   "title": "Comprehensive, technical, click-worthy title",
@@ -168,7 +175,7 @@ OUTPUT FORMAT (JSON):
     }
   ],
   "imageKeywords": ["cloud architecture", "distributed systems", "datacenter"],
-  "imagePrompt": "Futuristic 3D visualization of ..., dark tech aesthetic, cinematic lighting, 8k",
+  "imagePrompt": "Detailed domain-specific technical prompt specifically illustrating this article's core mechanisms (no text, no watermark, 8k, octane render)",
   "seo": {
     "metaTitle": "... | LoLaBo — Lorapok Labs",
     "metaDescription": "...",
@@ -326,12 +333,22 @@ async function callAIProvider(provider: string, key: string, system: string, use
   console.log(`Calling ${effectiveProvider} API (jsonMode: ${jsonMode})...`);
   
   if (effectiveProvider === 'gemini') {
-    const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro'
-    ];
+    const requestedPro = provider === 'gemini-pro' || provider === 'gemini-2.5-pro';
+    const candidateModels = requestedPro 
+      ? [
+          'gemini-2.5-pro',
+          'gemini-2.5-flash',
+          'gemini-2.0-flash',
+          'gemini-1.5-pro',
+          'gemini-1.5-flash'
+        ]
+      : [
+          'gemini-2.5-flash',
+          'gemini-2.5-pro',
+          'gemini-2.0-flash',
+          'gemini-1.5-flash',
+          'gemini-1.5-pro'
+        ];
     let lastError: any = null;
 
     for (const model of candidateModels) {

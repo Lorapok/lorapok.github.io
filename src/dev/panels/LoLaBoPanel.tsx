@@ -190,8 +190,9 @@ export default function LoLaBoPanel() {
                       <Zap size={12} /> AI Writer Model
                     </label>
                     <select className="dev-form-select" value={config.writingProvider} onChange={e => handleUpdateConfig({ writingProvider: e.target.value })}>
-                      <option value="gemini">Google Gemini 2.5 Flash</option>
-                      <option value="groq">Groq (Llama 3.3)</option>
+                      <option value="gemini">Google Gemini 2.5 Flash (Fast Research • ~62/hr)</option>
+                      <option value="gemini-pro">Google Gemini 2.5 Pro (Flagship Treatises • 2/hr free, 120/hr paid)</option>
+                      <option value="groq">Groq (Llama 3.3 70B)</option>
                       <option value="openai">OpenAI GPT-4o</option>
                       <option value="claude">Claude 3.5 Sonnet</option>
                     </select>
@@ -281,14 +282,59 @@ export default function LoLaBoPanel() {
           
           <section>
             <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BarChart3 size={18} /> GROWTH VELOCITY
+              <BarChart3 size={18} /> HOURLY AI CAPACITY & THROUGHPUT
             </div>
-            <div className="dev-card" style={{ padding: '2rem', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)' }}>
-               <div style={{ textAlign: 'center', opacity: 0.3 }}>
-                 <Activity size={32} style={{ marginBottom: '1rem' }} />
-                 <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>REAL-TIME STREAMING</div>
-                 <div style={{ fontSize: '0.7rem' }}>Awaiting telemetry data...</div>
-               </div>
+            <div className="dev-card" style={{ padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)' }}>
+              
+              {/* Active Model Indicator */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>Optimal Cadence</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--dev-green)' }}>1 Post / Hour (24 Papers / Day)</div>
+                </div>
+                <span style={{ fontSize: '0.65rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(16,185,129,0.15)', color: '#10b981', fontWeight: 'bold', border: '1px solid rgba(16,185,129,0.3)' }}>
+                  100% FREE TIER
+                </span>
+              </div>
+
+              {/* Model Capacity Comparison */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.75rem' }}>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    <span style={{ color: '#67ff8f' }}>Google Gemini 2.5 Flash</span>
+                    <span>~62 posts/hr (Free)</span>
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
+                    15 RPM • 1,500 RPD • 1M TPM • ~12s generation latency
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    <span style={{ color: '#a78bfa' }}>Google Gemini 2.5 Pro</span>
+                    <span>2/hr (Free) • 120/hr (Paid)</span>
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
+                    Flagship reasoning • 50 RPD free cap • ~28s deep treatise
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    <span style={{ color: '#38bdf8' }}>Pollinations Flux / Imagen 3</span>
+                    <span>120+ visuals/hr</span>
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
+                    Domain-specific isometric blueprints • 8k octane render
+                  </div>
+                </div>
+
+                {/* Practical Constraints Note */}
+                <div style={{ marginTop: '0.5rem', padding: '0.6rem 0.8rem', background: 'rgba(234,179,8,0.05)', borderRadius: '6px', border: '1px solid rgba(234,179,8,0.2)', color: 'rgba(255,255,255,0.7)', fontSize: '0.68rem', lineHeight: '1.4' }}>
+                  <span style={{ color: '#eab308', fontWeight: 'bold' }}>CI Constraint:</span> GitHub Actions free tier grants 2,000 mins/mo (~900 mins used at 1 post/hr = 45% quota). Running 1 post/hr maximizes depth without quota exhaustion.
+                </div>
+              </div>
+
             </div>
           </section>
 

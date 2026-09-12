@@ -189,14 +189,31 @@ export async function generateCoverImage(
     }
   }
 
-  // 2. 100% Online AI Generation (Pollinations AI - Flux / Turbo Architecture)
+  // 2. 100% Online AI Generation (Pollinations AI - Flux Architecture)
   // Generates unique, cinematic, topic-tailored technical visuals with custom seeds
   const theme = resolveTechnicalTheme(title, category, tags, imageKeywords);
   const subjectTerms = (imageKeywords.length > 0 ? imageKeywords : tags.slice(0, 3)).join(', ');
   const cleanTitle = title.replace(/[^\w\s-]/g, ' ').replace(/\s+/g, ' ').trim();
   
-  const basePrompt = imagePrompt || `${cleanTitle}, ${category}, ${subjectTerms}, futuristic cybernetic architecture, dark minimalist tech aesthetic, glowing data streams, isometric blueprint elements, cinematic studio lighting, octane render, 8k`;
-  const cleanPrompt = basePrompt.replace(/[^\w\s,-]/g, ' ').slice(0, 200).trim();
+  let visualPrompt = '';
+  if (imagePrompt && imagePrompt.trim().length > 15) {
+    // Retain rich technical engineering prompt provided by LLM research synthesizer
+    visualPrompt = imagePrompt.trim()
+      .replace(/[\r\n\t]+/g, ' ')
+      .replace(/[^\w\s,.:;()/-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    // Append quality anchors if not already present
+    if (!visualPrompt.toLowerCase().includes('octane') && !visualPrompt.toLowerCase().includes('8k')) {
+      visualPrompt += ', dark minimalist tech aesthetic, octane render, 8k resolution, cinematic lighting, zero text, zero watermark';
+    }
+  } else {
+    // High-depth domain-specific architecture blueprint fallback
+    visualPrompt = `${cleanTitle}, ${category}, ${subjectTerms}, physical hardware and systems architecture diagram, isometric cutaway blueprint, glowing telemetry data paths, dark graphite chassis, volumetric lighting, photorealistic, octane render 8k, zero text, zero watermark`;
+  }
+
+  // Cap at 600 characters to preserve maximal detail for Flux while remaining safe in URL query
+  const cleanPrompt = visualPrompt.slice(0, 600).trim();
 
   let baseSeed = hashString(title + theme);
   let finalAiUrl = '';
