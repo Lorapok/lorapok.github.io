@@ -2,6 +2,22 @@
 // Social Media Distribution Module for LoLaBo
 // Produces executive, professional Discord rich embeds and social notifications
 
+import * as fs from 'fs';
+import * as path from 'path';
+
+// ─── Environment Auto-loading ───
+try {
+  const rootEnv = path.resolve(__dirname, '../.env');
+  const localEnv = path.resolve(__dirname, '.env');
+  if (typeof (process as any).loadEnvFile === 'function') {
+    if (fs.existsSync(localEnv)) {
+      (process as any).loadEnvFile(localEnv);
+    } else if (fs.existsSync(rootEnv)) {
+      (process as any).loadEnvFile(rootEnv);
+    }
+  }
+} catch (e) {}
+
 export interface DiscordDistributionResult {
   platform: 'discord';
   status: 'success' | 'failed' | 'skipped' | 'error';
