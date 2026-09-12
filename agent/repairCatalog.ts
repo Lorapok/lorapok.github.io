@@ -22,10 +22,9 @@ keyManager.initializeKeys();
 
 async function completeViaOnlineAI(title: string, tailContent: string): Promise<string> {
   const models = [
-    'gemini-3.7-flash',
-    'gemini-3.6-flash',
     'gemini-3.8-flash',
-    'gemini-3.5-flash'
+    'gemini-3.8-pro',
+    'gemini-pro-latest'
   ];
 
   const prompt = `You are a Principal Systems Architect completing an authoritative, publication-grade research article for Lorapok Labs.

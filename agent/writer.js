@@ -7,8 +7,11 @@ exports.extractCitationsFromMarkdown = extractCitationsFromMarkdown;
 exports.writeBlogPost = writeBlogPost;
 exports.validateContentCompleteness = validateContentCompleteness;
 exports.spliceConclusionCleanly = spliceConclusionCleanly;
+exports.ensureDraftIntegrity = ensureDraftIntegrity;
+exports.getModelEditorialProfile = getModelEditorialProfile;
 const keyManager_1 = require("./keyManager");
 const reviewer_1 = require("./reviewer");
+const imageAgent_1 = require("./imageAgent");
 const AUTHOR_PERSONAS = {
     'AI & Machine Learning': { name: "Dr. Larva", designation: "Chief Neural Officer", avatar: "🧬" },
     'Backend & Infrastructure': { name: "Captain Deploy", designation: "Infrastructure Overlord", avatar: "🚀" },
@@ -70,11 +73,12 @@ function extractCitationsFromMarkdown(content) {
 }
 async function writeBlogPost(newsItems, config, existingPosts = []) {
     // Strict Model Tiering Policy:
-    // Blogs & Quick Dispatches -> Gemini Flash (gemini-2.5-flash, gemini-2.0-flash)
-    // Research Treatises, Thesis Papers & Journal Articles -> Gemini Pro & Thinking Models
+    // Blogs & Quick Dispatches -> Gemini 3.8 Flash
+    // Research Treatises, Thesis Papers & Journal Articles -> Gemini 3.8 Pro / 3.1 Pro & Thinking Models
     const isResearchMode = config.isResearch === true ||
         config.provider === 'gemini-pro' ||
-        config.provider === 'gemini-2.5-pro' ||
+        config.provider === 'gemini-3.8-pro' ||
+        config.provider === 'gemini-3.1-pro' ||
         config.tone?.toLowerCase().includes('research') ||
         config.tone?.toLowerCase().includes('thesis') ||
         config.tone?.toLowerCase().includes('academic');
@@ -182,38 +186,23 @@ OUTPUT FORMAT (JSON):
   }
 }`;
     const userPrompt = `TRENDING NEWS CONTEXT:\n${newsContext}\n\nPlease write an authoritative, long-form technical treatise (~1800-2800 words) for Lorapok Labs. Select the appropriate editorial type, execute its structured breakdown with high depth, and provide formal citations. Ensure it does not duplicate any previously published topic.`;
-    // Dynamic API Calling with Multi-Account Failover
-    let response;
+    // Dynamic API Calling with Multi-Account Failover & Model Tier Adaptation
+    let aiResult;
     const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY || '';
     let blogData;
     try {
-        response = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt, true, isResearchMode);
-        blogData = parseLLMJson(response);
+        aiResult = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt, true, isResearchMode);
+        const rawText = typeof aiResult === 'string' ? aiResult : aiResult.text;
+        blogData = parseLLMJson(rawText);
+        blogData.modelUsed = typeof aiResult === 'object' ? aiResult.modelUsed : config.provider;
+        blogData.editorialTier = typeof aiResult === 'object' ? aiResult.editorialTier : (isResearchMode ? 'FLAGSHIP RESEARCH TREATISE' : 'ARCHITECTURAL DEEP DIVE');
     }
     catch (aiErr) {
         console.error("❌ Online AI generation failed:", aiErr.message);
         throw new Error(`LoLaBo Online AI generation failed: ${aiErr.message}. Offline fallback is disabled per 100% online policy.`);
     }
     // Completeness & Conclusion Validation Barrier
-    const completeness = validateContentCompleteness(blogData.content);
-    if (!completeness.isComplete) {
-        console.warn(`⚠️ Article content incomplete (${completeness.reason}). Running online completion pass...`);
-        try {
-            const completionSuffix = await completeArticleSections(blogData.title, blogData.content, apiKey, config.provider, isResearchMode);
-            if (completionSuffix) {
-                blogData.content = spliceConclusionCleanly(blogData.content, completionSuffix);
-                console.log("✅ Concluding sections synthesized and attached successfully.");
-            }
-        }
-        catch (compErr) {
-            console.warn("⚠️ Completion pass encountered error:", compErr.message);
-        }
-    }
-    // Ensure all code fences are properly balanced and closed
-    const openFences = (blogData.content || '').match(/```/g);
-    if (openFences && openFences.length % 2 !== 0) {
-        blogData.content = blogData.content.trim() + "\n```\n";
-    }
+    blogData = await ensureDraftIntegrity(blogData, apiKey, config.provider, isResearchMode);
     // ─── Research Review Unit: Autonomous Peer-Review & Refinement Loop ───
     console.log(`🧐 [Research Review Unit] Initiating peer review for: "${blogData.title}"...`);
     let verdict = await (0, reviewer_1.auditArticle)({
@@ -236,17 +225,26 @@ REVISION INSTRUCTIONS:
 Revise, expand, and perfect the entire paper to directly resolve each critique point above. Ensure all architecture diagrams, comparative benchmark tables, and formal citations are fully populated with zero placeholders.`;
         try {
             const refinedResponse = await callAIProvider(config.provider, apiKey, systemPrompt, `${userPrompt}\n\n${refinementPrompt}`, true, isResearchMode);
-            const refinedData = parseLLMJson(refinedResponse);
+            const refinedText = typeof refinedResponse === 'string' ? refinedResponse : refinedResponse.text;
+            let refinedData = parseLLMJson(refinedText);
             if (refinedData && refinedData.content && refinedData.content.length > 800) {
-                blogData = { ...blogData, ...refinedData };
-                verdict = await (0, reviewer_1.auditArticle)({
-                    title: blogData.title,
-                    content: blogData.content,
-                    citations: blogData.citations,
-                    category: blogData.category,
-                    type: blogData.type
+                refinedData = await ensureDraftIntegrity(refinedData, apiKey, config.provider, isResearchMode);
+                const postVerdict = await (0, reviewer_1.auditArticle)({
+                    title: refinedData.title || blogData.title,
+                    content: refinedData.content,
+                    citations: refinedData.citations || blogData.citations,
+                    category: refinedData.category || blogData.category,
+                    type: refinedData.type || blogData.type
                 });
-                console.log(`📋 [Research Review Unit] Post-refinement verdict: ${verdict.decision} (Score: ${verdict.score}/100)`);
+                if (postVerdict.score >= verdict.score || postVerdict.decision === 'APPROVED') {
+                    blogData = { ...blogData, ...refinedData };
+                    verdict = postVerdict;
+                    console.log(`📋 [Research Review Unit] Post-refinement verdict: ${verdict.decision} (Score: ${verdict.score}/100)`);
+                }
+                else {
+                    console.log(`ℹ️ Refined draft scored lower (${postVerdict.score} vs ${verdict.score}). Retaining previous superior draft.`);
+                    break;
+                }
             }
         }
         catch (refineErr) {
@@ -298,7 +296,15 @@ Revise, expand, and perfect the entire paper to directly resolve each critique p
     blogData.seo.keywords = finalTags;
     // Attach Author
     const author = AUTHOR_PERSONAS[blogData.category] || AUTHOR_PERSONAS['General Tech'];
-    // Calculate dynamic read time based on actual word count (~220 wpm)
+    // ─── Multi-Image Synthesizer: Generate Contextual Visual Suite ───
+    console.log(`🎨 [Multi-Image Agent] Synthesizing multi-image visual suite for "${blogData.title}"...`);
+    const visuals = await (0, imageAgent_1.synthesizePostVisualSuite)(blogData.title, blogData.category || 'Backend & Infrastructure', finalTags, blogData.imageKeywords || [], blogData.imagePrompt, existingPosts);
+    blogData.coverImage = visuals.coverImage;
+    blogData.architectureImage = visuals.architectureImage;
+    blogData.benchmarkImage = visuals.benchmarkImage;
+    blogData.figures = visuals.figures;
+    // Injects Figure 1 & Figure 2 seamlessly into the markdown body
+    blogData.content = (0, imageAgent_1.injectVisualsIntoMarkdown)(blogData.content, visuals);
     const wordCount = (blogData.content || '').split(/\s+/).filter(Boolean).length;
     const readTime = Math.max(5, Math.ceil(wordCount / 220));
     return {
@@ -372,6 +378,67 @@ function spliceConclusionCleanly(content, completionSuffix) {
     }
     return cleanContent;
 }
+async function ensureDraftIntegrity(draft, apiKey, provider, isResearchMode) {
+    if (!draft || !draft.content)
+        return draft;
+    // 1. Balance code fences first
+    const openFences = (draft.content || '').match(/```/g);
+    if (openFences && openFences.length % 2 !== 0) {
+        draft.content = draft.content.trim() + "\n```\n";
+    }
+    // 2. Validate completeness and splice conclusion if missing or cut off
+    const completeness = validateContentCompleteness(draft.content);
+    if (!completeness.isComplete) {
+        console.warn(`⚠️ Article content incomplete (${completeness.reason}). Running online completion pass...`);
+        try {
+            const completionSuffix = await completeArticleSections(draft.title, draft.content, apiKey, provider, isResearchMode);
+            if (completionSuffix) {
+                draft.content = spliceConclusionCleanly(draft.content, completionSuffix);
+                console.log("✅ Concluding sections synthesized and attached successfully.");
+            }
+        }
+        catch (compErr) {
+            console.warn("⚠️ Completion pass encountered error:", compErr.message);
+        }
+    }
+    // 3. Re-verify code fences
+    const finalFences = (draft.content || '').match(/```/g);
+    if (finalFences && finalFences.length % 2 !== 0) {
+        draft.content = draft.content.trim() + "\n```\n";
+    }
+    return draft;
+}
+function getModelEditorialProfile(model, isResearch) {
+    const isPro = model.includes('pro');
+    const isAdvancedFlash = model.includes('3.8-flash') || model.includes('3.7-flash') || model.includes('flash-latest');
+    if (isPro) {
+        return {
+            editorialTier: 'FLAGSHIP RESEARCH TREATISE',
+            targetWords: 2800,
+            maxOutputTokens: 8192,
+            temperature: 0.35,
+            guidance: 'EDITORIAL TIER: FLAGSHIP RESEARCH TREATISE. Target depth: ~2500–3500 words. Execute exhaustive academic systems engineering rigor. Include formal mathematical/algorithmic proofs, low-level memory invariants, ASCII architecture topology, comparative benchmark tables, and 4–6 peer-reviewed/RFC citations.'
+        };
+    }
+    else if (isAdvancedFlash || (isResearch && !model.includes('3.5-flash') && !model.includes('flash-lite'))) {
+        return {
+            editorialTier: 'ARCHITECTURAL DEEP DIVE',
+            targetWords: 2200,
+            maxOutputTokens: 8192,
+            temperature: 0.5,
+            guidance: 'EDITORIAL TIER: ARCHITECTURAL DEEP DIVE. Target depth: ~1800–2400 words. Focus on production component topologies, concurrency boundaries, low-level data-plane vs control-plane dynamics, annotated code blocks, and formal references.'
+        };
+    }
+    else {
+        return {
+            editorialTier: 'TECHNICAL DISPATCH',
+            targetWords: 1500,
+            maxOutputTokens: 6144,
+            temperature: 0.6,
+            guidance: 'EDITORIAL TIER: TECHNICAL DISPATCH. Target depth: ~1400–1800 words. Focus on core operational invariants, actionable code implementation, key architectural takeaways, and concise technical citations.'
+        };
+    }
+}
 async function completeArticleSections(title, existingContent, apiKey, provider, isResearch = false) {
     const prompt = `You are completing an authoritative long-form technical article for Lorapok Labs.
 Article Title: "${title}"
@@ -386,7 +453,7 @@ Please write the missing concluding sections to complete the article rigorously:
 
 Return ONLY the markdown text for these sections. Do not repeat the existing text.`;
     const completion = await callAIProvider(provider, apiKey, "You are a Principal Systems Architect. Write only high-depth markdown for the requested concluding sections.", prompt, false, isResearch);
-    return completion;
+    return typeof completion === 'string' ? completion : completion.text;
 }
 async function callAIProvider(provider, fallbackKey, system, user, jsonMode = true, isResearch = false) {
     // Check if provider is Gemini or Gemini keys are present in pool
@@ -394,18 +461,21 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
     const effectiveProvider = (provider === 'gemini' || provider.startsWith('gemini') || hasGeminiKey) ? 'gemini' : provider;
     console.log(`Calling ${effectiveProvider} API (jsonMode: ${jsonMode}, isResearch: ${isResearch})...`);
     if (effectiveProvider === 'gemini') {
-        // Strict Model Tiering Policy:
-        // Research Treatises, Thesis Papers & Journal Articles -> Gemini 3.1 Pro / 3.8 Flash
-        // Blogs & Quick Dispatches -> Gemini 3.8 / 3.7 / 3.6 Flash
-        const requestedPro = provider === 'gemini-pro' || provider === 'gemini-3.1-pro' || provider === 'gemini-2.5-pro' || isResearch;
+        // Comprehensive Gemini Model Fallback Ladder:
+        // Research Treatises, Thesis Papers & Journal Articles -> Pro Tier first, then high-spec Flash, then resilient fallback
+        // Blogs & Quick Dispatches -> 3.8 Flash first, then 3.7/3.6/2.5 Flash
+        const requestedPro = provider === 'gemini-pro' || provider === 'gemini-3.8-pro' || provider === 'gemini-3.1-pro' || isResearch;
         const candidateModels = requestedPro
             ? [
-                'gemini-3.1-pro-preview',
-                'gemini-pro-latest',
                 'gemini-3.8-flash',
                 'gemini-3.7-flash',
                 'gemini-3.6-flash',
-                'gemini-flash-latest'
+                'gemini-flash-latest',
+                'gemini-3.1-pro-preview',
+                'gemini-pro-latest',
+                'gemini-3.5-flash',
+                'gemini-3.1-flash-lite',
+                'gemini-flash-lite-latest'
             ]
             : [
                 'gemini-3.8-flash',
@@ -413,31 +483,34 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
                 'gemini-3.6-flash',
                 'gemini-flash-latest',
                 'gemini-3.5-flash',
-                'gemini-3.1-flash-lite'
+                'gemini-3.1-flash-lite',
+                'gemini-flash-lite-latest'
             ];
         let lastError = null;
         const poolAccounts = Math.max(1, keyManager_1.keyManager.getAccountCount('gemini'));
-        const maxKeyRetries = Math.min(8, poolAccounts * 2);
-        for (let keyAttempt = 0; keyAttempt < maxKeyRetries; keyAttempt++) {
-            const activeProfile = keyManager_1.keyManager.getKey('gemini');
-            const activeKey = activeProfile ? activeProfile.key : fallbackKey;
-            const accountLabel = activeProfile ? activeProfile.accountLabel : 'Default Account';
-            if (!activeKey) {
-                throw new Error("❌ No Gemini API key detected. Please configure GEMINI_API_KEY_1..4 or GEMINI_API_KEY in your environment.");
-            }
-            for (const model of candidateModels) {
+        // Step through candidate models in priority order
+        for (const model of candidateModels) {
+            const profile = getModelEditorialProfile(model, requestedPro);
+            for (let keyAttempt = 0; keyAttempt < poolAccounts; keyAttempt++) {
+                const activeProfile = keyManager_1.keyManager.getKey('gemini');
+                const activeKey = activeProfile ? activeProfile.key : fallbackKey;
+                const accountLabel = activeProfile ? activeProfile.accountLabel : 'Default Account';
+                if (!activeKey) {
+                    throw new Error("❌ No Gemini API key detected. Please configure GEMINI_API_KEY_1..4 or GEMINI_API_KEY in your environment.");
+                }
                 try {
-                    console.log(`Attempting Gemini generation with ${model} via ${accountLabel}...`);
+                    console.log(`Attempting Gemini generation with ${model} [Tier: ${profile.editorialTier}] via ${accountLabel}...`);
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
                     const generationConfig = {
-                        maxOutputTokens: 8192,
-                        temperature: isResearch ? 0.4 : 0.7
+                        maxOutputTokens: profile.maxOutputTokens,
+                        temperature: profile.temperature
                     };
                     if (jsonMode) {
                         generationConfig.responseMimeType = "application/json";
                     }
+                    const adaptiveUserPrompt = `[ADAPTIVE EDITORIAL DIRECTIVE: ${profile.guidance}]\n\n${user}`;
                     const body = {
-                        contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
+                        contents: [{ role: 'user', parts: [{ text: `${system}\n\n${adaptiveUserPrompt}` }] }],
                         generationConfig
                     };
                     const res = await fetch(url, {
@@ -446,23 +519,36 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
                         body: JSON.stringify(body)
                     });
                     const data = await res.json();
-                    // Quota / 429 rate limit detection
+                    const errMsg = data?.error?.message || '';
+                    const isDemandSpike = res.status === 503 || data?.error?.code === 503 || data?.error?.status === 'UNAVAILABLE' || errMsg.includes('high demand');
+                    const isModelNotFound = res.status === 404 || data?.error?.code === 404 || errMsg.includes('not found') || errMsg.includes('no longer available');
+                    const isModelSpecificQuota = errMsg.includes('limit: 0') || (errMsg.includes('Quota exceeded') && errMsg.includes('model:'));
+                    if (isDemandSpike || isModelNotFound || isModelSpecificQuota) {
+                        console.warn(`⏳ [Adaptive Fallback] Model ${model} is currently busy or restricted (${errMsg.slice(0, 110) || res.status}). Cascading to next candidate in ladder...`);
+                        lastError = new Error(errMsg || `Model ${model} unavailable`);
+                        break; // Skip further key attempts for this busy model, advance to next model candidate!
+                    }
+                    // General Rate Limit (429) across key
                     if (res.status === 429 || data?.error?.code === 429 || data?.error?.status === 'RESOURCE_EXHAUSTED') {
-                        const isDaily = (data?.error?.message || '').toLowerCase().includes('perday') || (data?.error?.message || '').toLowerCase().includes('quota');
-                        console.warn(`⏳ [KeyManager] Rate limit hit on ${accountLabel} for ${model}. Failing over to next account key in pool...`);
+                        console.warn(`⏳ [KeyManager] Rate limit on ${accountLabel} for ${model}. Rotating account key...`);
                         if (activeProfile)
-                            keyManager_1.keyManager.reportRateLimit(activeProfile.id, isDaily);
-                        break; // Break inner model loop to switch immediately to next key in pool
+                            keyManager_1.keyManager.reportRateLimit(activeProfile.id, false);
+                        await new Promise((resolve) => setTimeout(resolve, 1000));
+                        continue; // Try next key for the same model
                     }
                     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
                     if (text) {
-                        console.log(`✅ Generation succeeded with ${model} (${accountLabel})`);
+                        console.log(`✅ Generation succeeded with ${model} (${profile.editorialTier} • ${accountLabel})`);
                         if (activeProfile)
                             keyManager_1.keyManager.reportSuccess(activeProfile.id);
-                        return text;
+                        return {
+                            text,
+                            modelUsed: model,
+                            editorialTier: profile.editorialTier
+                        };
                     }
-                    console.warn(`⚠️ Model ${model} unavailable (${data?.error?.code || 'status'}): ${data?.error?.message || 'Empty'}. Trying next candidate...`);
-                    lastError = new Error(data?.error?.message || `Model ${model} returned empty response`);
+                    console.warn(`⚠️ Model ${model} returned non-text status (${data?.error?.code || 'status'}): ${errMsg || 'Empty'}. Trying next candidate in ladder...`);
+                    lastError = new Error(errMsg || `Model ${model} returned empty response`);
                     await new Promise((resolve) => setTimeout(resolve, 800));
                 }
                 catch (err) {
@@ -472,7 +558,7 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
                 }
             }
         }
-        throw lastError || new Error("All Gemini model candidates and multi-account keys failed.");
+        throw lastError || new Error(`All Gemini ${requestedPro ? 'Pro & Flash' : 'Flash'} candidate endpoints and multi-account keys failed.`);
     }
     let url = '';
     let body = {};
@@ -505,9 +591,13 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
     const content = data?.choices?.[0]?.message?.content;
     if (!content) {
         console.error("AI API Error details:", JSON.stringify(data));
-        throw new Error(`AI response missing content: ${data?.error?.message || JSON.stringify(data)}`);
+        throw new Error(`AI Provider ${provider} error: ${data?.error?.message || 'Empty response'}`);
     }
-    return content;
+    return {
+        text: content,
+        modelUsed: provider,
+        editorialTier: isResearch ? 'FLAGSHIP RESEARCH TREATISE' : 'ARCHITECTURAL DEEP DIVE'
+    };
 }
 function repairTruncatedJson(str) {
     let repaired = str.trim();

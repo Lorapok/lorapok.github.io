@@ -1,0 +1,12 @@
+{
+  "supervisor": "lolabo-watchdog-agent",
+  "version": "1.0.0",
+  "serverPid": 148794,
+  "serverStatus": "running",
+  "lastHealthcheckAt": "2026-09-12T21:30:44.385Z",
+  "lastDispatchAt": "2026-09-12T21:13:57.225Z",
+  "postsInCatalog": 18,
+  "totalRestarts": 1,
+  "lastCatchupAt": null,
+  "cadenceHours": 1
+}

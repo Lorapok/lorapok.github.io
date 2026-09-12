@@ -18,7 +18,12 @@ const STOP_WORDS = new Set([
   'the', 'and', 'for', 'with', 'from', 'this', 'that', 'into', 'over', 'back',
   'what', 'when', 'where', 'how', 'why', 'are', 'was', 'were', 'will', 'just',
   'about', 'after', 'before', 'deep', 'dive', 'architectural', 'inside', 'beyond',
-  'guide', 'building', 'overview'
+  'guide', 'building', 'overview',
+  // Generic systems & architectural terms that should not trigger false duplication
+  'architecting', 'architecture', 'design', 'engine', 'engineering', 'systems', 'system',
+  'high', 'throughput', 'zero', 'copy', 'memory', 'performance', 'distributed', 'modern',
+  'pipeline', 'analysis', 'benchmarking', 'benchmarks', 'scale', 'practical', 'real', 'world',
+  'towards', 'next', 'generation', 'advancements', 'implementing', 'understanding'
 ]);
 
 /**
@@ -197,7 +202,7 @@ export function validateDuplicatePost(
       };
     }
 
-    if (sharedTokens.length >= 4) {
+    if (sharedTokens.length >= 4 && overlap >= 0.40) {
       return {
         isDuplicate: true,
         matchedPost: existing,

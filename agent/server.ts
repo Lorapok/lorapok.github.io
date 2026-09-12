@@ -402,16 +402,18 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
     }
 
     // 5. Generate Editorial Visual (100% Online AI with Catalog Deduplication)
-    console.log("🎨 Generating topic-relevant cover visual...");
-    blogPost.coverImage = await generateCoverImage(
-      blogPost.title,
-      blogPost.tags,
-      config.imageGenMode || 'ai',
-      blogPost.category,
-      blogPost.imageKeywords || [],
-      blogPost.imagePrompt,
-      currentPosts
-    );
+    if (!blogPost.coverImage) {
+      console.log("🎨 Generating topic-relevant cover visual...");
+      blogPost.coverImage = await generateCoverImage(
+        blogPost.title,
+        blogPost.tags,
+        config.imageGenMode || 'ai',
+        blogPost.category,
+        blogPost.imageKeywords || [],
+        blogPost.imagePrompt,
+        currentPosts
+      );
+    }
 
     // 6. Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
     // Deterministic slug-based ID prevents duplicate document creations in Firestore
@@ -505,6 +507,26 @@ function startAutonomousDaemon(intervalHours = 1) {
   };
 
   scheduleNext();
+
+  // Immediate catch-up audit on startup (fires 3 seconds after socket opens)
+  setTimeout(async () => {
+    try {
+      const currentPosts = await getActivePosts();
+      if (currentPosts.length > 0) {
+        const latestPostDate = new Date(currentPosts[0].publishedAt || 0).getTime();
+        const elapsedHours = (Date.now() - latestPostDate) / (1000 * 60 * 60);
+        if (elapsedHours >= intervalHours) {
+          console.log(`🚀 [LoLaBo Daemon Startup Catch-up] Latest post was ${elapsedHours.toFixed(1)}h ago (threshold: ${intervalHours}h). Executing immediate catch-up cycle...`);
+          await executeDispatch();
+        }
+      } else {
+        console.log(`🚀 [LoLaBo Daemon Startup] Catalog empty. Executing initial post dispatch...`);
+        await executeDispatch();
+      }
+    } catch (startupErr: any) {
+      console.warn("⚠️ [LoLaBo Daemon Startup Catch-up] Notice:", startupErr.message);
+    }
+  }, 3000);
 
   setInterval(async () => {
     console.log(`⏰ [LoLaBo Daemon] Triggering scheduled hourly dispatch cycle...`);

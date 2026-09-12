@@ -4,108 +4,120 @@
     <loc>https://lorapok.tech/blog</loc>
     <lastmod>2026-09-12</lastmod>
     <changefreq>hourly</changefreq>
-    <priority>1.0</priority>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/engineering-a-vectorless-rag-engine-high-performance-in-memory-bm25-and-entity-graph-indexing-in-rust/</loc>
+    <loc>https://lorapok.tech/blog/architecting-deterministic-multi-gpu-physics-simulation-pipelines-for-robot-reinforcement-learning-cuda-virtual-memory-management-nvlink-ipc-and-lock-free-state-synchronization</loc>
     <lastmod>2026-09-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/demystifying-the-never-type-compile-time-invariant-enforcement-and-zero-cost-layout-optimization-in-high-performance-rust-runtimes/</loc>
+    <loc>https://lorapok.tech/blog/engineering-a-vectorless-rag-engine-high-performance-in-memory-bm25-and-entity-graph-indexing-in-rust</loc>
     <lastmod>2026-09-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/architecting-a-multi-modal-ingestion-engine-for-robotics-foundation-models-real-time-sensor-alignment-zero-copy-ring-buffers-and-gpudirect-storage-integration/</loc>
+    <loc>https://lorapok.tech/blog/demystifying-the-never-type-compile-time-invariant-enforcement-and-zero-cost-layout-optimization-in-high-performance-rust-runtimes</loc>
     <lastmod>2026-09-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/rfc-0089-micro-sandboxed-execution-runtimes-for-autonomous-ai-agents-via-landlock-lsm-and-seccomp-unotify/</loc>
+    <loc>https://lorapok.tech/blog/rfc-0112-zero-knowledge-provenance-and-cryptographic-integrity-verification-protocol-for-distributed-robot-training-datasets</loc>
     <lastmod>2026-09-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/architecting-a-distributed-kv-cache-tiering-engine-gpu-direct-storage-host-memory-pinning-and-nvme-of-for-multi-tenant-llm-runtimes/</loc>
+    <loc>https://lorapok.tech/blog/architecting-a-multi-modal-ingestion-engine-for-robotics-foundation-models-real-time-sensor-alignment-zero-copy-ring-buffers-and-gpudirect-storage-integration</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/rfc-0089-micro-sandboxed-execution-runtimes-for-autonomous-ai-agents-via-landlock-lsm-and-seccomp-unotify</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/architecting-a-distributed-kv-cache-tiering-engine-gpu-direct-storage-host-memory-pinning-and-nvme-of-for-multi-tenant-llm-runtimes</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/jit-compiling-declarative-agent-decision-graphs-compiling-dynamic-llm-chains-to-deterministic-machine-code/</loc>
+    <loc>https://lorapok.tech/blog/jit-compiling-declarative-agent-decision-graphs-compiling-dynamic-llm-chains-to-deterministic-machine-code</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/architecting-a-petabyte-scale-columnar-merge-tree-storage-engine-sparse-indexing-simd-accelerated-filter-execution-and-zero-copy-compaction/</loc>
+    <loc>https://lorapok.tech/blog/architecting-a-petabyte-scale-columnar-merge-tree-storage-engine-sparse-indexing-simd-accelerated-filter-execution-and-zero-copy-compaction</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/architecting-high-throughput-vector-search-engines-lock-free-hnsw-graph-mutation-avx-512-quantization-and-memory-mapped-wal-topologies/</loc>
+    <loc>https://lorapok.tech/blog/architecting-high-throughput-vector-search-engines-lock-free-hnsw-graph-mutation-avx-512-quantization-and-memory-mapped-wal-topologies</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/enforcing-cryptographically-provable-append-only-semantics-at-the-database-layer-beyond-application-level-trust/</loc>
+    <loc>https://lorapok.tech/blog/enforcing-cryptographically-provable-append-only-semantics-at-the-database-layer-beyond-application-level-trust</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/architecting-a-stateful-ai-agent-orchestration-engine-distributed-event-loops-wasm-sandboxing-and-adaptive-backpressure/</loc>
+    <loc>https://lorapok.tech/blog/architecting-a-stateful-ai-agent-orchestration-engine-distributed-event-loops-wasm-sandboxing-and-adaptive-backpressure</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/ebpf-kernel-probes-vs-user-space-telemetry-formal-micro-architectural-analysis-and-concurrency-limits/</loc>
+    <loc>https://lorapok.tech/blog/ebpf-kernel-probes-vs-user-space-telemetry-formal-micro-architectural-analysis-and-concurrency-limits</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/beyond-c-interop-engineering-production-rust-migration-pipelines-for-mission-critical-microservices/</loc>
+    <loc>https://lorapok.tech/blog/beyond-c-interop-engineering-production-rust-migration-pipelines-for-mission-critical-microservices</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/demystifying-zero-copy-serialization-in-rust-deep-dive-into-rkyv-and-flatbuffers/</loc>
+    <loc>https://lorapok.tech/blog/demystifying-zero-copy-serialization-in-rust-deep-dive-into-rkyv-and-flatbuffers</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/beyond-epoll-building-high-throughput-async-i-o-runtimes-in-rust-with-io-uring/</loc>
+    <loc>https://lorapok.tech/blog/beyond-epoll-building-high-throughput-async-i-o-runtimes-in-rust-with-io-uring</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/kernel-bypass-networking-in-rust-building-sub-microsecond-hft-engines-with-dpdk/</loc>
+    <loc>https://lorapok.tech/blog/kernel-bypass-networking-in-rust-building-sub-microsecond-hft-engines-with-dpdk</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/beyond-the-bridge-analyzing-shopify-s-architectural-shift-back-to-native-swift-and-kotlin/</loc>
+    <loc>https://lorapok.tech/blog/beyond-the-bridge-analyzing-shopify-s-architectural-shift-back-to-native-swift-and-kotlin</loc>
     <lastmod>2026-09-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lorapok.tech/blog/deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis/</loc>
+    <loc>https://lorapok.tech/blog/deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis</loc>
     <lastmod>2026-09-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

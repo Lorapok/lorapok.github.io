@@ -8,7 +8,7 @@ exports.formatComprehensiveReport = formatComprehensiveReport;
 exports.FREE_AI_PROVIDERS_DIRECTORY = [
     {
         name: "Google AI Studio",
-        bestFreeModel: "Gemini 2.5 Pro / Flash / 2.0 Thinking / Imagen 3",
+        bestFreeModel: "Gemini 3.8 Pro / 3.1 Pro / 3.8 Flash / Imagen 3",
         freeTierLimits: "15 RPM / 1,500 RPD (Flash), 2 RPM / 50 RPD (Pro) per account",
         bestUsedFor: "Flagship Research Treatises, Thesis Papers & Standard Blogs",
         signUpUrl: "https://aistudio.google.com/"
@@ -66,7 +66,7 @@ exports.FREE_AI_PROVIDERS_DIRECTORY = [
 exports.CAPACITY_PROFILES = {
     // ─── Single Google Account ───
     'gemini-flash-1x': {
-        modelName: 'Google Gemini 2.5 Flash (1 Account)',
+        modelName: 'Google Gemini 3.8 Flash (1 Account)',
         provider: 'Google AI Studio',
         role: 'Standard Technical Blogs & News Dispatches',
         tier: 'Free',
@@ -81,7 +81,7 @@ exports.CAPACITY_PROFILES = {
         dailyMaxPosts: 1500
     },
     'gemini-pro-1x': {
-        modelName: 'Google Gemini 2.5 Pro (1 Account)',
+        modelName: 'Google Gemini 3.8 Pro / 3.1 Pro (1 Account)',
         provider: 'Google AI Studio',
         role: 'Flagship Research Treatises & Thesis Deep Dives',
         tier: 'Free',
@@ -97,7 +97,7 @@ exports.CAPACITY_PROFILES = {
     },
     // ─── 4 Google Accounts Pool ───
     'gemini-flash-4x': {
-        modelName: 'Google Gemini 2.5 Flash (4 Accounts Pooled)',
+        modelName: 'Google Gemini 3.8 Flash (4 Accounts Pooled)',
         provider: 'Google AI Studio Pool',
         role: 'High-Velocity Technical Blogs & Real-Time Dispatches',
         tier: 'Free',
@@ -112,7 +112,7 @@ exports.CAPACITY_PROFILES = {
         dailyMaxPosts: 6000
     },
     'gemini-pro-4x': {
-        modelName: 'Google Gemini 2.5 Pro (4 Accounts Pooled)',
+        modelName: 'Google Gemini 3.8 Pro / 3.1 Pro (4 Accounts Pooled)',
         provider: 'Google AI Studio Pool',
         role: 'Exhaustive Research Papers, Thesis Treatises & Journals',
         tier: 'Free',
@@ -202,8 +202,8 @@ function formatComprehensiveReport() {
     r += "    - Peer-Review Audits by Research Review Unit: 2,000+ verification passes / day\n\n";
     r += "4. PRACTICAL WORKFLOW RECOMMENDATION:\n";
     r += "---------------------------------------------------------------------------------\n";
-    r += "• Blogs / News Dispatches: Run 1 post every hour using Gemini 2.5 Flash.\n";
-    r += "• Research Treatises / Thesis / Journals: Run on-demand or 2-4 flagship papers/day using Gemini 2.5 Pro.\n";
+    r += "• Blogs / News Dispatches: Run 1 post every hour using Gemini 3.8 Flash.\n";
+    r += "• Research Treatises / Thesis / Journals: Run on-demand or 2-4 flagship papers/day using Gemini 3.8 Pro / 3.1 Pro.\n";
     r += "• Research Review Unit: Runs a verification pass before publication to ensure 85+ score.\n";
     r += "=================================================================================\n";
     return r;

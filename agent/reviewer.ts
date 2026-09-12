@@ -227,47 +227,55 @@ ${article.content.slice(0, 10000)}
 
 Please peer-review this technical draft against the 100-point academic standard and output valid JSON.`;
 
-    // Always use active Gemini 3.x Flash for rapid academic reviewing
-    const reviewModel = 'gemini-3.8-flash';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${reviewModel}:generateContent?key=${keyProfile.key}`;
+    const candidateReviewModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: `${REVIEW_SYSTEM_PROMPT}\n\n${userPrompt}` }] }],
-        generationConfig: {
-          maxOutputTokens: 2048,
-          temperature: 0.2,
-          responseMimeType: "application/json"
+    for (const reviewModel of candidateReviewModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${reviewModel}:generateContent?key=${keyProfile.key}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: `${REVIEW_SYSTEM_PROMPT}\n\n${userPrompt}` }] }],
+            generationConfig: {
+              maxOutputTokens: 2048,
+              temperature: 0.2,
+              responseMimeType: "application/json"
+            }
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawJson) {
+            const parsed = JSON.parse(rawJson);
+            keyManager.reportSuccess(keyProfile.id);
+
+            const finalScore = typeof parsed.score === 'number' ? parsed.score : localVerdict.score;
+            const finalDecision = (finalScore >= 85 && (!parsed.criticalDefects || parsed.criticalDefects.length === 0)) ? 'APPROVED' : 'REVISION_REQUIRED';
+
+            console.log(`📋 [Research Review Unit via ${reviewModel}] Verdict: ${finalDecision} (Score: ${finalScore}/100)`);
+            return {
+              decision: finalDecision,
+              score: finalScore,
+              category: article.category || 'General Tech',
+              editorialType: article.type || 'DEEP DIVE',
+              rubricBreakdown: parsed.rubricBreakdown || localVerdict.rubricBreakdown,
+              strengths: parsed.strengths || localVerdict.strengths,
+              criticalDefects: parsed.criticalDefects || localVerdict.criticalDefects,
+              revisionInstructions: parsed.revisionInstructions || localVerdict.revisionInstructions
+            };
+          }
+        } else if (res.status === 429) {
+          keyManager.reportRateLimit(keyProfile.id);
+        } else if (res.status === 503 || res.status === 404) {
+          console.warn(`⏳ [Research Review Unit] Review model ${reviewModel} unavailable (${res.status}), trying next candidate in ladder...`);
+          continue;
         }
-      })
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (rawJson) {
-        const parsed = JSON.parse(rawJson);
-        keyManager.reportSuccess(keyProfile.id);
-
-        const finalScore = typeof parsed.score === 'number' ? parsed.score : localVerdict.score;
-        const finalDecision = (finalScore >= 85 && (!parsed.criticalDefects || parsed.criticalDefects.length === 0)) ? 'APPROVED' : 'REVISION_REQUIRED';
-
-        console.log(`📋 [Research Review Unit] Verdict: ${finalDecision} (Score: ${finalScore}/100)`);
-        return {
-          decision: finalDecision,
-          score: finalScore,
-          category: article.category || 'General Tech',
-          editorialType: article.type || 'DEEP DIVE',
-          rubricBreakdown: parsed.rubricBreakdown || localVerdict.rubricBreakdown,
-          strengths: parsed.strengths || localVerdict.strengths,
-          criticalDefects: parsed.criticalDefects || localVerdict.criticalDefects,
-          revisionInstructions: parsed.revisionInstructions || localVerdict.revisionInstructions
-        };
+      } catch (subErr: any) {
+        console.warn(`⚠️ [Research Review Unit] Review model ${reviewModel} failed:`, subErr.message);
       }
-    } else if (res.status === 429) {
-      keyManager.reportRateLimit(keyProfile.id);
     }
   } catch (err: any) {
     console.warn("⚠️ AI Peer-Review request encountered error; falling back to heuristic audit:", err.message);

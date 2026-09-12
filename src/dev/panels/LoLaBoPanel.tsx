@@ -190,9 +190,9 @@ export default function LoLaBoPanel() {
                       <Zap size={12} /> AI Model & Specialization Tier
                     </label>
                     <select className="dev-form-select" value={config.writingProvider} onChange={e => handleUpdateConfig({ writingProvider: e.target.value })}>
-                      <option value="gemini">Google Gemini 2.5 Flash (Standard Blogs • Fast ~62/hr)</option>
-                      <option value="gemini-pro">Google Gemini 2.5 Pro (Research & Thesis Treatises • 4x Pooled)</option>
-                      <option value="gemini-thinking">Google Gemini 2.0 Thinking (Chain-of-Thought Proofs)</option>
+                      <option value="gemini">Google Gemini 3.8 Flash (Standard Blogs • Fast ~62/hr)</option>
+                      <option value="gemini-pro">Google Gemini 3.8 Pro / 3.1 Pro (Research & Thesis Treatises • 4x Pooled)</option>
+                      <option value="gemini-thinking">Google Gemini 3.0 Thinking (Chain-of-Thought Proofs)</option>
                       <option value="groq">Groq Llama 3.3 70B (Blazing Fast Free Synthesis)</option>
                       <option value="cerebras">Cerebras Llama 3.3 70B (2,000 tok/sec Free)</option>
                       <option value="sambanova">SambaNova DeepSeek R1 671B (Full Reasoning Free)</option>

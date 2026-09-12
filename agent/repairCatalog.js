@@ -56,10 +56,9 @@ catch (e) { }
 keyManager_1.keyManager.initializeKeys();
 async function completeViaOnlineAI(title, tailContent) {
     const models = [
-        'gemini-3.7-flash',
-        'gemini-3.6-flash',
         'gemini-3.8-flash',
-        'gemini-3.5-flash'
+        'gemini-3.8-pro',
+        'gemini-pro-latest'
     ];
     const prompt = `You are a Principal Systems Architect completing an authoritative, publication-grade research article for Lorapok Labs.
 Article Title: "${title}"
