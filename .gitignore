@@ -33,3 +33,8 @@ dist-ssr
 agent/.credentials/
 *service-account*.json
 *serviceAccount*.json
+
+# Agent temporary staged broadcast
+.pending-broadcast.json
+agent/.pending-broadcast.json
+*.pending-broadcast.json

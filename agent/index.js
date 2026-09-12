@@ -359,7 +359,6 @@ async function runAgent() {
                     title: newPost.title,
                     post: newPost,
                     enabledSocials: config.enabledSocials || ['discord'],
-                    discordWebhookUrl: webhookUrl,
                     stagedAt: new Date().toISOString()
                 }, null, 2), 'utf8');
                 console.log(`✅ Post staged for broadcast after production deployment is confirmed live (HTTP 200).`);
