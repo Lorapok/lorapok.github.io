@@ -402,6 +402,24 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
   );
 }
 
+function ensureUniqueVisuals(postsList: BlogPost[]): BlogPost[] {
+  const seenUrls = new Set<string>();
+  return postsList.map((p, idx) => {
+    let url = (p.coverImage || "").trim();
+    const isUnsplash = url.includes("unsplash.com") || url.includes("photo-");
+    const isDup = seenUrls.has(url);
+    if (!url || isDup || isUnsplash) {
+      const cleanTitle = (p.title || `research-paper-${idx + 1}`).replace(/[^\w\s-]/g, " ").trim();
+      const prompt = `${cleanTitle}, systems architecture diagram, physical hardware cutaway, isometric blueprint, dark graphite chassis, glowing telemetry paths, octane render 8k, zero text`;
+      const charSum = (p.slug || p.title || "").split("").reduce((acc, c) => ((acc << 5) - acc) + c.charCodeAt(0), 0);
+      const seed = Math.abs(charSum + (idx + 1) * 7919) % 10000000;
+      url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt.slice(0, 320))}?width=1200&height=630&nologo=true&seed=${seed}&model=flux`;
+    }
+    seenUrls.add(url);
+    return { ...p, coverImage: url };
+  });
+}
+
 export default function BlogApp() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -428,10 +446,10 @@ export default function BlogApp() {
         const staticRes = await fetch(`/blog/posts.json${cacheBuster}`, { cache: "no-store" });
         if (staticRes.ok) {
           const staticPosts = await staticRes.json();
-          const formatted = staticPosts.map((p: any) => ({
+          const formatted = ensureUniqueVisuals(staticPosts.map((p: any) => ({
             ...p,
             publishedAt: { toDate: () => new Date(p.publishedAt) },
-          }));
+          })));
           setPosts(formatted);
           setLoading(false);
           // Prefetch top hero images in background for instant side-loading
@@ -447,11 +465,12 @@ export default function BlogApp() {
                 const map = new Map<string, any>();
                 prev.forEach((p) => map.set(p.slug || p.id, p));
                 live.forEach((p) => map.set(p.slug || p.id, p));
-                return Array.from(map.values()).sort((a: any, b: any) => {
+                const sorted = Array.from(map.values()).sort((a: any, b: any) => {
                   const dateA = a.publishedAt?.toDate ? a.publishedAt.toDate().getTime() : new Date(a.publishedAt).getTime();
                   const dateB = b.publishedAt?.toDate ? b.publishedAt.toDate().getTime() : new Date(b.publishedAt).getTime();
                   return dateB - dateA;
                 });
+                return ensureUniqueVisuals(sorted);
               });
             }
           } catch (liveErr) {

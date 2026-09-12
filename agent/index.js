@@ -213,7 +213,7 @@ async function runAgent() {
         intervalHours: 1,
         lastRunAt: null,
         writingProvider: 'gemini',
-        imageGenMode: 'auto',
+        imageGenMode: 'ai',
         enabledSocials: ['discord'],
         targetAudience: 'Developers & Engineers',
         tone: 'Technical & precise',
@@ -278,12 +278,20 @@ async function runAgent() {
         const news = await (0, collector_1.collectNews)(currentPosts);
         if (news.length === 0)
             throw new Error("No news collected.");
-        // 4. Content Generation (with anti-duplication prompt guidance)
+        // 4. Content Generation (with model tiering: Flash for Blogs, Pro for Research)
+        const isResearchMode = config.isResearchMode === true ||
+            config.writingProvider === 'gemini-pro' ||
+            config.writingProvider === 'gemini-2.5-pro' ||
+            (config.category && ['Architecture', 'AI & Machine Learning', 'Security'].includes(config.category));
         const blogPost = await (0, writer_1.writeBlogPost)(news, {
-            provider: config.writingProvider || 'gemini',
-            targetAudience: config.targetAudience || 'Developers',
-            tone: config.tone || 'Technical'
+            provider: config.writingProvider || (isResearchMode ? 'gemini-pro' : 'gemini'),
+            targetAudience: config.targetAudience || 'Developers & Systems Architects',
+            tone: config.tone || (isResearchMode ? 'Rigorous academic systems engineering' : 'Technical & precise'),
+            isResearch: isResearchMode
         }, currentPosts);
+        if (blogPost.peerReview) {
+            console.log(`🎓 [LoLaBo Review Verdict] Decision: ${blogPost.peerReview.decision} (Score: ${blogPost.peerReview.score}/100 by ${blogPost.peerReview.reviewedBy})`);
+        }
         // 5. Generate Slug
         blogPost.slug = blogPost.title
             .toLowerCase()
@@ -303,8 +311,8 @@ async function runAgent() {
             }
             console.log("⚠️ Force flag detected: Proceeding with publication despite duplicate detection.");
         }
-        // 7. Image Generation (Distinct, topic-relevant editorial cover)
-        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'auto', blogPost.category, blogPost.imageKeywords || [], blogPost.imagePrompt);
+        // 7. Online AI Image Generation (Distinct, topic-relevant editorial cover with zero catalog duplicates)
+        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'ai', blogPost.category, blogPost.imageKeywords || [], blogPost.imagePrompt, currentPosts);
         // 8. Deterministic Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
         const docId = blogPost.slug;
         const newPost = {
@@ -335,11 +343,27 @@ async function runAgent() {
         console.log(`✅ Post persisted locally to ${postsJsonPath} (${updatedPosts.length} total posts)`);
         // Update sitemaps & RSS feed
         updateFeedsLocally(updatedPosts, dir);
-        // 9. Social Distribution
+        // 9. Synchronized Social Distribution (Staged for live verification)
         const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
+        const pendingBroadcastPath = path.resolve(__dirname, '.pending-broadcast.json');
+        const isBroadcastNow = process.argv.includes('--broadcast-now');
         if (webhookUrl && webhookUrl.trim()) {
-            console.log("📢 Broadcasting to Discord webhook...");
-            await (0, distributor_1.distributeSocially)(newPost, config.enabledSocials || ['discord'], webhookUrl);
+            if (isBroadcastNow) {
+                console.log("📢 Immediate broadcast requested (--broadcast-now)...");
+                await (0, distributor_1.distributeSocially)(newPost, config.enabledSocials || ['discord'], webhookUrl);
+            }
+            else {
+                console.log("📋 Staging post for synchronized live broadcast (.pending-broadcast.json)...");
+                fs.writeFileSync(pendingBroadcastPath, JSON.stringify({
+                    slug: newPost.slug,
+                    title: newPost.title,
+                    post: newPost,
+                    enabledSocials: config.enabledSocials || ['discord'],
+                    discordWebhookUrl: webhookUrl,
+                    stagedAt: new Date().toISOString()
+                }, null, 2), 'utf8');
+                console.log(`✅ Post staged for broadcast after production deployment is confirmed live (HTTP 200).`);
+            }
         }
         else {
             console.log("ℹ️ [Discord Broadcast] Skipped: No DISCORD_WEBHOOK_URL configured in environment or Firestore.");

@@ -328,7 +328,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       writingProvider: 'gemini',
       targetAudience: 'Developers & Systems Architects',
       tone: 'Technical, deep-dive & architectural',
-      imageGenMode: 'auto',
+      imageGenMode: 'ai',
       enabledSocials: ['discord'],
       discordWebhookUrl: process.env.DISCORD_WEBHOOK_URL
     };
@@ -406,7 +406,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
     blogPost.coverImage = await generateCoverImage(
       blogPost.title,
       blogPost.tags,
-      config.imageGenMode || 'auto',
+      config.imageGenMode || 'ai',
       blogPost.category,
       blogPost.imageKeywords || [],
       blogPost.imagePrompt,

@@ -355,7 +355,7 @@ async function executeDispatch(options = {}) {
             writingProvider: 'gemini',
             targetAudience: 'Developers & Systems Architects',
             tone: 'Technical, deep-dive & architectural',
-            imageGenMode: 'auto',
+            imageGenMode: 'ai',
             enabledSocials: ['discord'],
             discordWebhookUrl: process.env.DISCORD_WEBHOOK_URL
         };
@@ -422,9 +422,9 @@ async function executeDispatch(options = {}) {
                 console.log("⚠️ Force flag active: Proceeding with publication despite duplicate detection.");
             }
         }
-        // 5. Generate Editorial Visual
+        // 5. Generate Editorial Visual (100% Online AI with Catalog Deduplication)
         console.log("🎨 Generating topic-relevant cover visual...");
-        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'auto', blogPost.category, blogPost.imageKeywords || [], blogPost.imagePrompt);
+        blogPost.coverImage = await (0, imageGen_1.generateCoverImage)(blogPost.title, blogPost.tags, config.imageGenMode || 'ai', blogPost.category, blogPost.imageKeywords || [], blogPost.imagePrompt, currentPosts);
         // 6. Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
         // Deterministic slug-based ID prevents duplicate document creations in Firestore
         const postId = blogPost.slug;
@@ -549,8 +549,8 @@ const server = http.createServer(async (req, res) => {
             databaseConnected: Boolean(db),
             databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
             aiConfigured: hasAiKey,
-            aiProvider: hasAiKey ? 'Google Gemini' : 'Offline Synthesis Engine',
-            aiModel: hasAiKey ? 'gemini-3.6-flash' : 'offline-synthesis',
+            aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
+            aiModel: hasAiKey ? 'gemini-2.5-flash' : 'none',
             timestamp: new Date().toISOString(),
             nodeVersion: process.version
         });
@@ -564,8 +564,8 @@ const server = http.createServer(async (req, res) => {
             databaseConnected: Boolean(db),
             databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
             aiConfigured: hasAiKey,
-            aiProvider: hasAiKey ? 'Google Gemini' : 'Offline Synthesis Engine',
-            aiModel: hasAiKey ? 'gemini-3.6-flash' : 'offline-synthesis',
+            aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
+            aiModel: hasAiKey ? 'gemini-2.5-flash' : 'none',
             cachedPostsCount: posts.length,
             memory: process.memoryUsage(),
             system: {

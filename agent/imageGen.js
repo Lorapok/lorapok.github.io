@@ -4,6 +4,8 @@
 // Guarantees distinct, topic-relevant, high-resolution editorial cover images for every post
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolveTechnicalTheme = resolveTechnicalTheme;
+exports.buildFluxImageUrl = buildFluxImageUrl;
+exports.normalizePostImages = normalizePostImages;
 exports.generateCoverImage = generateCoverImage;
 // ─── Curated, Verified 1200x630 Tech Photography Banks ───
 // All photos verified active, high-resolution, dark aesthetic, optimized for editorial tech covers
@@ -113,52 +115,94 @@ function resolveTechnicalTheme(title, category = '', tags = [], keywords = []) {
     return 'general_tech';
 }
 /**
- * Generates or selects a distinct, professionally matched cover image for a blog post
+ * Builds a deterministic, high-definition online AI Flux image URL for a post
  */
-async function generateCoverImage(title, tags = [], mode = 'auto', category = 'General Tech', imageKeywords = [], imagePrompt) {
-    console.log(`🎨 Selecting professional cover image for: "${title}" (Mode: ${mode})...`);
-    // 1. Live Unsplash API (if API key is available)
-    const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
-    if (unsplashKey && (mode === 'stock' || mode === 'auto')) {
-        try {
-            const searchKeyword = (imageKeywords[0] || tags[0] || category || 'technology').replace(/[^a-zA-Z0-9]/g, ' ');
-            console.log(`🔍 Querying Unsplash API for keyword: "${searchKeyword}"...`);
-            const res = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchKeyword + ' technology dark')}&orientation=landscape&per_page=5`, {
-                headers: { 'Authorization': `Client-ID ${unsplashKey}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                const results = data.results || [];
-                if (results.length > 0) {
-                    const index = hashString(title) % results.length;
-                    const url = results[index]?.urls?.regular || results[0]?.urls?.regular;
-                    if (url) {
-                        console.log(`✅ Unsplash API selected photo: ${url}`);
-                        return `${url}&auto=format&fit=crop&q=85&w=1200&h=630`;
-                    }
-                }
-            }
-        }
-        catch (e) {
-            console.warn("⚠️ Unsplash API query failed, proceeding to curated library:", e);
-        }
-    }
-    // 2. Pollinations AI Mode (if explicitly requested)
-    if (mode === 'pollinations' || mode === 'ai') {
-        const prompt = imagePrompt || `${title}, futuristic dark minimalist technology, 3d render, octane, 8k`;
-        const cleanPrompt = prompt.replace(/[^\w\s,-]/g, ' ').slice(0, 150);
-        const seed = hashString(title);
-        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1200&height=630&nologo=true&seed=${seed}`;
-        console.log(`✅ Generated Pollinations AI image URL with seed ${seed}`);
-        return pollinationsUrl;
-    }
-    // 3. High-Fidelity Curated Photo Selection (Zero-fail, instant, guaranteed distinct)
+function buildFluxImageUrl(title, category = 'General Tech', tags = [], imageKeywords = [], imagePrompt, seed) {
     const theme = resolveTechnicalTheme(title, category, tags, imageKeywords);
-    const photoList = THEME_PHOTO_BANKS[theme] || THEME_PHOTO_BANKS.general_tech;
-    // Use deterministic hash of title to guarantee distinct selection without duplication
-    const photoIndex = hashString(title + theme) % photoList.length;
-    const selectedPhotoId = photoList[photoIndex];
-    const finalUrl = `https://images.unsplash.com/${selectedPhotoId}?auto=format&fit=crop&q=85&w=1200&h=630`;
-    console.log(`✅ Matched Theme "${theme}" → Selected distinct photo ID: ${selectedPhotoId}`);
-    return finalUrl;
+    const subjectTerms = (imageKeywords.length > 0 ? imageKeywords : tags.slice(0, 3)).join(', ');
+    const cleanTitle = title.replace(/[^\w\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+    let visualPrompt = '';
+    if (imagePrompt && imagePrompt.trim().length > 15) {
+        visualPrompt = imagePrompt.trim()
+            .replace(/[\r\n\t]+/g, ' ')
+            .replace(/[^\w\s,.:;()/-]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        if (!visualPrompt.toLowerCase().includes('octane') && !visualPrompt.toLowerCase().includes('8k')) {
+            visualPrompt += ', dark minimalist tech aesthetic, octane render, 8k resolution, cinematic lighting, zero text, zero watermark';
+        }
+    }
+    else {
+        visualPrompt = `${cleanTitle}, ${category}, ${subjectTerms}, physical hardware and systems architecture diagram, isometric cutaway blueprint, glowing telemetry data paths, dark graphite chassis, volumetric lighting, photorealistic, octane render 8k, zero text, zero watermark`;
+    }
+    const cleanPrompt = visualPrompt.slice(0, 600).trim();
+    const calculatedSeed = seed !== undefined ? seed : (hashString(cleanTitle + theme) % 10000000);
+    return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1200&height=630&nologo=true&seed=${calculatedSeed}&model=flux`;
+}
+/**
+ * Normalizes an entire catalog of posts to guarantee 100% unique, online AI Flux cover images.
+ * Replaces any stock photography (Unsplash) and eliminates all duplicate image URLs.
+ */
+function normalizePostImages(posts) {
+    if (!Array.isArray(posts))
+        return { posts: [], updatedCount: 0 };
+    const seenUrls = new Set();
+    let updatedCount = 0;
+    for (let i = 0; i < posts.length; i++) {
+        const post = posts[i];
+        if (!post)
+            continue;
+        let currentUrl = (post.coverImage || '').trim();
+        const isUnsplash = currentUrl.includes('unsplash.com') || currentUrl.includes('photo-');
+        const isDuplicate = seenUrls.has(currentUrl);
+        const isMissing = !currentUrl;
+        if (isUnsplash || isDuplicate || isMissing) {
+            // Generate a distinct, guaranteed unique Pollinations AI Flux URL
+            let primeOffset = 0;
+            let candidateUrl = '';
+            const baseSeed = Math.abs(hashString((post.slug || post.id || post.title || '') + i) % 10000000);
+            while (primeOffset < 50) {
+                const candidateSeed = (baseSeed + primeOffset * 104729 + (i + 1) * 7919) % 10000000;
+                candidateUrl = buildFluxImageUrl(post.title || `Technical Research Paper ${i + 1}`, post.category || 'Backend & Infrastructure', post.tags || [], post.imageKeywords || [], post.imagePrompt, candidateSeed);
+                if (!seenUrls.has(candidateUrl)) {
+                    break;
+                }
+                primeOffset++;
+            }
+            console.log(`🔄 [LoLaBo Image Normalizer] Replaced ${isUnsplash ? 'Unsplash' : isDuplicate ? 'duplicate' : 'missing'} visual on "${post.slug || post.title}" with unique AI Flux image.`);
+            post.coverImage = candidateUrl;
+            updatedCount++;
+        }
+        seenUrls.add(post.coverImage);
+    }
+    return { posts, updatedCount };
+}
+/**
+ * Generates or selects a distinct, professionally matched cover image for a blog post.
+ * Enforces 100% online AI generation (Flux) and strict catalog deduplication (zero image reuse).
+ */
+async function generateCoverImage(title, tags = [], mode = 'auto', category = 'General Tech', imageKeywords = [], imagePrompt, existingPosts = []) {
+    console.log(`🎨 Generating distinct online AI cover image for: "${title}" (Mode: ${mode})...`);
+    // Build a set of all previously used image URLs to guarantee zero duplication
+    const usedImages = new Set();
+    for (const p of existingPosts) {
+        if (p && p.coverImage && typeof p.coverImage === 'string') {
+            usedImages.add(p.coverImage.trim());
+        }
+    }
+    // 100% Online AI Generation (Pollinations AI - Flux Architecture)
+    // Generates unique, cinematic, topic-tailored technical visuals with custom seeds
+    const theme = resolveTechnicalTheme(title, category, tags, imageKeywords);
+    const baseSeed = hashString(title + theme);
+    for (let attempt = 0; attempt < 50; attempt++) {
+        const candidateSeed = (baseSeed + attempt * 104729 + Date.now() % 10000) % 100000000;
+        const candidateUrl = buildFluxImageUrl(title, category, tags, imageKeywords, imagePrompt, candidateSeed);
+        if (!usedImages.has(candidateUrl)) {
+            console.log(`✅ Generated 100% unique online AI Flux cover image (Seed verified against ${usedImages.size} existing catalog images)`);
+            return candidateUrl;
+        }
+    }
+    // Guaranteed fallback: timestamp-salted AI Flux URL
+    const emergencySeed = (baseSeed + Date.now()) % 100000000;
+    return buildFluxImageUrl(title, category, tags, imageKeywords, imagePrompt, emergencySeed);
 }

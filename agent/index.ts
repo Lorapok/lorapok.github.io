@@ -172,7 +172,7 @@ async function runAgent() {
     intervalHours: 1,
     lastRunAt: null,
     writingProvider: 'gemini',
-    imageGenMode: 'auto',
+    imageGenMode: 'ai',
     enabledSocials: ['discord'],
     targetAudience: 'Developers & Engineers',
     tone: 'Technical & precise',
@@ -282,7 +282,7 @@ async function runAgent() {
     blogPost.coverImage = await generateCoverImage(
       blogPost.title,
       blogPost.tags,
-      config.imageGenMode || 'auto',
+      config.imageGenMode || 'ai',
       blogPost.category,
       blogPost.imageKeywords || [],
       blogPost.imagePrompt,

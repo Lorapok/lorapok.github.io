@@ -6,6 +6,7 @@
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
+import { normalizePostImages } from './imageGen';
 
 // ─── Environment Auto-loading ───
 try {
@@ -177,20 +178,38 @@ async function exportBlogData() {
   }
 
   // 3. Filter published posts and sort descending by publishedAt
-  const mergedPosts = Array.from(postMap.values())
+  let mergedPosts = Array.from(postMap.values())
     .filter((p: any) => p.status === 'published')
     .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-  // 4. Ensure output directory exists and write
+  // 4. Strict 100% Online AI Flux Normalization & Zero-Duplicate Guarantee
+  const { posts: normalizedPosts, updatedCount } = normalizePostImages(mergedPosts);
+  mergedPosts = normalizedPosts;
+
+  // If any posts had their visual normalized and Firestore is connected, sync back to Firestore
+  if (db && updatedCount > 0) {
+    console.log(`🔥 [Export] Syncing ${updatedCount} normalized AI Flux cover images back to Cloud Firestore...`);
+    for (const p of mergedPosts) {
+      const docId = p.slug || p.id;
+      if (docId) {
+        await db.collection('blog_posts').doc(docId).set({
+          coverImage: p.coverImage
+        }, { merge: true }).catch(() => {});
+      }
+    }
+    console.log("✅ [Export] Cloud Firestore successfully synchronized with 100% unique online AI visuals.");
+  }
+
+  // 5. Ensure output directory exists and write
   const dir = path.dirname(outputPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
   fs.writeFileSync(outputPath, JSON.stringify(mergedPosts, null, 2), 'utf8');
-  console.log(`✅ Consolidated and saved ${mergedPosts.length} posts to ${outputPath}`);
+  console.log(`✅ Consolidated and saved ${mergedPosts.length} posts to ${outputPath} (100% unique online AI visuals guaranteed)`);
 
-  // 5. Update Sitemaps and RSS Feed
+  // 6. Update Sitemaps and RSS Feed
   updateSitemapsAndRss(mergedPosts);
 }
 

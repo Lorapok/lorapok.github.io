@@ -5,6 +5,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.extractCitationsFromMarkdown = extractCitationsFromMarkdown;
 exports.writeBlogPost = writeBlogPost;
+exports.validateContentCompleteness = validateContentCompleteness;
+const keyManager_1 = require("./keyManager");
+const reviewer_1 = require("./reviewer");
 const AUTHOR_PERSONAS = {
     'AI & Machine Learning': { name: "Dr. Larva", designation: "Chief Neural Officer", avatar: "🧬" },
     'Backend & Infrastructure': { name: "Captain Deploy", designation: "Infrastructure Overlord", avatar: "🚀" },
@@ -65,7 +68,16 @@ function extractCitationsFromMarkdown(content) {
     return citations;
 }
 async function writeBlogPost(newsItems, config, existingPosts = []) {
-    console.log(`🧠 Writing blog post using ${config.provider}...`);
+    // Strict Model Tiering Policy:
+    // Blogs & Quick Dispatches -> Gemini Flash (gemini-2.5-flash, gemini-2.0-flash)
+    // Research Treatises, Thesis Papers & Journal Articles -> Gemini Pro & Thinking Models
+    const isResearchMode = config.isResearch === true ||
+        config.provider === 'gemini-pro' ||
+        config.provider === 'gemini-2.5-pro' ||
+        config.tone?.toLowerCase().includes('research') ||
+        config.tone?.toLowerCase().includes('thesis') ||
+        config.tone?.toLowerCase().includes('academic');
+    console.log(`🧠 Writing ${isResearchMode ? 'Flagship Research Treatise' : 'Technical Blog Post'} using ${config.provider} (Tier: ${isResearchMode ? 'PRO / THINKING' : 'FLASH'})...`);
     // 1. Selection Strategy: AI picks the most relevant/trending news item to expand
     const newsContext = newsItems.map(n => `[${n.source || 'Tech News'}] ${n.title || ''}\n${(n.content || n.title || '').slice(0, 250)}...`).join('\n\n');
     const existingTitlesList = (existingPosts || []).slice(0, 15).map(p => `• ${p.title}`).join('\n');
@@ -124,6 +136,13 @@ Every article MUST incorporate formal technical citations and academic reference
 3. A structured 'citations' array in the JSON response containing the citation objects.
 4. Include 'CitationsAvailable' in the 'tags' array.
 
+RESEARCH-MATCHED TECHNICAL COVER IMAGE SPECIFICATION:
+The 'imagePrompt' MUST be an ultra-detailed, domain-specific visual blueprint prompt directly illustrating the core engineering mechanism, data structures, or hardware components analyzed in this research article:
+• Never produce generic sci-fi, abstract humans, or generic cityscapes.
+• Explicitly illustrate the exact technical subject (e.g., for eBPF: 'Isometric cutaway diagram of Linux kernel space and user space boundary with circular ring buffers, packet filtering execution path, glowing neon cyan memory registers, dark charcoal matte chassis, octane render, 8k, photorealistic technical blueprint, zero text, zero watermark').
+• For consensus/distributed systems: 'State machine replication network nodes arranged in quorum ring, Raft leader election pulse, write-ahead log entries in emerald holographic shards, dark server rack backdrop, volumetric depth of field, 8k, zero text, zero watermark'.
+• For compilers/runtimes: 'AST abstract syntax tree nodes transforming into optimized bytecode assembly instructions, zero-copy buffer pools, dark glass aesthetic, glowing fiber optic traces, octane render 8k'.
+
 OUTPUT FORMAT (JSON):
 {
   "title": "Comprehensive, technical, click-worthy title",
@@ -144,7 +163,7 @@ OUTPUT FORMAT (JSON):
     }
   ],
   "imageKeywords": ["cloud architecture", "distributed systems", "datacenter"],
-  "imagePrompt": "Futuristic 3D visualization of ..., dark tech aesthetic, cinematic lighting, 8k",
+  "imagePrompt": "Detailed domain-specific technical prompt specifically illustrating this article's core mechanisms (no text, no watermark, 8k, octane render)",
   "seo": {
     "metaTitle": "... | LoLaBo — Lorapok Labs",
     "metaDescription": "...",
@@ -152,22 +171,82 @@ OUTPUT FORMAT (JSON):
   }
 }`;
     const userPrompt = `TRENDING NEWS CONTEXT:\n${newsContext}\n\nPlease write an authoritative, long-form technical treatise (~1800-2800 words) for Lorapok Labs. Select the appropriate editorial type, execute its structured breakdown with high depth, and provide formal citations. Ensure it does not duplicate any previously published topic.`;
-    // Dynamic API Calling
+    // Dynamic API Calling with Multi-Account Failover
     let response;
-    const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        console.warn("⚠️ No GEMINI_API_KEY or AI_API_KEY detected. Utilizing LoLaBo Autonomous Offline Synthesis Engine...");
-        return synthesizeOfflineArticle(newsItems, config);
-    }
+    const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY || '';
     let blogData;
     try {
-        response = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt);
+        response = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt, true, isResearchMode);
         blogData = parseLLMJson(response);
     }
     catch (aiErr) {
-        console.warn("⚠️ AI generation or parsing encountered issue, falling back to autonomous offline synthesis:", aiErr.message);
-        return synthesizeOfflineArticle(newsItems, config);
+        console.error("❌ Online AI generation failed:", aiErr.message);
+        throw new Error(`LoLaBo Online AI generation failed: ${aiErr.message}. Offline fallback is disabled per 100% online policy.`);
     }
+    // Completeness & Conclusion Validation Barrier
+    const completeness = validateContentCompleteness(blogData.content);
+    if (!completeness.isComplete) {
+        console.warn(`⚠️ Article content incomplete (${completeness.reason}). Running online completion pass...`);
+        try {
+            const completionSuffix = await completeArticleSections(blogData.title, blogData.content, apiKey, config.provider, isResearchMode);
+            if (completionSuffix) {
+                blogData.content = blogData.content.trim() + "\n\n" + completionSuffix.trim();
+                console.log("✅ Concluding sections synthesized and attached successfully.");
+            }
+        }
+        catch (compErr) {
+            console.warn("⚠️ Completion pass encountered error:", compErr.message);
+        }
+    }
+    // ─── Research Review Unit: Autonomous Peer-Review & Refinement Loop ───
+    console.log(`🧐 [Research Review Unit] Initiating peer review for: "${blogData.title}"...`);
+    let verdict = await (0, reviewer_1.auditArticle)({
+        title: blogData.title,
+        content: blogData.content,
+        citations: blogData.citations,
+        category: blogData.category,
+        type: blogData.type
+    });
+    let refinementPass = 0;
+    const maxRefinementPasses = 2;
+    while (verdict.decision === 'REVISION_REQUIRED' && refinementPass < maxRefinementPasses) {
+        refinementPass++;
+        console.warn(`🔄 [Research Review Unit] Defect detected (Score: ${verdict.score}/100). Executing peer-review refinement pass #${refinementPass}...`);
+        const refinementPrompt = `CRITICAL PEER-REVIEW FEEDBACK FROM RESEARCH REVIEW UNIT:
+Your initial draft scored ${verdict.score}/100 and was rejected for publication due to the following defects:
+${verdict.revisionInstructions}
+
+REVISION INSTRUCTIONS:
+Revise, expand, and perfect the entire paper to directly resolve each critique point above. Ensure all architecture diagrams, comparative benchmark tables, and formal citations are fully populated with zero placeholders.`;
+        try {
+            const refinedResponse = await callAIProvider(config.provider, apiKey, systemPrompt, `${userPrompt}\n\n${refinementPrompt}`, true, isResearchMode);
+            const refinedData = parseLLMJson(refinedResponse);
+            if (refinedData && refinedData.content && refinedData.content.length > 800) {
+                blogData = { ...blogData, ...refinedData };
+                verdict = await (0, reviewer_1.auditArticle)({
+                    title: blogData.title,
+                    content: blogData.content,
+                    citations: blogData.citations,
+                    category: blogData.category,
+                    type: blogData.type
+                });
+                console.log(`📋 [Research Review Unit] Post-refinement verdict: ${verdict.decision} (Score: ${verdict.score}/100)`);
+            }
+        }
+        catch (refineErr) {
+            console.warn("⚠️ Refinement pass encountered error, proceeding with best current draft:", refineErr.message);
+            break;
+        }
+    }
+    blogData.peerReview = {
+        score: verdict.score,
+        decision: verdict.decision,
+        strengths: verdict.strengths,
+        criticalDefects: verdict.criticalDefects,
+        rubricBreakdown: verdict.rubricBreakdown,
+        reviewedBy: 'LoLaBo Autonomous Research Review Unit',
+        reviewedAt: new Date().toISOString()
+    };
     // Enforce Lorapok Labs tags and sanitize
     const rawTags = Array.isArray(blogData.tags) ? blogData.tags : [];
     const cleanTags = rawTags
@@ -217,81 +296,159 @@ OUTPUT FORMAT (JSON):
         readTime
     };
 }
-async function callAIProvider(provider, key, system, user) {
-    // If key is a Gemini API key or provider is gemini, prioritize Gemini
-    const isGeminiKey = key.startsWith('AQ.') || key.startsWith('AIza') || Boolean(process.env.GEMINI_API_KEY);
-    const effectiveProvider = (provider === 'gemini' || isGeminiKey) ? 'gemini' : provider;
-    console.log(`Calling ${effectiveProvider} API...`);
+function validateContentCompleteness(content) {
+    if (!content || typeof content !== 'string') {
+        return { isComplete: false, reason: "Content is empty" };
+    }
+    const clean = content.trim();
+    const words = clean.split(/\s+/).filter(Boolean);
+    if (words.length < 800) {
+        return { isComplete: false, reason: `Content too short (${words.length} words, expected >= 800)` };
+    }
+    const lastChar = clean[clean.length - 1];
+    const validPunctuation = new Set(['.', '!', '?', ')', ']', '`', '*', '_', '\n', '>']);
+    if (!validPunctuation.has(lastChar) && !clean.endsWith('---')) {
+        return { isComplete: false, reason: `Content ends abruptly mid-sentence (ends with: '${clean.slice(-25)}')` };
+    }
+    const lower = clean.toLowerCase();
+    const hasConclusion = lower.includes('## conclusion') ||
+        lower.includes('## key takeaways') ||
+        lower.includes('## architectural recommendations') ||
+        lower.includes('## summary') ||
+        lower.includes('## takeaways') ||
+        lower.includes('## architectural takeaways');
+    if (!hasConclusion) {
+        return { isComplete: false, reason: "Missing concluding section (## Conclusion or ## Key Takeaways)" };
+    }
+    const hasReferences = lower.includes('## references') || lower.includes('## technical citations') || lower.includes('## citations');
+    if (!hasReferences) {
+        return { isComplete: false, reason: "Missing references section (## References & Technical Citations)" };
+    }
+    return { isComplete: true };
+}
+async function completeArticleSections(title, existingContent, apiKey, provider, isResearch = false) {
+    const prompt = `You are completing an authoritative long-form technical article for Lorapok Labs.
+Article Title: "${title}"
+The article currently ends abruptly with the following text:
+"""
+${existingContent.slice(-1200)}
+"""
+
+Please write the missing concluding sections to complete the article rigorously:
+1. "## Key Takeaways & Summary for Systems Architects" (synthesizing the technical lessons, performance boundaries, and implementation recommendations).
+2. "## References & Technical Citations" (listing 3-5 formal whitepapers, RFCs, kernel docs, or technical monographs with full authors, year, and URLs).
+
+Return ONLY the markdown text for these sections. Do not repeat the existing text.`;
+    const completion = await callAIProvider(provider, apiKey, "You are a Principal Systems Architect. Write only high-depth markdown for the requested concluding sections.", prompt, false, isResearch);
+    return completion;
+}
+async function callAIProvider(provider, fallbackKey, system, user, jsonMode = true, isResearch = false) {
+    // Check if provider is Gemini or Gemini keys are present in pool
+    const hasGeminiKey = keyManager_1.keyManager.getAccountCount('gemini') > 0 || (fallbackKey && (fallbackKey.startsWith('AQ.') || fallbackKey.startsWith('AIza'))) || Boolean(process.env.GEMINI_API_KEY);
+    const effectiveProvider = (provider === 'gemini' || provider.startsWith('gemini') || hasGeminiKey) ? 'gemini' : provider;
+    console.log(`Calling ${effectiveProvider} API (jsonMode: ${jsonMode}, isResearch: ${isResearch})...`);
     if (effectiveProvider === 'gemini') {
-        const candidateModels = [
-            'gemini-3.6-flash',
-            'gemini-3.5-flash',
-            'gemini-3.5-flash-lite',
-            'gemini-flash-latest',
-            'gemini-flash-lite-latest',
-            'gemini-3-flash-preview'
-        ];
+        // Strict Model Tiering Policy:
+        // Research Treatises, Thesis Papers & Journal Articles -> Gemini Pro & Thinking Models
+        // Blogs & Quick Dispatches -> Gemini Flash
+        const requestedPro = provider === 'gemini-pro' || provider === 'gemini-2.5-pro' || isResearch;
+        const candidateModels = requestedPro
+            ? [
+                'gemini-2.5-pro',
+                'gemini-2.0-pro-exp-02-05',
+                'gemini-2.0-flash-thinking-exp-01-21',
+                'gemini-3-pro',
+                'gemini-1.5-pro'
+            ]
+            : [
+                'gemini-2.5-flash',
+                'gemini-2.0-flash',
+                'gemini-1.5-flash',
+                'gemini-3-flash'
+            ];
         let lastError = null;
-        for (const model of candidateModels) {
-            try {
-                console.log(`Attempting Gemini generation with ${model}...`);
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-                const body = {
-                    contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        maxOutputTokens: 8192,
-                        temperature: 0.7
-                    }
-                };
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const data = await res.json();
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                    console.log(`✅ Generation succeeded with ${model}`);
-                    return text;
-                }
-                console.warn(`⚠️ Model ${model} unavailable (${data?.error?.code || 'status'}): ${data?.error?.message || 'Empty'}. Trying next model...`);
-                lastError = new Error(data?.error?.message || 'Empty response');
-                // Brief pause before fallback to avoid hitting concurrency limits
-                await new Promise((resolve) => setTimeout(resolve, 1200));
+        const poolAccounts = Math.max(1, keyManager_1.keyManager.getAccountCount('gemini'));
+        const maxKeyRetries = Math.min(8, poolAccounts * 2);
+        for (let keyAttempt = 0; keyAttempt < maxKeyRetries; keyAttempt++) {
+            const activeProfile = keyManager_1.keyManager.getKey('gemini');
+            const activeKey = activeProfile ? activeProfile.key : fallbackKey;
+            const accountLabel = activeProfile ? activeProfile.accountLabel : 'Default Account';
+            if (!activeKey) {
+                throw new Error("❌ No Gemini API key detected. Please configure GEMINI_API_KEY_1..4 or GEMINI_API_KEY in your environment.");
             }
-            catch (err) {
-                lastError = err;
-                console.warn(`⚠️ Exception calling ${model}:`, err);
-                await new Promise((resolve) => setTimeout(resolve, 1200));
+            for (const model of candidateModels) {
+                try {
+                    console.log(`Attempting Gemini generation with ${model} via ${accountLabel}...`);
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
+                    const generationConfig = {
+                        maxOutputTokens: 8192,
+                        temperature: isResearch ? 0.4 : 0.7
+                    };
+                    if (jsonMode) {
+                        generationConfig.responseMimeType = "application/json";
+                    }
+                    const body = {
+                        contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
+                        generationConfig
+                    };
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    // Quota / 429 rate limit detection
+                    if (res.status === 429 || data?.error?.code === 429 || data?.error?.status === 'RESOURCE_EXHAUSTED') {
+                        const isDaily = (data?.error?.message || '').toLowerCase().includes('perday') || (data?.error?.message || '').toLowerCase().includes('quota');
+                        console.warn(`⏳ [KeyManager] Rate limit hit on ${accountLabel} for ${model}. Failing over to next account key in pool...`);
+                        if (activeProfile)
+                            keyManager_1.keyManager.reportRateLimit(activeProfile.id, isDaily);
+                        break; // Break inner model loop to switch immediately to next key in pool
+                    }
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) {
+                        console.log(`✅ Generation succeeded with ${model} (${accountLabel})`);
+                        if (activeProfile)
+                            keyManager_1.keyManager.reportSuccess(activeProfile.id);
+                        return text;
+                    }
+                    console.warn(`⚠️ Model ${model} unavailable (${data?.error?.code || 'status'}): ${data?.error?.message || 'Empty'}. Trying next candidate...`);
+                    lastError = new Error(data?.error?.message || `Model ${model} returned empty response`);
+                    await new Promise((resolve) => setTimeout(resolve, 800));
+                }
+                catch (err) {
+                    lastError = err;
+                    console.warn(`⚠️ Exception calling ${model}:`, err.message);
+                    await new Promise((resolve) => setTimeout(resolve, 800));
+                }
             }
         }
-        throw lastError || new Error("All Gemini model candidates failed.");
+        throw lastError || new Error("All Gemini model candidates and multi-account keys failed.");
     }
     let url = '';
     let body = {};
+    const authKey = keyManager_1.keyManager.getKey(provider)?.key || fallbackKey;
     if (provider === 'groq') {
         url = 'https://api.groq.com/openai/v1/chat/completions';
         body = {
-            model: 'llama3-8b-8192',
+            model: 'llama-3.3-70b-versatile',
             messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
-            response_format: { type: "json_object" }
+            ...(jsonMode ? { response_format: { type: "json_object" } } : {})
         };
     }
     else {
-        // Fallback/Placeholder for others
         url = 'https://api.openai.com/v1/chat/completions';
         body = {
-            model: provider === 'openai' ? 'gpt-4-turbo' : 'claude-3-opus-20240229',
+            model: provider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20241022',
             messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
-            response_format: { type: "json_object" }
+            ...(jsonMode ? { response_format: { type: "json_object" } } : {})
         };
     }
     const res = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${key}`
+            'Authorization': `Bearer ${authKey}`
         },
         body: JSON.stringify(body)
     });
@@ -456,292 +613,6 @@ function parseLLMJson(raw) {
     console.error("Failed to parse LLM JSON output:", raw.slice(0, 500));
     throw new Error("Could not parse LLM JSON response");
 }
-function synthesizeOfflineArticle(newsItems, config) {
-    const topNews = newsItems[0] || {
-        title: 'Distributed State Synchronization and Autonomous Agent Topologies',
-        content: 'Deep architectural exploration of edge consensus, decoupled microservice topologies, and fault-tolerant telemetry in multi-agent systems.',
-        source: 'Lorapok Research Lab',
-        url: 'https://lorapok.tech/blog'
-    };
-    const rawTitle = topNews.title.replace(/^\[[^\]]+\]\s*/, '').trim();
-    const cleanTopic = rawTitle.replace(/[^\w\s-]/g, '').trim();
-    const title = `Architectural Blueprint: High-Throughput Distributed State Synchronization in ${cleanTopic}`;
-    const excerpt = `An exhaustive architectural treatise dissecting zero-downtime consensus, memory-mapped ring buffers, lock-free concurrency, and fault-tolerant telemetry boundaries in modern autonomous distributed topologies.`;
-    const category = 'Backend & Infrastructure';
-    const type = 'ARCHITECTURE BLUEPRINT';
-    const author = AUTHOR_PERSONAS[category] || AUTHOR_PERSONAS['General Tech'];
-    const finalTags = [
-        'LorapokLabs',
-        'Lorapok',
-        'CitationsAvailable',
-        'PeerReviewed',
-        'Architecture',
-        'DistributedSystems',
-        'Microservices',
-        'HighConcurrency',
-        'ZeroDowntime',
-        'CloudNative'
-    ];
-    const citations = [
-        {
-            id: "1",
-            title: "io_uring: Asynchronous I/O Framework for the Linux Kernel",
-            author: "Jens Axboe",
-            source: "Kernel.org Technical Documentation / Linux Foundation",
-            url: "https://kernel.dk/io_uring.pdf",
-            year: "2019",
-            relevance: "Primary reference for ring-buffer based zero-copy lock-free submission and completion queues."
-        },
-        {
-            id: "2",
-            title: "In Search of an Understandable Consensus Algorithm (Extended Version)",
-            author: "Diego Ongaro and John Ousterhout",
-            source: "Stanford University & USENIX ATC '14",
-            url: "https://raft.github.io/raft.pdf",
-            year: "2014",
-            relevance: "Formal leader election and log replication invariants for resilient distributed cluster coordination."
-        },
-        {
-            id: "3",
-            title: "Dynamo: Amazon's Highly Available Key-value Store",
-            author: "Giuseppe DeCandia et al.",
-            source: "ACM SIGOPS Operating Systems Review, Vol. 41",
-            url: "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf",
-            year: "2007",
-            relevance: "Consistent hashing, vector clocks, and hinted handoff mechanisms for partitioned networks."
-        },
-        {
-            id: "4",
-            title: "The LMAX Disruptor: High Performance Alternative to Bounded Queues for Exchange Trading",
-            author: "Martin Thompson, Dave Farley, Michael Barker, Patricia Gee, and Adrian Colyer",
-            source: "LMAX Technical Monograph",
-            url: "https://lmax-exchange.github.io/disruptor/files/Disruptor-1.0.pdf",
-            year: "2011",
-            relevance: "Mechanical sympathy, cache-line padding, and memory barriers avoiding mutual exclusion locks."
-        }
-    ];
-    const content = `
-# Architectural Blueprint: High-Throughput Distributed State Synchronization in ${cleanTopic}
-
-> **Editorial Format:** \`ARCHITECTURE BLUEPRINT\` • **Domain:** \`Backend & Infrastructure\` • **Audience:** Senior Systems Architects & Staff Engineers • **Status:** Peer-Reviewed Autonomous Specification
-
----
-
-## 1. Architectural Motivation & Scalability Cliff
-
-Modern enterprise platforms encounter an unavoidable architectural cliff when scaling stateful microservices past tens of thousands of concurrent requests per second. Under naive centralized relational models, lock contention at the storage layer cascades into queue buildup, connection pool exhaustion, and thread starvation [1]. When scaling **${cleanTopic}**, systems architects must fundamentally abandon synchronous lock-based state synchronization and embrace asynchronous, lock-free, event-driven state propagation.
-
-Traditional RPC-based microservice architectures suffer from compounded tail latencies ($P_{99.9}$) where each sequential network hop accumulates non-deterministic jitter. When multiple services communicate synchronously, the failure or slowdown of a single downstream node creates widespread backpressure, frequently resulting in cascading cluster-wide brownouts. 
-
-At **Lorapok Labs**, our research into autonomous multi-agent topologies demonstrates that decoupling the data plane from the control plane through memory-mapped ring buffers and optimistic replication allows systems to maintain sub-millisecond dispatch cycles while completely preventing lock contention across heterogeneous nodes [2].
-
----
-
-## 2. Component Topology & Invariant Boundaries
-
-To prevent cascading failures and eliminate single-point-of-failure (SPOF) risks, the system isolates ingestion, state replication, telemetry aggregation, and multi-tier persistence into strict failure domains.
-
-### System Topology Specification (ASCII Blueprint)
-
-\`\`\`
-┌───────────────────────────────────────────────────────────────────────────────────────────┐
-│                      LORA-CORE DISTRIBUTED STATE MESH TOPOLOGY                             │
-└───────────────────────────────────────────────────────────────────────────────────────────┘
-
-      [ Edge Ingress Traffic ]             [ Telemetry Stream ]           [ Autonomous Triggers ]
-                 │                                   │                               │
-                 ▼                                   ▼                               ▼
-     ┌───────────────────────┐           ┌───────────────────────┐       ┌───────────────────────┐
-     │  Ingress Edge Gateway │           │  Health & Probe Edge  │       │ Autonomous Scheduler  │
-     │  • TLS 1.3 / mTLS     │           │  • Prometheus Metric  │       │ • 1-Hour Cron Daemon  │
-     │  • Rate Limiting / WAF│           │  • Heartbeat Watchman │       │ • Drift Detector      │
-     └───────────┬───────────┘           └───────────┬───────────┘       └───────────┬───────────┘
-                 │                                   │                               │
-                 └───────────────────────────┬───────┴───────────────────────────────┘
-                                             ▼
-                        ┌─────────────────────────────────────────┐
-                        │      LMAX-Style Sequencer Ring Buffer   │
-                        │    (Atomic Ring Head • Cache-Padded)    │
-                        └────────────────────┬────────────────────┘
-                                             │
-               ┌─────────────────────────────┼─────────────────────────────┐
-               ▼                             ▼                             ▼
-   ┌───────────────────────┐     ┌───────────────────────┐     ┌───────────────────────┐
-   │ Consumer Worker Pool A│     │ Consumer Worker Pool B│     │ Consumer Worker Pool C│
-   │ State Reconciliation  │     │ Neural Synthesis Core │     │ Social Event Pipeline │
-   │ • Conflict Resolution │     │ • Gemini 3.6 Flash    │     │ • Discord Webhook Bot │
-   │ • Vector Clocks [3]   │     │ • Strict Schema Enforce│    │ • Exponential Retries │
-   └───────────┬───────────┘     └───────────┬───────────┘     └───────────┬───────────┘
-               │                             │                             │
-               └─────────────────────────────┼─────────────────────────────┘
-                                             ▼
-                        ┌─────────────────────────────────────────┐
-                        │   Dual-Tier Idempotent Persistence Mesh  │
-                        └────────────────────┬────────────────────┘
-                                             │
-                       ┌─────────────────────┴─────────────────────┐
-                       ▼                                           ▼
-          [ Tier 1: Local In-Memory & FS ]           [ Tier 2: Cloud Firestore ]
-          • Microsecond Read Path (<0.5ms)           • Globally Distributed ACID Docs
-          • Immutable JSON Sitemaps / RSS            • Merkle-Tree Conflict Verification
-          • Local Crash Resilience                   • Read-Replicas & Multi-Zone HA
-\`\`\`
-
-### Architectural Invariants
-1. **Zero-Lock Ingestion**: The sequencer ring buffer uses memory barriers and atomic compare-and-swap (CAS) operations rather than POSIX mutexes, completely eliminating kernel-level context switches [4].
-2. **Deterministic Document Identifiers**: All state objects are addressed via canonical, normalized slug hashes (\`doc(post.slug)\`), ensuring that concurrent dispatches merge idempotently without duplicating entities.
-3. **Partition Isolation**: The local filesystem storage tier operates completely decoupled from the cloud database tier; if external network boundaries fail, local operations continue with zero interruption.
-
----
-
-## 3. Data Plane vs. Control Plane Protocol Dynamics
-
-Achieving linear horizontal scalability requires enforcing a strict separation between high-frequency transactional data transfers (the data plane) and administrative coordination (the control plane).
-
-### The In-Memory Lock-Free Data Buffer
-
-Below is a reference TypeScript implementation showing how the LoLaBo microservice manages high-throughput state transitions without thread contention, utilizing cache-aligned slots and atomic sequencing:
-
-\`\`\`typescript
-/**
- * LoLaBo High-Throughput Memory-Mapped Dispatch Sequencer
- * Implements ring-buffer semantics avoiding mutex locking [4].
- */
-export interface DispatchSlot<T> {
-  sequence: bigint;
-  payload: T | null;
-  timestamp: number;
-}
-
-export class AutonomousRingSequencer<T> {
-  private readonly bufferSize: number;
-  private readonly mask: number;
-  private readonly ring: DispatchSlot<T>[];
-  private cursor: bigint = 0n;
-
-  constructor(powerOfTwo: number = 16) {
-    this.bufferSize = 1 << powerOfTwo; // 65,536 slots
-    this.mask = this.bufferSize - 1;
-    this.ring = new Array(this.bufferSize);
-
-    for (let i = 0; i < this.bufferSize; i++) {
-      this.ring[i] = { sequence: -1n, payload: null, timestamp: 0 };
-    }
-  }
-
-  public publish(item: T): bigint {
-    const seq = this.cursor++;
-    const slotIndex = Number(seq & BigInt(this.mask));
-    const slot = this.ring[slotIndex];
-
-    slot.payload = item;
-    slot.timestamp = Date.now();
-    slot.sequence = seq; // Memory barrier publish
-
-    return seq;
-  }
-
-  public poll(lastSeenSequence: bigint): DispatchSlot<T> | null {
-    const nextSeq = lastSeenSequence + 1n;
-    const slotIndex = Number(nextSeq & BigInt(this.mask));
-    const slot = this.ring[slotIndex];
-
-    if (slot.sequence === nextSeq) {
-      return slot;
-    }
-    return null; // Consumer caught up with producer
-  }
-}
-\`\`\`
-
-### Wire Format & Serialization Protocol
-- **Wire Representation**: FlatBuffers or Protobuf v3 for binary transport across worker boundaries, guaranteeing zero-copy deserialization.
-- **REST / HTTP Ingress**: JSON with explicit schema validation, gzipped chunked transfer encoding, and HTTP/2 multiplexing.
-- **Heartbeat & Telemetry**: Lightweight Prometheus-formatted scrape headers over \`/metrics\` enabling 1-second scraping resolutions with <0.1% CPU overhead.
-
----
-
-## 4. Empirical Performance & Latency Benchmarks
-
-To quantify the architectural gains of transitioning from a traditional monolithic worker to the LoLaBo microservice architecture, comprehensive load testing was conducted across identical cloud environments (8 vCPU, 16GB RAM, 10Gbps network).
-
-### Latency Percentile Comparison ($N = 1,000,000$ operations)
-
-| Architecture Strategy | P50 (Median) | P90 Latency | P99 Latency | P99.9 Latency | Throughput (Req/sec) | CPU Utilization |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Centralized SQL Monolith** | 14.2 ms | 48.6 ms | 182.4 ms | 640.2 ms | 3,200 req/s | 89% (High Lock Contention) |
-| **Synchronous REST Microservice** | 8.5 ms | 24.1 ms | 89.3 ms | 275.0 ms | 6,800 req/s | 72% (I/O Wait Bottleneck) |
-| **Serverless FaaS Function** | 120.0 ms | 240.5 ms | 820.0 ms | 1,450.0 ms | 1,500 req/s | Ephemeral Spike |
-| **LoLaBo Ring-Sequenced Daemon** | **0.8 ms** | **1.9 ms** | **4.2 ms** | **8.6 ms** | **52,000 req/s** | **18% (Zero Lock Contention)** |
-
-### Contention & Resource Profiling Observations
-1. **Cache Miss Reduction**: By aligning the in-memory ring buffer with 64-byte L1/L2 cache lines, false sharing between worker threads dropped by 94.2%.
-2. **Deterministic Garbage Collection**: Reusing pre-allocated buffer slots reduced V8 heap churn from 420 MB/min to less than 12 MB/min, eliminating stop-the-world GC pauses.
-3. **P99.9 Tail Latency Flattening**: Eliminating network-bound RPC locks compressed the tail latency from 640ms down to 8.6ms.
-
----
-
-## 5. Failure Modes, Edge Cases & Chaos Engineering
-
-Distributed state systems must be designed under the explicit assumption that hardware, network connections, and third-party APIs *will* fail unpredictably. The table below documents the key failure modes and their autonomous mitigation paths:
-
-### Failure Mode Resilience Matrix
-
-| Failure Vector | Trigger Condition | System Impact | Automated Mitigation Mechanism | Verification Test |
-| :--- | :--- | :--- | :--- | :--- |
-| **Remote Database Partition** | Firestore unreachable or network severed | Cloud sync fails | Fallback to Local SSD JSON store; mark telemetry \`databaseConnected: false\`; retry with jitter [2] | Chaos monkey network disconnect |
-| **Duplicate Topic Race** | Dual dispatch triggers fire simultaneously | Potential duplicate publication | Szymkiewicz–Simpson overlap validation + Deterministic slug doc ID overwrite idempotency | Parallel curl injection test |
-| **AI LLM Rate Limit (HTTP 429)** | Provider token quota exhausted | Generation stalled | 6-model waterfall cascade (3.6-flash $\to$ 3.5-flash $\to$ lite $\to$ offline synthesis) | API quota exhaustion simulation |
-| **Discord Webhook Timeout** | Discord gateway outage or cloudflare block | Social broadcast delayed | Asynchronous retry with exponential backoff; never blocks persistence loop | Webhook endpoint blackhole proxy |
-| **Daemon Node Crash** | OOM or host hardware reboot | Process terminated | Systemd / Docker \`restart: always\` auto-restart; reads state from local catalog in <80ms | \`kill -9\` kill signal stress test |
-
----
-
-## 6. Architectural Invariants for Production Systems
-
-When engineering distributed state synchronization systems, architects should enforce these three foundational laws:
-
-1. **Law of Idempotent Addressing**: State entities must never be given non-deterministic random IDs. Always derive the primary key deterministically from the canonical semantic identity (e.g. \`post.slug\`) so duplicate writes are safe by definition.
-2. **Law of Autonomous Fallbacks**: External cloud dependencies must never be a hard prerequisite for local execution. A service must be capable of starting, operating, and serving cached data even when all remote infrastructure is offline.
-3. **Law of Observability First**: An autonomous system without high-resolution telemetry is an accident waiting to happen. Integrate \`/health\`, \`/api/status\`, and \`/metrics\` into the core runtime from day zero.
-
----
-
-## ## References & Technical Citations
-
-- **[1] Axboe, J. (2019).** *io_uring: Efficient Asynchronous I/O for Linux.* Kernel.org Technical Whitepaper. [https://kernel.dk/io_uring.pdf](https://kernel.dk/io_uring.pdf)
-- **[2] Ongaro, D., & Ousterhout, J. (2014).** *In Search of an Understandable Consensus Algorithm (Raft).* Proceedings of the USENIX Annual Technical Conference (ATC '14), pp. 305-320. [https://raft.github.io/raft.pdf](https://raft.github.io/raft.pdf)
-- **[3] DeCandia, G., Hastorun, D., Jampani, M., Kakulapati, G., Lakshman, A., Pilchin, A., Sivasubramanian, S., Vosshall, P., & Vogels, W. (2007).** *Dynamo: Amazon's Highly Available Key-value Store.* ACM SIGOPS Operating Systems Review, 41(6), 205-220. [https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf](https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf)
-- **[4] Thompson, M., Farley, D., Barker, M., Gee, P., & Colyer, A. (2011).** *The LMAX Disruptor: High Performance Alternative to Bounded Queues for Exchange Trading.* Technical Report, LMAX Exchange. [https://lmax-exchange.github.io/disruptor/files/Disruptor-1.0.pdf](https://lmax-exchange.github.io/disruptor/files/Disruptor-1.0.pdf)
-
----
-*Authored autonomously by LoLaBo Agent • Powered by Lorapok Labs.*
-
-#LorapokLabs #Lorapok #CitationsAvailable #PeerReviewed #Architecture #DistributedSystems #Microservices #HighConcurrency #ZeroDowntime #CloudNative
-`.trim();
-    // Calculate dynamic read time based on actual word count (~220 wpm)
-    const wordCount = content.split(/\s+/).filter(Boolean).length;
-    const readTime = Math.max(8, Math.ceil(wordCount / 220));
-    return {
-        title,
-        excerpt,
-        type,
-        content,
-        category,
-        tags: finalTags,
-        citations,
-        imageKeywords: ['cloud architecture', 'distributed systems', 'datacenter', 'datacenter rack', 'neural mesh'],
-        imagePrompt: `High-fidelity 3D isometric visualization of distributed systems architecture, glowing holographic nodes, cybernetic emerald matrix, 8k resolution, cinematic lighting`,
-        seo: {
-            metaTitle: `${title.slice(0, 48)} | LoLaBo — Lorapok Labs`,
-            metaDescription: excerpt.slice(0, 155),
-            keywords: finalTags
-        },
-        author,
-        source: topNews.source || 'ai-agent',
-        status: 'published',
-        publishedAt: new Date(),
-        views: 0,
-        readTime
-    };
-}
+// ─── 100% Online AI Policy ───
+// Offline synthesis has been permanently removed per system policy.
+// LoLaBo requires active online AI generation via Google Gemini, Groq, or OpenAI.

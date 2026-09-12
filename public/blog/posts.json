@@ -19,9 +19,9 @@
       "Architecture",
       "Cloud"
     ],
-    "imagePrompt": "Futuristic 3D visualization of RFC-0089: Micro-Sandboxed Execution Runtimes for Autonomous AI Agents via Landlock LSM and Seccomp-Unotify, dark tech aesthetic, 8k",
+    "imagePrompt": "Linux kernel Landlock LSM access matrix and seccomp-unotify dynamic system call interception micro-sandbox architecture, dark graphite chassis, glowing neon cyan syscall trace, volumetric lighting, photorealistic, octane render 8k, zero text, zero watermark",
     "citations": [],
-    "coverImage": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Linux%20kernel%20Landlock%20LSM%20access%20matrix%20and%20seccomp-unotify%20dynamic%20system%20call%20interception%20micro-sandbox%20architecture%2C%20dark%20graphite%20chassis%2C%20glowing%20neon%20cyan%20syscall%20trace%2C%20volumetric%20lighting%2C%20photorealistic%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=891024&model=flux",
     "imageKeywords": [
       "technology",
       "architecture",
@@ -63,7 +63,7 @@
       "CitationsAvailable"
     ],
     "citations": [],
-    "coverImage": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Distributed%20KV-cache%20tiering%20engine%20for%20multi-tenant%20LLM%20runtimes%2C%20GPU-Direct%20Storage%20direct%20DMA%20interconnects%2C%20NVMe-oF%20optical%20fabric%20switch%2C%20glowing%20emerald%20data%20streams%2C%20dark%20server%20rack%20topology%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=612093&model=flux",
     "category": "Backend & Infrastructure",
     "excerpt": "An architectural deep-dive into overcoming the VRAM memory wall in multi-tenant LLM inference. We detail a zero-copy, multi-tier KV-cache storage engine leveraging GPUDirect Storage, CXL memory pools, and NVMe-oF.",
     "seo": {
@@ -77,7 +77,8 @@
     },
     "slug": "architecting-a-distributed-kv-cache-tiering-engine-gpu-direct-storage-host-memory-pinning-and-nvme-of-for-multi-tenant-llm-runtimes",
     "views": 0,
-    "status": "published"
+    "status": "published",
+    "imagePrompt": "Distributed KV-cache tiering engine for multi-tenant LLM runtimes, GPU-Direct Storage direct DMA interconnects, NVMe-oF optical fabric switch, glowing emerald data streams, dark server rack topology, octane render 8k, zero text, zero watermark"
   },
   {
     "id": "jit-compiling-declarative-agent-decision-graphs-compiling-dynamic-llm-chains-to-deterministic-machine-code",
@@ -98,7 +99,7 @@
       "CitationsAvailable"
     ],
     "citations": [],
-    "coverImage": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/JIT%20compiler%20intermediate%20representation%20graph%20compiling%20declarative%20LLM%20agent%20chains%20into%20machine%20code%2C%20glowing%20silicon%20microprocessor%20die%2C%20laser%20cyan%20and%20deep%20violet%20traces%2C%20dark%20metallic%20chassis%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=734512&model=flux",
     "category": "AI & Machine Learning",
     "excerpt": "Discover how to eliminate runtime interpreter overhead in complex multi-agent systems. This deep dive details how to compile declarative LLM orchestration graphs into highly optimized, deterministic native machine instructions using Cranelift.",
     "seo": {
@@ -112,7 +113,8 @@
     },
     "slug": "jit-compiling-declarative-agent-decision-graphs-compiling-dynamic-llm-chains-to-deterministic-machine-code",
     "views": 0,
-    "status": "published"
+    "status": "published",
+    "imagePrompt": "JIT compiler intermediate representation graph compiling declarative LLM agent chains into machine code, glowing silicon microprocessor die, laser cyan and deep violet traces, dark metallic chassis, octane render 8k, zero text, zero watermark"
   },
   {
     "id": "architecting-a-petabyte-scale-columnar-merge-tree-storage-engine-sparse-indexing-simd-accelerated-filter-execution-and-zero-copy-compaction",
@@ -133,7 +135,7 @@
       "CitationsAvailable"
     ],
     "citations": [],
-    "coverImage": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Petabyte-scale%20columnar%20merge-tree%20database%20storage%20engine%2C%20sparse%20indexing%20hierarchy%2C%20SIMD%20accelerated%20filter%20vector%20lanes%2C%20zero-copy%20compaction%20pipeline%2C%20isometric%20cutaway%20blueprint%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=629410&model=flux",
     "category": "Backend & Infrastructure",
     "excerpt": "An exhaustive systems-engineering blueprint for building high-throughput columnar storage engines. Learn how to design immutable parts, sparse indexes, mark files, SIMD-vectorized execution, and zero-copy merge compaction to handle petabyte-scale analytical queries.",
     "seo": {
@@ -147,7 +149,8 @@
     },
     "slug": "architecting-a-petabyte-scale-columnar-merge-tree-storage-engine-sparse-indexing-simd-accelerated-filter-execution-and-zero-copy-compaction",
     "views": 0,
-    "status": "published"
+    "status": "published",
+    "imagePrompt": "Petabyte-scale columnar merge-tree database storage engine, sparse indexing hierarchy, SIMD accelerated filter vector lanes, zero-copy compaction pipeline, isometric cutaway blueprint, octane render 8k, zero text, zero watermark"
   },
   {
     "id": "architecting-high-throughput-vector-search-engines-lock-free-hnsw-graph-mutation-avx-512-quantization-and-memory-mapped-wal-topologies",
@@ -168,7 +171,7 @@
       "CitationsAvailable"
     ],
     "citations": [],
-    "coverImage": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Lock-free%20HNSW%20hierarchical%20navigable%20small%20world%20vector%20graph%20topology%2C%20high-dimensional%20vector%20embeddings%20connected%20by%20glowing%20filaments%2C%20AVX-512%20SIMD%20compute%20matrix%2C%20dark%20matte%20aesthetic%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=582194&model=flux",
     "category": "Backend & Infrastructure",
     "excerpt": "A deep architectural blueprint for engineering sub-millisecond, high-throughput vector search engines. Covers lock-free graph mutation, AVX-512 SIMD distance acceleration, memory-mapped WAL topologies, and epoch-based memory reclamation.",
     "seo": {
@@ -182,7 +185,8 @@
     },
     "slug": "architecting-high-throughput-vector-search-engines-lock-free-hnsw-graph-mutation-avx-512-quantization-and-memory-mapped-wal-topologies",
     "views": 0,
-    "status": "published"
+    "status": "published",
+    "imagePrompt": "Lock-free HNSW hierarchical navigable small world vector graph topology, high-dimensional vector embeddings connected by glowing filaments, AVX-512 SIMD compute matrix, dark matte aesthetic, octane render 8k, zero text, zero watermark"
   },
   {
     "id": "enforcing-cryptographically-provable-append-only-semantics-at-the-database-layer-beyond-application-level-trust",
@@ -207,7 +211,7 @@
       "Security",
       "DatabaseInternals"
     ],
-    "imagePrompt": "Futuristic 3D visualization of a cryptographic append-only database cluster with glowing data streams, dark tech aesthetic, cinematic lighting, 8k",
+    "imagePrompt": "Cryptographic Merkle tree database storage engine, verifiable append-only cryptographic ledger blocks, holographic audit shield, dark obsidian chassis with glowing cobalt blue and gold circuits, octane render 8k, zero text, zero watermark",
     "citations": [
       {
         "id": "1",
@@ -246,7 +250,7 @@
         "relevance": "Comprehensive architectural analysis of append-only logs, immutable storage engines, and consensus failure modes in distributed databases."
       }
     ],
-    "coverImage": "https://images.unsplash.com/photo-1504639725590-34d0984388bd?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Cryptographic%20Merkle%20tree%20database%20storage%20engine%2C%20verifiable%20append-only%20cryptographic%20ledger%20blocks%2C%20holographic%20audit%20shield%2C%20dark%20obsidian%20chassis%20with%20glowing%20cobalt%20blue%20and%20gold%20circuits%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=409182&model=flux",
     "imageKeywords": [
       "database architecture",
       "cryptographic ledger",
@@ -292,7 +296,7 @@
       "CitationsAvailable"
     ],
     "citations": [],
-    "coverImage": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Stateful%20AI%20agent%20orchestration%20engine%2C%20distributed%20asynchronous%20event%20loop%20ring%2C%20WebAssembly%20isolated%20sandbox%20modules%2C%20adaptive%20backpressure%20flow%20valves%2C%20neon%20cyan%20and%20magenta%20conduits%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=921475&model=flux",
     "category": "Backend & Infrastructure",
     "excerpt": "An in-depth architectural blueprint for engineering a high-throughput, multi-tenant AI agent orchestration plane. This guide details stateful event loops, WebAssembly (WASM) execution isolation, and robust backpressure strategies for handling non-deterministic, long-running agentic workloads.",
     "seo": {
@@ -306,7 +310,8 @@
     },
     "slug": "architecting-a-stateful-ai-agent-orchestration-engine-distributed-event-loops-wasm-sandboxing-and-adaptive-backpressure",
     "views": 0,
-    "status": "published"
+    "status": "published",
+    "imagePrompt": "Stateful AI agent orchestration engine, distributed asynchronous event loop ring, WebAssembly isolated sandbox modules, adaptive backpressure flow valves, neon cyan and magenta conduits, octane render 8k, zero text, zero watermark"
   },
   {
     "id": "ebpf-kernel-probes-vs-user-space-telemetry-formal-micro-architectural-analysis-and-concurrency-limits",
@@ -328,7 +333,7 @@
       "Architecture",
       "Cloud"
     ],
-    "imagePrompt": "Futuristic 3D visualization of eBPF Kernel Probes vs. User-Space Telemetry: Formal Micro-Architectural Analysis and Concurrency Limits, dark tech aesthetic, 8k",
+    "imagePrompt": "Linux eBPF kernel bytecode verifier directed acyclic graph, kernel kprobes and circular ring buffer telemetry channels, CPU micro-architectural execution pipeline, dark graphite chassis, neon emerald glowing traces, octane render 8k, zero text, zero watermark",
     "citations": [
       {
         "id": "1",
@@ -373,7 +378,7 @@
         "year": "2024"
       }
     ],
-    "coverImage": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Linux%20eBPF%20kernel%20bytecode%20verifier%20directed%20acyclic%20graph%2C%20kernel%20kprobes%20and%20circular%20ring%20buffer%20telemetry%20channels%2C%20CPU%20micro-architectural%20execution%20pipeline%2C%20dark%20graphite%20chassis%2C%20neon%20emerald%20glowing%20traces%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=319042&model=flux",
     "imageKeywords": [
       "technology",
       "architecture",
@@ -414,8 +419,8 @@
       "Architecture",
       "Cloud"
     ],
-    "imagePrompt": "Futuristic 3D visualization of Beyond C++ Interop: Engineering Production Rust Migration Pipelines for Mission-Critical Microservices, dark tech aesthetic, 8k",
-    "coverImage": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=85&w=1200&h=630",
+    "imagePrompt": "Rust microservice runtime and legacy C++ binary FFI bridge architecture, memory safety guarantees and borrow checker verification grid, glowing orange and steel blue circuits, octane render 8k, zero text, zero watermark",
+    "coverImage": "https://image.pollinations.ai/prompt/Rust%20microservice%20runtime%20and%20legacy%20C%2B%2B%20binary%20FFI%20bridge%20architecture%2C%20memory%20safety%20guarantees%20and%20borrow%20checker%20verification%20grid%2C%20glowing%20orange%20and%20steel%20blue%20circuits%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=481023&model=flux",
     "imageKeywords": [
       "technology",
       "architecture"
@@ -456,8 +461,8 @@
       "SystemsProgramming",
       "Performance"
     ],
-    "imagePrompt": "Futuristic 3D render of structured data packets flowing through a high-speed fiber optic pipeline, neon cyan and deep purple color palette, dark tech aesthetic, 8k",
-    "coverImage": "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&q=85&w=1200&h=630",
+    "imagePrompt": "Zero-copy binary memory alignment schema, raw pointer offsets and byte buffer structures in memory without deserialization, high-speed fiber optic data bus, glowing electric cyan and deep violet, octane render 8k, zero text, zero watermark",
+    "coverImage": "https://image.pollinations.ai/prompt/Zero-copy%20binary%20memory%20alignment%20schema%2C%20raw%20pointer%20offsets%20and%20byte%20buffer%20structures%20in%20memory%20without%20deserialization%2C%20high-speed%20fiber%20optic%20data%20bus%2C%20glowing%20electric%20cyan%20and%20deep%20violet%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=801456&model=flux",
     "imageKeywords": [
       "Rust programming",
       "data serialization",
@@ -502,8 +507,8 @@
       "SystemsProgramming",
       "Backend"
     ],
-    "imagePrompt": "Futuristic 3D visualization of submission and completion ring buffers with glowing data streams, dark cyan and neon magenta palette, high-tech industrial aesthetic, cinematic lighting, 8k resolution",
-    "coverImage": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=85&w=1200&h=630",
+    "imagePrompt": "Linux io_uring submission queue and completion queue circular ring buffers, zero-copy async network engine, direct kernel bypass communication, high-tech industrial aesthetic, dark cyan and neon magenta palette, octane render 8k, zero text, zero watermark",
+    "coverImage": "https://image.pollinations.ai/prompt/Linux%20io_uring%20submission%20queue%20and%20completion%20queue%20circular%20ring%20buffers%2C%20zero-copy%20async%20network%20engine%2C%20direct%20kernel%20bypass%20communication%2C%20high-tech%20industrial%20aesthetic%2C%20dark%20cyan%20and%20neon%20magenta%20palette%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=746219&model=flux",
     "imageKeywords": [
       "RingBuffer",
       "AsyncIO",
@@ -549,8 +554,8 @@
       "SystemsProgramming",
       "Networking"
     ],
-    "imagePrompt": "Futuristic 3D render of high-speed data packets bypassing an operating system kernel structure directly into memory modules, dark modern cybernetic aesthetic, cyan and gold glowing fiber optics, octane render, 8k",
-    "coverImage": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=85&w=1200&h=630",
+    "imagePrompt": "DPDK kernel-bypass networking architecture in Rust, PCIe NIC poll mode ring buffers, sub-microsecond low-latency packet processing engine, dark cybernetic aesthetic, cyan and gold glowing fiber optics, octane render 8k, zero text, zero watermark",
+    "coverImage": "https://image.pollinations.ai/prompt/DPDK%20kernel-bypass%20networking%20architecture%20in%20Rust%2C%20PCIe%20NIC%20poll%20mode%20ring%20buffers%2C%20sub-microsecond%20low-latency%20packet%20processing%20engine%2C%20dark%20cybernetic%20aesthetic%2C%20cyan%20and%20gold%20glowing%20fiber%20optics%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=918273&model=flux",
     "imageKeywords": [
       "Rust",
       "DPDK",
@@ -595,7 +600,7 @@
       "mobile code execution",
       "dark abstract tech"
     ],
-    "imagePrompt": "Futuristic 3D render of dual code pathways fusing into glowing metallic circuits, representing Swift and Kotlin native mobile performance, dark tech aesthetic, cinematic illumination, 8k",
+    "imagePrompt": "Native mobile platform architecture, Swift and Kotlin compiled binaries, elimination of cross-platform JavaScript bridge, disassembled smartphone silicon motherboard, sapphire blue and neon amber, octane render 8k, zero text, zero watermark",
     "seo": {
       "metaTitle": "Why Shopify Returned to Swift & Kotlin | LoLaBo — Lorapok Labs",
       "metaDescription": "An architectural deep-dive into Shopify's pivot from React Native back to native Swift and Kotlin. Learn about thread execution, GC stalls, and memory overhead.",
@@ -619,7 +624,7 @@
     "publishedAt": "2026-09-11T01:37:06.093Z",
     "views": 0,
     "readTime": 6,
-    "coverImage": "https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/Native%20mobile%20platform%20architecture%2C%20Swift%20and%20Kotlin%20compiled%20binaries%2C%20elimination%20of%20cross-platform%20JavaScript%20bridge%2C%20disassembled%20smartphone%20silicon%20motherboard%2C%20sapphire%20blue%20and%20neon%20amber%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=531849&model=flux",
     "slug": "beyond-the-bridge-analyzing-shopify-s-architectural-shift-back-to-native-swift-and-kotlin"
   },
   {
@@ -642,7 +647,7 @@
       "Model Security",
       "Inference Infrastructure"
     ],
-    "coverImage": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=85&w=1200&h=630",
+    "coverImage": "https://image.pollinations.ai/prompt/LLM%20model%20distillation%20attack%20vector%20diagram%2C%20student%20neural%20network%20extracting%20weights%20from%20frontier%20model%20API%2C%20watermarking%20detection%20filter%2C%20holographic%20neural%20manifold%2C%20obsidian%20and%20laser%20violet%20aesthetic%2C%20octane%20render%208k%2C%20zero%20text%2C%20zero%20watermark?width=1200&height=630&nologo=true&seed=371946&model=flux",
     "category": "AI & Machine Learning",
     "excerpt": "Anthropic's latest disclosures detail persistent distillation campaigns by rival labs targeting frontier model architectures. Here is a technical breakdown of how student models siphon reasoning traces from teacher APIs, how frontier providers detect behavioral extraction, and what this means for ML infrastructure security.",
     "seo": {
@@ -651,6 +656,7 @@
     },
     "slug": "deconstructing-model-distillation-attacks-how-frontier-llms-are-systematically-harvested-via-inference-apis",
     "views": 0,
-    "status": "published"
+    "status": "published",
+    "imagePrompt": "LLM model distillation attack vector diagram, student neural network extracting weights from frontier model API, watermarking detection filter, holographic neural manifold, obsidian and laser violet aesthetic, octane render 8k, zero text, zero watermark"
   }
 ]
