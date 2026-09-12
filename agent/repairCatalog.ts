@@ -24,7 +24,10 @@ async function completeViaOnlineAI(title: string, tailContent: string): Promise<
   const models = [
     'gemini-3.8-flash',
     'gemini-3.8-pro',
-    'gemini-pro-latest'
+    'gemini-pro-latest',
+    'gemini-2.5-flash',
+    'gemini-2.5-pro',
+    'gemini-2.0-flash'
   ];
 
   const prompt = `You are a Principal Systems Architect completing an authoritative, publication-grade research article for Lorapok Labs.

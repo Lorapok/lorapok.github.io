@@ -194,7 +194,7 @@ ${article.content.slice(0, 10000)}
 """
 
 Please peer-review this technical draft against the 100-point academic standard and output valid JSON.`;
-        const candidateReviewModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+        const candidateReviewModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
         for (const reviewModel of candidateReviewModels) {
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${reviewModel}:generateContent?key=${keyProfile.key}`;

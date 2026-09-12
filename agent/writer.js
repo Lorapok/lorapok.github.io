@@ -79,6 +79,7 @@ async function writeBlogPost(newsItems, config, existingPosts = []) {
         config.provider === 'gemini-pro' ||
         config.provider === 'gemini-3.8-pro' ||
         config.provider === 'gemini-3.1-pro' ||
+        config.provider === 'gemini-2.5-pro' ||
         config.tone?.toLowerCase().includes('research') ||
         config.tone?.toLowerCase().includes('thesis') ||
         config.tone?.toLowerCase().includes('academic');
@@ -418,8 +419,8 @@ async function ensureDraftIntegrity(draft, apiKey, provider, isResearchMode) {
     return draft;
 }
 function getModelEditorialProfile(model, isResearch) {
-    const isPro = model.includes('pro');
-    const isAdvancedFlash = model.includes('3.8-flash') || model.includes('3.7-flash') || model.includes('flash-latest');
+    const isPro = model.includes('pro') || model.includes('thinking');
+    const isAdvancedFlash = model.includes('3.8-flash') || model.includes('3.7-flash') || model.includes('flash-latest') || model.includes('2.5-flash') || model.includes('2.0-flash');
     if (isPro) {
         return {
             editorialTier: 'FLAGSHIP RESEARCH TREATISE',
@@ -476,7 +477,7 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
         // Comprehensive Gemini Model Fallback Ladder:
         // Research Treatises, Thesis Papers & Journal Articles -> Pro Tier first, then high-spec Flash, then resilient fallback
         // Blogs & Quick Dispatches -> 3.8 Flash first, then 3.7/3.6/2.5 Flash
-        const requestedPro = provider === 'gemini-pro' || provider === 'gemini-3.8-pro' || provider === 'gemini-3.1-pro' || isResearch;
+        const requestedPro = provider === 'gemini-pro' || provider === 'gemini-3.8-pro' || provider === 'gemini-3.1-pro' || provider === 'gemini-2.5-pro' || isResearch;
         const candidateModels = requestedPro
             ? [
                 'gemini-3.8-flash',
@@ -487,7 +488,15 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
                 'gemini-pro-latest',
                 'gemini-3.5-flash',
                 'gemini-3.1-flash-lite',
-                'gemini-flash-lite-latest'
+                'gemini-flash-lite-latest',
+                'gemini-2.5-pro',
+                'gemini-2.5-flash',
+                'gemini-2.0-flash',
+                'gemini-2.0-flash-lite',
+                'gemini-2.0-pro-exp-02-05',
+                'gemini-2.0-flash-thinking-exp-01-21',
+                'gemini-1.5-pro',
+                'gemini-1.5-flash'
             ]
             : [
                 'gemini-3.8-flash',
@@ -496,7 +505,11 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
                 'gemini-flash-latest',
                 'gemini-3.5-flash',
                 'gemini-3.1-flash-lite',
-                'gemini-flash-lite-latest'
+                'gemini-flash-lite-latest',
+                'gemini-2.5-flash',
+                'gemini-2.0-flash',
+                'gemini-2.0-flash-lite',
+                'gemini-1.5-flash'
             ];
         let lastError = null;
         const poolAccounts = Math.max(1, keyManager_1.keyManager.getAccountCount('gemini'));
