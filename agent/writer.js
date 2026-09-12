@@ -12,6 +12,7 @@ exports.getModelEditorialProfile = getModelEditorialProfile;
 const keyManager_1 = require("./keyManager");
 const reviewer_1 = require("./reviewer");
 const imageAgent_1 = require("./imageAgent");
+const modelValidator_1 = require("./modelValidator");
 const AUTHOR_PERSONAS = {
     'AI & Machine Learning': { name: "Dr. Larva", designation: "Chief Neural Officer", avatar: "🧬" },
     'Backend & Infrastructure': { name: "Captain Deploy", designation: "Infrastructure Overlord", avatar: "🚀" },
@@ -513,8 +514,10 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
             ];
         let lastError = null;
         const poolAccounts = Math.max(1, keyManager_1.keyManager.getAccountCount('gemini'));
+        const discoveryKey = keyManager_1.keyManager.getKey('gemini')?.key || fallbackKey;
+        const validatedCandidateModels = await modelValidator_1.modelValidator.validateAndFilterCandidates(candidateModels, discoveryKey);
         // Step through candidate models in priority order
-        for (const model of candidateModels) {
+        for (const model of validatedCandidateModels) {
             const profile = getModelEditorialProfile(model, requestedPro);
             for (let keyAttempt = 0; keyAttempt < poolAccounts; keyAttempt++) {
                 const activeProfile = keyManager_1.keyManager.getKey('gemini');
@@ -544,11 +547,17 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
                         body: JSON.stringify(body)
                     });
                     const data = await res.json();
+                    // 1. Real-Time Deprecation & Model Not Found Auto-Pruning
+                    const deprecationCheck = modelValidator_1.modelValidator.isDeprecatedOrNotFound(res.status, data);
+                    if (deprecationCheck.isDeprecated) {
+                        modelValidator_1.modelValidator.markDeprecated(model, deprecationCheck.reason);
+                        lastError = new Error(deprecationCheck.reason);
+                        break; // Auto-pruned from candidate ladder, immediately advance to next candidate
+                    }
                     const errMsg = data?.error?.message || '';
                     const isDemandSpike = res.status === 503 || data?.error?.code === 503 || data?.error?.status === 'UNAVAILABLE' || errMsg.includes('high demand');
-                    const isModelNotFound = res.status === 404 || data?.error?.code === 404 || errMsg.includes('not found') || errMsg.includes('no longer available');
                     const isModelSpecificQuota = errMsg.includes('limit: 0') || (errMsg.includes('Quota exceeded') && errMsg.includes('model:'));
-                    if (isDemandSpike || isModelNotFound || isModelSpecificQuota) {
+                    if (isDemandSpike || isModelSpecificQuota) {
                         console.warn(`⏳ [Adaptive Fallback] Model ${model} is currently busy or restricted (${errMsg.slice(0, 110) || res.status}). Cascading to next candidate in ladder...`);
                         lastError = new Error(errMsg || `Model ${model} unavailable`);
                         break; // Skip further key attempts for this busy model, advance to next model candidate!
@@ -563,6 +572,7 @@ async function callAIProvider(provider, fallbackKey, system, user, jsonMode = tr
                     }
                     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
                     if (text) {
+                        modelValidator_1.modelValidator.markActive(model);
                         console.log(`✅ Generation succeeded with ${model} (${profile.editorialTier} • ${accountLabel})`);
                         if (activeProfile)
                             keyManager_1.keyManager.reportSuccess(activeProfile.id);

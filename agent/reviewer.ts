@@ -4,6 +4,7 @@
 // Orchestrates the iterative critique & refinement loop if defects are detected
 
 import { keyManager } from './keyManager';
+import { modelValidator } from './modelValidator';
 
 export interface ReviewVerdict {
   decision: 'APPROVED' | 'REVISION_REQUIRED';
@@ -228,8 +229,9 @@ ${article.content.slice(0, 10000)}
 Please peer-review this technical draft against the 100-point academic standard and output valid JSON.`;
 
     const candidateReviewModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+    const activeReviewModels = await modelValidator.validateAndFilterCandidates(candidateReviewModels, keyProfile.key);
 
-    for (const reviewModel of candidateReviewModels) {
+    for (const reviewModel of activeReviewModels) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${reviewModel}:generateContent?key=${keyProfile.key}`;
         const res = await fetch(url, {
@@ -245,10 +247,17 @@ Please peer-review this technical draft against the 100-point academic standard 
           })
         });
 
+        const data = await res.json();
+        const deprecation = modelValidator.isDeprecatedOrNotFound(res.status, data);
+        if (deprecation.isDeprecated) {
+          modelValidator.markDeprecated(reviewModel, deprecation.reason);
+          continue;
+        }
+
         if (res.ok) {
-          const data = await res.json();
           const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawJson) {
+            modelValidator.markActive(reviewModel);
             const parsed = JSON.parse(rawJson);
             keyManager.reportSuccess(keyProfile.id);
 

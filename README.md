@@ -44,7 +44,7 @@ flowchart TD
 
     subgraph BuildPipeline ["⚙️ Pre-Rendering & Postbuild Engine"]
         ViteCompiler["⚡ Vite 8 + Rollup<br/>• TypeScript Compilation<br/>• Tailwind v4 Token Shake"]
-        PostBuildScript["🛠️ scripts/postbuild.js<br/>• Pre-renders 7 Core HTML Routes<br/>• Pre-renders 14+ Static Blog Pages<br/>• Injects Schema.org JSON-LD<br/>• Generates XML Sitemaps & RSS 2.0"]
+        PostBuildScript["🛠️ scripts/postbuild.js<br/>• Pre-renders 7 Core HTML Routes<br/>• Pre-renders 19+ Static Blog SEO Pages<br/>• Injects Schema.org JSON-LD<br/>• Generates XML Sitemaps & RSS 2.0"]
     end
 
     subgraph LoLaBoAI ["🧠 LoLaBo Autonomous AI Subsystem (agent/)"]
@@ -52,13 +52,15 @@ flowchart TD
         
         KeyPool["🔑 Multi-Account Key Rotator (keyManager.ts)<br/>• 4+ Google Account Pool<br/>• Smart Round-Robin & Instant 429 Failover"]
         
-        ModelTiering["⚖️ Model Tiering Matrix<br/>• Flash (1500 RPD): Blogs & Dispatches<br/>• Pro / Thinking (50 RPD): Research Papers"]
+        Validator["🛡️ Model Validator & Deprecation Guard (modelValidator.ts)<br/>• Real-Time Google API Discovery<br/>• Auto-Quarantine Deprecated Models (404/Retired)<br/>• Zero-Downtime Cascade"]
         
-        Author["✍️ Research Authoring Engine (writer.ts)<br/>• ASCII Topologies & Benchmarks<br/>• Formal Equations & Kernel Traces"]
+        ModelTiering["⚖️ Multi-Tier Model Matrix (writer.ts)<br/>• Gemini 3.x Primary (3.8/3.7/3.6/3.1/3.5)<br/>• Gemini 2.x Resilient Fallbacks (2.5/2.0/Thinking)"]
+        
+        Author["✍️ Research Authoring Engine (writer.ts)<br/>• Zero-Truncation Completeness Barrier<br/>• ASCII Topologies, Benchmarks & Formal Proofs"]
         
         PeerReview["🔬 Autonomous Review Unit (reviewer.ts)<br/>• 100-Point Academic Rubric<br/>• Dynamic Revision Feedback Loop (<85)"]
         
-        FluxEngine["🎨 100% Online AI Flux Engine (imageGen.ts)<br/>• Pollinations AI Flux Generator<br/>• Collision-Free Prime-Offset Seeds<br/>• Zero Stock Photo Fallback"]
+        VisualEngine["🎨 Swiss Editorial Visual Suite (imageAgent.ts)<br/>• Hero Cover: Swiss / Bauhaus Minimalist Illustration<br/>• Fig 1: Native Code-to-Diagram Mermaid.js Flowchart<br/>• Fig 2: Crisp 100% Vector SVG Latency CDF Plot"]
         
         Consolidator["💾 Export & Normalizer (exportData.ts)<br/>• Zero-Duplicate Catalog Enforcement<br/>• Dual Persistence Normalizer"]
         
@@ -68,6 +70,7 @@ flowchart TD
     subgraph DataStorage ["🗄️ Multi-Tier Persistence"]
         FirestoreDB[("🔥 Google Cloud Firestore<br/>• Canonical Cloud Store<br/>• blog_posts collection")]
         StaticJSON[("📁 Static Catalog Baseline<br/>• public/blog/posts.json")]
+        ModelQuarantine[("🛡️ Deprecated Models Quarantine<br/>• .loragent-debug/deprecated-models.json")]
     end
 
     Users --> CF
@@ -83,12 +86,14 @@ flowchart TD
     BlogView --> ImgCache
 
     Trigger --> KeyPool
-    KeyPool --> Author
-    Author --> ModelTiering
-    ModelTiering --> PeerReview
+    KeyPool --> Validator
+    Validator --> ModelTiering
+    ModelTiering --> Author
+    Author --> PeerReview
     PeerReview -- "Score < 85 (Revisions Required)" --> Author
-    PeerReview -- "Score >= 85 (Approved)" --> FluxEngine
-    FluxEngine --> Consolidator
+    PeerReview -- "Score >= 85 (Approved)" --> VisualEngine
+    VisualEngine --> Consolidator
+    Validator -.-> ModelQuarantine
     Consolidator --> FirestoreDB
     Consolidator --> StaticJSON
 
@@ -111,9 +116,10 @@ sequenceDiagram
     autonumber
     actor Cron as ⏱️ Cron Runner (:17, :47)
     participant KeyMgr as 🔑 KeyManager (4-Key Pool)
+    participant Validator as 🛡️ Model Validator (modelValidator.ts)
     participant Writer as ✍️ LoLaBo Authoring Engine
     participant Reviewer as 🔬 Autonomous Peer Review Unit
-    participant ImageGen as 🎨 AI Flux Visual Engine
+    participant Visuals as 🎨 Swiss Editorial Visual Suite
     participant Export as 💾 Consolidator & Normalizer
     participant Storage as 🗄️ Firestore & posts.json
     participant Deploy as 🚀 GitHub Actions Deploy
@@ -123,16 +129,25 @@ sequenceDiagram
     Cron->>KeyMgr: Request active Google AI Key (Pool 1..4)
     KeyMgr-->>Writer: Yield healthy key (cooldown on 429 errors)
 
-    alt Topic is Deep Systems Research, RFC, or Thesis
-        Writer->>Writer: Tier 1: Dispatch to Gemini 2.5 Pro / Thinking
-    else Topic is Standard Technical Dispatch or News
-        Writer->>Writer: Tier 2: Dispatch to Gemini 2.5 Flash
+    Writer->>Validator: Validate candidate models ladder (query /v1beta/models)
+    Validator-->>Writer: Return active candidate models (filter quarantined 404/deprecated)
+
+    alt Model returns 404 / NOT_FOUND / Deprecated
+        Writer->>Validator: Auto-prune model from candidate ladder & persist to quarantine
+        Writer->>Writer: Cascade immediately to next candidate model in ladder
     end
 
-    Writer->>Writer: Synthesize manuscript (ASCII diagrams, formal math, benchmark tables)
+    alt Topic is Deep Systems Research, RFC, or Thesis
+        Writer->>Writer: Flagship Tier: Gemini 3.8/3.7/3.6 Flash -> 3.1 Pro -> Pro Latest -> 2.5 Pro -> 2.0 Thinking
+    else Topic is Standard Technical Dispatch or News
+        Writer->>Writer: Technical Tier: Gemini 3.8/3.7/3.6 Flash -> Flash Latest -> 2.5 Flash -> 2.0 Flash
+    end
+
+    Writer->>Writer: Synthesize manuscript (Zero-Truncation Barrier, ASCII diagrams, formal math, benchmark tables)
 
     loop Peer-Review Verification Loop (Max 2 Passes)
         Writer->>Reviewer: Submit draft for evaluation
+        Reviewer->>Validator: Validate reviewer candidate models
         Reviewer->>Reviewer: Audit against 100-Point Rubric (Rigor, Math, Code, Citations)
         alt Score < 85 (Defects or Missing Proofs)
             Reviewer-->>Writer: Reject with structured critique instructions
@@ -142,9 +157,9 @@ sequenceDiagram
         end
     end
 
-    Writer->>ImageGen: Request topic-matched visual (with research imagePrompt)
-    ImageGen->>ImageGen: Compute collision-free prime seed & verify against usedImages
-    ImageGen-->>Writer: Yield 100% unique Pollinations AI Flux URL
+    Writer->>Visuals: Request publication-grade visual suite (Swiss Cover, Fig 1 Mermaid, Fig 2 SVG)
+    Visuals->>Visuals: Synthesize Swiss flat vector cover, Mermaid architecture flowchart & vector latency CDF plot
+    Visuals-->>Writer: Yield complete visual suite & inject into markdown sections
 
     Writer->>Export: Send verified post package
     Export->>Storage: Atomically commit to Cloud Firestore & public/blog/posts.json
@@ -221,12 +236,33 @@ Connects to multiple Google AI Studio accounts to multiply rate limits and ensur
 - **Environment Key Matrix**: Accepts `GEMINI_API_KEYS="key1,key2,key3,key4"` or individual keys `GEMINI_API_KEY_1..4`.
 - **Smart Failover**: Catches HTTP `429 Too Many Requests` or `RESOURCE_EXHAUSTED` responses, enters a cooldown state for the exhausted account, and automatically fails over to the next healthy account in $< 5\text{ ms}$.
 
-### 2. Strict Model Tiering Policy
-Enforces resource attribution based on intellectual complexity:
-- **Gemini Flash (`gemini-2.5-flash`, `gemini-2.0-flash`)**: Reserved for high-velocity software engineering dispatches, changelogs, and ecosystem announcements.
-- **Gemini Pro & Thinking (`gemini-2.5-pro`, `gemini-2.0-flash-thinking-exp`)**: Strictly mandated for research treatises, kernel deep-dives, formal specifications (RFCs), and mathematical algorithm analyses.
+### 2. Multi-Generation Model Tiering Matrix (Gemini 3.x Primary + 2.x Fallback)
+Enforces a multi-tiered, latency- and depth-optimized fallback ladder across model families:
 
-### 3. Autonomous Peer-Review Verification Unit (`agent/reviewer.ts`)
+| Content Tier | Primary Gemini 3.x Models | Preserved Resilient 2.x Fallbacks | Target Depth & Invariants |
+| :--- | :--- | :--- | :--- |
+| **Flagship Research Treatises & RFCs** | `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-flash-latest`, `gemini-3.1-pro-preview`, `gemini-pro-latest`, `gemini-3.5-flash`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest` | `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-2.0-pro-exp-02-05`, `gemini-2.0-flash-thinking-exp-01-21`, `gemini-1.5-pro`, `gemini-1.5-flash` | **2,500–3,500 words**, formal math ($O(n \log n)$), ASCII topologies, memory invariants, 4–6 peer-reviewed citations. |
+| **Technical Dispatches & Engineering Blogs** | `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-flash-latest`, `gemini-3.5-flash`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest` | `gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-1.5-flash` | **1,400–2,200 words**, working code implementations, low-level data-plane dynamics, actionable takeaways. |
+
+### 3. Automated Model Validation & Deprecation Removal Engine (`agent/modelValidator.ts`)
+To prevent stalled execution caused by retired, deprecated, or unavailable model aliases:
+- **Real-Time Deprecation Interception**: Monitors Google API responses for HTTP `404 NOT_FOUND`, `INVALID_ARGUMENT`, and explicit deprecation signatures (`"is not found for API version"`, `"is deprecated"`, `"no longer available"`, `"unsupported model"`).
+- **Automated Quarantine & Pruning**: Automatically purges deprecated models from in-memory candidate arrays and persists them to `.loragent-debug/deprecated-models.json` so retries never waste quota on defunct endpoints.
+- **Remote Model Discovery**: Automatically queries `GET https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}` to verify active `generateContent` capabilities against Google's live catalog.
+- **Zero-Downtime Cascade**: If a model alias is rejected, the engine cascades to the next candidate model in $< 10\text{ ms}$ without dropping the publication task.
+
+### 4. Zero-Token-Loss Completeness Barrier (`agent/writer.ts`)
+Prevents half-done, truncated, or unclosed articles from reaching production:
+- **Integrity Validation**: Rigorously inspects markdown code fences, unclosed backticks, truncated tables, incomplete formulas, and ensures mandatory `## Key Takeaways & Summary` and `## References & Technical Citations` headers.
+- **Surgical Continuation Pass (`completeArticleSections`)**: If token ceilings are encountered, a targeted completion agent cleanly closes severed code blocks and generates formal takeaways and academic references.
+
+### 5. Swiss Editorial Visual Suite (`agent/imageAgent.ts` & `agent/imageGen.ts`)
+Replaces generic sci-fi tropes (`octane render`, `glowing neon`, `cyberpunk`, `cybernetic`, `holographic`, `futuristic`, `laser lines`) with publication-grade engineering graphics:
+- **Hero Cover (1200x630)**: Swiss / Bauhaus minimalist 2D vector technical illustration with clean graphite backdrops, muted slate/cobalt palettes, and precision line art.
+- **Figure 1 (Architecture Blueprint)**: Authentic code-to-diagram **Mermaid.js flowcharts** (`flowchart TD`) rendered natively with interactive expand, copy source, and dark themes.
+- **Figure 2 (Empirical Benchmarks)**: Publication-grade **100% Vector SVG latency CDF curves** ($P_{50}, P_{90}, P_{99}, P_{99.9}$) with microsecond coordinates and throughput distributions.
+
+### 6. Autonomous Peer-Review Verification Unit (`agent/reviewer.ts`)
 Audits all generated manuscripts against an academic 100-point rubric before publication:
 
 | Evaluation Dimension | Weight | Acceptance Criteria |
@@ -239,7 +275,7 @@ Audits all generated manuscripts against an academic 100-point rubric before pub
 
 *Drafts scoring $< 85$ receive targeted critique prompts and enter an iterative revision cycle (up to 2 passes).*
 
-### 4. Aggregate Publishing Capacity (4 Google Accounts + Free Mesh)
+### 7. Aggregate Publishing Capacity (4 Google Accounts + Free Mesh)
 
 | Content Tier | 1 Google Account | 4 Google Accounts Pooled | With Free Provider Mesh (Groq / Cerebras) |
 | :--- | :---: | :---: | :---: |
@@ -263,7 +299,7 @@ All visual assets in the LoLaBo blog portal utilize [`LoLaBoImage.tsx`](src/blog
 
 To guarantee first-class indexability on search engines and instant social sharing previews without server-side rendering (SSR) overhead:
 1. **Isolated Static HTML Routes**: Pre-renders separate `index.html` files for `/projects`, `/about`, `/team`, `/changelog`, `/support`, `/contact`, and `/dev`.
-2. **Dedicated Article SEO Pages**: Generates static HTML folders for all 14+ research articles under `dist/blog/:slug/index.html`.
+2. **Dedicated Article SEO Pages**: Generates static HTML folders for all 19+ research articles under `dist/blog/:slug/index.html`.
 3. **Automated Metadata Injection**: Injects page-specific `<title>`, `<meta name="description">`, `og:image`, `twitter:card`, and canonical URLs.
 4. **Structured Data (JSON-LD)**: Injects Schema.org `Article` and `Organization` structured data into every page's `<head>`.
 5. **Sitemaps & RSS Feed**: Automatically synthesizes `public/sitemap.xml`, `public/blog/sitemap.xml`, and `public/blog/rss.xml`.
@@ -277,16 +313,18 @@ lorapok.github.io/
 ├── agent/                         # LoLaBo Autonomous AI Subsystem
 │   ├── index.ts                   # CLI entry point & publication orchestration
 │   ├── server.ts                  # Autonomous daemon & REST API service
-│   ├── writer.ts                  # Multi-model authoring engine & model tiering
+│   ├── writer.ts                  # Multi-model authoring engine & zero-truncation barrier
+│   ├── modelValidator.ts          # Real-time model health & automated deprecation pruner
 │   ├── reviewer.ts                # Autonomous Research Review Unit (100-pt rubric)
 │   ├── keyManager.ts              # 4-account Google AI key rotator & 429 failover
-│   ├── imageGen.ts                # 100% online AI Flux engine & catalog normalizer
+│   ├── imageAgent.ts              # Swiss editorial visual synthesizer (Mermaid & vector SVG)
+│   ├── imageGen.ts                # 100% online AI Flux engine & prompt normalizer
 │   ├── exportData.ts              # Static data consolidator & Firestore synchronizer
 │   ├── broadcastLivePost.ts       # Edge verification probe & Discord broadcaster
 │   └── capacity.ts                # Multi-account publishing capacity analyzer
 ├── public/                        # Static Web Assets
 │   ├── blog/
-│   │   ├── posts.json             # Canonical static research catalog (14 articles)
+│   │   ├── posts.json             # Canonical static research catalog (19 articles)
 │   │   ├── sitemap.xml            # Blog XML sitemap
 │   │   └── rss.xml                # RSS 2.0 publication feed
 │   ├── sitemap.xml                # Root website XML sitemap
@@ -295,7 +333,7 @@ lorapok.github.io/
 │   └── postbuild.js               # Static HTML pre-renderer & SEO tag injector
 ├── src/                           # React 19 Client SPA Source
 │   ├── blog/                      # LoLaBo Research Portal
-│   │   ├── BlogApp.tsx            # Main blog application & visual dedup guard
+│   │   ├── BlogApp.tsx            # Main blog application & Mermaid.js renderer
 │   │   └── components/            # Blog components (LoLaBoImage, CodeBlocks, etc.)
 │   ├── components/                # Shared UI Components (Navbar, Footer, Search)
 │   ├── data/                      # Structured Ecosystem Data

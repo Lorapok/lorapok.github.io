@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.heuristicAudit = heuristicAudit;
 exports.auditArticle = auditArticle;
 const keyManager_1 = require("./keyManager");
+const modelValidator_1 = require("./modelValidator");
 const REVIEW_SYSTEM_PROMPT = `You are the LoLaBo Principal Academic Peer-Reviewer & Systems Verification Unit.
 Your mandate is to ruthlessly critique, evaluate, and ensure publication-grade excellence for technical research papers, thesis deep dives, and systems architecture dispatches.
 
@@ -195,7 +196,8 @@ ${article.content.slice(0, 10000)}
 
 Please peer-review this technical draft against the 100-point academic standard and output valid JSON.`;
         const candidateReviewModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
-        for (const reviewModel of candidateReviewModels) {
+        const activeReviewModels = await modelValidator_1.modelValidator.validateAndFilterCandidates(candidateReviewModels, keyProfile.key);
+        for (const reviewModel of activeReviewModels) {
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${reviewModel}:generateContent?key=${keyProfile.key}`;
                 const res = await fetch(url, {
@@ -210,10 +212,16 @@ Please peer-review this technical draft against the 100-point academic standard 
                         }
                     })
                 });
+                const data = await res.json();
+                const deprecation = modelValidator_1.modelValidator.isDeprecatedOrNotFound(res.status, data);
+                if (deprecation.isDeprecated) {
+                    modelValidator_1.modelValidator.markDeprecated(reviewModel, deprecation.reason);
+                    continue;
+                }
                 if (res.ok) {
-                    const data = await res.json();
                     const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
                     if (rawJson) {
+                        modelValidator_1.modelValidator.markActive(reviewModel);
                         const parsed = JSON.parse(rawJson);
                         keyManager_1.keyManager.reportSuccess(keyProfile.id);
                         const finalScore = typeof parsed.score === 'number' ? parsed.score : localVerdict.score;

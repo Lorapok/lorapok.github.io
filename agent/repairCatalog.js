@@ -41,6 +41,7 @@ const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const keyManager_1 = require("./keyManager");
 const writer_1 = require("./writer");
+const modelValidator_1 = require("./modelValidator");
 // Auto-load environment
 try {
     const localEnv = path.resolve(__dirname, '.env');
@@ -77,11 +78,12 @@ Please write the missing concluding sections to complete the article rigorously 
 
 Return ONLY the markdown text for these completing sections. Do not include introductory text or repeating markdown.`;
     let lastError = null;
-    for (const model of models) {
-        const keyProfile = keyManager_1.keyManager.getKey('gemini');
-        if (!keyProfile || !keyProfile.key) {
-            throw new Error("No Gemini key available for online completion");
-        }
+    const keyProfile = keyManager_1.keyManager.getKey('gemini');
+    if (!keyProfile || !keyProfile.key) {
+        throw new Error("No Gemini key available for online completion");
+    }
+    const activeModels = await modelValidator_1.modelValidator.validateAndFilterCandidates(models, keyProfile.key);
+    for (const model of activeModels) {
         try {
             console.log(`   Trying ${model} via ${keyProfile.accountLabel}...`);
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keyProfile.key}`;
@@ -96,16 +98,22 @@ Return ONLY the markdown text for these completing sections. Do not include intr
                     }
                 })
             });
+            const data = await res.json().catch(() => ({}));
+            const deprecation = modelValidator_1.modelValidator.isDeprecatedOrNotFound(res.status, data);
+            if (deprecation.isDeprecated) {
+                modelValidator_1.modelValidator.markDeprecated(model, deprecation.reason);
+                continue;
+            }
             if (res.ok) {
-                const data = await res.json();
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
                 if (text.trim().length > 100) {
+                    modelValidator_1.modelValidator.markActive(model);
                     keyManager_1.keyManager.reportSuccess(keyProfile.id);
                     return text.trim();
                 }
             }
-            const errText = await res.text();
-            console.warn(`   ⚠️ ${model} returned ${res.status}: ${errText.slice(0, 150)}`);
+            const errMsg = data?.error?.message || '';
+            console.warn(`   ⚠️ ${model} returned ${res.status}: ${errMsg.slice(0, 150)}`);
             if (res.status === 429) {
                 keyManager_1.keyManager.reportRateLimit(keyProfile.id, false);
             }

@@ -6,6 +6,7 @@ import { NewsItem } from './collector';
 import { keyManager } from './keyManager';
 import { auditArticle } from './reviewer';
 import { synthesizePostVisualSuite, injectVisualsIntoMarkdown } from './imageAgent';
+import { modelValidator } from './modelValidator';
 
 export interface AIProviderResult {
   text: string;
@@ -604,9 +605,11 @@ async function callAIProvider(
     let lastError: any = null;
 
     const poolAccounts = Math.max(1, keyManager.getAccountCount('gemini'));
+    const discoveryKey = keyManager.getKey('gemini')?.key || fallbackKey;
+    const validatedCandidateModels = await modelValidator.validateAndFilterCandidates(candidateModels, discoveryKey);
 
     // Step through candidate models in priority order
-    for (const model of candidateModels) {
+    for (const model of validatedCandidateModels) {
       const profile = getModelEditorialProfile(model, requestedPro);
 
       for (let keyAttempt = 0; keyAttempt < poolAccounts; keyAttempt++) {
@@ -641,12 +644,19 @@ async function callAIProvider(
           });
           const data: any = await res.json();
 
+          // 1. Real-Time Deprecation & Model Not Found Auto-Pruning
+          const deprecationCheck = modelValidator.isDeprecatedOrNotFound(res.status, data);
+          if (deprecationCheck.isDeprecated) {
+            modelValidator.markDeprecated(model, deprecationCheck.reason);
+            lastError = new Error(deprecationCheck.reason);
+            break; // Auto-pruned from candidate ladder, immediately advance to next candidate
+          }
+
           const errMsg = data?.error?.message || '';
           const isDemandSpike = res.status === 503 || data?.error?.code === 503 || data?.error?.status === 'UNAVAILABLE' || errMsg.includes('high demand');
-          const isModelNotFound = res.status === 404 || data?.error?.code === 404 || errMsg.includes('not found') || errMsg.includes('no longer available');
           const isModelSpecificQuota = errMsg.includes('limit: 0') || (errMsg.includes('Quota exceeded') && errMsg.includes('model:'));
 
-          if (isDemandSpike || isModelNotFound || isModelSpecificQuota) {
+          if (isDemandSpike || isModelSpecificQuota) {
             console.warn(`⏳ [Adaptive Fallback] Model ${model} is currently busy or restricted (${errMsg.slice(0, 110) || res.status}). Cascading to next candidate in ladder...`);
             lastError = new Error(errMsg || `Model ${model} unavailable`);
             break; // Skip further key attempts for this busy model, advance to next model candidate!
@@ -662,6 +672,7 @@ async function callAIProvider(
 
           const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) {
+            modelValidator.markActive(model);
             console.log(`✅ Generation succeeded with ${model} (${profile.editorialTier} • ${accountLabel})`);
             if (activeProfile) keyManager.reportSuccess(activeProfile.id);
             return {

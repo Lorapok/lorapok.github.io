@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { keyManager } from './keyManager';
 import { extractCitationsFromMarkdown, spliceConclusionCleanly } from './writer';
+import { modelValidator } from './modelValidator';
 
 // Auto-load environment
 try {
@@ -46,42 +47,51 @@ Return ONLY the markdown text for these completing sections. Do not include intr
 
   let lastError = null;
 
-  for (const model of models) {
     const keyProfile = keyManager.getKey('gemini');
     if (!keyProfile || !keyProfile.key) {
       throw new Error("No Gemini key available for online completion");
     }
 
-    try {
-      console.log(`   Trying ${model} via ${keyProfile.accountLabel}...`);
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keyProfile.key}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 4096
-          }
-        })
-      });
+    const activeModels = await modelValidator.validateAndFilterCandidates(models, keyProfile.key);
 
-      if (res.ok) {
-        const data = await res.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        if (text.trim().length > 100) {
-          keyManager.reportSuccess(keyProfile.id);
-          return text.trim();
+    for (const model of activeModels) {
+      try {
+        console.log(`   Trying ${model} via ${keyProfile.accountLabel}...`);
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keyProfile.key}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.4,
+              maxOutputTokens: 4096
+            }
+          })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        const deprecation = modelValidator.isDeprecatedOrNotFound(res.status, data);
+        if (deprecation.isDeprecated) {
+          modelValidator.markDeprecated(model, deprecation.reason);
+          continue;
         }
-      }
 
-      const errText = await res.text();
-      console.warn(`   ⚠️ ${model} returned ${res.status}: ${errText.slice(0, 150)}`);
+        if (res.ok) {
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (text.trim().length > 100) {
+            modelValidator.markActive(model);
+            keyManager.reportSuccess(keyProfile.id);
+            return text.trim();
+          }
+        }
 
-      if (res.status === 429) {
-        keyManager.reportRateLimit(keyProfile.id, false);
-      }
+        const errMsg = data?.error?.message || '';
+        console.warn(`   ⚠️ ${model} returned ${res.status}: ${errMsg.slice(0, 150)}`);
+
+        if (res.status === 429) {
+          keyManager.reportRateLimit(keyProfile.id, false);
+        }
       // If 503 or 429, continue to next model in waterfall
       await new Promise(r => setTimeout(r, 1000));
     } catch (err: any) {
