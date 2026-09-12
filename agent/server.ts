@@ -169,7 +169,7 @@ const telemetry: MicroserviceTelemetry = {
   totalDispatches: 0,
   isDispatching: false,
   daemonActive: false,
-  intervalHours: 1,
+  intervalHours: 0.25,
   nextScheduledDispatch: null,
 };
 
@@ -494,7 +494,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
 }
 
 // ─── Autonomous Daemon Scheduler ───
-function startAutonomousDaemon(intervalHours = 1) {
+function startAutonomousDaemon(intervalHours = 0.25) {
   if (telemetry.daemonActive) return;
   telemetry.daemonActive = true;
   telemetry.intervalHours = intervalHours;
@@ -529,7 +529,7 @@ function startAutonomousDaemon(intervalHours = 1) {
   }, 3000);
 
   setInterval(async () => {
-    console.log(`⏰ [LoLaBo Daemon] Triggering scheduled hourly dispatch cycle...`);
+    console.log(`⏰ [LoLaBo Daemon] Triggering scheduled dispatch cycle (${(intervalHours * 60).toFixed(0)} min)...`);
     try {
       await executeDispatch();
     } catch (err) {
@@ -831,7 +831,7 @@ export function startServer(port = PORT, host = HOST) {
   // Check if autonomous daemon mode was requested
   const isDaemonArg = process.argv.includes('--daemon') || process.argv.includes('--cron') || process.env.DAEMON === 'true';
   if (isDaemonArg) {
-    const intervalHours = parseFloat(process.env.INTERVAL_HOURS || '1');
+    const intervalHours = parseFloat(process.env.INTERVAL_HOURS || '0.25');
     startAutonomousDaemon(intervalHours);
   }
 

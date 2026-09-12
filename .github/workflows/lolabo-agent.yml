@@ -2,9 +2,8 @@ name: LoLaBo AI Agent
 
 on:
   schedule:
-    # Staggered twice-hourly checks avoid GitHub Actions minute :00 runner congestion.
-    # The agent script gates on hoursSinceLastRun >= 0.75h so it only publishes once per hour.
-    - cron: '17,47 * * * *'
+    # 15-minute autonomous publishing cadence
+    - cron: '*/15 * * * *'
   workflow_dispatch:         # Manual trigger
     inputs:
       force:
@@ -27,23 +26,31 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Agent Dependencies
+      - name: Install Agent Dependencies and Build
         run: |
           cd agent
           npm install
+          npm run build
 
       - name: Run LoLaBo Agent
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
+          GEMINI_API_KEY_1: ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          INTERVAL_HOURS: '0.25'
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           FORCE_RUN: ${{ github.event.inputs.force }}
         run: |
           cd agent
-          npx ts-node index.ts
-          npx ts-node exportData.ts
+          node index.js
+          node exportData.js
 
       - name: Commit and Push SEO Updates
         id: git-push
@@ -53,7 +60,8 @@ jobs:
           git add .
           if ! git diff-index --quiet HEAD; then
             git commit -m "chore(blog): new post by LoLaBo Agent with SEO updates"
-            git push
+            git pull --rebase origin main || true
+            git push origin main
             echo "pushed=true" >> $GITHUB_OUTPUT
           else
             echo "No file changes detected. Skipping push."
@@ -75,6 +83,6 @@ jobs:
         run: |
           echo "🔍 Verifying live publication on production edge before broadcasting to Discord..."
           cd agent
-          npx ts-node broadcastLivePost.ts
+          node broadcastLivePost.js
 
 

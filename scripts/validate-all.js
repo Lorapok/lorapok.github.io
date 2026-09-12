@@ -238,7 +238,7 @@ try {
 }
 
 try {
-  execSync('npx tsc -p agent/tsconfig.json', { stdio: 'pipe' });
+  execSync('npm --prefix agent run build', { stdio: 'pipe' });
   logPass('Agent TypeScript compilation passed (0 errors)');
 } catch (err) {
   logFail(`Agent TypeScript compilation failed:\n${err.stdout?.toString() || err.message}`);

@@ -26,15 +26,24 @@ async function sleep(ms: number) {
 }
 
 async function verifyUrlLive(url: string): Promise<boolean> {
-  try {
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: { 'User-Agent': 'LoLaBo-LiveVerifier/2.0' }
-    });
-    return res.status === 200;
-  } catch {
-    return false;
+  const urlsToTest = [
+    url,
+    url.endsWith('/') ? url.slice(0, -1) : `${url}/`,
+    url.replace('https://lorapok.tech', 'https://lorapok.github.io')
+  ];
+
+  for (const target of urlsToTest) {
+    try {
+      const res = await fetch(target, {
+        method: 'GET',
+        headers: { 'User-Agent': 'LoLaBo-LiveVerifier/2.0' }
+      });
+      if (res.status === 200 || res.status === 301 || res.status === 308) {
+        return true;
+      }
+    } catch {}
   }
+  return false;
 }
 
 async function main() {

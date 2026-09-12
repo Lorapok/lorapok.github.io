@@ -210,7 +210,7 @@ async function runAgent() {
     console.log("🚀 Starting LoLaBo Agent...");
     let config = {
         isEnabled: true,
-        intervalHours: 1,
+        intervalHours: 0.25,
         lastRunAt: null,
         writingProvider: 'gemini',
         imageGenMode: 'ai',
@@ -229,7 +229,7 @@ async function runAgent() {
             }
             else {
                 await db.collection('agent_config').doc('lolabo_settings').set(config);
-                console.log("✅ Default agent config initialized in Firestore (1-hour publishing interval).");
+                console.log("✅ Default agent config initialized in Firestore (15-minute publishing interval).");
             }
         }
         catch (err) {
@@ -241,7 +241,7 @@ async function runAgent() {
         console.log("⏸️ Agent is currently disabled. Skipping run.");
         return;
     }
-    // 2. Check Interval or Manual Trigger
+    // 2. Check Interval or Manual Trigger (Default 15 minutes)
     let lastRun = new Date(0);
     if (config.lastRunAt && typeof config.lastRunAt.toDate === 'function') {
         lastRun = config.lastRunAt.toDate();
@@ -250,19 +250,22 @@ async function runAgent() {
         lastRun = new Date(config.lastRunAt);
     }
     const now = new Date();
-    const hoursSinceLastRun = (now.getTime() - lastRun.getTime()) / (1000 * 60 * 60);
-    const targetInterval = typeof config.intervalHours === 'number' ? config.intervalHours : 1;
-    const jitterThreshold = Math.max(0.75, targetInterval * 0.85);
+    const minutesSinceLastRun = (now.getTime() - lastRun.getTime()) / (1000 * 60);
+    const targetIntervalHours = typeof config.intervalHours === 'number'
+        ? config.intervalHours
+        : parseFloat(process.env.INTERVAL_HOURS || '0.25');
+    const targetMinutes = targetIntervalHours * 60; // 15 minutes default
+    const jitterThresholdMinutes = Math.max(12, targetMinutes * 0.8);
     const isManualTrigger = config.triggerRequested === true || process.env.FORCE_RUN === 'true' || isOnceFlag;
-    if (hoursSinceLastRun < jitterThreshold && !process.env.FORCE_RUN && !isManualTrigger) {
-        console.log(`⏳ Only ${hoursSinceLastRun.toFixed(2)}h since last run. Interval target is ${targetInterval}h (jitter threshold: ${jitterThreshold.toFixed(2)}h). Skipping.`);
+    if (minutesSinceLastRun < jitterThresholdMinutes && !process.env.FORCE_RUN && !isManualTrigger) {
+        console.log(`⏳ Only ${minutesSinceLastRun.toFixed(1)}m since last run. Interval target is ${targetMinutes.toFixed(1)}m (jitter threshold: ${jitterThresholdMinutes.toFixed(1)}m). Skipping.`);
         return;
     }
     if (isManualTrigger) {
-        console.log("⚡ Manual trigger detected (--once / triggerRequested). Bypassing interval check.");
+        console.log("⚡ Manual trigger detected (--once / triggerRequested / FORCE_RUN). Bypassing interval check.");
     }
     else {
-        console.log(`⏱️ Hourly cycle triggered (${hoursSinceLastRun.toFixed(2)}h elapsed >= ${jitterThreshold.toFixed(2)}h threshold). Generating post...`);
+        console.log(`⏱️ 15-minute cycle triggered (${minutesSinceLastRun.toFixed(1)}m elapsed >= ${jitterThresholdMinutes.toFixed(1)}m threshold). Generating post...`);
     }
     try {
         // 0. Load active catalog for anti-duplication baseline
