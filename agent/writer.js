@@ -154,9 +154,11 @@ Every article MUST incorporate formal technical citations and academic reference
 RESEARCH-MATCHED TECHNICAL COVER IMAGE SPECIFICATION:
 The 'imagePrompt' MUST be an ultra-detailed, domain-specific visual blueprint prompt directly illustrating the core engineering mechanism, data structures, or hardware components analyzed in this research article:
 • Never produce generic sci-fi, abstract humans, or generic cityscapes.
-• Explicitly illustrate the exact technical subject (e.g., for eBPF: 'Isometric cutaway diagram of Linux kernel space and user space boundary with circular ring buffers, packet filtering execution path, glowing neon cyan memory registers, dark charcoal matte chassis, octane render, 8k, photorealistic technical blueprint, zero text, zero watermark').
-• For consensus/distributed systems: 'State machine replication network nodes arranged in quorum ring, Raft leader election pulse, write-ahead log entries in emerald holographic shards, dark server rack backdrop, volumetric depth of field, 8k, zero text, zero watermark'.
-• For compilers/runtimes: 'AST abstract syntax tree nodes transforming into optimized bytecode assembly instructions, zero-copy buffer pools, dark glass aesthetic, glowing fiber optic traces, octane render 8k'.
+• STRICTLY BANNED TERMS: octane render, glowing neon, cybernetic, cyberpunk, holographic, futuristic, laser lines. (Never use any of these words or visual tropes).
+• MANDATED EDITORIAL STYLE: Swiss graphic design, editorial technical illustration, minimalist flat vector schematic, clean graphite backdrop, muted slate and cobalt palette, precision line art, matte industrial finish, 8k resolution, zero text, zero watermark.
+• Explicitly illustrate the exact technical subject (e.g., for eBPF: 'Isometric cutaway diagram of Linux kernel space and user space boundary with circular ring buffers, packet filtering execution path, minimalist slate memory registers, dark charcoal matte chassis, Swiss graphic design, 8k, photorealistic technical blueprint, zero text, zero watermark').
+• For consensus/distributed systems: 'State machine replication network nodes arranged in quorum ring, Raft leader election pulse, write-ahead log entries in precision data blocks, dark server rack backdrop, Swiss editorial design, 8k, zero text, zero watermark'.
+• For compilers/runtimes: 'AST abstract syntax tree nodes transforming into optimized bytecode assembly instructions, zero-copy buffer pools, dark slate aesthetic, precision bus traces, Swiss minimalist schematic, 8k'.
 
 OUTPUT FORMAT (JSON):
 {
@@ -178,7 +180,7 @@ OUTPUT FORMAT (JSON):
     }
   ],
   "imageKeywords": ["cloud architecture", "distributed systems", "datacenter"],
-  "imagePrompt": "Detailed domain-specific technical prompt specifically illustrating this article's core mechanisms (no text, no watermark, 8k, octane render)",
+  "imagePrompt": "Detailed domain-specific technical prompt specifically illustrating this article's core mechanisms (Swiss graphic design, minimalist flat vector schematic, clean slate and cobalt palette, zero text, zero watermark, 8k)",
   "seo": {
     "metaTitle": "... | LoLaBo — Lorapok Labs",
     "metaDescription": "...",
@@ -749,7 +751,7 @@ function parseLLMJson(raw) {
                 tags: ['LorapokLabs', 'Lorapok', 'CitationsAvailable', 'Architecture', 'Cloud'],
                 citations: extractedCitations,
                 imageKeywords: ['technology', 'architecture', 'distributed systems'],
-                imagePrompt: `Futuristic 3D visualization of ${title}, dark tech aesthetic, 8k`,
+                imagePrompt: `Swiss editorial technical illustration of ${title}, minimalist flat vector schematic, clean slate and cobalt palette, 8k`,
                 seo: {
                     metaTitle: `${title.slice(0, 48)} | LoLaBo — Lorapok Labs`,
                     metaDescription: (excerpt || title).slice(0, 155),

@@ -562,7 +562,7 @@ function ensureUniqueVisuals(postsList: BlogPost[]): BlogPost[] {
     const isDup = seenUrls.has(url);
     if (!url || isDup || isUnsplash) {
       const cleanTitle = (p.title || `research-paper-${idx + 1}`).replace(/[^\w\s-]/g, " ").trim();
-      const prompt = `${cleanTitle}, systems architecture diagram, physical hardware cutaway, isometric blueprint, dark graphite chassis, glowing telemetry paths, octane render 8k, zero text`;
+      const prompt = `Editorial technical illustration for ${cleanTitle}, Swiss graphic design, minimalist flat vector schematic, clean graphite backdrop, muted slate and cobalt palette, precision line art, matte industrial finish, 8k, zero text, zero watermark`;
       const charSum = (p.slug || p.title || "").split("").reduce((acc, c) => ((acc << 5) - acc) + c.charCodeAt(0), 0);
       const seed = Math.abs(charSum + (idx + 1) * 7919) % 10000000;
       url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt.slice(0, 320))}?width=1200&height=630&nologo=true&seed=${seed}&model=flux`;

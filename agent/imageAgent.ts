@@ -323,7 +323,7 @@ export async function synthesizePostVisualSuite(
   let coverPrompt = '';
   if (imagePrompt && imagePrompt.trim().length > 15) {
     const sanitized = imagePrompt
-      .replace(/octane render|glowing neon|cybernetic|cyberpunk|holographic|futuristic/gi, 'minimalist flat vector')
+      .replace(/\b(octane(?:\s+render)?|glowing(?:\s+neon)?|neon|cybernetic|cyberpunk|holographic|futuristic|laser(?:\s+lines)?)\b/gi, 'minimalist flat vector')
       .replace(/[^\w\s,.-]/g, ' ')
       .trim();
     coverPrompt = `${sanitized}, Swiss graphic design, editorial technical illustration, minimalist flat vector schematic, clean graphite backdrop, muted slate and cobalt palette, precision line art, matte industrial finish, 8k resolution, zero text, zero watermark`;

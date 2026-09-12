@@ -13,13 +13,13 @@ export interface ImageGenOptions {
 // All photos verified active, high-resolution, dark aesthetic, optimized for editorial tech covers
 const THEME_PHOTO_BANKS: Record<string, string[]> = {
   ai_neural: [
-    "photo-1620712943543-bcc4688e7485", // AI neural network glowing core
-    "photo-1618005182384-a83a8bd57fbe", // Blue generative abstract landscape
-    "photo-1635070041078-e363dbe005cb", // Cyberpunk neural lattice
+    "photo-1620712943543-bcc4688e7485", // High-dimensional neural tensor array
+    "photo-1618005182384-a83a8bd57fbe", // Minimalist abstract generative field
+    "photo-1635070041078-e363dbe005cb", // High-density computational lattice
     "photo-1634017839464-5c339ebe3cb4", // Quantum qubit processor
-    "photo-1507413245164-6160d8298b31", // Holographic model computation
-    "photo-1485827404703-89b55fcc595e", // AI robotic vision sensor
-    "photo-1535223289827-42f1e9919769", // Futuristic cybernetic interface
+    "photo-1507413245164-6160d8298b31", // Scientific computational model
+    "photo-1485827404703-89b55fcc595e", // Robotics perception sensor
+    "photo-1535223289827-42f1e9919769", // Precision hardware interface
   ],
   backend_infra: [
     "photo-1558494949-ef010cbdcc31", // Modern datacenter server rack blue
@@ -28,7 +28,7 @@ const THEME_PHOTO_BANKS: Record<string, string[]> = {
     "photo-1451187580459-43490279c0fa", // Global distributed network from space
     "photo-1563986768609-322da13575f3", // High availability server cluster
     "photo-1607799279861-4dd421887fb3", // DevOps monitors and system operations
-    "photo-1526374965328-7f61d4dc18c5", // Matrix binary routing streams
+    "photo-1526374965328-7f61d4dc18c5", // Binary routing telemetry streams
   ],
   security_crypto: [
     "photo-1563986768494-4dee2763ff3f", // Cryptographic security padlock
@@ -55,18 +55,18 @@ const THEME_PHOTO_BANKS: Record<string, string[]> = {
     "photo-1579546929518-9e396f3cc809", // Generative color palette UI
   ],
   opensource_dev: [
-    "photo-1555066931-4365d14bab8c", // Neon terminal code and git commits
+    "photo-1555066931-4365d14bab8c", // Terminal code editor and git commits
     "photo-1522071820081-009f0129c71c", // Global collaborative developer team
     "photo-1531482615713-2afd69097998", // Engineering conference collaboration
     "photo-1519389950473-47ba0277781c", // Connected developers working online
     "photo-1515879218367-8466d910aaa4", // Python and open source code syntax
-    "photo-1581091226825-a6a2a5aee158", // Hardware innovation and IoT hacking
+    "photo-1581091226825-a6a2a5aee158", // Hardware innovation and IoT development
   ],
   general_tech: [
     "photo-1518770660439-4636190af475", // Electronic circuit microchip
     "photo-1531297484001-80022131f5a1", // High performance workstation
     "photo-1488590528505-98d2b5aba04b", // Data analytics technology screen
-    "photo-1550745165-9bc0b252726f", // Retro-futuristic cyberpunk hardware
+    "photo-1550745165-9bc0b252726f", // High-performance compute node
     "photo-1581092160607-ee22621dd758", // Precision robotics laboratory
   ]
 };
@@ -157,7 +157,7 @@ export function buildFluxImageUrl(
   if (imagePrompt && imagePrompt.trim().length > 15) {
     visualPrompt = imagePrompt.trim()
       .replace(/[\r\n\t]+/g, ' ')
-      .replace(/octane render|glowing neon|cybernetic|cyberpunk|holographic|futuristic/gi, 'minimalist flat vector')
+      .replace(/\b(octane(?:\s+render)?|glowing(?:\s+neon)?|neon|cybernetic|cyberpunk|holographic|futuristic|laser(?:\s+lines)?)\b/gi, 'minimalist flat vector')
       .replace(/[^\w\s,.:;()/-]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
