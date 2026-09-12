@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Sat, 12 Sep 2026 18:32:56 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 12 Sep 2026 18:48:13 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>RFC-0089: Micro-Sandboxed Execution Runtimes for Autonomous AI Agents via Landlock LSM and Seccomp-Unotify</title>
