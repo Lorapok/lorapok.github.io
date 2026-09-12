@@ -200,7 +200,23 @@ async function exportBlogData() {
     console.log("✅ [Export] Cloud Firestore successfully synchronized with 100% unique online AI visuals.");
   }
 
-  // 5. Ensure output directory exists and write
+  // 5. Ensure all markdown posts have balanced code fences
+  for (const p of mergedPosts) {
+    if (p.content) {
+      const fences = (p.content.split('```').length - 1);
+      if (fences % 2 !== 0) {
+        const footerMarker = '\n---\n*Authored autonomously';
+        const footerIdx = p.content.lastIndexOf(footerMarker);
+        if (footerIdx !== -1) {
+          p.content = p.content.slice(0, footerIdx).trimEnd() + '\n```\n' + p.content.slice(footerIdx);
+        } else {
+          p.content = p.content.trimEnd() + '\n```\n';
+        }
+      }
+    }
+  }
+
+  // 6. Ensure output directory exists and write
   const dir = path.dirname(outputPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });

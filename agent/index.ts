@@ -322,7 +322,22 @@ async function runAgent() {
     console.log(`📝 [Local Catalog] Persisting post: ${blogPost.title}`);
     const updatedPosts = [newPost, ...currentPosts.filter((p: any) => p.slug !== blogPost.slug)];
     const dir = path.dirname(postsJsonPath);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    // Ensure all posts have balanced code fences
+    for (const p of updatedPosts) {
+      if (p.content) {
+        const fences = (p.content.split('```').length - 1);
+        if (fences % 2 !== 0) {
+          const footerMarker = '\n---\n*Authored autonomously';
+          const footerIdx = p.content.lastIndexOf(footerMarker);
+          if (footerIdx !== -1) {
+            p.content = p.content.slice(0, footerIdx).trimEnd() + '\n```\n' + p.content.slice(footerIdx);
+          } else {
+            p.content = p.content.trimEnd() + '\n```\n';
+          }
+        }
+      }
+    }
+
     fs.writeFileSync(postsJsonPath, JSON.stringify(updatedPosts, null, 2), 'utf8');
     console.log(`✅ Post persisted locally to ${postsJsonPath} (${updatedPosts.length} total posts)`);
 
