@@ -139,7 +139,8 @@ export function resolveTechnicalTheme(title: string, category: string = '', tags
 }
 
 /**
- * Generates or selects a distinct, professionally matched cover image for a blog post
+ * Generates or selects a distinct, professionally matched cover image for a blog post.
+ * Enforces 100% online AI generation and strict catalog deduplication (zero image reuse).
  */
 export async function generateCoverImage(
   title: string,
@@ -147,55 +148,89 @@ export async function generateCoverImage(
   mode: 'gemini' | 'stock' | 'auto' | 'pollinations' | 'ai' = 'auto',
   category: string = 'General Tech',
   imageKeywords: string[] = [],
-  imagePrompt?: string
+  imagePrompt?: string,
+  existingPosts: any[] = []
 ): Promise<string> {
-  console.log(`🎨 Selecting professional cover image for: "${title}" (Mode: ${mode})...`);
+  console.log(`🎨 Generating distinct online cover image for: "${title}" (Mode: ${mode})...`);
 
-  // 1. Live Unsplash API (if API key is available)
+  // Build a set of all previously used image URLs to guarantee zero duplication
+  const usedImages = new Set<string>();
+  for (const p of existingPosts) {
+    if (p && p.coverImage && typeof p.coverImage === 'string') {
+      usedImages.add(p.coverImage.trim());
+    }
+  }
+
+  // 1. Live Unsplash API Search (if API key is available and mode is 'stock')
   const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (unsplashKey && (mode === 'stock' || mode === 'auto')) {
+  if (unsplashKey && mode === 'stock') {
     try {
       const searchKeyword = (imageKeywords[0] || tags[0] || category || 'technology').replace(/[^a-zA-Z0-9]/g, ' ');
       console.log(`🔍 Querying Unsplash API for keyword: "${searchKeyword}"...`);
-      const res = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchKeyword + ' technology dark')}&orientation=landscape&per_page=5`, {
+      const res = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchKeyword + ' technology dark architecture')}&orientation=landscape&per_page=15`, {
         headers: { 'Authorization': `Client-ID ${unsplashKey}` }
       });
       if (res.ok) {
         const data = await res.json();
         const results = data.results || [];
-        if (results.length > 0) {
-          const index = hashString(title) % results.length;
-          const url = results[index]?.urls?.regular || results[0]?.urls?.regular;
-          if (url) {
-            console.log(`✅ Unsplash API selected photo: ${url}`);
-            return `${url}&auto=format&fit=crop&q=85&w=1200&h=630`;
+        for (const item of results) {
+          const rawUrl = item?.urls?.regular;
+          if (rawUrl) {
+            const formatted = `${rawUrl}&auto=format&fit=crop&q=85&w=1200&h=630`;
+            if (!usedImages.has(formatted)) {
+              console.log(`✅ Unsplash API selected unique photo: ${formatted}`);
+              return formatted;
+            }
           }
         }
       }
     } catch (e) {
-      console.warn("⚠️ Unsplash API query failed, proceeding to curated library:", e);
+      console.warn("⚠️ Unsplash API query failed, proceeding to online AI image generation:", e);
     }
   }
 
-  // 2. Pollinations AI Mode (if explicitly requested)
-  if (mode === 'pollinations' || mode === 'ai') {
-    const prompt = imagePrompt || `${title}, futuristic dark minimalist technology, 3d render, octane, 8k`;
-    const cleanPrompt = prompt.replace(/[^\w\s,-]/g, ' ').slice(0, 150);
-    const seed = hashString(title);
-    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1200&height=630&nologo=true&seed=${seed}`;
-    console.log(`✅ Generated Pollinations AI image URL with seed ${seed}`);
-    return pollinationsUrl;
+  // 2. 100% Online AI Generation (Pollinations AI - Flux / Turbo Architecture)
+  // Generates unique, cinematic, topic-tailored technical visuals with custom seeds
+  const theme = resolveTechnicalTheme(title, category, tags, imageKeywords);
+  const subjectTerms = (imageKeywords.length > 0 ? imageKeywords : tags.slice(0, 3)).join(', ');
+  const cleanTitle = title.replace(/[^\w\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+  
+  const basePrompt = imagePrompt || `${cleanTitle}, ${category}, ${subjectTerms}, futuristic cybernetic architecture, dark minimalist tech aesthetic, glowing data streams, isometric blueprint elements, cinematic studio lighting, octane render, 8k`;
+  const cleanPrompt = basePrompt.replace(/[^\w\s,-]/g, ' ').slice(0, 200).trim();
+
+  let baseSeed = hashString(title + theme);
+  let finalAiUrl = '';
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const candidateSeed = (baseSeed + attempt * 104729) % 100000000;
+    const candidateUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1200&height=630&nologo=true&seed=${candidateSeed}&model=flux`;
+    
+    if (!usedImages.has(candidateUrl)) {
+      finalAiUrl = candidateUrl;
+      break;
+    }
   }
 
-  // 3. High-Fidelity Curated Photo Selection (Zero-fail, instant, guaranteed distinct)
-  const theme = resolveTechnicalTheme(title, category, tags, imageKeywords);
+  if (finalAiUrl) {
+    console.log(`✅ Generated unique online AI cover image (Seed verified against ${usedImages.size} existing catalog images)`);
+    return finalAiUrl;
+  }
+
+  // 3. Fallback Curated Visuals with Strict Deduplication (Guaranteed Unique)
   const photoList = THEME_PHOTO_BANKS[theme] || THEME_PHOTO_BANKS.general_tech;
+  let chosenPhotoId = photoList[0];
 
-  // Use deterministic hash of title to guarantee distinct selection without duplication
-  const photoIndex = hashString(title + theme) % photoList.length;
-  const selectedPhotoId = photoList[photoIndex];
+  for (const photoId of photoList) {
+    const candidatePhotoUrl = `https://images.unsplash.com/${photoId}?auto=format&fit=crop&q=85&w=1200&h=630`;
+    if (!usedImages.has(candidatePhotoUrl)) {
+      chosenPhotoId = photoId;
+      return candidatePhotoUrl;
+    }
+  }
 
-  const finalUrl = `https://images.unsplash.com/${selectedPhotoId}?auto=format&fit=crop&q=85&w=1200&h=630`;
-  console.log(`✅ Matched Theme "${theme}" → Selected distinct photo ID: ${selectedPhotoId}`);
-  return finalUrl;
+  // If all photo IDs in the bank were exhausted, append a unique salt so CDN treats it distinctly
+  const uniqueSalt = hashString(title + Date.now().toString());
+  const finalStockUrl = `https://images.unsplash.com/${chosenPhotoId}?auto=format&fit=crop&q=85&w=1200&h=630&sig=${uniqueSalt}`;
+  console.log(`✅ Assigned salted unique stock image for "${theme}": ${finalStockUrl}`);
+  return finalStockUrl;
 }

@@ -268,14 +268,15 @@ async function runAgent() {
       console.log("⚠️ Force flag detected: Proceeding with publication despite duplicate detection.");
     }
 
-    // 7. Image Generation (Distinct, topic-relevant editorial cover)
+    // 7. Online AI Image Generation (Distinct, topic-relevant editorial cover with zero catalog duplicates)
     blogPost.coverImage = await generateCoverImage(
       blogPost.title,
       blogPost.tags,
       config.imageGenMode || 'auto',
       blogPost.category,
       blogPost.imageKeywords || [],
-      blogPost.imagePrompt
+      blogPost.imagePrompt,
+      currentPosts
     );
 
     // 8. Deterministic Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
@@ -312,11 +313,27 @@ async function runAgent() {
     // Update sitemaps & RSS feed
     updateFeedsLocally(updatedPosts, dir);
 
-    // 9. Social Distribution
+    // 9. Synchronized Social Distribution (Staged for live verification)
     const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
+    const pendingBroadcastPath = path.resolve(__dirname, '.pending-broadcast.json');
+    const isBroadcastNow = process.argv.includes('--broadcast-now');
+
     if (webhookUrl && webhookUrl.trim()) {
-      console.log("📢 Broadcasting to Discord webhook...");
-      await distributeSocially(newPost, config.enabledSocials || ['discord'], webhookUrl);
+      if (isBroadcastNow) {
+        console.log("📢 Immediate broadcast requested (--broadcast-now)...");
+        await distributeSocially(newPost, config.enabledSocials || ['discord'], webhookUrl);
+      } else {
+        console.log("📋 Staging post for synchronized live broadcast (.pending-broadcast.json)...");
+        fs.writeFileSync(pendingBroadcastPath, JSON.stringify({
+          slug: newPost.slug,
+          title: newPost.title,
+          post: newPost,
+          enabledSocials: config.enabledSocials || ['discord'],
+          discordWebhookUrl: webhookUrl,
+          stagedAt: new Date().toISOString()
+        }, null, 2), 'utf8');
+        console.log(`✅ Post staged for broadcast after production deployment is confirmed live (HTTP 200).`);
+      }
     } else {
       console.log("ℹ️ [Discord Broadcast] Skipped: No DISCORD_WEBHOOK_URL configured in environment or Firestore.");
     }

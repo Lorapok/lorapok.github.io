@@ -190,8 +190,8 @@ export default function LoLaBoPanel() {
                       <Zap size={12} /> AI Writer Model
                     </label>
                     <select className="dev-form-select" value={config.writingProvider} onChange={e => handleUpdateConfig({ writingProvider: e.target.value })}>
-                      <option value="gemini">Google Gemini 1.5 Pro</option>
-                      <option value="groq">Groq (Llama 3)</option>
+                      <option value="gemini">Google Gemini 2.5 Flash</option>
+                      <option value="groq">Groq (Llama 3.3)</option>
                       <option value="openai">OpenAI GPT-4o</option>
                       <option value="claude">Claude 3.5 Sonnet</option>
                     </select>

@@ -68,3 +68,13 @@ jobs:
           echo "🚀 Triggering Deploy Lorapok Labs workflow for live SEO deployment..."
           gh workflow run deploy.yml --ref main || echo "Deploy workflow dispatched or queued."
 
+      - name: Verify Live Deployment and Broadcast to Discord
+        if: steps.git-push.outputs.pushed == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          echo "🔍 Verifying live publication on production edge before broadcasting to Discord..."
+          cd agent
+          npx ts-node broadcastLivePost.ts
+
+

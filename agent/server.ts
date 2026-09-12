@@ -401,7 +401,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       }
     }
 
-    // 5. Generate Editorial Visual
+    // 5. Generate Editorial Visual (100% Online AI with Catalog Deduplication)
     console.log("🎨 Generating topic-relevant cover visual...");
     blogPost.coverImage = await generateCoverImage(
       blogPost.title,
@@ -409,7 +409,8 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       config.imageGenMode || 'auto',
       blogPost.category,
       blogPost.imageKeywords || [],
-      blogPost.imagePrompt
+      blogPost.imagePrompt,
+      currentPosts
     );
 
     // 6. Dual-Tier Persistence (Cloud Firestore + Local Filesystem)
@@ -545,8 +546,8 @@ const server = http.createServer(async (req, res) => {
       databaseConnected: Boolean(db),
       databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
       aiConfigured: hasAiKey,
-      aiProvider: hasAiKey ? 'Google Gemini' : 'Offline Synthesis Engine',
-      aiModel: hasAiKey ? 'gemini-3.6-flash' : 'offline-synthesis',
+      aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
+      aiModel: hasAiKey ? 'gemini-2.5-flash' : 'none',
       timestamp: new Date().toISOString(),
       nodeVersion: process.version
     });
@@ -561,8 +562,8 @@ const server = http.createServer(async (req, res) => {
       databaseConnected: Boolean(db),
       databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
       aiConfigured: hasAiKey,
-      aiProvider: hasAiKey ? 'Google Gemini' : 'Offline Synthesis Engine',
-      aiModel: hasAiKey ? 'gemini-3.6-flash' : 'offline-synthesis',
+      aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
+      aiModel: hasAiKey ? 'gemini-2.5-flash' : 'none',
       cachedPostsCount: posts.length,
       memory: process.memoryUsage(),
       system: {

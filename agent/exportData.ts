@@ -124,6 +124,15 @@ async function exportBlogData() {
   }
 
   // 2. Fetch and merge remote Firestore posts if available
+  const PURGED_SLUGS = new Set([
+    'architectural-deep-dive-zero-trust-service-mesh-architecture-with-ebpf',
+    'architectural-deep-dive-thrive-capital-led-vcs-into-pro-sports-ownership-collaborative-fund-just-upped-that-play',
+    'the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development',
+    'reverse-engineering-frontier-models-inside-the-mechanics-of-llm-distillation-campaigns-and-evasion-defenses',
+    'local-1789096731131',
+    'local-1789096223415'
+  ]);
+
   if (db) {
     try {
       const snap = await db.collection('blog_posts').get();
@@ -131,6 +140,15 @@ async function exportBlogData() {
 
       for (const doc of snap.docs) {
         const data = doc.data();
+        const docSlug = data.slug || doc.id;
+        
+        // Clean up purged duplicate stubs from remote Firestore
+        if (PURGED_SLUGS.has(doc.id) || PURGED_SLUGS.has(docSlug)) {
+          console.log(`🧹 Purging duplicate document from Cloud Firestore: ${doc.id}`);
+          await doc.ref.delete().catch(() => {});
+          continue;
+        }
+
         let publishedAtStr = new Date().toISOString();
         if (data.publishedAt && typeof data.publishedAt.toDate === 'function') {
           publishedAtStr = data.publishedAt.toDate().toISOString();
@@ -146,8 +164,10 @@ async function exportBlogData() {
         };
 
         const key = (postObj.slug || postObj.id) as string;
-        // Merge or update with Firestore data
-        postMap.set(key, postObj);
+        // Merge or update with Firestore data only if not in purged set
+        if (!PURGED_SLUGS.has(key)) {
+          postMap.set(key, postObj);
+        }
       }
     } catch (dbErr) {
       console.warn("⚠️ Error querying Firestore, preserving existing local posts:", dbErr);
