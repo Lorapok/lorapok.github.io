@@ -295,59 +295,106 @@ function preprocessMarkdown(content: string): string {
 }
 
 // ─── Mermaid Architectural Schematic Component ───
-function MermaidBlock({ code }: { code: string }) {
-  const [svgHtml, setSvgHtml] = useState<string>("");
+const mermaidSvgCache = new Map<string, string>();
+let mermaidLoaderPromise: Promise<any> | null = null;
+
+function getMermaidInstance(): Promise<any> {
+  if (typeof window === "undefined") return Promise.resolve(null);
+  if ((window as any).mermaid) return Promise.resolve((window as any).mermaid);
+  if (!mermaidLoaderPromise) {
+    mermaidLoaderPromise = (async () => {
+      try {
+        const mod = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+        const mermaid = mod.default || mod;
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "dark",
+          themeVariables: {
+            darkMode: true,
+            background: "#05070e",
+            primaryColor: "#0f172a",
+            primaryTextColor: "#f8fafc",
+            primaryBorderColor: "#38bdf8",
+            lineColor: "#67ff8f",
+            secondaryColor: "#1e293b",
+            tertiaryColor: "#0b1329",
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+            fontSize: "13px"
+          },
+          securityLevel: "loose"
+        });
+        (window as any).mermaid = mermaid;
+        return mermaid;
+      } catch (err) {
+        mermaidLoaderPromise = null;
+        console.warn("Failed to load Mermaid module:", err);
+        throw err;
+      }
+    })();
+  }
+  return mermaidLoaderPromise;
+}
+
+function computeDiagramHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+const MermaidBlock = React.memo(function MermaidBlock({ code }: { code: string }) {
+  const cleanCode = code.trim();
+  const [svgHtml, setSvgHtml] = useState<string>(() => mermaidSvgCache.get(cleanCode) || "");
   const [hasError, setHasError] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
-  const idRef = useRef(`mermaid-${Math.random().toString(36).substring(2, 9)}`);
+  const diagId = useRef(`mmd_${computeDiagramHash(cleanCode)}`);
 
   useEffect(() => {
+    if (mermaidSvgCache.has(cleanCode)) {
+      setSvgHtml(mermaidSvgCache.get(cleanCode)!);
+      setHasError(false);
+      return;
+    }
+
     let isMounted = true;
-    async function renderMermaid() {
+    async function renderDiagram() {
+      const id = diagId.current;
       try {
-        let mermaid: any = (window as any).mermaid;
-        if (!mermaid) {
-          const mod = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
-          mermaid = mod.default || mod;
-          (window as any).mermaid = mermaid;
-          mermaid.initialize({
-            startOnLoad: false,
-            theme: "dark",
-            themeVariables: {
-              darkMode: true,
-              background: "#05070e",
-              primaryColor: "#0f172a",
-              primaryTextColor: "#f8fafc",
-              primaryBorderColor: "#38bdf8",
-              lineColor: "#67ff8f",
-              secondaryColor: "#1e293b",
-              tertiaryColor: "#0b1329",
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-              fontSize: "13px"
-            },
-            securityLevel: "loose"
-          });
-        }
-        const { svg } = await mermaid.render(idRef.current, code);
+        const mermaid = await getMermaidInstance();
+        if (!mermaid || !isMounted) return;
+
+        // Clean up any stale temporary elements Mermaid may have left behind
+        const existing = document.getElementById(id);
+        if (existing) existing.remove();
+        const existingD = document.getElementById("d" + id);
+        if (existingD) existingD.remove();
+
+        const { svg } = await mermaid.render(id, cleanCode);
+        mermaidSvgCache.set(cleanCode, svg);
         if (isMounted) {
           setSvgHtml(svg);
           setHasError(false);
         }
       } catch (err) {
-        console.warn("Mermaid dynamic render fallback:", err);
+        console.warn("Mermaid schematic render fallback:", err);
+        const existingD = document.getElementById("d" + id);
+        if (existingD) existingD.remove();
         if (isMounted) setHasError(true);
       }
     }
-    renderMermaid();
+
+    renderDiagram();
     return () => {
       isMounted = false;
     };
-  }, [code]);
+  }, [cleanCode]);
 
   const handleCopy = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(code);
+      navigator.clipboard.writeText(cleanCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -362,7 +409,7 @@ function MermaidBlock({ code }: { code: string }) {
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-r from-[#0a1224] to-[#070b16] border-b border-[#38bdf8]/20 select-none">
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8] animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#67ff8f]" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#c084fc]" />
           </div>
@@ -375,7 +422,7 @@ function MermaidBlock({ code }: { code: string }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsZoomed(!isZoomed)}
-            className="px-2.5 py-1 rounded text-xs font-mono text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+            className="px-2.5 py-1 rounded text-xs font-mono text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
             title={isZoomed ? "Exit Fullscreen" : "Fullscreen View"}
           >
             {isZoomed ? "CLOSE" : "EXPAND"}
@@ -411,7 +458,7 @@ function MermaidBlock({ code }: { code: string }) {
           />
         ) : hasError ? (
           <pre className="font-mono text-xs text-[#67ff8f] p-4 bg-[#0a1020] rounded border border-white/10 whitespace-pre">
-            <code>{code}</code>
+            <code>{cleanCode}</code>
           </pre>
         ) : (
           <div className="flex items-center gap-2 font-mono text-xs text-[#38bdf8] animate-pulse">
@@ -425,10 +472,10 @@ function MermaidBlock({ code }: { code: string }) {
       </div>
     </div>
   );
-}
+});
 
 // ─── Terminal Window / Code Block / Architecture Blueprint Component ───
-function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
+const CodeBlock = React.memo(function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
   const [copied, setCopied] = useState(false);
   const codeContent = String(children).replace(/\n$/, "");
 
@@ -552,7 +599,152 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
       </pre>
     </div>
   );
-}
+});
+
+// ─── Module-Level Stable ReactMarkdown Components Map (Prevents Re-Mounting) ───
+const MARKDOWN_COMPONENTS: Record<string, React.FC<any>> = {
+  h2: ({ node, children, ...props }) => {
+    const rawText = String(children).replace(/[*_`#]/g, "").trim();
+    const id = rawText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+    return (
+      <h2
+        id={id}
+        className="scroll-mt-24 group font-bold text-2xl sm:text-3xl text-white mt-14 mb-4 tracking-tight flex items-center gap-2"
+        {...props}
+      >
+        <span>{children}</span>
+        <a
+          href={`#${id}`}
+          className="opacity-0 group-hover:opacity-100 text-[var(--lp-accent,#67ff8f)] text-base transition-opacity no-underline"
+          title="Direct link to this section"
+        >
+          #
+        </a>
+      </h2>
+    );
+  },
+  h3: ({ node, ...props }) => (
+    <h3 className="font-bold text-xl sm:text-2xl text-white mt-10 mb-3 tracking-tight" {...props} />
+  ),
+  p: ({ node, ...props }) => (
+    <p className="mb-6 leading-[1.85] text-[#d1d5db]" {...props} />
+  ),
+  blockquote: ({ node, ...props }) => (
+    <blockquote className="my-8 border-l-4 border-[var(--lp-accent,#67ff8f)] pl-6 py-2 bg-white/[0.02] rounded-r-xl italic text-gray-300 text-lg sm:text-xl font-serif" {...props} />
+  ),
+  ul: ({ node, ...props }) => (
+    <ul className="list-disc pl-6 mb-6 space-y-2 text-[#d1d5db]" {...props} />
+  ),
+  ol: ({ node, ...props }) => (
+    <ol className="list-decimal pl-6 mb-6 space-y-2 text-[#d1d5db]" {...props} />
+  ),
+  table: ({ node, ...props }) => (
+    <div className="overflow-x-auto my-8 rounded-xl border border-white/15 bg-[#07090e] shadow-2xl">
+      <table className="w-full text-left text-sm border-collapse min-w-[620px]" {...props} />
+    </div>
+  ),
+  thead: ({ node, ...props }) => (
+    <thead className="bg-white/[0.05] border-b border-white/10" {...props} />
+  ),
+  th: ({ node, ...props }) => (
+    <th className="px-4 py-3.5 font-mono font-bold text-[var(--lp-accent,#67ff8f)] border-r border-white/10 last:border-r-0 uppercase tracking-wider text-xs whitespace-nowrap" {...props} />
+  ),
+  td: ({ node, ...props }) => (
+    <td className="px-4 py-3 border-b border-white/5 border-r border-white/5 last:border-r-0 text-gray-300 font-sans leading-relaxed" {...props} />
+  ),
+  tr: ({ node, ...props }) => (
+    <tr className="hover:bg-white/[0.02] transition-colors odd:bg-white/[0.01]" {...props} />
+  ),
+  hr: ({ node, ...props }) => (
+    <hr className="my-12 border-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" {...props} />
+  ),
+  code: ({ node, className, children, ...props }: any) => {
+    const isMultiline = String(children).includes("\n");
+    const hasLang = Boolean(className && className.startsWith("language-"));
+    if (isMultiline || hasLang) {
+      return <CodeBlock className={className}>{children}</CodeBlock>;
+    }
+    return (
+      <code
+        className="px-1.5 py-0.5 rounded bg-white/10 text-[var(--lp-accent,#67ff8f)] font-mono text-[0.875em] border border-white/5"
+        {...props}
+      >
+        {children}
+      </code>
+    );
+  },
+  pre: ({ node, children, ...props }: any) => {
+    return <>{children}</>;
+  },
+  img: ({ src, alt, ...props }: any) => {
+    const isFigure = alt && alt.startsWith("Figure");
+    return (
+      <figure className="my-10 overflow-hidden rounded-2xl border border-white/10 bg-[#080b12] shadow-2xl">
+        <div className="relative group overflow-hidden bg-black/40">
+          <img
+            src={src}
+            alt={alt || "LoLaBo Technical Visual"}
+            className="w-full h-auto max-h-[520px] object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+            loading="lazy"
+            {...props}
+          />
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <a
+              href={src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1 text-xs font-mono bg-black/80 hover:bg-black text-white rounded border border-white/20 backdrop-blur"
+            >
+              Open Full-Res ↗
+            </a>
+          </div>
+        </div>
+        {alt && (
+          <figcaption className="px-5 py-3.5 bg-[#05070d] border-t border-white/10 flex items-start gap-2.5 text-xs sm:text-sm text-gray-300 font-sans leading-relaxed">
+            <span className="font-mono text-[var(--lp-accent,#67ff8f)] font-bold shrink-0 uppercase tracking-wider">
+              {isFigure ? alt.split(":")[0] : "Visual"}
+            </span>
+            <span className="text-gray-400">
+              {isFigure ? alt.replace(/^Figure\s*\d+:\s*/i, "") : alt}
+            </span>
+          </figcaption>
+        )}
+      </figure>
+    );
+  },
+};
+
+// ─── Reading Progress Bar (Isolated Scroll Listener to prevent Root Re-renders) ───
+const ReadingProgressBar = React.memo(function ReadingProgressBar() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const total = document.documentElement.scrollHeight - window.innerHeight;
+          if (total > 0) {
+            const current = (window.scrollY / total) * 100;
+            setProgress(Math.min(100, Math.max(0, current)));
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div
+      className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-[var(--lp-accent,#67ff8f)] via-[#38bdf8] to-[#c084fc] z-[9999] transition-all duration-100 ease-out"
+      style={{ width: `${progress}%` }}
+    />
+  );
+});
 
 function ensureUniqueVisuals(postsList: BlogPost[]): BlogPost[] {
   const seenUrls = new Set<string>();
@@ -584,7 +776,6 @@ export default function BlogApp() {
   const [loading, setLoading] = useState(true);
 
   // Article View Interactive States
-  const [readingProgress, setReadingProgress] = useState(0);
   const [claps, setClaps] = useState(142);
   const [userClaps, setUserClaps] = useState(0);
   const [clapAnim, setClapAnim] = useState(false);
@@ -668,22 +859,6 @@ export default function BlogApp() {
       window.scrollTo({ top: 0, behavior: "instant" as any });
     }
   }, [currentPost?.slug]);
-
-  // Track reading progress on scroll
-  useEffect(() => {
-    if (!currentPost) return;
-
-    const handleScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      if (total > 0) {
-        const current = (window.scrollY / total) * 100;
-        setReadingProgress(Math.min(100, Math.max(0, current)));
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [currentPost]);
 
   const handleClap = () => {
     if (userClaps >= 50) return;
@@ -963,10 +1138,7 @@ export default function BlogApp() {
         <SEOHead post={currentPost} />
 
         {/* Dynamic Sticky Top Reading Progress Bar */}
-        <div
-          className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-[var(--lp-accent,#67ff8f)] via-[#38bdf8] to-[#c084fc] z-[9999] transition-all duration-100 ease-out"
-          style={{ width: `${readingProgress}%` }}
-        />
+        <ReadingProgressBar />
 
         {/* Top Sticky Breadcrumbs & Quick Engagement Bar */}
         <header className="sticky top-0 z-40 bg-[#050505]/90 backdrop-blur-md border-b border-white/5 shadow-md">
@@ -1213,117 +1385,7 @@ export default function BlogApp() {
             <div className="col-span-12 lg:col-span-9 xl:col-span-7 max-w-[820px] mx-auto w-full">
               <div className="article-body-medium text-[#d8dde6] text-[18px] sm:text-[19px] leading-[1.85] font-sans">
                 <ReactMarkdown
-                  components={{
-                    h2: ({ node, children, ...props }) => {
-                      const rawText = String(children).replace(/[*_`#]/g, "").trim();
-                      const id = rawText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
-                      return (
-                        <h2
-                          id={id}
-                          className="scroll-mt-24 group font-bold text-2xl sm:text-3xl text-white mt-14 mb-4 tracking-tight flex items-center gap-2"
-                          {...props}
-                        >
-                          <span>{children}</span>
-                          <a
-                            href={`#${id}`}
-                            className="opacity-0 group-hover:opacity-100 text-[var(--lp-accent,#67ff8f)] text-base transition-opacity no-underline"
-                            title="Direct link to this section"
-                          >
-                            #
-                          </a>
-                        </h2>
-                      );
-                    },
-                    h3: ({ node, ...props }) => (
-                      <h3 className="font-bold text-xl sm:text-2xl text-white mt-10 mb-3 tracking-tight" {...props} />
-                    ),
-                    p: ({ node, ...props }) => (
-                      <p className="mb-6 leading-[1.85] text-[#d1d5db]" {...props} />
-                    ),
-                    blockquote: ({ node, ...props }) => (
-                      <blockquote className="my-8 border-l-4 border-[var(--lp-accent,#67ff8f)] pl-6 py-2 bg-white/[0.02] rounded-r-xl italic text-gray-300 text-lg sm:text-xl font-serif" {...props} />
-                    ),
-                    ul: ({ node, ...props }) => (
-                      <ul className="list-disc pl-6 mb-6 space-y-2 text-[#d1d5db]" {...props} />
-                    ),
-                    ol: ({ node, ...props }) => (
-                      <ol className="list-decimal pl-6 mb-6 space-y-2 text-[#d1d5db]" {...props} />
-                    ),
-                    table: ({ node, ...props }) => (
-                      <div className="overflow-x-auto my-8 rounded-xl border border-white/15 bg-[#07090e] shadow-2xl">
-                        <table className="w-full text-left text-sm border-collapse min-w-[620px]" {...props} />
-                      </div>
-                    ),
-                    thead: ({ node, ...props }) => (
-                      <thead className="bg-white/[0.05] border-b border-white/10" {...props} />
-                    ),
-                    th: ({ node, ...props }) => (
-                      <th className="px-4 py-3.5 font-mono font-bold text-[var(--lp-accent,#67ff8f)] border-r border-white/10 last:border-r-0 uppercase tracking-wider text-xs whitespace-nowrap" {...props} />
-                    ),
-                    td: ({ node, ...props }) => (
-                      <td className="px-4 py-3 border-b border-white/5 border-r border-white/5 last:border-r-0 text-gray-300 font-sans leading-relaxed" {...props} />
-                    ),
-                    tr: ({ node, ...props }) => (
-                      <tr className="hover:bg-white/[0.02] transition-colors odd:bg-white/[0.01]" {...props} />
-                    ),
-                    hr: ({ node, ...props }) => (
-                      <hr className="my-12 border-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" {...props} />
-                    ),
-                    code: ({ node, className, children, ...props }: any) => {
-                      const isMultiline = String(children).includes("\n");
-                      const hasLang = Boolean(className && className.startsWith("language-"));
-                      if (isMultiline || hasLang) {
-                        return <CodeBlock className={className}>{children}</CodeBlock>;
-                      }
-                      return (
-                        <code
-                          className="px-1.5 py-0.5 rounded bg-white/10 text-[var(--lp-accent,#67ff8f)] font-mono text-[0.875em] border border-white/5"
-                          {...props}
-                        >
-                          {children}
-                        </code>
-                      );
-                    },
-                    pre: ({ node, children, ...props }: any) => {
-                      return <>{children}</>;
-                    },
-                    img: ({ src, alt, ...props }: any) => {
-                      const isFigure = alt && alt.startsWith("Figure");
-                      return (
-                        <figure className="my-10 overflow-hidden rounded-2xl border border-white/10 bg-[#080b12] shadow-2xl">
-                          <div className="relative group overflow-hidden bg-black/40">
-                            <img
-                              src={src}
-                              alt={alt || "LoLaBo Technical Visual"}
-                              className="w-full h-auto max-h-[520px] object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-                              loading="lazy"
-                              {...props}
-                            />
-                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <a
-                                href={src}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-2.5 py-1 text-xs font-mono bg-black/80 hover:bg-black text-white rounded border border-white/20 backdrop-blur"
-                              >
-                                Open Full-Res ↗
-                              </a>
-                            </div>
-                          </div>
-                          {alt && (
-                            <figcaption className="px-5 py-3.5 bg-[#05070d] border-t border-white/10 flex items-start gap-2.5 text-xs sm:text-sm text-gray-300 font-sans leading-relaxed">
-                              <span className="font-mono text-[var(--lp-accent,#67ff8f)] font-bold shrink-0 uppercase tracking-wider">
-                                {isFigure ? alt.split(":")[0] : "Visual"}
-                              </span>
-                              <span className="text-gray-400">
-                                {isFigure ? alt.replace(/^Figure\s*\d+:\s*/i, "") : alt}
-                              </span>
-                            </figcaption>
-                          )}
-                        </figure>
-                      );
-                    },
-                  }}
+                  components={MARKDOWN_COMPONENTS}
                   remarkPlugins={[remarkGfm]}
                 >
                   {preprocessMarkdown(currentPost.content)}

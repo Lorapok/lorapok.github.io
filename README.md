@@ -90,8 +90,8 @@ flowchart TD
     Validator --> ModelTiering
     ModelTiering --> Author
     Author --> PeerReview
-    PeerReview -- "Score < 85 (Revisions Required)" --> Author
-    PeerReview -- "Score >= 85 (Approved)" --> VisualEngine
+    PeerReview -->|"Score &lt; 85 (Revisions Required)"| Author
+    PeerReview -->|"Score &gt;= 85 (Approved)"| VisualEngine
     VisualEngine --> Consolidator
     Validator -.-> ModelQuarantine
     Consolidator --> FirestoreDB
@@ -102,7 +102,7 @@ flowchart TD
     PostBuildScript --> GH_CDN
 
     Consolidator --> Verifier
-    Verifier -- "Live 200 OK Verified" --> DiscordChannel
+    Verifier -->|"Live 200 OK Verified"| DiscordChannel
 ```
 
 ---
@@ -138,9 +138,9 @@ sequenceDiagram
     end
 
     alt Topic is Deep Systems Research, RFC, or Thesis
-        Writer->>Writer: Flagship Tier: Gemini 3.8/3.7/3.6 Flash -> 3.1 Pro -> Pro Latest -> 2.5 Pro -> 2.0 Thinking
+        Writer->>Writer: Flagship Tier: Gemini 3.8/3.7/3.6 Flash → 3.1 Pro → Pro Latest → 2.5 Pro → 2.0 Thinking
     else Topic is Standard Technical Dispatch or News
-        Writer->>Writer: Technical Tier: Gemini 3.8/3.7/3.6 Flash -> Flash Latest -> 2.5 Flash -> 2.0 Flash
+        Writer->>Writer: Technical Tier: Gemini 3.8/3.7/3.6 Flash → Flash Latest → 2.5 Flash → 2.0 Flash
     end
 
     Writer->>Writer: Synthesize manuscript (Zero-Truncation Barrier, ASCII diagrams, formal math, benchmark tables)
@@ -149,10 +149,10 @@ sequenceDiagram
         Writer->>Reviewer: Submit draft for evaluation
         Reviewer->>Validator: Validate reviewer candidate models
         Reviewer->>Reviewer: Audit against 100-Point Rubric (Rigor, Math, Code, Citations)
-        alt Score < 85 (Defects or Missing Proofs)
+        alt Score below 85 (Defects or Missing Proofs)
             Reviewer-->>Writer: Reject with structured critique instructions
             Writer->>Writer: Revise manuscript addressing critique
-        else Score >= 85 (Approved)
+        else Score 85 or above (Approved)
             Reviewer-->>Writer: Issue peer-review approval badge
         end
     end
@@ -189,8 +189,8 @@ flowchart LR
     subgraph Layer2 ["Layer 2: Export & Normalization (exportData.ts)"]
         B1["Consolidator Process"] --> B2["Scan Merged Catalog"]
         B2 --> B3{"Unsplash or Duplicate?"}
-        B3 -- Yes --> B4["Re-synthesize Online AI Flux Visual"]
-        B3 -- No --> B5["Retain Valid Visual"]
+        B3 -->|Yes| B4["Re-synthesize Online AI Flux Visual"]
+        B3 -->|No| B5["Retain Valid Visual"]
         B4 --> B6["Sync Back to Cloud Firestore"]
         B5 --> B7["Write to public/blog/posts.json"]
         B6 --> B7
@@ -199,8 +199,8 @@ flowchart LR
     subgraph Layer3 ["Layer 3: Browser Runtime (BlogApp.tsx)"]
         C1["Client Fetches posts.json / Live Sync"] --> C2["ensureUniqueVisuals() Guard"]
         C2 --> C3{"In-Memory URL Conflict?"}
-        C3 -- Yes --> C4["On-the-Fly Prime Salt Resolution"]
-        C3 -- No --> C5["Render Progressive Image Component"]
+        C3 -->|Yes| C4["On-the-Fly Prime Salt Resolution"]
+        C3 -->|No| C5["Render Progressive Image Component"]
         C4 --> C5
     end
 
