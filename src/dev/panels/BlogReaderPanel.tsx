@@ -1,6 +1,7 @@
 // src/dev/panels/BlogReaderPanel.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface BlogPost {
   id: string;
@@ -23,21 +24,48 @@ const DEMO_POSTS: BlogPost[] = [
     tags: ["AI", "Open Source", "Trends"],
     readTime: "4 min",
     icon: "🤖"
-  },
-  {
-    id: "2",
-    title: "Building Lorapok UI with zero runtime dependencies",
-    content: "When we started building Lorapok UI, our goal was clear: extreme performance and maximum flexibility. This meant cutting out the middleman...",
-    author: "Maizied",
-    date: "May 10, 2025",
-    tags: ["UI", "React", "Design"],
-    readTime: "6 min",
-    icon: "🎨"
   }
 ];
 
+function sanitizeMarkdown(content: string): string {
+  if (!content) return "";
+  let processed = content;
+  const fences = processed.match(/```/g);
+  if (fences && fences.length % 2 !== 0) {
+    const footerIdx = processed.lastIndexOf("\n---\n*Authored autonomously");
+    if (footerIdx !== -1) {
+      processed = processed.slice(0, footerIdx) + "\n```\n" + processed.slice(footerIdx);
+    } else {
+      processed = processed + "\n```\n";
+    }
+  }
+  return processed;
+}
+
 export default function BlogReaderPanel() {
+  const [posts, setPosts] = useState<BlogPost[]>(DEMO_POSTS);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+
+  useEffect(() => {
+    fetch('/blog/posts.json?_t=' + Date.now())
+      .then(res => res.json())
+      .then((data: any[]) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped: BlogPost[] = data.map((p, idx) => ({
+            id: p.slug || String(idx),
+            title: p.title,
+            content: p.content,
+            author: p.author?.name || "LoLaBo Agent",
+            date: p.publishedAt ? new Date(p.publishedAt).toLocaleDateString() : "Recently",
+            tags: (p.tags || []).slice(0, 3),
+            readTime: `${p.readTime || 5} min`,
+            icon: p.author?.avatar || "📄"
+          }));
+          setPosts(mapped);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   if (selectedPost) {
     return (
@@ -61,8 +89,8 @@ export default function BlogReaderPanel() {
             </div>
           </div>
           <div className="dev-divider" />
-          <div className="dev-blog-article-body">
-            <ReactMarkdown>{selectedPost.content}</ReactMarkdown>
+          <div className="dev-blog-article-body prose prose-invert max-w-none">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{sanitizeMarkdown(selectedPost.content)}</ReactMarkdown>
           </div>
         </article>
       </div>
@@ -72,12 +100,12 @@ export default function BlogReaderPanel() {
   return (
     <div className="dev-panel-content">
       <div className="dev-panel-header">
-        <div className="dev-panel-title">Lorapok <span>Blog</span></div>
-        <div className="dev-panel-sub">Insights, updates, and deep dives into the Lorapok ecosystem.</div>
+        <div className="dev-panel-title">LoLaBo <span>Catalog</span></div>
+        <div className="dev-panel-sub">Autonomous technical treatises, blueprints, and systems deep dives.</div>
       </div>
 
       <div className="dev-g3">
-        {DEMO_POSTS.map(post => (
+        {posts.map(post => (
           <div key={post.id} className="dev-blog-reader-card" onClick={() => setSelectedPost(post)}>
             <div className="dev-blog-reader-thumb">
               <div className="dev-blog-reader-pattern" />

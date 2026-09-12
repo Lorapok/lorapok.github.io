@@ -262,18 +262,33 @@ function extractHeadings(markdown: string) {
   return matches;
 }
 
-// ─── Markdown Normalizer for Robust Table & Diagram Parsing ───
+// ─── Markdown Normalizer for Robust Table, Code Block & Diagram Parsing ───
 function preprocessMarkdown(content: string): string {
   if (!content) return "";
   let processed = content;
 
-  // 1. Fix single-line collapsed markdown tables where rows are separated by | | instead of newlines
+  // 1. Balance unclosed code blocks (fences with ```) so trailing content is never swallowed into code
+  const codeBlockMatches = processed.match(/```/g);
+  if (codeBlockMatches && codeBlockMatches.length % 2 !== 0) {
+    // If odd number of ```, find last occurrence and close it cleanly before footer/hashtags
+    const footerIdx = processed.lastIndexOf("\n---\n*Authored autonomously");
+    if (footerIdx !== -1) {
+      processed = processed.slice(0, footerIdx) + "\n```\n" + processed.slice(footerIdx);
+    } else {
+      processed = processed + "\n```\n";
+    }
+  }
+
+  // 2. Ensure headings have an empty line before them so they always parse as blocks
+  processed = processed.replace(/([^\n])\n(#{1,6}\s+[^\n]+)/g, "$1\n\n$2");
+
+  // 3. Fix single-line collapsed markdown tables where rows are separated by | | instead of newlines
   processed = processed.replace(/\|\s*\|\s*(?=[^\n|])/g, "|\n|");
 
-  // 2. Fix tables where header separator row is immediately followed by data row on same line: | :--- | :--- | | Runtime
+  // 4. Fix tables where header separator row is immediately followed by data row on same line: | :--- | :--- | | Runtime
   processed = processed.replace(/(\|(?:\s*:?-+:?\s*\|)+)\s*(\|[^:\n])/g, "$1\n$2");
 
-  // 3. Ensure tables have an empty line before and after so GFM table parser activates reliably
+  // 5. Ensure tables have an empty line before and after so GFM table parser activates reliably
   processed = processed.replace(/([^\n])\n(\|[^\n]+\|)\n(\|(?:\s*:?-+:?\s*\|)+)/g, "$1\n\n$2\n$3");
 
   return processed;

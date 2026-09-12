@@ -550,7 +550,7 @@ const server = http.createServer(async (req, res) => {
             databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
             aiConfigured: hasAiKey,
             aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
-            aiModel: hasAiKey ? 'gemini-2.5-flash' : 'none',
+            aiModel: hasAiKey ? 'gemini-3.8-flash' : 'none',
             timestamp: new Date().toISOString(),
             nodeVersion: process.version
         });
@@ -565,7 +565,7 @@ const server = http.createServer(async (req, res) => {
             databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
             aiConfigured: hasAiKey,
             aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
-            aiModel: hasAiKey ? 'gemini-2.5-flash' : 'none',
+            aiModel: hasAiKey ? 'gemini-3.8-flash' : 'none',
             cachedPostsCount: posts.length,
             memory: process.memoryUsage(),
             system: {

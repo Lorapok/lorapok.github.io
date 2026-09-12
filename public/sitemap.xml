@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-a-multi-modal-ingestion-engine-for-robotics-foundation-models-real-time-sensor-alignment-zero-copy-ring-buffers-and-gpudirect-storage-integration/</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/rfc-0089-micro-sandboxed-execution-runtimes-for-autonomous-ai-agents-via-landlock-lsm-and-seccomp-unotify/</loc>
     <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>

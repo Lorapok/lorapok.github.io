@@ -52,9 +52,21 @@ export default function BlogPanel() {
     const loadPosts = async () => {
       try {
         const live = await blogService.getPublishedPosts(50);
-        setPosts(live);
+        if (live && live.length > 0) {
+          setPosts(live);
+          return;
+        }
       } catch (e) {
-        console.error("Failed to load blog posts:", e);
+        console.warn("Firestore fetch skipped, falling back to local posts.json:", e);
+      }
+      try {
+        const res = await fetch('/blog/posts.json?_t=' + Date.now());
+        if (res.ok) {
+          const staticPosts = await res.json();
+          setPosts(staticPosts);
+        }
+      } catch (err) {
+        console.error("Failed to load blog posts:", err);
       } finally {
         setLoadingPosts(false);
       }

@@ -122,6 +122,8 @@ EDITORIAL TYPE TAXONOMY (You MUST choose one value for 'type' and follow its det
    • Section 3: Data Plane vs. Control Plane Protocol Dynamics (wire formats, serialization, RPC sync)
    • Section 4: Concurrency, Sharding & High-Availability Boundaries
    • Section 5: Failure Modes & Chaos Engineering (split-brain mitigation, backpressure, degrade-gracefully paths)
+   • Section 6: Key Takeaways & Summary for Systems Architects (Formal concluding synthesis and operational horizons)
+   • Section 7: ## References & Technical Citations (3–6 authoritative papers, RFCs, kernel docs)
 
 2. "DEEP DIVE" (Language internals, runtime engines, compiler passes, memory models)
    • Section 1: Executive Overview & The Abstraction Leak
@@ -129,6 +131,8 @@ EDITORIAL TYPE TAXONOMY (You MUST choose one value for 'type' and follow its det
    • Section 3: Annotated Code Deconstruction (production-grade Rust/Go/C++ snippets with explanations)
    • Section 4: Runtime Execution Tracing & Syscall Analysis (kernel transitions, context switches)
    • Section 5: Production Hardening & Anti-Patterns to Avoid
+   • Section 6: Key Takeaways & Systems Engineering Conclusion (Formal concluding synthesis)
+   • Section 7: ## References & Technical Citations (3–6 authoritative papers, RFCs, kernel docs)
 
 3. "BENCHMARK & PERF" (Empirical measurements, hardware testing, latency audits)
    • Section 1: The Performance Frontier & Hypothesis
@@ -136,6 +140,8 @@ EDITORIAL TYPE TAXONOMY (You MUST choose one value for 'type' and follow its det
    • Section 3: Empirical Measurements & Latency Breakdown (MUST include Markdown comparative tables: P50, P90, P99, P99.9, IOPS)
    • Section 4: Root Cause Bottleneck Analysis (lock contention, TLB misses, cache invalidation)
    • Section 5: Optimization Prescription & Before/After Delta
+   • Section 6: Key Takeaways & Performance Summary for Architects (Formal concluding synthesis)
+   • Section 7: ## References & Technical Citations (3–6 authoritative papers, RFCs, kernel docs)
 
 4. "CASE STUDY" (Enterprise pivots, architectural post-mortems, legacy rewrites)
    • Section 1: Legacy Context & The Scaling Cliff
@@ -143,6 +149,8 @@ EDITORIAL TYPE TAXONOMY (You MUST choose one value for 'type' and follow its det
    • Section 3: Phased Migration Strategy & Zero-Downtime Cutover (canary routing, dual-write pipelines)
    • Section 4: Production Incidents & Unforeseen Edge Cases
    • Section 5: Measurable Outcomes, Latency Wins & Retrospective
+   • Section 6: Architectural Lessons & Key Takeaways (Formal concluding synthesis)
+   • Section 7: ## References & Technical Citations (3–6 authoritative papers, RFCs, kernel docs)
 
 5. "IMPLEMENTATION SPEC" (RFC-style formal specifications, protocol designs)
    • Section 1: RFC Scope, Terminology & Guarantees
@@ -150,6 +158,8 @@ EDITORIAL TYPE TAXONOMY (You MUST choose one value for 'type' and follow its det
    • Section 3: Reference Implementation with Annotated Code Blocks
    • Section 4: Security Threat Modeling & Invariant Proofs
    • Section 5: Rollout Phases & Backward Compatibility
+   • Section 6: Key Takeaways & Summary for Systems Architects (Formal concluding synthesis)
+   • Section 7: ## References & Technical Citations (3–6 authoritative papers, RFCs, kernel docs)
 
 MANDATORY CITATIONS REQUIREMENT:
 Every article MUST incorporate formal technical citations and academic references:
@@ -217,12 +227,18 @@ OUTPUT FORMAT (JSON):
     try {
       const completionSuffix = await completeArticleSections(blogData.title, blogData.content, apiKey, config.provider, isResearchMode);
       if (completionSuffix) {
-        blogData.content = blogData.content.trim() + "\n\n" + completionSuffix.trim();
+        blogData.content = spliceConclusionCleanly(blogData.content, completionSuffix);
         console.log("✅ Concluding sections synthesized and attached successfully.");
       }
     } catch (compErr: any) {
       console.warn("⚠️ Completion pass encountered error:", compErr.message);
     }
+  }
+
+  // Ensure all code fences are properly balanced and closed
+  const openFences = (blogData.content || '').match(/```/g);
+  if (openFences && openFences.length % 2 !== 0) {
+    blogData.content = blogData.content.trim() + "\n```\n";
   }
 
   // ─── Research Review Unit: Autonomous Peer-Review & Refinement Loop ───
@@ -370,6 +386,39 @@ export function validateContentCompleteness(content: string): { isComplete: bool
   return { isComplete: true };
 }
 
+export function spliceConclusionCleanly(content: string, completionSuffix: string): string {
+  if (!completionSuffix || !completionSuffix.trim()) return content;
+
+  let cleanContent = content.trim();
+
+  // Balance unclosed code blocks first
+  const fences = cleanContent.match(/```/g);
+  if (fences && fences.length % 2 !== 0) {
+    cleanContent += "\n```\n";
+  }
+
+  const completionHasRefs = /## (?:[0-9]+\.\s*)?(?:References|Technical Citations|Citations|Bibliography)/i.test(completionSuffix);
+  const refRegex = /\n(?=## (?:[0-9]+\.\s*)?(?:References|Citations|Technical Citations|Bibliography))/i;
+  const match = cleanContent.search(refRegex);
+
+  if (match !== -1) {
+    if (completionHasRefs) {
+      // Suffix has both conclusion and references -> replace old references with suffix
+      cleanContent = cleanContent.slice(0, match).trim() + "\n\n" + completionSuffix.trim();
+    } else {
+      // Suffix only has conclusion -> insert before existing references
+      const beforeRefs = cleanContent.slice(0, match).trim();
+      const refs = cleanContent.slice(match).trim();
+      cleanContent = beforeRefs + "\n\n" + completionSuffix.trim() + "\n\n" + refs;
+    }
+  } else {
+    // Existing content has no references -> append suffix
+    cleanContent = cleanContent + "\n\n" + completionSuffix.trim();
+  }
+
+  return cleanContent;
+}
+
 async function completeArticleSections(title: string, existingContent: string, apiKey: string, provider: string, isResearch = false): Promise<string> {
   const prompt = `You are completing an authoritative long-form technical article for Lorapok Labs.
 Article Title: "${title}"
@@ -403,22 +452,25 @@ async function callAIProvider(
   
   if (effectiveProvider === 'gemini') {
     // Strict Model Tiering Policy:
-    // Research Treatises, Thesis Papers & Journal Articles -> Gemini Pro & Thinking Models
-    // Blogs & Quick Dispatches -> Gemini Flash
-    const requestedPro = provider === 'gemini-pro' || provider === 'gemini-2.5-pro' || isResearch;
+    // Research Treatises, Thesis Papers & Journal Articles -> Gemini 3.1 Pro / 3.8 Flash
+    // Blogs & Quick Dispatches -> Gemini 3.8 / 3.7 / 3.6 Flash
+    const requestedPro = provider === 'gemini-pro' || provider === 'gemini-3.1-pro' || provider === 'gemini-2.5-pro' || isResearch;
     const candidateModels = requestedPro 
       ? [
-          'gemini-2.5-pro',
-          'gemini-2.0-pro-exp-02-05',
-          'gemini-2.0-flash-thinking-exp-01-21',
-          'gemini-3-pro',
-          'gemini-1.5-pro'
+          'gemini-3.1-pro-preview',
+          'gemini-pro-latest',
+          'gemini-3.8-flash',
+          'gemini-3.7-flash',
+          'gemini-3.6-flash',
+          'gemini-flash-latest'
         ]
       : [
-          'gemini-2.5-flash',
-          'gemini-2.0-flash',
-          'gemini-1.5-flash',
-          'gemini-3-flash'
+          'gemini-3.8-flash',
+          'gemini-3.7-flash',
+          'gemini-3.6-flash',
+          'gemini-flash-latest',
+          'gemini-3.5-flash',
+          'gemini-3.1-flash-lite'
         ];
     let lastError: any = null;
 

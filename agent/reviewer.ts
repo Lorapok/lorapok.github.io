@@ -227,8 +227,8 @@ ${article.content.slice(0, 10000)}
 
 Please peer-review this technical draft against the 100-point academic standard and output valid JSON.`;
 
-    // Always use flash or pro for reviewing
-    const reviewModel = 'gemini-2.5-flash';
+    // Always use active Gemini 3.x Flash for rapid academic reviewing
+    const reviewModel = 'gemini-3.8-flash';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${reviewModel}:generateContent?key=${keyProfile.key}`;
 
     const res = await fetch(url, {
