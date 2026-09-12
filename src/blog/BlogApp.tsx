@@ -2,7 +2,7 @@
 // LoLaBo — Lorapok Labs Blog
 // Premium tech blog with AI-powered content generation and Medium-grade editorial layout
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -294,6 +294,139 @@ function preprocessMarkdown(content: string): string {
   return processed;
 }
 
+// ─── Mermaid Architectural Schematic Component ───
+function MermaidBlock({ code }: { code: string }) {
+  const [svgHtml, setSvgHtml] = useState<string>("");
+  const [hasError, setHasError] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const idRef = useRef(`mermaid-${Math.random().toString(36).substring(2, 9)}`);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function renderMermaid() {
+      try {
+        let mermaid: any = (window as any).mermaid;
+        if (!mermaid) {
+          const mod = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+          mermaid = mod.default || mod;
+          (window as any).mermaid = mermaid;
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: "dark",
+            themeVariables: {
+              darkMode: true,
+              background: "#05070e",
+              primaryColor: "#0f172a",
+              primaryTextColor: "#f8fafc",
+              primaryBorderColor: "#38bdf8",
+              lineColor: "#67ff8f",
+              secondaryColor: "#1e293b",
+              tertiaryColor: "#0b1329",
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              fontSize: "13px"
+            },
+            securityLevel: "loose"
+          });
+        }
+        const { svg } = await mermaid.render(idRef.current, code);
+        if (isMounted) {
+          setSvgHtml(svg);
+          setHasError(false);
+        }
+      } catch (err) {
+        console.warn("Mermaid dynamic render fallback:", err);
+        if (isMounted) setHasError(true);
+      }
+    }
+    renderMermaid();
+    return () => {
+      isMounted = false;
+    };
+  }, [code]);
+
+  const handleCopy = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div
+      className={`mermaid-container my-8 rounded-2xl overflow-hidden border border-[#38bdf8]/40 bg-[#05070e] shadow-[0_0_40px_rgba(56,189,248,0.12)] transition-all ${
+        isZoomed ? "fixed inset-4 sm:inset-10 z-50 flex flex-col bg-[#05070e]/95 backdrop-blur-xl border-[#38bdf8]" : ""
+      }`}
+    >
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-r from-[#0a1224] to-[#070b16] border-b border-[#38bdf8]/20 select-none">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8] animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#67ff8f]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#c084fc]" />
+          </div>
+          <div className="h-4 w-px bg-white/10 mx-1" />
+          <span className="font-mono text-xs tracking-wider text-[#38bdf8] font-bold uppercase flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-[var(--lp-accent,#67ff8f)]" />
+            SYSTEM ARCHITECTURE // MERMAID.JS SCHEMATIC
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsZoomed(!isZoomed)}
+            className="px-2.5 py-1 rounded text-xs font-mono text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+            title={isZoomed ? "Exit Fullscreen" : "Fullscreen View"}
+          >
+            {isZoomed ? "CLOSE" : "EXPAND"}
+          </button>
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+            title="Copy Mermaid code"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-[var(--lp-accent,#67ff8f)]" />
+                <span className="text-[var(--lp-accent,#67ff8f)] font-bold">COPIED</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                <span>COPY</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+      <div
+        className={`mermaid-canvas p-6 overflow-x-auto flex justify-center items-center bg-[#050811] [background-image:radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] ${
+          isZoomed ? "flex-1 overflow-auto" : "min-h-[200px]"
+        }`}
+      >
+        {svgHtml && !hasError ? (
+          <div
+            className="w-full flex justify-center [&>svg]:max-w-full [&>svg]:h-auto filter drop-shadow-[0_10px_25px_rgba(0,0,0,0.5)]"
+            dangerouslySetInnerHTML={{ __html: svgHtml }}
+          />
+        ) : hasError ? (
+          <pre className="font-mono text-xs text-[#67ff8f] p-4 bg-[#0a1020] rounded border border-white/10 whitespace-pre">
+            <code>{code}</code>
+          </pre>
+        ) : (
+          <div className="flex items-center gap-2 font-mono text-xs text-[#38bdf8] animate-pulse">
+            <span>Compiling vector architecture schematic...</span>
+          </div>
+        )}
+      </div>
+      <div className="px-4 py-2 bg-[#04060c] border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-gray-500">
+        <span>Deterministic Architecture Invariant</span>
+        <span className="text-[#38bdf8]">CRISP CODE-TO-SVG SCHEMATIC</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Terminal Window / Code Block / Architecture Blueprint Component ───
 function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
   const [copied, setCopied] = useState(false);
@@ -301,6 +434,10 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
 
   const match = /language-(\w+)/.exec(className || "");
   let language = match ? match[1].toUpperCase() : "";
+
+  if (language === "MERMAID") {
+    return <MermaidBlock code={codeContent} />;
+  }
 
   // Check if content is an ASCII systems architecture diagram
   const isArchitecture =
@@ -1149,6 +1286,42 @@ export default function BlogApp() {
                     },
                     pre: ({ node, children, ...props }: any) => {
                       return <>{children}</>;
+                    },
+                    img: ({ src, alt, ...props }: any) => {
+                      const isFigure = alt && alt.startsWith("Figure");
+                      return (
+                        <figure className="my-10 overflow-hidden rounded-2xl border border-white/10 bg-[#080b12] shadow-2xl">
+                          <div className="relative group overflow-hidden bg-black/40">
+                            <img
+                              src={src}
+                              alt={alt || "LoLaBo Technical Visual"}
+                              className="w-full h-auto max-h-[520px] object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                              loading="lazy"
+                              {...props}
+                            />
+                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <a
+                                href={src}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-2.5 py-1 text-xs font-mono bg-black/80 hover:bg-black text-white rounded border border-white/20 backdrop-blur"
+                              >
+                                Open Full-Res ↗
+                              </a>
+                            </div>
+                          </div>
+                          {alt && (
+                            <figcaption className="px-5 py-3.5 bg-[#05070d] border-t border-white/10 flex items-start gap-2.5 text-xs sm:text-sm text-gray-300 font-sans leading-relaxed">
+                              <span className="font-mono text-[var(--lp-accent,#67ff8f)] font-bold shrink-0 uppercase tracking-wider">
+                                {isFigure ? alt.split(":")[0] : "Visual"}
+                              </span>
+                              <span className="text-gray-400">
+                                {isFigure ? alt.replace(/^Figure\s*\d+:\s*/i, "") : alt}
+                              </span>
+                            </figcaption>
+                          )}
+                        </figure>
+                      );
                     },
                   }}
                   remarkPlugins={[remarkGfm]}

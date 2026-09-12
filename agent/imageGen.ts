@@ -157,14 +157,15 @@ export function buildFluxImageUrl(
   if (imagePrompt && imagePrompt.trim().length > 15) {
     visualPrompt = imagePrompt.trim()
       .replace(/[\r\n\t]+/g, ' ')
+      .replace(/octane render|glowing neon|cybernetic|cyberpunk|holographic|futuristic/gi, 'minimalist flat vector')
       .replace(/[^\w\s,.:;()/-]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
-    if (!visualPrompt.toLowerCase().includes('octane') && !visualPrompt.toLowerCase().includes('8k')) {
-      visualPrompt += ', dark minimalist tech aesthetic, octane render, 8k resolution, cinematic lighting, zero text, zero watermark';
+    if (!visualPrompt.toLowerCase().includes('swiss') && !visualPrompt.toLowerCase().includes('editorial')) {
+      visualPrompt += ', Swiss graphic design, editorial technical illustration, minimalist flat vector schematic, clean graphite backdrop, muted slate and cobalt palette, precision line art, matte industrial finish, 8k resolution, zero text, zero watermark';
     }
   } else {
-    visualPrompt = `${cleanTitle}, ${category}, ${subjectTerms}, physical hardware and systems architecture diagram, isometric cutaway blueprint, glowing telemetry data paths, dark graphite chassis, volumetric lighting, photorealistic, octane render 8k, zero text, zero watermark`;
+    visualPrompt = `Editorial technical illustration for ${cleanTitle}, ${category}, ${subjectTerms}, Swiss graphic design, minimalist flat vector schematic, clean graphite backdrop, muted slate and cobalt palette, precision line art, matte industrial studio lighting, 8k resolution, zero text, zero watermark`;
   }
 
   const cleanPrompt = visualPrompt.slice(0, 600).trim();

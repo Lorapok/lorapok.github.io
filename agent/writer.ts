@@ -381,24 +381,31 @@ export function validateContentCompleteness(content: string): { isComplete: bool
     return { isComplete: false, reason: `Content too short (${words.length} words, expected >= 800)` };
   }
 
-  const lastChar = clean[clean.length - 1];
-  const validPunctuation = new Set(['.', '!', '?', ')', ']', '`', '*', '_', '\n', '>']);
-  if (!validPunctuation.has(lastChar) && !clean.endsWith('---')) {
-    return { isComplete: false, reason: `Content ends abruptly mid-sentence (ends with: '${clean.slice(-25)}')` };
+  // Check code fence balance
+  const fences = (clean.match(/```/g) || []).length;
+  if (fences % 2 !== 0) {
+    return { isComplete: false, reason: "Unclosed code fence (fence count is odd)" };
   }
 
-  const lower = clean.toLowerCase();
-  const hasConclusion = lower.includes('## conclusion') || 
-                        lower.includes('## key takeaways') || 
-                        lower.includes('## architectural recommendations') || 
-                        lower.includes('## summary') ||
-                        lower.includes('## takeaways') ||
-                        lower.includes('## architectural takeaways');
+  // Check if content was severed inside a code block or abruptly before conclusion
+  if (/```\s*\n+---\s*\n+\*Authored/i.test(clean) && !/## (?:[0-9]+\.\s*)?(?:References|Technical Citations|Citations)/i.test(clean)) {
+    return { isComplete: false, reason: "Content was severed inside code block prior to references" };
+  }
+
+  if (/\b(?:for|that|the|a|an|and|or|with|to|in|of|let|const|fn|func|def|class)\s*```/i.test(clean)) {
+    return { isComplete: false, reason: "Dangling syntax at end of code block indicating severed output" };
+  }
+
+  if (/\|\s*<\s*10\\text\{ms\}\s*\n+---/i.test(clean) || /\|\s*---/i.test(clean) || /n_\{probe\}\s*\n+---/i.test(clean)) {
+    return { isComplete: false, reason: "Content severed inside table or formula" };
+  }
+
+  const hasConclusion = /## (?:[0-9]+\.\s*)?(?:Conclusion|Key Takeaways|Architectural Recommendations|Summary|Takeaways)/i.test(clean);
   if (!hasConclusion) {
     return { isComplete: false, reason: "Missing concluding section (## Conclusion or ## Key Takeaways)" };
   }
 
-  const hasReferences = lower.includes('## references') || lower.includes('## technical citations') || lower.includes('## citations');
+  const hasReferences = /## (?:[0-9]+\.\s*)?(?:References|Technical Citations|Citations|Bibliography)/i.test(clean);
   if (!hasReferences) {
     return { isComplete: false, reason: "Missing references section (## References & Technical Citations)" };
   }
@@ -410,6 +417,9 @@ export function spliceConclusionCleanly(content: string, completionSuffix: strin
   if (!completionSuffix || !completionSuffix.trim()) return content;
 
   let cleanContent = content.trim();
+
+  // Strip premature footer if present
+  cleanContent = cleanContent.replace(/\n*---\s*\n+\*Authored autonomously by LoLaBo Agent[\s\S]*$/, '').trim();
 
   // Balance unclosed code blocks first
   const fences = cleanContent.match(/```/g);
@@ -423,16 +433,13 @@ export function spliceConclusionCleanly(content: string, completionSuffix: strin
 
   if (match !== -1) {
     if (completionHasRefs) {
-      // Suffix has both conclusion and references -> replace old references with suffix
       cleanContent = cleanContent.slice(0, match).trim() + "\n\n" + completionSuffix.trim();
     } else {
-      // Suffix only has conclusion -> insert before existing references
       const beforeRefs = cleanContent.slice(0, match).trim();
       const refs = cleanContent.slice(match).trim();
       cleanContent = beforeRefs + "\n\n" + completionSuffix.trim() + "\n\n" + refs;
     }
   } else {
-    // Existing content has no references -> append suffix
     cleanContent = cleanContent + "\n\n" + completionSuffix.trim();
   }
 
@@ -447,13 +454,18 @@ export async function ensureDraftIntegrity(
 ): Promise<any> {
   if (!draft || !draft.content) return draft;
 
-  // 1. Balance code fences first
-  const openFences = (draft.content || '').match(/```/g);
-  if (openFences && openFences.length % 2 !== 0) {
-    draft.content = draft.content.trim() + "\n```\n";
-  }
+  // Clean trailing premature footers
+  let content = draft.content.trim();
+  content = content.replace(/\n*---\s*\n+\*Authored autonomously by LoLaBo Agent[\s\S]*$/, '').trim();
 
-  // 2. Validate completeness and splice conclusion if missing or cut off
+  // Balance code fences
+  const openFences = (content.match(/```/g) || []).length;
+  if (openFences % 2 !== 0) {
+    content = content + "\n```\n";
+  }
+  draft.content = content;
+
+  // Validate completeness and splice missing sections if needed
   const completeness = validateContentCompleteness(draft.content);
   if (!completeness.isComplete) {
     console.warn(`⚠️ Article content incomplete (${completeness.reason}). Running online completion pass...`);
@@ -468,7 +480,7 @@ export async function ensureDraftIntegrity(
     }
   }
 
-  // 3. Re-verify code fences
+  // Re-verify code fences
   const finalFences = (draft.content || '').match(/```/g);
   if (finalFences && finalFences.length % 2 !== 0) {
     draft.content = draft.content.trim() + "\n```\n";
@@ -519,14 +531,17 @@ async function completeArticleSections(title: string, existingContent: string, a
 Article Title: "${title}"
 The article currently ends abruptly with the following text:
 """
-${existingContent.slice(-1200)}
+${existingContent.slice(-1500)}
 """
 
-Please write the missing concluding sections to complete the article rigorously:
-1. "## Key Takeaways & Summary for Systems Architects" (synthesizing the technical lessons, performance boundaries, and implementation recommendations).
-2. "## References & Technical Citations" (listing 3-5 formal whitepapers, RFCs, kernel docs, or technical monographs with full authors, year, and URLs).
+CRITICAL INSTRUCTIONS:
+1. If the previous text ended inside an incomplete code block, table, JSON schema, or formula, provide the immediate lines to cleanly CLOSE and COMPLETE that code block or table first (including the closing \`\`\` code fence).
+2. Then provide:
+   "## Key Takeaways & Summary for Systems Architects" (synthesizing the core technical lessons, architectural boundaries, and operational recommendations in 3-5 comprehensive paragraphs).
+3. Then provide:
+   "## References & Technical Citations" (listing 3-6 formal whitepapers, RFCs, kernel docs, or technical monographs with full authors, year, and URLs).
 
-Return ONLY the markdown text for these sections. Do not repeat the existing text.`;
+Return ONLY the markdown text to complete the article. Do not repeat the existing text.`;
 
   const completion = await callAIProvider(provider, apiKey, "You are a Principal Systems Architect. Write only high-depth markdown for the requested concluding sections.", prompt, false, isResearch);
   return typeof completion === 'string' ? completion : completion.text;
