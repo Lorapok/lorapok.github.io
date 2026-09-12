@@ -49,6 +49,18 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-high-throughput-zero-trust-egress-gateways-for-autonomous-agent-fleets-lock-free-token-ring-scheduling-kernel-bypass-protocol-verification-and-hardware-enforced-tls-attestation/</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/architecting-deterministic-multi-gpu-physics-simulation-pipelines-for-robot-reinforcement-learning-cuda-virtual-memory-management-nvlink-ipc-and-lock-free-state-synchronization/</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/engineering-a-vectorless-rag-engine-high-performance-in-memory-bm25-and-entity-graph-indexing-in-rust/</loc>
     <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -56,6 +68,12 @@
   </url>
   <url>
     <loc>https://lorapok.tech/blog/demystifying-the-never-type-compile-time-invariant-enforcement-and-zero-cost-layout-optimization-in-high-performance-rust-runtimes/</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/rfc-0112-zero-knowledge-provenance-and-cryptographic-integrity-verification-protocol-for-distributed-robot-training-datasets/</loc>
     <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
