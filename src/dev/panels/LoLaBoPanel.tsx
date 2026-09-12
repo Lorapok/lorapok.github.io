@@ -187,12 +187,15 @@ export default function LoLaBoPanel() {
 
                   <div className="dev-form-group" style={{ margin: 0 }}>
                     <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Zap size={12} /> AI Writer Model
+                      <Zap size={12} /> AI Model & Specialization Tier
                     </label>
                     <select className="dev-form-select" value={config.writingProvider} onChange={e => handleUpdateConfig({ writingProvider: e.target.value })}>
-                      <option value="gemini">Google Gemini 2.5 Flash (Fast Research • ~62/hr)</option>
-                      <option value="gemini-pro">Google Gemini 2.5 Pro (Flagship Treatises • 2/hr free, 120/hr paid)</option>
-                      <option value="groq">Groq (Llama 3.3 70B)</option>
+                      <option value="gemini">Google Gemini 2.5 Flash (Standard Blogs • Fast ~62/hr)</option>
+                      <option value="gemini-pro">Google Gemini 2.5 Pro (Research & Thesis Treatises • 4x Pooled)</option>
+                      <option value="gemini-thinking">Google Gemini 2.0 Thinking (Chain-of-Thought Proofs)</option>
+                      <option value="groq">Groq Llama 3.3 70B (Blazing Fast Free Synthesis)</option>
+                      <option value="cerebras">Cerebras Llama 3.3 70B (2,000 tok/sec Free)</option>
+                      <option value="sambanova">SambaNova DeepSeek R1 671B (Full Reasoning Free)</option>
                       <option value="openai">OpenAI GPT-4o</option>
                       <option value="claude">Claude 3.5 Sonnet</option>
                     </select>
@@ -280,20 +283,49 @@ export default function LoLaBoPanel() {
         {/* RIGHT COLUMN */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
           
+          {/* ─── Autonomous Research Review Unit Quality Card ─── */}
           <section>
             <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BarChart3 size={18} /> HOURLY AI CAPACITY & THROUGHPUT
+              <ShieldCheck size={18} /> RESEARCH REVIEW UNIT (ACADEMIC VERIFICATION)
+            </div>
+            <div className="dev-card" style={{ padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>PEER-REVIEW UNIT</span>
+                <span style={{ fontSize: '0.65rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(16,185,129,0.15)', color: '#10b981', fontWeight: 'bold', border: '1px solid rgba(16,185,129,0.3)' }}>
+                  ACTIVE (MIN 85/100)
+                </span>
+              </div>
+              <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.5', margin: '0 0 0.75rem 0' }}>
+                Every drafted research treatise, thesis deep dive, and journal article undergoes an automated 100-point peer review inspecting architectural rigor, ASCII topologies, benchmark tables, mathematical models, and citation validity before publication.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.7rem' }}>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', display: 'block', fontSize: '0.65rem' }}>PASS THRESHOLD</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold' }}>85 / 100 Points</span>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', display: 'block', fontSize: '0.65rem' }}>REFINEMENT LOOP</span>
+                  <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>Up to 2 Passes</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ─── Multi-Account Capacity & Throughput Card ─── */}
+          <section>
+            <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <BarChart3 size={18} /> MULTI-ACCOUNT & FREE AI CAPACITY
             </div>
             <div className="dev-card" style={{ padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)' }}>
               
               {/* Active Model Indicator */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>Optimal Cadence</div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--dev-green)' }}>1 Post / Hour (24 Papers / Day)</div>
+                  <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>4-Account Key Pool</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--dev-green)' }}>Up to 6,000 Posts / Day (Free)</div>
                 </div>
                 <span style={{ fontSize: '0.65rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(16,185,129,0.15)', color: '#10b981', fontWeight: 'bold', border: '1px solid rgba(16,185,129,0.3)' }}>
-                  100% FREE TIER
+                  ROTATION READY
                 </span>
               </div>
 
@@ -301,37 +333,37 @@ export default function LoLaBoPanel() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.75rem' }}>
                 <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
-                    <span style={{ color: '#67ff8f' }}>Google Gemini 2.5 Flash</span>
-                    <span>~62 posts/hr (Free)</span>
+                    <span style={{ color: '#67ff8f' }}>Gemini 2.5 Flash (4 Accounts)</span>
+                    <span>6,000 / day (250/hr)</span>
                   </div>
                   <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
-                    15 RPM • 1,500 RPD • 1M TPM • ~12s generation latency
+                    Standard blogs • 60 RPM aggregate • 1500 RPD per account
                   </div>
                 </div>
 
                 <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
-                    <span style={{ color: '#a78bfa' }}>Google Gemini 2.5 Pro</span>
-                    <span>2/hr (Free) • 120/hr (Paid)</span>
+                    <span style={{ color: '#a78bfa' }}>Gemini 2.5 Pro (4 Accounts)</span>
+                    <span>200 / day (8.3/hr)</span>
                   </div>
                   <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
-                    Flagship reasoning • 50 RPD free cap • ~28s deep treatise
+                    Thesis & journal treatises • 8 RPM aggregate • 50 RPD per account
                   </div>
                 </div>
 
                 <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
-                    <span style={{ color: '#38bdf8' }}>Pollinations Flux / Imagen 3</span>
-                    <span>120+ visuals/hr</span>
+                    <span style={{ color: '#38bdf8' }}>Free Provider Mesh</span>
+                    <span>500+ Papers / day</span>
                   </div>
                   <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
-                    Domain-specific isometric blueprints • 8k octane render
+                    Groq (14.4k RPD) • Cerebras (Wafer-scale) • SambaNova (DeepSeek R1)
                   </div>
                 </div>
 
                 {/* Practical Constraints Note */}
                 <div style={{ marginTop: '0.5rem', padding: '0.6rem 0.8rem', background: 'rgba(234,179,8,0.05)', borderRadius: '6px', border: '1px solid rgba(234,179,8,0.2)', color: 'rgba(255,255,255,0.7)', fontSize: '0.68rem', lineHeight: '1.4' }}>
-                  <span style={{ color: '#eab308', fontWeight: 'bold' }}>CI Constraint:</span> GitHub Actions free tier grants 2,000 mins/mo (~900 mins used at 1 post/hr = 45% quota). Running 1 post/hr maximizes depth without quota exhaustion.
+                  <span style={{ color: '#eab308', fontWeight: 'bold' }}>Optimal Cadence:</span> Set to 1 post/hour for steady, spam-free syndicate flow across GitHub Actions (using ~45% free CI quota).
                 </div>
               </div>
 

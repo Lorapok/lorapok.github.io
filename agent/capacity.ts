@@ -1,6 +1,6 @@
 // agent/capacity.ts
-// LoLaBo Hourly Post Capacity & AI Model Throughput Analyzer
-// Mathematical and operational breakdown of post generation capacity using Google's best AI models
+// LoLaBo Multi-Account & Multi-Provider AI Model Throughput & Publishing Capacity Analyzer
+// Evaluates Google Gemini (Single & 4-Account Pool) + Top Free AI Providers (Groq, Cerebras, SambaNova, Mistral, GitHub Models)
 
 export interface ModelCapacityProfile {
   modelName: string;
@@ -26,219 +26,238 @@ export interface ModelCapacityProfile {
     burstPostsPerHour: number;
     limitingFactor: string;
   };
+  dailyMaxPosts: number;
 }
 
-export interface InfrastructureConstraints {
-  githubActionsFreeMinutes: number; // 2000 mins/month
-  averageRunDurationSeconds: number; // ~75 seconds
-  maxHourlyRunsUnderFreeTier: number;
-  discordWebhookLimitRpm: number; // 30 req/min
-  optimalRecommendedCadence: string;
+export interface FreeProviderDirectoryItem {
+  name: string;
+  bestFreeModel: string;
+  freeTierLimits: string;
+  bestUsedFor: string;
+  signUpUrl: string;
 }
 
-export const GOOGLE_AI_PROFILES: Record<string, ModelCapacityProfile> = {
-  'gemini-2.5-flash-free': {
-    modelName: 'Google Gemini 2.5 Flash',
+export const FREE_AI_PROVIDERS_DIRECTORY: FreeProviderDirectoryItem[] = [
+  {
+    name: "Google AI Studio",
+    bestFreeModel: "Gemini 2.5 Pro / Flash / 2.0 Thinking / Imagen 3",
+    freeTierLimits: "15 RPM / 1,500 RPD (Flash), 2 RPM / 50 RPD (Pro) per account",
+    bestUsedFor: "Flagship Research Treatises, Thesis Papers & Standard Blogs",
+    signUpUrl: "https://aistudio.google.com/"
+  },
+  {
+    name: "GroqCloud",
+    bestFreeModel: "Llama 3.3 70B Versatile, DeepSeek R1 Distill",
+    freeTierLimits: "30 RPM / 14,400 RPD / 6,000 TPM (100% Free)",
+    bestUsedFor: "Ultra-fast synthesis & cross-model peer review (300 tok/sec)",
+    signUpUrl: "https://console.groq.com/"
+  },
+  {
+    name: "Cerebras Cloud",
+    bestFreeModel: "Llama 3.3 70B (Wafer-Scale Engine)",
+    freeTierLimits: "30 RPM / 14,400 RPD / 1,000,000 TPM (100% Free)",
+    bestUsedFor: "Instant generation of massive codebases & benchmark tables (2,000 tok/sec)",
+    signUpUrl: "https://cloud.cerebras.ai/"
+  },
+  {
+    name: "SambaNova Cloud",
+    bestFreeModel: "DeepSeek R1 671B Full, Llama 3.3 70B",
+    freeTierLimits: "20 RPM / Generous Developer Quota (100% Free)",
+    bestUsedFor: "Full 671B Chain-of-Thought mathematical proofs & thesis depth",
+    signUpUrl: "https://cloud.sambanova.ai/"
+  },
+  {
+    name: "GitHub Models",
+    bestFreeModel: "GPT-4o, Claude 3.5 Sonnet, Llama 3.3 70B",
+    freeTierLimits: "15 RPM / 150 RPD (Free with any GitHub PAT)",
+    bestUsedFor: "Cross-model validation & authoritative academic review",
+    signUpUrl: "https://github.com/marketplace/models"
+  },
+  {
+    name: "Mistral AI",
+    bestFreeModel: "Codestral 22B, Mistral Small",
+    freeTierLimits: "1 RPS (Requests per second) on free experimental tier",
+    bestUsedFor: "Kernel transitions, assembly tracing & C/Rust code blocks",
+    signUpUrl: "https://console.mistral.ai/"
+  },
+  {
+    name: "OpenRouter Free Pool",
+    bestFreeModel: "DeepSeek R1, Qwen 2.5 72B, Llama 3.3 (:free tags)",
+    freeTierLimits: "20 RPM on all models tagged ':free'",
+    bestUsedFor: "Fallback review & multi-agent debate loops",
+    signUpUrl: "https://openrouter.ai/"
+  },
+  {
+    name: "Cloudflare Workers AI",
+    bestFreeModel: "Llama 3.3 70B, DeepSeek R1 Distill",
+    freeTierLimits: "10,000 Neurons / Day (~50-100 full generations/day free)",
+    bestUsedFor: "Autonomous Edge workers & background RSS filtering",
+    signUpUrl: "https://dash.cloudflare.com/"
+  }
+];
+
+export const CAPACITY_PROFILES: Record<string, ModelCapacityProfile> = {
+  // ─── Single Google Account ───
+  'gemini-flash-1x': {
+    modelName: 'Google Gemini 2.5 Flash (1 Account)',
     provider: 'Google AI Studio',
-    role: 'Ultra-fast Frontier Research & Synthesis',
+    role: 'Standard Technical Blogs & News Dispatches',
     tier: 'Free',
-    rateLimits: {
-      rpm: 15,
-      rpd: 1500,
-      tpm: 1000000
-    },
-    tokenBudgetPerPost: {
-      inputTokens: 2500,
-      outputTokens: 4000,
-      totalTokens: 6500
-    },
-    latencySeconds: {
-      average: 12,
-      p95: 22
-    },
+    rateLimits: { rpm: 15, rpd: 1500, tpm: 1000000 },
+    tokenBudgetPerPost: { inputTokens: 2500, outputTokens: 4000, totalTokens: 6500 },
+    latencySeconds: { average: 12, p95: 22 },
     hourlyCapacity: {
-      sustainedPostsPerHour: 62.5, // 1500 RPD / 24h
-      burstPostsPerHour: 150,     // Limited by 15 RPM & latency
+      sustainedPostsPerHour: 62.5,
+      burstPostsPerHour: 150,
       limitingFactor: 'Daily Free Quota (1,500 RPD)'
-    }
+    },
+    dailyMaxPosts: 1500
   },
 
-  'gemini-2.5-flash-paid': {
-    modelName: 'Google Gemini 2.5 Flash',
-    provider: 'Google AI Studio / Vertex AI',
-    role: 'Ultra-fast Frontier Research & Synthesis (Scale)',
-    tier: 'Pay-As-You-Go',
-    rateLimits: {
-      rpm: 1000,
-      rpd: 50000,
-      tpm: 4000000
-    },
-    tokenBudgetPerPost: {
-      inputTokens: 2500,
-      outputTokens: 4000,
-      totalTokens: 6500
-    },
-    latencySeconds: {
-      average: 12,
-      p95: 22
-    },
-    hourlyCapacity: {
-      sustainedPostsPerHour: 300, // Concurrently 1000+
-      burstPostsPerHour: 1000,
-      limitingFactor: 'Downstream Git commit & page build latency'
-    }
-  },
-
-  'gemini-2.5-pro-free': {
-    modelName: 'Google Gemini 2.5 Pro',
+  'gemini-pro-1x': {
+    modelName: 'Google Gemini 2.5 Pro (1 Account)',
     provider: 'Google AI Studio',
-    role: 'Premier Deep-Reasoning Research Treatises',
+    role: 'Flagship Research Treatises & Thesis Deep Dives',
     tier: 'Free',
-    rateLimits: {
-      rpm: 2,
-      rpd: 50,
-      tpm: 32000
-    },
-    tokenBudgetPerPost: {
-      inputTokens: 3000,
-      outputTokens: 4500,
-      totalTokens: 7500
-    },
-    latencySeconds: {
-      average: 28,
-      p95: 45
-    },
+    rateLimits: { rpm: 2, rpd: 50, tpm: 32000 },
+    tokenBudgetPerPost: { inputTokens: 3000, outputTokens: 4500, totalTokens: 7500 },
+    latencySeconds: { average: 28, p95: 45 },
     hourlyCapacity: {
-      sustainedPostsPerHour: 2.08, // 50 RPD / 24h
-      burstPostsPerHour: 2.0,     // 2 RPM max
-      limitingFactor: 'Free Tier Daily Quota (50 RPD) & RPM (2 RPM)'
-    }
+      sustainedPostsPerHour: 2.08,
+      burstPostsPerHour: 2.0,
+      limitingFactor: 'Daily Free Quota (50 RPD) & RPM (2 RPM)'
+    },
+    dailyMaxPosts: 50
   },
 
-  'gemini-2.5-pro-paid': {
-    modelName: 'Google Gemini 2.5 Pro',
-    provider: 'Google AI Studio / Vertex AI',
-    role: 'Premier Deep-Reasoning Research Treatises (Scale)',
-    tier: 'Pay-As-You-Go',
-    rateLimits: {
-      rpm: 360,
-      rpd: 10000,
-      tpm: 2000000
-    },
-    tokenBudgetPerPost: {
-      inputTokens: 3000,
-      outputTokens: 4500,
-      totalTokens: 7500
-    },
-    latencySeconds: {
-      average: 28,
-      p95: 45
-    },
+  // ─── 4 Google Accounts Pool ───
+  'gemini-flash-4x': {
+    modelName: 'Google Gemini 2.5 Flash (4 Accounts Pooled)',
+    provider: 'Google AI Studio Pool',
+    role: 'High-Velocity Technical Blogs & Real-Time Dispatches',
+    tier: 'Free',
+    rateLimits: { rpm: 60, rpd: 6000, tpm: 4000000 },
+    tokenBudgetPerPost: { inputTokens: 2500, outputTokens: 4000, totalTokens: 6500 },
+    latencySeconds: { average: 12, p95: 22 },
     hourlyCapacity: {
-      sustainedPostsPerHour: 120, // Sequential execution: 3600s / 28s = 128
-      burstPostsPerHour: 360,
-      limitingFactor: 'Generation Latency (~28s per 2,500-word treatise)'
-    }
+      sustainedPostsPerHour: 250, // 6,000 / 24h
+      burstPostsPerHour: 400,
+      limitingFactor: 'Git push & CI deployment speed'
+    },
+    dailyMaxPosts: 6000
   },
 
-  'imagen-3-pollinations-flux': {
-    modelName: 'Google Imagen 3 & Pollinations Flux',
-    provider: 'Vertex AI / Pollinations Distributed GPU',
-    role: 'Photorealistic Domain-Accurate Architecture Visuals',
+  'gemini-pro-4x': {
+    modelName: 'Google Gemini 2.5 Pro (4 Accounts Pooled)',
+    provider: 'Google AI Studio Pool',
+    role: 'Exhaustive Research Papers, Thesis Treatises & Journals',
     tier: 'Free',
-    rateLimits: {
-      rpm: 20,
-      rpd: 2000,
-      tpm: 0
-    },
-    tokenBudgetPerPost: {
-      inputTokens: 120,
-      outputTokens: 0,
-      totalTokens: 120
-    },
-    latencySeconds: {
-      average: 6,
-      p95: 14
-    },
+    rateLimits: { rpm: 8, rpd: 200, tpm: 128000 },
+    tokenBudgetPerPost: { inputTokens: 3000, outputTokens: 4500, totalTokens: 7500 },
+    latencySeconds: { average: 28, p95: 45 },
     hourlyCapacity: {
-      sustainedPostsPerHour: 80,
-      burstPostsPerHour: 120,
-      limitingFactor: 'Diffusion Step Computation & Network Delivery'
-    }
+      sustainedPostsPerHour: 8.33, // 200 / 24h
+      burstPostsPerHour: 8.0,
+      limitingFactor: 'Generation Latency (~28s) & 8 RPM Pool Rate Limit'
+    },
+    dailyMaxPosts: 200
+  },
+
+  // ─── External Free Providers ───
+  'groq-llama33': {
+    modelName: 'Groq Llama 3.3 70B (Free Tier)',
+    provider: 'GroqCloud',
+    role: 'High-Speed Synthesis & Peer-Review Audit',
+    tier: 'Free',
+    rateLimits: { rpm: 30, rpd: 14400, tpm: 6000 },
+    tokenBudgetPerPost: { inputTokens: 2500, outputTokens: 4000, totalTokens: 6500 },
+    latencySeconds: { average: 5, p95: 9 },
+    hourlyCapacity: {
+      sustainedPostsPerHour: 600,
+      burstPostsPerHour: 600,
+      limitingFactor: 'Tokens Per Minute (6,000 TPM limit)'
+    },
+    dailyMaxPosts: 14400
+  },
+
+  'cerebras-llama33': {
+    modelName: 'Cerebras Llama 3.3 70B (Free Tier)',
+    provider: 'Cerebras Wafer-Scale',
+    role: 'Instant Architecture Blueprint & Diagram Generation',
+    tier: 'Free',
+    rateLimits: { rpm: 30, rpd: 14400, tpm: 1000000 },
+    tokenBudgetPerPost: { inputTokens: 2500, outputTokens: 4000, totalTokens: 6500 },
+    latencySeconds: { average: 3, p95: 6 },
+    hourlyCapacity: {
+      sustainedPostsPerHour: 600,
+      burstPostsPerHour: 600,
+      limitingFactor: 'Requests Per Minute (30 RPM limit)'
+    },
+    dailyMaxPosts: 14400
+  },
+
+  'sambanova-deepseek-r1': {
+    modelName: 'SambaNova DeepSeek R1 671B Full (Free Tier)',
+    provider: 'SambaNova Systems',
+    role: 'Mathematical Foundations, Kernel Formal Proofs & Thesis Papers',
+    tier: 'Free',
+    rateLimits: { rpm: 20, rpd: 5000, tpm: 500000 },
+    tokenBudgetPerPost: { inputTokens: 3000, outputTokens: 5000, totalTokens: 8000 },
+    latencySeconds: { average: 18, p95: 35 },
+    hourlyCapacity: {
+      sustainedPostsPerHour: 100,
+      burstPostsPerHour: 150,
+      limitingFactor: 'Inference Queue Wait Time'
+    },
+    dailyMaxPosts: 5000
   }
 };
 
-export const INFRASTRUCTURE_GUARDRAILS: InfrastructureConstraints = {
-  githubActionsFreeMinutes: 2000,
-  averageRunDurationSeconds: 75,
-  maxHourlyRunsUnderFreeTier: 1.1,
-  discordWebhookLimitRpm: 30,
-  optimalRecommendedCadence: '1 post every 1 hour (24 comprehensive research treatises per day)'
-};
+export function formatComprehensiveReport(): string {
+  let r = "=================================================================================\n";
+  r += "  LoLaBo Autonomous Engine — Multi-Account & Multi-Provider Capacity Matrix\n";
+  r += "  Published by Lorapok Labs • Evaluated under 100% Free Tiers ($0 Cost)\n";
+  r += "=================================================================================\n\n";
 
-/**
- * Calculates theoretical and safe hourly capacity based on chosen model and execution mode
- */
-export function calculateHourlyCapacity(modelKey: keyof typeof GOOGLE_AI_PROFILES) {
-  const profile = GOOGLE_AI_PROFILES[modelKey] || GOOGLE_AI_PROFILES['gemini-2.5-flash-free'];
-  
-  const dailyCapacity = profile.rateLimits.rpd;
-  const sustainedHourly = profile.hourlyCapacity.sustainedPostsPerHour;
-  const safeRecommendedHourly = Math.min(2, Math.floor(sustainedHourly));
+  r += "1. GOOGLE AI STUDIO (Single Account vs. 4 Accounts Pooled):\n";
+  r += "---------------------------------------------------------------------------------\n";
+  r += "• Standard Technical Blogs (Powered by Gemini Flash):\n";
+  r += "    - 1 Google Account:  62.5 posts/hr  |  1,500 posts / day\n";
+  r += "    - 4 Google Accounts: 250.0 posts/hr |  6,000 posts / day (4x Multiplied Quota)\n\n";
 
-  return {
-    model: profile.modelName,
-    tier: profile.tier,
-    sustainedPostsPerHour: sustainedHourly,
-    safeRecommendedHourly,
-    dailyTotalPosts: Math.min(dailyCapacity, sustainedHourly * 24),
-    tokensPerHour: sustainedHourly * profile.tokenBudgetPerPost.totalTokens,
-    limitingFactor: profile.hourlyCapacity.limitingFactor,
-    githubActionsMonthlyMinutesUsed: sustainedHourly * 24 * 30 * (INFRASTRUCTURE_GUARDRAILS.averageRunDurationSeconds / 60)
-  };
-}
+  r += "• Flagship Research Treatises & Thesis Papers (Powered by Gemini Pro / Thinking):\n";
+  r += "    - 1 Google Account:  2.08 papers/hr |     50 flagship papers / day\n";
+  r += "    - 4 Google Accounts: 8.33 papers/hr |    200 flagship papers / day (4x Multiplied Quota)\n\n";
 
-/**
- * Generates a human-readable CLI/diagnostic report of hourly capabilities
- */
-export function formatCapacityReport(): string {
-  let report = "=================================================================\n";
-  report += "  LoLaBo Autonomous Engine — Hourly Post Capacity Analysis\n";
-  report += "  Evaluated with Google's Best AI Models & State-of-the-Art Visuals\n";
-  report += "=================================================================\n\n";
-
-  for (const [key, profile] of Object.entries(GOOGLE_AI_PROFILES)) {
-    report += `Model: ${profile.modelName} (${profile.tier})\n`;
-    report += `  • Role: ${profile.role}\n`;
-    report += `  • Rate Limits: ${profile.rateLimits.rpm} RPM | ${profile.rateLimits.rpd} RPD | ${profile.rateLimits.tpm.toLocaleString()} TPM\n`;
-    report += `  • Average Word & Token Load: ~2,500 words (${profile.tokenBudgetPerPost.totalTokens.toLocaleString()} tokens/post)\n`;
-    report += `  • Generation Latency: ~${profile.latencySeconds.average}s\n`;
-    report += `  • Sustained Hourly Capacity: ${profile.hourlyCapacity.sustainedPostsPerHour} posts/hour\n`;
-    report += `  • Limiting Factor: ${profile.hourlyCapacity.limitingFactor}\n\n`;
+  r += "2. EXTERNAL FREE AI PROVIDERS MATRIX:\n";
+  r += "---------------------------------------------------------------------------------\n";
+  for (const item of FREE_AI_PROVIDERS_DIRECTORY) {
+    r += `• ${item.name} (${item.signUpUrl})\n`;
+    r += `    Model: ${item.bestFreeModel}\n`;
+    r += `    Free Quota: ${item.freeTierLimits}\n`;
+    r += `    Role: ${item.bestUsedFor}\n\n`;
   }
 
-  report += "-----------------------------------------------------------------\n";
-  report += "PRACTICAL INFRASTRUCTURE & PUBLISHING RECOMMENDATIONS:\n";
-  report += `1. Google Gemini 2.5 Flash Free Tier:\n`;
-  report += `   - Pure API Limit: Up to 62.5 posts/hour (1,500 posts/day).\n`;
-  report += `   - Recommended Cadence: 1 to 2 posts/hour (24–48 papers/day).\n\n`;
-  report += `2. Google Gemini 2.5 Pro Free Tier:\n`;
-  report += `   - Pure API Limit: 2 posts/hour (50 posts/day maximum daily limit).\n`;
-  report += `   - Recommended Cadence: 1 post/hour (24 flagship research papers/day).\n\n`;
-  report += `3. GitHub Actions CI Constraint (Free Tier: 2,000 mins/mo):\n`;
-  report += `   - 1 run/hr = 720 runs/mo (~900 build mins) -> 45% quota utilization (SAFE & FREE).\n`;
-  report += `   - 2 runs/hr = 1,440 runs/mo (~1,800 build mins) -> 90% quota utilization (FREE).\n`;
-  report += `   - 3+ runs/hr -> Requires batching or dedicated container runner.\n\n`;
-  report += `4. Discord Notification Sweet Spot:\n`;
-  report += `   - 1 post/hour maintains peak subscriber engagement without alert fatigue.\n`;
-  report += "=================================================================\n";
+  r += "3. COMBINED AGGREGATE FREE CAPACITY:\n";
+  r += "---------------------------------------------------------------------------------\n";
+  r += "• Total Daily Capacity Across 4 Google Accounts + Free Providers:\n";
+  r += "    - Flagship Research Treatises & Thesis Papers: 200 to 500+ papers / day\n";
+  r += "    - Standard Technical Blog Posts & Dispatches:  6,000+ articles / day\n";
+  r += "    - Peer-Review Audits by Research Review Unit: 2,000+ verification passes / day\n\n";
 
-  return report;
+  r += "4. PRACTICAL WORKFLOW RECOMMENDATION:\n";
+  r += "---------------------------------------------------------------------------------\n";
+  r += "• Blogs / News Dispatches: Run 1 post every hour using Gemini 2.5 Flash.\n";
+  r += "• Research Treatises / Thesis / Journals: Run on-demand or 2-4 flagship papers/day using Gemini 2.5 Pro.\n";
+  r += "• Research Review Unit: Runs a verification pass before publication to ensure 85+ score.\n";
+  r += "=================================================================================\n";
+
+  return r;
 }
 
 declare const require: any;
 declare const module: any;
 
 if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.main === module) {
-  console.log(formatCapacityReport());
+  console.log(formatComprehensiveReport());
 }

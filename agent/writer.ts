@@ -3,6 +3,8 @@
 // Transforms raw news items into professional, SEO-optimized blog posts
 
 import { NewsItem } from './collector';
+import { keyManager } from './keyManager';
+import { auditArticle } from './reviewer';
 
 export interface AuthorPersona {
   name: string;
@@ -83,10 +85,20 @@ export function extractCitationsFromMarkdown(content: string): Citation[] {
 
 export async function writeBlogPost(
   newsItems: NewsItem[], 
-  config: { provider: string, targetAudience: string, tone: string },
+  config: { provider: string, targetAudience: string, tone: string, isResearch?: boolean },
   existingPosts: any[] = []
 ) {
-  console.log(`🧠 Writing blog post using ${config.provider}...`);
+  // Strict Model Tiering Policy:
+  // Blogs & Quick Dispatches -> Gemini Flash (gemini-2.5-flash, gemini-2.0-flash)
+  // Research Treatises, Thesis Papers & Journal Articles -> Gemini Pro & Thinking Models
+  const isResearchMode = config.isResearch === true || 
+    config.provider === 'gemini-pro' || 
+    config.provider === 'gemini-2.5-pro' ||
+    config.tone?.toLowerCase().includes('research') ||
+    config.tone?.toLowerCase().includes('thesis') ||
+    config.tone?.toLowerCase().includes('academic');
+
+  console.log(`🧠 Writing ${isResearchMode ? 'Flagship Research Treatise' : 'Technical Blog Post'} using ${config.provider} (Tier: ${isResearchMode ? 'PRO / THINKING' : 'FLASH'})...`);
 
   // 1. Selection Strategy: AI picks the most relevant/trending news item to expand
   const newsContext = newsItems.map(n => `[${n.source || 'Tech News'}] ${n.title || ''}\n${(n.content || n.title || '').slice(0, 250)}...`).join('\n\n');
@@ -185,17 +197,13 @@ OUTPUT FORMAT (JSON):
 
   const userPrompt = `TRENDING NEWS CONTEXT:\n${newsContext}\n\nPlease write an authoritative, long-form technical treatise (~1800-2800 words) for Lorapok Labs. Select the appropriate editorial type, execute its structured breakdown with high depth, and provide formal citations. Ensure it does not duplicate any previously published topic.`;
 
-  // Dynamic API Calling
+  // Dynamic API Calling with Multi-Account Failover
   let response;
-  const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("❌ No GEMINI_API_KEY or AI_API_KEY detected. LoLaBo operates in 100% online AI mode. Please configure GEMINI_API_KEY in your environment or GitHub Secrets.");
-  }
+  const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY || '';
 
   let blogData: any;
   try {
-    response = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt);
+    response = await callAIProvider(config.provider, apiKey, systemPrompt, userPrompt, true, isResearchMode);
     blogData = parseLLMJson(response);
   } catch (aiErr: any) {
     console.error("❌ Online AI generation failed:", aiErr.message);
@@ -207,7 +215,7 @@ OUTPUT FORMAT (JSON):
   if (!completeness.isComplete) {
     console.warn(`⚠️ Article content incomplete (${completeness.reason}). Running online completion pass...`);
     try {
-      const completionSuffix = await completeArticleSections(blogData.title, blogData.content, apiKey, config.provider);
+      const completionSuffix = await completeArticleSections(blogData.title, blogData.content, apiKey, config.provider, isResearchMode);
       if (completionSuffix) {
         blogData.content = blogData.content.trim() + "\n\n" + completionSuffix.trim();
         console.log("✅ Concluding sections synthesized and attached successfully.");
@@ -216,6 +224,60 @@ OUTPUT FORMAT (JSON):
       console.warn("⚠️ Completion pass encountered error:", compErr.message);
     }
   }
+
+  // ─── Research Review Unit: Autonomous Peer-Review & Refinement Loop ───
+  console.log(`🧐 [Research Review Unit] Initiating peer review for: "${blogData.title}"...`);
+  let verdict = await auditArticle({
+    title: blogData.title,
+    content: blogData.content,
+    citations: blogData.citations,
+    category: blogData.category,
+    type: blogData.type
+  });
+
+  let refinementPass = 0;
+  const maxRefinementPasses = 2;
+
+  while (verdict.decision === 'REVISION_REQUIRED' && refinementPass < maxRefinementPasses) {
+    refinementPass++;
+    console.warn(`🔄 [Research Review Unit] Defect detected (Score: ${verdict.score}/100). Executing peer-review refinement pass #${refinementPass}...`);
+    
+    const refinementPrompt = `CRITICAL PEER-REVIEW FEEDBACK FROM RESEARCH REVIEW UNIT:
+Your initial draft scored ${verdict.score}/100 and was rejected for publication due to the following defects:
+${verdict.revisionInstructions}
+
+REVISION INSTRUCTIONS:
+Revise, expand, and perfect the entire paper to directly resolve each critique point above. Ensure all architecture diagrams, comparative benchmark tables, and formal citations are fully populated with zero placeholders.`;
+
+    try {
+      const refinedResponse = await callAIProvider(config.provider, apiKey, systemPrompt, `${userPrompt}\n\n${refinementPrompt}`, true, isResearchMode);
+      const refinedData = parseLLMJson(refinedResponse);
+      if (refinedData && refinedData.content && refinedData.content.length > 800) {
+        blogData = { ...blogData, ...refinedData };
+        verdict = await auditArticle({
+          title: blogData.title,
+          content: blogData.content,
+          citations: blogData.citations,
+          category: blogData.category,
+          type: blogData.type
+        });
+        console.log(`📋 [Research Review Unit] Post-refinement verdict: ${verdict.decision} (Score: ${verdict.score}/100)`);
+      }
+    } catch (refineErr: any) {
+      console.warn("⚠️ Refinement pass encountered error, proceeding with best current draft:", refineErr.message);
+      break;
+    }
+  }
+
+  blogData.peerReview = {
+    score: verdict.score,
+    decision: verdict.decision,
+    strengths: verdict.strengths,
+    criticalDefects: verdict.criticalDefects,
+    rubricBreakdown: verdict.rubricBreakdown,
+    reviewedBy: 'LoLaBo Autonomous Research Review Unit',
+    reviewedAt: new Date().toISOString()
+  };
 
   // Enforce Lorapok Labs tags and sanitize
   const rawTags: string[] = Array.isArray(blogData.tags) ? blogData.tags : [];
@@ -308,7 +370,7 @@ export function validateContentCompleteness(content: string): { isComplete: bool
   return { isComplete: true };
 }
 
-async function completeArticleSections(title: string, existingContent: string, apiKey: string, provider: string): Promise<string> {
+async function completeArticleSections(title: string, existingContent: string, apiKey: string, provider: string, isResearch = false): Promise<string> {
   const prompt = `You are completing an authoritative long-form technical article for Lorapok Labs.
 Article Title: "${title}"
 The article currently ends abruptly with the following text:
@@ -322,76 +384,109 @@ Please write the missing concluding sections to complete the article rigorously:
 
 Return ONLY the markdown text for these sections. Do not repeat the existing text.`;
 
-  const completion = await callAIProvider(provider, apiKey, "You are a Principal Systems Architect. Write only high-depth markdown for the requested concluding sections.", prompt, false);
+  const completion = await callAIProvider(provider, apiKey, "You are a Principal Systems Architect. Write only high-depth markdown for the requested concluding sections.", prompt, false, isResearch);
   return completion;
 }
 
-async function callAIProvider(provider: string, key: string, system: string, user: string, jsonMode = true) {
-  // If key is a Gemini API key or provider is gemini, prioritize Gemini
-  const isGeminiKey = key.startsWith('AQ.') || key.startsWith('AIza') || Boolean(process.env.GEMINI_API_KEY);
-  const effectiveProvider = (provider === 'gemini' || isGeminiKey) ? 'gemini' : provider;
-  console.log(`Calling ${effectiveProvider} API (jsonMode: ${jsonMode})...`);
+async function callAIProvider(
+  provider: string, 
+  fallbackKey: string, 
+  system: string, 
+  user: string, 
+  jsonMode = true,
+  isResearch = false
+) {
+  // Check if provider is Gemini or Gemini keys are present in pool
+  const hasGeminiKey = keyManager.getAccountCount('gemini') > 0 || (fallbackKey && (fallbackKey.startsWith('AQ.') || fallbackKey.startsWith('AIza'))) || Boolean(process.env.GEMINI_API_KEY);
+  const effectiveProvider = (provider === 'gemini' || provider.startsWith('gemini') || hasGeminiKey) ? 'gemini' : provider;
+  console.log(`Calling ${effectiveProvider} API (jsonMode: ${jsonMode}, isResearch: ${isResearch})...`);
   
   if (effectiveProvider === 'gemini') {
-    const requestedPro = provider === 'gemini-pro' || provider === 'gemini-2.5-pro';
+    // Strict Model Tiering Policy:
+    // Research Treatises, Thesis Papers & Journal Articles -> Gemini Pro & Thinking Models
+    // Blogs & Quick Dispatches -> Gemini Flash
+    const requestedPro = provider === 'gemini-pro' || provider === 'gemini-2.5-pro' || isResearch;
     const candidateModels = requestedPro 
       ? [
           'gemini-2.5-pro',
-          'gemini-2.5-flash',
-          'gemini-2.0-flash',
-          'gemini-1.5-pro',
-          'gemini-1.5-flash'
+          'gemini-2.0-pro-exp-02-05',
+          'gemini-2.0-flash-thinking-exp-01-21',
+          'gemini-3-pro',
+          'gemini-1.5-pro'
         ]
       : [
           'gemini-2.5-flash',
-          'gemini-2.5-pro',
           'gemini-2.0-flash',
           'gemini-1.5-flash',
-          'gemini-1.5-pro'
+          'gemini-3-flash'
         ];
     let lastError: any = null;
 
-    for (const model of candidateModels) {
-      try {
-        console.log(`Attempting Gemini generation with ${model}...`);
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-        const generationConfig: any = {
-          maxOutputTokens: 8192,
-          temperature: 0.7
-        };
-        if (jsonMode) {
-          generationConfig.responseMimeType = "application/json";
-        }
+    const poolAccounts = Math.max(1, keyManager.getAccountCount('gemini'));
+    const maxKeyRetries = Math.min(8, poolAccounts * 2);
 
-        const body = {
-          contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
-          generationConfig
-        };
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        const data: any = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          console.log(`✅ Generation succeeded with ${model}`);
-          return text;
+    for (let keyAttempt = 0; keyAttempt < maxKeyRetries; keyAttempt++) {
+      const activeProfile = keyManager.getKey('gemini');
+      const activeKey = activeProfile ? activeProfile.key : fallbackKey;
+      const accountLabel = activeProfile ? activeProfile.accountLabel : 'Default Account';
+
+      if (!activeKey) {
+        throw new Error("❌ No Gemini API key detected. Please configure GEMINI_API_KEY_1..4 or GEMINI_API_KEY in your environment.");
+      }
+
+      for (const model of candidateModels) {
+        try {
+          console.log(`Attempting Gemini generation with ${model} via ${accountLabel}...`);
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
+          const generationConfig: any = {
+            maxOutputTokens: 8192,
+            temperature: isResearch ? 0.4 : 0.7
+          };
+          if (jsonMode) {
+            generationConfig.responseMimeType = "application/json";
+          }
+
+          const body = {
+            contents: [{ role: 'user', parts: [{ text: `${system}\n\n${user}` }] }],
+            generationConfig
+          };
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const data: any = await res.json();
+
+          // Quota / 429 rate limit detection
+          if (res.status === 429 || data?.error?.code === 429 || data?.error?.status === 'RESOURCE_EXHAUSTED') {
+            const isDaily = (data?.error?.message || '').toLowerCase().includes('perday') || (data?.error?.message || '').toLowerCase().includes('quota');
+            console.warn(`⏳ [KeyManager] Rate limit hit on ${accountLabel} for ${model}. Failing over to next account key in pool...`);
+            if (activeProfile) keyManager.reportRateLimit(activeProfile.id, isDaily);
+            break; // Break inner model loop to switch immediately to next key in pool
+          }
+
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            console.log(`✅ Generation succeeded with ${model} (${accountLabel})`);
+            if (activeProfile) keyManager.reportSuccess(activeProfile.id);
+            return text;
+          }
+          console.warn(`⚠️ Model ${model} unavailable (${data?.error?.code || 'status'}): ${data?.error?.message || 'Empty'}. Trying next candidate...`);
+          lastError = new Error(data?.error?.message || `Model ${model} returned empty response`);
+          await new Promise((resolve) => setTimeout(resolve, 800));
+        } catch (err: any) {
+          lastError = err;
+          console.warn(`⚠️ Exception calling ${model}:`, err.message);
+          await new Promise((resolve) => setTimeout(resolve, 800));
         }
-        console.warn(`⚠️ Model ${model} unavailable (${data?.error?.code || 'status'}): ${data?.error?.message || 'Empty'}. Trying next candidate...`);
-        lastError = new Error(data?.error?.message || `Model ${model} returned empty response`);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      } catch (err) {
-        lastError = err;
-        console.warn(`⚠️ Exception calling ${model}:`, err);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
-    throw lastError || new Error("All Gemini model candidates failed.");
+    throw lastError || new Error("All Gemini model candidates and multi-account keys failed.");
   }
 
   let url = '';
   let body: any = {};
+  const authKey = keyManager.getKey(provider)?.key || fallbackKey;
 
   if (provider === 'groq') {
     url = 'https://api.groq.com/openai/v1/chat/completions';
@@ -413,7 +508,7 @@ async function callAIProvider(provider: string, key: string, system: string, use
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`
+      'Authorization': `Bearer ${authKey}`
     },
     body: JSON.stringify(body)
   });

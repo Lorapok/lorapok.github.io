@@ -239,12 +239,22 @@ async function runAgent() {
     const news = await collectNews(currentPosts);
     if (news.length === 0) throw new Error("No news collected.");
 
-    // 4. Content Generation (with anti-duplication prompt guidance)
+    // 4. Content Generation (with model tiering: Flash for Blogs, Pro for Research)
+    const isResearchMode = config.isResearchMode === true || 
+      config.writingProvider === 'gemini-pro' || 
+      config.writingProvider === 'gemini-2.5-pro' ||
+      (config.category && ['Architecture', 'AI & Machine Learning', 'Security'].includes(config.category));
+
     const blogPost = await writeBlogPost(news, {
-      provider: config.writingProvider || 'gemini',
-      targetAudience: config.targetAudience || 'Developers',
-      tone: config.tone || 'Technical'
+      provider: config.writingProvider || (isResearchMode ? 'gemini-pro' : 'gemini'),
+      targetAudience: config.targetAudience || 'Developers & Systems Architects',
+      tone: config.tone || (isResearchMode ? 'Rigorous academic systems engineering' : 'Technical & precise'),
+      isResearch: isResearchMode
     }, currentPosts);
+
+    if (blogPost.peerReview) {
+      console.log(`🎓 [LoLaBo Review Verdict] Decision: ${blogPost.peerReview.decision} (Score: ${blogPost.peerReview.score}/100 by ${blogPost.peerReview.reviewedBy})`);
+    }
 
     // 5. Generate Slug
     blogPost.slug = blogPost.title
