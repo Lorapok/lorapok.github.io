@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/rfc-0128-formal-verification-protocol-for-multi-agent-tool-call-pipelines-via-static-dataflow-analysis-and-capability-based-attestation/</loc>
+    <lastmod>2026-09-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-zero-trust-software-registries-for-autonomous-agent-swarms-hardware-attested-signatures-ephemeral-sandbox-isolation-and-deterministic-merkle-dependency-graphs/</loc>
     <lastmod>2026-09-13</lastmod>
     <changefreq>monthly</changefreq>
