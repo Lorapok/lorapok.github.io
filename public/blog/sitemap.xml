@@ -2,9 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lorapok.tech/blog</loc>
-    <lastmod>2026-09-12</lastmod>
+    <lastmod>2026-09-13</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/architecting-zero-trust-software-registries-for-autonomous-agent-swarms-hardware-attested-signatures-ephemeral-sandbox-isolation-and-deterministic-merkle-dependency-graphs/</loc>
+    <lastmod>2026-09-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://lorapok.tech/blog/architecting-high-throughput-zero-trust-egress-gateways-for-autonomous-agent-fleets-lock-free-token-ring-scheduling-kernel-bypass-protocol-verification-and-hardware-enforced-tls-attestation/</loc>
