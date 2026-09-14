@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-14T05:20:47.076Z",
+  "updatedAt": "2026-09-14T10:55:45.016Z",
   "deprecated": [
     "gemini-2.0-flash"
   ],
@@ -43,6 +43,7 @@
     "deep-research-max-preview-04-2026",
     "deep-research-preview-04-2026",
     "deep-research-pro-preview-12-2025",
-    "gemini-2.5-flash"
+    "gemini-2.5-flash",
+    "antigravity-preview-09-2026"
   ]
 }
