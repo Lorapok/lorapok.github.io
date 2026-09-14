@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Sun, 13 Sep 2026 22:22:54 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 14 Sep 2026 00:27:38 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>Architecting WebAssembly Micro-Runtimes for Multi-Tenant AI Agent Isolation: Linear Memory Boundary Attestation, Lock-Free Inter-Process Ring Buffers, and Deterministic Fuel Metering</title>
