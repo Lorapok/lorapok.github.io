@@ -399,12 +399,14 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             {[
+              { name: "SeeYou SEO", sub: "seeyou.lorapok.tech", url: "https://seeyou.lorapok.tech/", tag: "iCanSeeYou" },
               { name: "Atlas Console", sub: "atlas.lorapok.tech", url: "https://atlas.lorapok.tech/", tag: "2.1k APIs" },
               { name: "Cursor Monitor", sub: "cursor.lorapok.tech", url: "https://cursor.lorapok.tech/", tag: "Live Limits" },
               { name: "Loragent AI", sub: "loragent.lorapok.tech", url: "https://loragent.lorapok.tech/", tag: "Multi-Agent" },
               { name: "ReportKit Stack", sub: "reportkit.lorapok.tech", url: "https://reportkit.lorapok.tech/", tag: "Reporting Engine" },
               { name: "Media Engine", sub: "media.lorapok.tech", url: "https://media.lorapok.tech/", tag: "Sensory UI" },
               { name: "AI Coding Agent", sub: "ai.lorapok.tech", url: "https://ai.lorapok.tech/", tag: "Autonomous" },
+              { name: "Maizied", sub: "maizied.lorapok.tech", url: "https://maizied.lorapok.tech/", tag: "Portfolio" },
             ].map((sub) => (
               <a
                 key={sub.sub}

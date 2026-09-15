@@ -121,6 +121,22 @@ export const philosophy = [
 
 export const projects: Project[] = [
   {
+    name: "SeeYou",
+    tagline: "iCanSeeYou — agentic SEO specialist",
+    description:
+      "Remote MCP + API + dashboard that audits sites the way Googlebot and AI crawlers see them: render gaps, schema, AEO, and ROI-ranked fix plans for every MCP IDE.",
+    category: "Developer Tools",
+    language: "JavaScript",
+    featured: true,
+    image: "/assets/projects/atlas-preview.png",
+    imageType: "cover",
+    links: [
+      { label: "Live", url: "https://seeyou.lorapok.tech/", icon: "web" },
+      { label: "API", url: "https://seeyou-api.mdshuvo40.workers.dev/", icon: "server" },
+      { label: "GitHub", url: "https://github.com/Lorapok/SeeYou", icon: "github" },
+    ],
+  },
+  {
     name: "Lorapok API Atlas",
     tagline: "Open-source data exploration console",
     description: "A polished atlas for discovering public APIs and open data sources with a fast, searchable interface.",
