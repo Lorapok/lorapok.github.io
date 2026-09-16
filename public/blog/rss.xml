@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Wed, 16 Sep 2026 20:32:52 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 16 Sep 2026 23:19:29 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>RFC-0214: Zero-Copy SIMD-Accelerated HTML-to-Markdown Ingestion Engine for LLM Context Pipelines</title>
