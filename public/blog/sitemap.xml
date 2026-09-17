@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/deep-dive-native-gpu-compilation-and-memory-orchestration-in-rust-direct-nvptx-codegen-zero-copy-unified-memory-and-lock-free-kernel-launchers/</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-heterogeneous-ai-inference-fabrics-deterministic-memory-orchestration-for-apple-silicon-m-series-clusters/</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>monthly</changefreq>
