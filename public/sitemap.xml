@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-deception-resistant-multi-agent-state-fabrics-cryptographic-lineage-verification-lock-free-audit-dags-and-hardware-enforced-capability-enclaves/</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/rfc-0289-deterministic-semantic-context-compression-and-zero-copy-token-deduplication-for-multi-agent-coordination-fabrics/</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>monthly</changefreq>
