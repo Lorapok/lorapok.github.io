@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/deep-dive-user-space-isa-binary-translation-engine-architecture-jit-code-generation-lock-free-register-shadowing-and-hardware-tso-memory-ordering-reconciliation/</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/deep-dive-native-gpu-compilation-and-memory-orchestration-in-rust-direct-nvptx-codegen-zero-copy-unified-memory-and-lock-free-kernel-launchers/</loc>
     <lastmod>2026-09-17</lastmod>
     <changefreq>monthly</changefreq>
