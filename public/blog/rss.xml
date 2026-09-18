@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Fri, 18 Sep 2026 06:09:35 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 18 Sep 2026 12:17:39 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>Deep Dive: Architecting Sub-Millisecond Non-Autoregressive RL Decision Engines for Edge-Constrained Autonomous Swarms</title>
