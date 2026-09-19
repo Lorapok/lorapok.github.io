@@ -2,9 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lorapok.tech/blog</loc>
-    <lastmod>2026-09-18</lastmod>
+    <lastmod>2026-09-19</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/deep-dive-deterministic-runtime-safety-enclaves-for-autonomous-decision-systems-assembly-level-state-validation-lock-free-rollback-and-formal-memory-proofs/</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://lorapok.tech/blog/architecting-micro-second-agent-sandboxes-hardware-protection-keys-pku-ebpf-syscall-interception-and-lock-free-memory-rings/</loc>
