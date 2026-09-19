@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Sep 2026 06:43:10 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 19 Sep 2026 11:43:01 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>Deep Dive: Passive TCP/IP Fingerprint Obfuscation in User-Space Network Stacks: Active TCP Option Normalization, MTU Cloaking, and XDP-Accelerated Frame Synthesis</title>
