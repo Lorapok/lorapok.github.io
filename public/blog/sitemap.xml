@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-adaptive-congestion-priced-multi-agent-service-meshes-dynamic-token-auctions-kernel-bypass-ebpf-backpressure-and-lock-free-quorum-routing/</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-immutable-ai-containment-hardware-isolated-sandboxes-for-autonomous-agent-execution/</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
