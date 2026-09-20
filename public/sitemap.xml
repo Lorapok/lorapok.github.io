@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/rfc-0914-transactional-shadow-execution-protocol-tsep-for-ephemeral-agent-tool-mutations-via-user-space-page-faulting-and-two-phase-commit-rollback/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/deep-dive-low-level-thread-local-storage-tls-mechanics-dynamic-linker-allocation-strategies-and-cache-line-alignment-invariants-in-high-performance-runtimes/</loc>
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
