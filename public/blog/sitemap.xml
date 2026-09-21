@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-autonomous-guardrail-fabrics-agf-kernel-level-intent-validation-via-lsm-bpf-and-ring-buffer-orchestration/</loc>
+    <lastmod>2026-09-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-deterministic-agentic-state-machines-formal-verification-of-distributed-consensus-in-multi-tenant-llm-fabrics/</loc>
     <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
