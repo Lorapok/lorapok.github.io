@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/rfc-1024-deterministic-dependency-graph-pruning-and-ephemeral-microvm-orchestration-protocol-ddgp-emop-for-ai-generated-code-commit-pipelines/</loc>
+    <lastmod>2026-09-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-autonomous-guardrail-fabrics-agf-kernel-level-intent-validation-via-lsm-bpf-and-ring-buffer-orchestration/</loc>
     <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
