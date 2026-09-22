@@ -1,9 +1,10 @@
 /**
- * Google AdSense Auto ads — consent-gated loader for lorapok.tech.
+ * Google AdSense — Consent Mode for lorapok.tech.
+ * The verification snippet lives in index.html <head> (static, crawler-readable).
+ * This file grants ad_storage only after explicit marketing consent.
  */
 (function () {
-  const CLIENT = "ca-pub-3756651399602872";
-  const LOADED_KEY = "__lpAdsenseLoaded";
+  const LOADED_KEY = "__lpAdsenseConsentReady";
 
   function gtag() {
     window.dataLayer = window.dataLayer || [];
@@ -22,6 +23,8 @@
   }
 
   function grantConsentMode() {
+    if (window[LOADED_KEY]) return;
+    window[LOADED_KEY] = true;
     gtag("consent", "update", {
       ad_storage: "granted",
       ad_user_data: "granted",
@@ -30,30 +33,19 @@
     });
   }
 
-  function loadAdSense() {
-    if (window[LOADED_KEY]) return;
-    window[LOADED_KEY] = true;
-    grantConsentMode();
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${CLIENT}`;
-    script.crossOrigin = "anonymous";
-    document.head.appendChild(script);
-  }
-
-  function maybeLoad() {
+  function maybeGrant() {
     const stored = window.__LP_PROCESS_CONSENT__ || window.LP_PROCESS_CONSENT?.get?.();
     if (stored?.marketing === true) {
-      loadAdSense();
+      grantConsentMode();
       return;
     }
-    document.addEventListener("lp:consent-marketing", () => loadAdSense(), { once: true });
+    document.addEventListener("lp:consent-marketing", () => grantConsentMode(), { once: true });
   }
 
   setConsentDefaults();
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", maybeLoad);
+    document.addEventListener("DOMContentLoaded", maybeGrant);
   } else {
-    maybeLoad();
+    maybeGrant();
   }
 })();
