@@ -1,0 +1,73 @@
+/* Process consent banner — Lorapok Labs marketing site */
+.lp-consent-banner {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 9999;
+  padding: 1rem;
+  background: rgba(10, 10, 15, 0.96);
+  border-top: 1px solid rgba(103, 255, 143, 0.2);
+  backdrop-filter: blur(12px);
+}
+
+.lp-consent-banner-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lp-consent-copy {
+  flex: 1 1 18rem;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.lp-consent-copy a {
+  color: #67ff8f;
+}
+
+.lp-consent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lp-consent-btn {
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.lp-consent-btn--primary {
+  background: #67ff8f;
+  color: #0a0a0f;
+}
+
+.lp-consent-btn--ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.lp-consent-btn:focus-visible {
+  outline: 2px solid #67ff8f;
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .lp-consent-actions {
+    width: 100%;
+  }
+  .lp-consent-btn {
+    flex: 1 1 auto;
+  }
+}
