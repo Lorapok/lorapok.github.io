@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-immutable-agentic-diffs-fixture-digests-cryptographic-seed-replay-and-ephemeral-sandbox-verification-for-autonomous-patch-pipelines/</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-cryptographic-identity-integrity-zero-trust-attestation-for-autonomous-agentic-workloads/</loc>
     <lastmod>2026-09-22</lastmod>
     <changefreq>monthly</changefreq>
