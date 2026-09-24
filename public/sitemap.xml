@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-deterministic-hardware-abstraction-layers-hal-for-heterogeneous-robotics-a-stateless-orchestration-framework/</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-interruptible-agentic-control-planes-non-blocking-pause-barriers-and-kernel-enforced-execution-abort-protocols-for-autonomous-systems/</loc>
     <lastmod>2026-09-24</lastmod>
     <changefreq>monthly</changefreq>
