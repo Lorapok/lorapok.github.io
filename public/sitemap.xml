@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-disaggregated-gpu-memory-fabrics-rdma-accelerated-kv-cache-offloading-via-cuda-unified-virtual-addressing/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-secure-autonomous-agent-egress-landlock-lsm-sandboxing-zero-copy-cdr-and-cryptographic-watermarking/</loc>
     <lastmod>2026-09-26</lastmod>
     <changefreq>monthly</changefreq>
