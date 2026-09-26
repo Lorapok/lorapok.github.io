@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/rfc-1420-ephemeral-out-of-band-egress-interception-protocol-eobeip-for-multimodal-autonomous-agent-runtimes/</loc>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/rfc-1240-ephemeral-memory-domain-isolation-protocol-emdip-for-autonomous-tool-execution-via-intel-mpk-and-bpf-enforced-socket-pinning/</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
