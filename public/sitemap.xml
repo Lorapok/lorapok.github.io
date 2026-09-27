@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-idempotency-aware-distributed-state-machines-mitigating-retry-storms-in-high-concurrency-api-gateways/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-deterministic-vector-store-retrieval-off-heap-memory-mapping-and-simd-accelerated-quantization/</loc>
     <lastmod>2026-09-26</lastmod>
     <changefreq>monthly</changefreq>
