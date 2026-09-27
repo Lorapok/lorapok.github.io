@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Sun, 27 Sep 2026 20:15:28 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 27 Sep 2026 23:12:27 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>RFC-1510: Cryptographic Agent Attestation and Zero-Knowledge Rate-Limiting Protocol (CAAZK-RLP) for Public Web Endpoints</title>
