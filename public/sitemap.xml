@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/rfc-1510-cryptographic-agent-attestation-and-zero-knowledge-rate-limiting-protocol-caazk-rlp-for-public-web-endpoints/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-deterministic-inter-agent-event-meshes-af-xdp-kernel-bypass-lock-free-disruptor-rings-and-hybrid-logical-clock-consensus/</loc>
     <lastmod>2026-09-27</lastmod>
     <changefreq>monthly</changefreq>
