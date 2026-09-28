@@ -2,9 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lorapok.tech/blog</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-09-28</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/architecting-deterministic-rate-limiting-for-autonomous-agent-orchestration-a-token-bucket-refinement/</loc>
+    <lastmod>2026-09-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://lorapok.tech/blog/rfc-1510-cryptographic-agent-attestation-and-zero-knowledge-rate-limiting-protocol-caazk-rlp-for-public-web-endpoints/</loc>
