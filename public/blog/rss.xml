@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Thu, 01 Oct 2026 13:27:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 01 Oct 2026 19:04:17 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>Architecting Deterministic Edge Inference: Orchestrating Neural Rendering Pipelines on Constrained Orbital Hardware</title>
