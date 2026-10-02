@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/rfc-1740-cryptographically-attested-dynamic-file-access-control-and-user-space-vfs-sandboxing-for-autonomous-agent-runtimes/</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-privacy-preserving-ephemeral-state-integrating-hardware-backed-tees-with-distributed-wal-for-sovereign-personal-archives/</loc>
     <lastmod>2026-10-02</lastmod>
     <changefreq>monthly</changefreq>
