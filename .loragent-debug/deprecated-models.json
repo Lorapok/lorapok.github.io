@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-06T14:05:22.231Z",
+  "updatedAt": "2026-10-06T19:39:04.167Z",
   "deprecated": [
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
@@ -49,6 +49,7 @@
     "antigravity-preview-09-2026",
     "antigravity-preview-latest",
     "gemini-3.8-flash-tts",
-    "gemini-3.8-flash-lite-tts"
+    "gemini-3.8-flash-lite-tts",
+    "gemini-nano-banana-2.1"
   ]
 }
