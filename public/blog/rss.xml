@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Tue, 06 Oct 2026 23:26:22 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 07 Oct 2026 02:45:13 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>Architecting a Zero-Trust MCP Gateway: Mitigating Agent-to-Agent Prompt Injection via Semantic Flow Control and Ephemeral Context Sandboxing</title>
