@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-deterministic-replay-systems-high-fidelity-state-reconstruction-for-autonomous-agentic-runtimes/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/deep-dive-architecting-a-zero-copy-simd-accelerated-vector-search-engine-on-unified-memory-architectures/</loc>
     <lastmod>2026-10-08</lastmod>
     <changefreq>monthly</changefreq>
