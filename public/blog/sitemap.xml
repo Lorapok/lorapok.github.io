@@ -2,9 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lorapok.tech/blog</loc>
-    <lastmod>2026-10-08</lastmod>
+    <lastmod>2026-10-09</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/deep-dive-architecting-low-latency-zero-copy-ipc-via-linux-dma-buf-sharing-and-numa-aware-memory-pinning/</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://lorapok.tech/blog/architecting-deterministic-replay-systems-high-fidelity-state-reconstruction-for-autonomous-agentic-runtimes/</loc>
