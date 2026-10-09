@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/deep-dive-architecting-type-safe-jwt-verification-engines-mitigating-array-payload-type-confusion-and-claim-validator-bypasses/</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-a-local-first-crdt-backed-markdown-memory-engine-for-autonomous-agents/</loc>
     <lastmod>2026-10-09</lastmod>
     <changefreq>monthly</changefreq>
