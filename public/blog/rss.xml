@@ -5,7 +5,7 @@
     <link>https://lorapok.tech/blog</link>
     <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>
     <language>en-us</language>
-    <lastBuildDate>Sat, 10 Oct 2026 16:48:50 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 10 Oct 2026 20:21:49 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
       <title>Architecting Deterministic PII Redaction Engines: High-Throughput Stream Processing for Agentic Boundaries</title>
