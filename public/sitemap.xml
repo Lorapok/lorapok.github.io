@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-an-out-of-band-emergency-brake-speculative-staging-hardware-watchdog-timers-and-shadow-attestation-for-autonomous-infrastructure-agents/</loc>
+    <lastmod>2026-10-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-deterministic-containment-sub-microsecond-state-severing-for-agentic-swarms-via-ebpf-xdp/</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
