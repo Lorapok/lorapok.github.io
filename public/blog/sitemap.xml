@@ -2,9 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lorapok.tech/blog</loc>
-    <lastmod>2026-10-10</lastmod>
+    <lastmod>2026-10-11</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://lorapok.tech/blog/architecting-deterministic-containment-sub-microsecond-state-severing-for-agentic-swarms-via-ebpf-xdp/</loc>
+    <lastmod>2026-10-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://lorapok.tech/blog/architecting-deterministic-pii-redaction-engines-high-throughput-stream-processing-for-agentic-boundaries/</loc>
