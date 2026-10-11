@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-sub-millisecond-ephemeral-state-synchronization-af-xdp-zero-copy-ring-buffers-and-hybrid-logical-clocks-for-autonomous-vehicle-platooning-fabrics/</loc>
+    <lastmod>2026-10-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-an-out-of-band-emergency-brake-speculative-staging-hardware-watchdog-timers-and-shadow-attestation-for-autonomous-infrastructure-agents/</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
