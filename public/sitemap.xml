@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/blog/architecting-non-blocking-in-flight-checkpoint-fabrics-kernel-bypassed-gpu-vmm-page-tracking-rocev2-multi-path-storage-spill-and-chandy-lamport-epoch-consensus/</loc>
+    <lastmod>2026-10-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/architecting-sub-millisecond-ephemeral-state-synchronization-af-xdp-zero-copy-ring-buffers-and-hybrid-logical-clocks-for-autonomous-vehicle-platooning-fabrics/</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
