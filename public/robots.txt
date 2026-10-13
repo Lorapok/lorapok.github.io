@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /dev
+Disallow: /blog/archive/
 
 Sitemap: https://lorapok.tech/sitemap.xml
 Sitemap: https://lorapok.tech/blog/sitemap.xml

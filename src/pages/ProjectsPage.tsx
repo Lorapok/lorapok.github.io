@@ -15,16 +15,18 @@ export default function ProjectsPage() {
   }, []);
 
   const filteredProjects = useMemo(() => {
-    return projects.filter(project => {
-      const matchesSearch = 
-        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.tagline.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesCategory = activeCategory.toLowerCase() === 'all' || project.category.toLowerCase() === activeCategory.toLowerCase();
-      
-      return matchesSearch && matchesCategory;
-    });
+    return projects
+      .filter(project => {
+        const matchesSearch =
+          project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          project.tagline.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          project.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const matchesCategory = activeCategory.toLowerCase() === 'all' || project.category.toLowerCase() === activeCategory.toLowerCase();
+
+        return matchesSearch && matchesCategory;
+      })
+      .sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew)));
   }, [searchQuery, activeCategory]);
 
   const categoryCounts = useMemo(() => {

@@ -12,6 +12,7 @@ import { writeBlogPost } from './writer';
 import { generateCoverImage } from './imageGen';
 import { distributeSocially } from './distributor';
 import { validateDuplicatePost } from './validator';
+import { isPublicManualPost, loadAllForDedup, loadPublicPosts, persistDraft, rewritePublicIndex } from './catalogPolicy';
 
 // ─── Environment Auto-loading ───
 try {
@@ -217,14 +218,7 @@ function checkAuth(req: http.IncomingMessage, reqUrl: URL): boolean {
 }
 
 function getCachedPosts(): any[] {
-  try {
-    if (fs.existsSync(POSTS_JSON_PATH)) {
-      return JSON.parse(fs.readFileSync(POSTS_JSON_PATH, 'utf8'));
-    }
-  } catch (err) {
-    console.warn("⚠️ Could not read posts.json cache:", err);
-  }
-  return [];
+  return loadAllForDedup();
 }
 
 async function getActivePosts(): Promise<any[]> {
@@ -269,13 +263,12 @@ async function exportStaticData(): Promise<number> {
           return { id: d.id, ...data, publishedAt: publishedAtStr };
         });
 
-        posts = posts
-          .filter((p: any) => p.status === 'published')
-          .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-
-        const dir = path.dirname(POSTS_JSON_PATH);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(posts, null, 2), 'utf8');
+        posts = posts.sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+        for (const post of posts.filter((p: any) => !isPublicManualPost(p))) {
+          persistDraft({ ...post, source: post.source || 'ai-agent', status: 'draft' });
+        }
+        rewritePublicIndex();
+        posts = loadPublicPosts();
       } else {
         posts = getCachedPosts();
       }
@@ -286,6 +279,9 @@ async function exportStaticData(): Promise<number> {
   } else {
     posts = getCachedPosts();
   }
+
+  posts = posts.filter(isPublicManualPost);
+  rewritePublicIndex();
 
   // Regenerate XML Sitemaps and RSS
   const sitemapDir = path.dirname(POSTS_JSON_PATH);
@@ -301,7 +297,7 @@ async function exportStaticData(): Promise<number> {
   fs.writeFileSync(path.join(sitemapDir, 'sitemap.xml'), sitemapXml, 'utf8');
 
   let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
-  rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
+  rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
   for (const p of (posts as any[]).slice(0, 20)) {
     if (!p.slug) continue;
     rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>https://lorapok.tech/blog/${p.slug}</link>\n    <guid>https://lorapok.tech/blog/${p.slug}</guid>\n    <pubDate>${new Date(p.publishedAt || Date.now()).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt}]]></description>\n  </item>\n`;
@@ -421,6 +417,8 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
     const newPostEntry = {
       id: postId,
       ...blogPost,
+      source: 'ai-agent',
+      status: 'draft',
       publishedAt: new Date().toISOString()
     };
 
@@ -443,22 +441,10 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       }
     }
 
-    // Always persist to local catalog as well (for dual-tier high-availability)
-    console.log(`💾 [Local Microservice] Persisting post to local catalog: ${blogPost.title}`);
-    const updatedPosts = [newPostEntry, ...currentPosts.filter((p: any) => p.slug !== blogPost.slug)];
-    const dir = path.dirname(POSTS_JSON_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(updatedPosts, null, 2), 'utf8');
-    console.log(`✅ Post saved locally to ${POSTS_JSON_PATH} (${updatedPosts.length} total posts)`);
-
-    // 7. Social Distribution (Discord)
-    const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
-    if (webhookUrl && webhookUrl.trim()) {
-      console.log("📢 Broadcasting to Discord webhook...");
-      await distributeSocially(blogPost, ['discord'], webhookUrl);
-    } else {
-      console.log("ℹ️ [Discord Broadcast] Skipped: No DISCORD_WEBHOOK_URL configured. (Set DISCORD_WEBHOOK_URL in environment or Firestore).");
-    }
+    console.log(`💾 [Local Microservice] Archiving draft: ${blogPost.title}`);
+    persistDraft(newPostEntry);
+    console.log(`✅ Draft archived. Public index still has ${loadPublicPosts().length} manual notes.`);
+    console.log("ℹ️ Draft archived only. Discord broadcast stays off until a note is published as source=manual.");
 
     // 8. Update Static JSON & Sitemaps
     console.log("📁 Updating static posts.json and XML feeds...");

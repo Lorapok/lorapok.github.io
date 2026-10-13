@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Lorapok Retail">
+  <title>Lorapok Retail — inventory and point of sale</title>
+  <!--
+    The Open Graph card: what a link to this product looks like in a chat.
+    1200x630 is the size Facebook, LinkedIn, Slack and X all crop from.
+
+    Type is deliberately large. These are usually seen at about a third of
+    this size in a message list, so anything under ~40px here is unreadable
+    where it actually appears.
+  -->
+  <defs>
+    <linearGradient id="og-tag" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a99bff"/>
+      <stop offset="55%" stop-color="#9075ff"/>
+      <stop offset="100%" stop-color="#6d4aff"/>
+    </linearGradient>
+    <radialGradient id="og-glow" cx="82%" cy="12%" r="55%">
+      <stop offset="0%" stop-color="#9075ff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#9075ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#06080d"/>
+  <rect width="1200" height="630" fill="url(#og-glow)"/>
+
+  <g transform="translate(88 150) scale(0.33)">
+    <rect width="512" height="512" rx="112" fill="#0b0d12"/>
+    <g transform="rotate(-45 256 256)">
+      <rect x="140" y="140" width="232" height="232" rx="44" fill="url(#og-tag)"/>
+      <circle cx="196" cy="196" r="30" fill="#0b0d12"/>
+    </g>
+    <g stroke="#0b0d12" stroke-width="22" stroke-linecap="round" opacity="0.55">
+      <path d="M232 300 H352"/><path d="M232 356 H304"/>
+    </g>
+  </g>
+
+  <text x="88" y="360" font-family="DM Sans, ui-sans-serif, system-ui, sans-serif"
+        font-size="76" font-weight="700" fill="#f1f5fb" letter-spacing="-2">Lorapok Retail</text>
+  <text x="88" y="432" font-family="DM Sans, ui-sans-serif, system-ui, sans-serif"
+        font-size="38" font-weight="400" fill="#8b9bb8">Inventory and point of sale for shops that</text>
+  <text x="88" y="482" font-family="DM Sans, ui-sans-serif, system-ui, sans-serif"
+        font-size="38" font-weight="400" fill="#8b9bb8">sell serialised goods.</text>
+
+  <text x="88" y="566" font-family="DM Sans, ui-sans-serif, system-ui, sans-serif"
+        font-size="28" font-weight="500" fill="#9075ff">A product of Lorapok Labs</text>
+</svg>

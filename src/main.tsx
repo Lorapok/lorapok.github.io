@@ -17,6 +17,8 @@ const TeamPage = lazy(() => import("./pages/TeamPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ChangelogPage = lazy(() => import("./pages/ChangelogPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
 const BlogApp = lazy(() => import("./blog/BlogApp"));
 const DevModePortal = lazy(() => import("./dev/DevModePortal"));
 
@@ -58,6 +60,8 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<Layout><ChangelogPage /></Layout>} path="/changelog" />
           <Route element={<Navigate to="/" replace />} path="/support" />
           <Route element={<Layout><ContactPage /></Layout>} path="/contact" />
+          <Route element={<Layout><PrivacyPage /></Layout>} path="/privacy" />
+          <Route element={<Layout><TermsPage /></Layout>} path="/terms" />
 
           {/* Dev Mode (authenticated, no public layout) */}
           <Route

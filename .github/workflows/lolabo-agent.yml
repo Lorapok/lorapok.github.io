@@ -2,9 +2,9 @@ name: LoLaBo AI Agent
 
 on:
   schedule:
-    # 15-minute autonomous publishing cadence
+    # Keep generating drafts on the 15-minute cadence. They are archived, not published.
     - cron: '*/15 * * * *'
-  workflow_dispatch:         # Manual trigger
+  workflow_dispatch:
     inputs:
       force:
         description: 'Force run ignoring interval'
@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -45,44 +44,21 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           INTERVAL_HOURS: '0.25'
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           FORCE_RUN: ${{ github.event.inputs.force }}
         run: |
           cd agent
           node index.js
           node exportData.js
 
-      - name: Commit and Push SEO Updates
-        id: git-push
+      - name: Commit archived drafts only
         run: |
           git config --global user.name "LoLaBo Agent"
           git config --global user.email "agent@lorapok.labs"
-          git add .
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "chore(blog): new post by LoLaBo Agent with SEO updates"
+          git add public/blog/archive/ai-posts.json
+          if git diff --cached --quiet; then
+            echo "No new drafts to archive."
+          else
+            git commit -m "chore(blog): archive LoLaBo draft (not public)"
             git pull --rebase origin main || true
             git push origin main
-            echo "pushed=true" >> $GITHUB_OUTPUT
-          else
-            echo "No file changes detected. Skipping push."
-            echo "pushed=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Trigger Automatic Website Deployment & SEO Rebuild
-        if: steps.git-push.outputs.pushed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "🚀 Triggering Deploy Lorapok Labs workflow for live SEO deployment..."
-          gh workflow run deploy.yml --ref main || echo "Deploy workflow dispatched or queued."
-
-      - name: Verify Live Deployment and Broadcast to Discord
-        if: steps.git-push.outputs.pushed == 'true'
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          echo "🔍 Verifying live publication on production edge before broadcasting to Discord..."
-          cd agent
-          node broadcastLivePost.js
-
-

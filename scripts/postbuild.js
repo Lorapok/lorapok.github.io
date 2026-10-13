@@ -70,27 +70,27 @@ const baseContent = fs.readFileSync(indexHtml, 'utf8');
 const routeMeta = {
   projects: {
     title: "Projects & Products — Lorapok Labs",
-    description: "Explore 35+ open-source products across AI, developer tools, sensory computing, and biological UI.",
+    description: "Public open-source repositories from @Maijied and @Lorapok, with GitHub links and repository descriptions.",
     keywords: "Lorapok, open source projects, developer tools, AI, sensory computing, browser extensions",
     canonical: "https://lorapok.tech/projects"
   },
   agents: {
     title: "AI Agents & Autonomous Multi-Agent Ecosystem — Lorapok Labs",
-    description: "224-agent universal multi-agent ecosystem operating on Hub-and-Spoke topology with autonomous CI/CD.",
+    description: "224 agent skill definitions in the Loragent catalog, grouped by formation.",
     keywords: "Loragent, AI agents, multi-agent systems, autonomous coding, LoLaBo agent, Lorapok Labs",
     canonical: "https://lorapok.tech/agents"
   },
   blog: {
     title: "LoLaBo — Lorapok Labs Blog & Technical Architecture",
-    description: "Autonomous AI-curated tech insights, system architecture deep-dives, and research published by Lorapok Labs.",
-    keywords: "LoLaBo, Lorapok Labs blog, AI writer, engineering architecture, system design, tech news",
+    description: "Notes on public Lorapok repositories: what each project is, the language GitHub reports, and where to read the source.",
+    keywords: "LoLaBo, Lorapok Labs blog, open source, GitHub, product notes",
     canonical: "https://lorapok.tech/blog",
     image: "https://lorapok.tech/assets/lolabo-logo.png"
   },
   team: {
     title: "The Team & Autonomous Agents — Lorapok Labs",
-    description: "Meet the engineers, architects, and autonomous AI personas powering Lorapok Labs.",
-    keywords: "Lorapok Labs team, engineers, AI personas, Dr Larva, Captain Deploy",
+    description: "Engineers and specialists at Lorapok Labs, including founder Mohammad Maizied Hasan Majumder and SQA engineer Tanjil Bhoiyan.",
+    keywords: "Lorapok Labs team, engineers, SQA, Mohammad Maizied Hasan Majumder",
     canonical: "https://lorapok.tech/team"
   },
   about: {
@@ -110,6 +110,18 @@ const routeMeta = {
     description: "Connect with Lorapok Labs creators, report issues, join Discord, or partner on open source.",
     keywords: "Contact Lorapok Labs, Discord, GitHub, support, partnership",
     canonical: "https://lorapok.tech/contact"
+  },
+  privacy: {
+    title: "Privacy Policy — Lorapok Labs",
+    description: "How lorapok.tech uses cookies, Google AdSense, and contact-form messages.",
+    keywords: "Lorapok privacy policy, AdSense, cookies",
+    canonical: "https://lorapok.tech/privacy"
+  },
+  terms: {
+    title: "Terms of Use — Lorapok Labs",
+    description: "Terms for using lorapok.tech, including open-source projects, ads, and the sponsored partner link.",
+    keywords: "Lorapok terms, advertising, open source",
+    canonical: "https://lorapok.tech/terms"
   }
 };
 
@@ -137,6 +149,7 @@ if (fs.existsSync(postsJsonPath)) {
 let blogPagesCount = 0;
 for (const post of posts) {
   if (!post.slug) continue;
+  if (post.source !== "manual" || (post.status && post.status !== "published")) continue;
 
   const postDir = path.join(distDir, 'blog', post.slug);
   if (!fs.existsSync(postDir)) {

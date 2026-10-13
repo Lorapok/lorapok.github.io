@@ -85,14 +85,6 @@ export interface BlogPost {
   commentsCount: number;
 }
 
-// ─── Author Personas ───
-const AUTHOR_POOL: BlogAuthor[] = [
-  { name: "Dr. Larva", designation: "Chief Neural Officer", avatar: "🧬" },
-  { name: "Captain Deploy", designation: "Infrastructure Overlord", avatar: "🚀" },
-  { name: "Agent Cocoon", designation: "Director of Digital Defense", avatar: "🛡️" },
-  { name: "Pixel Pete", designation: "Senior Aesthetic Engineer", avatar: "🎨" },
-];
-
 export interface EditorialCategory {
   id: string;
   label: string;
@@ -203,30 +195,12 @@ export function matchesCategory(post: BlogPost, catId: string): boolean {
   return false;
 }
 
-const DEMO_POSTS: BlogPost[] = [
-  {
-    id: "1",
-    slug: "ai-tooling-eating-the-stack",
-    title: "Why Open-Source AI Tooling Is Eating the Stack",
-    excerpt:
-      "The developer stack is being rewritten by AI-native tools. Here's why open-source alternatives are leading the charge across production systems.",
-    content:
-      "The developer stack is being rewritten by AI-native tools. Open-source local models, standardized tool protocols (MCP), and edge execution pipelines give developers total control over their data, latencies, and runtime destiny.",
-    coverImage: "/assets/projects/loragent-banner.jpg",
-    tags: ["ai", "open-source", "loragent", "mcp"],
-    category: "AI & Machine Learning",
-    author: AUTHOR_POOL[0],
-    seo: { metaTitle: "AI Tooling", metaDescription: "AI is eating the stack.", keywords: ["ai"] },
-    source: "ai-agent",
-    status: "published",
-    publishedAt: { toDate: () => new Date("2026-05-08") },
-    socialShares: [],
-    readTime: 4,
-    views: 1420,
-    likes: 284,
-    commentsCount: 18,
-  },
-];
+const DEMO_POSTS: BlogPost[] = [];
+
+function isPublicNote(post: { source?: string; status?: string } | null | undefined): boolean {
+  if (!post) return false;
+  return post.source === "manual" && (post.status || "published") === "published";
+}
 
 // ─── Helper Functions ───
 function formatPublishDate(dateVal: any): string {
@@ -752,6 +726,11 @@ function ensureUniqueVisuals(postsList: BlogPost[]): BlogPost[] {
     let url = (p.coverImage || "").trim();
     const isUnsplash = url.includes("unsplash.com") || url.includes("photo-");
     const isDup = seenUrls.has(url);
+    const keepRealCover = url.includes("opengraph.githubassets.com") || url.startsWith("/assets/") || url.startsWith("https://avatars.githubusercontent.com");
+    if (keepRealCover && !isDup) {
+      seenUrls.add(url);
+      return p;
+    }
     if (!url || isDup || isUnsplash) {
       const cleanTitle = (p.title || `research-paper-${idx + 1}`).replace(/[^\w\s-]/g, " ").trim();
       const prompt = `Editorial technical illustration for ${cleanTitle}, Swiss graphic design, minimalist flat vector schematic, clean graphite backdrop, muted slate and cobalt palette, precision line art, matte industrial finish, 8k, zero text, zero watermark`;
@@ -776,7 +755,7 @@ export default function BlogApp() {
   const [loading, setLoading] = useState(true);
 
   // Article View Interactive States
-  const [claps, setClaps] = useState(142);
+  const [claps, setClaps] = useState(0);
   const [userClaps, setUserClaps] = useState(0);
   const [clapAnim, setClapAnim] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -789,7 +768,7 @@ export default function BlogApp() {
         const staticRes = await fetch(`/blog/posts.json${cacheBuster}`, { cache: "no-store" });
         if (staticRes.ok) {
           const staticPosts = await staticRes.json();
-          const formatted = ensureUniqueVisuals(staticPosts.map((p: any) => ({
+          const formatted = ensureUniqueVisuals(staticPosts.filter(isPublicNote).map((p: any) => ({
             ...p,
             publishedAt: { toDate: () => new Date(p.publishedAt) },
           })));
@@ -807,7 +786,7 @@ export default function BlogApp() {
               setPosts((prev) => {
                 const map = new Map<string, any>();
                 prev.forEach((p) => map.set(p.slug || p.id, p));
-                live.forEach((p) => map.set(p.slug || p.id, p));
+                live.filter(isPublicNote).forEach((p) => map.set(p.slug || p.id, p));
                 const sorted = Array.from(map.values()).sort((a: any, b: any) => {
                   const dateA = a.publishedAt?.toDate ? a.publishedAt.toDate().getTime() : new Date(a.publishedAt).getTime();
                   const dateB = b.publishedAt?.toDate ? b.publishedAt.toDate().getTime() : new Date(b.publishedAt).getTime();
@@ -836,7 +815,7 @@ export default function BlogApp() {
     if (!exists && isFirebaseConfigured) {
       let active = true;
       blogService.getPostBySlug(slug).then((livePost) => {
-        if (active && livePost) {
+        if (active && livePost && isPublicNote(livePost)) {
           setPosts((prev) => {
             if (prev.some((p) => p.slug === slug)) return prev;
             return [livePost, ...prev];
@@ -1486,7 +1465,7 @@ export default function BlogApp() {
                     </button>
                     <div>
                       <h4 className="font-bold text-white text-base">Enjoyed this deep dive?</h4>
-                      <p className="text-xs text-gray-400">Give it claps to help other systems engineers discover autonomous research.</p>
+                      <p className="text-xs text-gray-400">Clap if the note was useful. The text comes from the repository README.</p>
                     </div>
                   </div>
                   <div className="font-mono text-sm text-gray-400">
@@ -1518,7 +1497,7 @@ export default function BlogApp() {
                       </a>
                     </div>
                     <p className="text-sm text-gray-400 leading-relaxed">
-                      Autonomous AI researcher orchestrating multi-agent systems, neural telemetry compiler verification, and high-concurrency architecture across the Lorapok ecosystem.
+                      Founder of Lorapok Labs and senior software engineer. These notes describe public GitHub repositories.
                     </p>
                   </div>
                 </div>
@@ -1534,7 +1513,7 @@ export default function BlogApp() {
                   <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">About LoLaBo</span>
                 </div>
                 <p className="text-xs text-gray-400 leading-relaxed mb-4">
-                  LoLaBo is Lorapok Labs' autonomous technical publication. Powered by continuous telemetry and specialized agent squads, our models generate in-depth systems architecture analyses every hour.
+                  LoLaBo is the Lorapok Labs notebook. Each note describes a public repository, with its language, live URL, and GitHub link.
                 </p>
                 <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-gray-500">
                   <span>DISPATCH CADENCE</span>
@@ -1762,7 +1741,7 @@ export default function BlogApp() {
 
           {/* Intellectual Manifesto */}
           <p className="hero-subtitle text-gray-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Rigorous systems architecture investigations, distributed runtime telemetry, and autonomous multi-agent engineering — synthesized and published every hour.
+            Lab notes on public Lorapok repositories. Each note names the repository, the language GitHub reports, and where to open the source.
           </p>
 
           {/* Dynamic Live Publication Telemetry Bar */}
@@ -1770,11 +1749,11 @@ export default function BlogApp() {
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-gray-400">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-[var(--lp-accent,#67ff8f)] animate-pulse" />
-                <span>CADENCE: <strong className="text-white font-semibold">1-HOUR AUTONOMOUS</strong></span>
+                <span>SOURCE: <strong className="text-white font-semibold">PUBLIC GITHUB</strong></span>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-[#38bdf8]" />
-                <span>INDEXED: <strong className="text-white font-semibold">{dynamicStats.totalPosts} DISPATCHES</strong></span>
+                <span>INDEXED: <strong className="text-white font-semibold">{dynamicStats.totalPosts} NOTES</strong></span>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-[#c084fc]" />

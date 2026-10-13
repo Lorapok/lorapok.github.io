@@ -63,7 +63,17 @@ export default function BlogPanel() {
         const res = await fetch('/blog/posts.json?_t=' + Date.now());
         if (res.ok) {
           const staticPosts = await res.json();
-          setPosts(staticPosts);
+          let archivePosts: unknown[] = [];
+          try {
+            const archiveRes = await fetch('/blog/archive/ai-posts.json?_t=' + Date.now());
+            if (archiveRes.ok) {
+              const archived = await archiveRes.json();
+              if (Array.isArray(archived)) archivePosts = archived;
+            }
+          } catch {
+            archivePosts = [];
+          }
+          setPosts([...(Array.isArray(staticPosts) ? staticPosts : []), ...archivePosts]);
         }
       } catch (err) {
         console.error("Failed to load blog posts:", err);

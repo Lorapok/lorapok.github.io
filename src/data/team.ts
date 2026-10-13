@@ -17,7 +17,8 @@ export type TeamDepartment =
   | "Core Engineering"
   | "AI Research & Agents"
   | "Clinical & Sensory Tech"
-  | "Brand Strategy & DevRel";
+  | "Brand Strategy & DevRel"
+  | "Quality Assurance";
 
 export interface TeammateProfile {
   id: string; // URL-safe slug
@@ -59,7 +60,7 @@ export const teamMembers: TeammateProfile[] = [
     location: "Dhaka, Bangladesh",
     email: "mdshvo40@gmail.com",
     tagline: "Building biological UI, sensory computing, and high-throughput developer platforms.",
-    bio: "Full Stack Software Engineer designing digital products with performance, precision, and sensory computing at the core. Architect of the Lorapok ecosystem spanning 35+ products across 7 global distribution platforms.",
+    bio: "Full Stack Software Engineer designing digital products with performance, precision, and sensory computing at the core. Maintains the public Lorapok repositories and the Loragent skill catalog.",
     cvSummary:
       "Senior Software Engineer at Shohoz with extensive background in distributed systems, high-concurrency ticketing, edge computing, and open-source collective engineering.",
     skills: [
@@ -96,9 +97,9 @@ export const teamMembers: TeammateProfile[] = [
         description:
           "Founded and directing the Lorapok open-source ecosystem, overseeing engineering, security, and distribution across VS Code, Open VSX, Firefox AMO, and npm.",
         highlights: [
-          "Shipped Lorapok Atlas with 2,100+ catalogued APIs and launched on Product Hunt.",
-          "Created Cursor Curse Monitor used by thousands of AI engineers for usage auditing.",
-          "Built Loragent enterprise multi-agent orchestration framework with 250+ resources.",
+          "Shipped Lorapok Atlas, a public directory for browsing open APIs, and listed it on Product Hunt.",
+          "Published Cursor Curse Monitor, a local dashboard for Cursor usage limits and billing cycles.",
+          "Built Loragent, the multi-agent skill catalog maintained in this repository.",
         ],
       },
     ],
@@ -573,13 +574,77 @@ export const teamMembers: TeammateProfile[] = [
     featuredProjects: [
       "LARVOX",
       "ReportKit",
-      "Cursor Duplicator",
+      "dCursor",
     ],
     social: {
       github: "https://github.com/ToufiqLarvox",
       linkedin: "https://www.linkedin.com/in/toufiq-ahmed",
     },
     resumeUrl: "/assets/team/toufiq-ahmed-cv.pdf",
+    status: "contributor",
+    featured: true,
+  },
+  {
+    id: "tanjil-bhoiyan",
+    name: "Tanjil Bhoiyan",
+    handle: "@TanjilBhoiyan",
+    role: "SQA Engineer",
+    department: "Quality Assurance",
+    avatar: "/assets/team/tanjil-bhoiyan.jpg",
+    location: "Dhaka, Bangladesh",
+    email: "tanjilbhoiyan@gmail.com",
+    tagline: "Manual and automated testing for web products, APIs, and payment flows.",
+    bio: "SQA Engineer at SeedLink Innovation. Previously a Junior Software QA Engineer at Progoti Systems Limited on TallyKhata. Builds Playwright and Cypress automation and tests backend payment flows with Postman and SQL.",
+    cvSummary:
+      "B.Sc. in Computer Science and Engineering from Shahjalal University of Science and Technology. Works on end-to-end, regression, API, and performance testing.",
+    skills: [
+      "Cypress",
+      "Playwright",
+      "REST Assured",
+      "Postman",
+      "JMeter",
+      "JIRA",
+      "Git",
+      "Java",
+      "JavaScript",
+      "C++",
+      "MongoDB",
+      "MySQL",
+      "PostgreSQL",
+    ],
+    experience: [
+      {
+        role: "SQA Engineer",
+        organization: "SeedLink Innovation",
+        period: "October 2025 — Present",
+        description:
+          "Tests SendCopy.ai automation, PinkBounce, and E-Warmup. The supplied CV describes end-to-end manual testing, Playwright automation with the Page Object Model, and defect tracking with the development team.",
+      },
+      {
+        role: "Junior Software QA Engineer",
+        organization: "Progoti Systems Limited (TallyKhata)",
+        period: "July 2024 — September 2025",
+        description:
+          "Tested TallyPay backend flows, including financial transactions, APIs, and third-party payment integrations, using Postman and SQL. The CV also describes Cypress frontend automation and REST Assured API automation.",
+      },
+    ],
+    education: [
+      {
+        degree: "B.Sc. in Computer Science and Engineering",
+        institution: "Shahjalal University of Science and Technology (SUST), Sylhet",
+        year: "February 2018 — March 2024",
+      },
+    ],
+    achievements: [
+      "Codeforces: Tanjilbhuyan — https://codeforces.com/profile/Tanjilbhuyan",
+      "LeetCode: Tanjil03 — https://leetcode.com/u/Tanjil03/",
+      "HackerRank: Tanjil03 — https://www.hackerrank.com/Tanjil03",
+      "Shohoz.com Playwright automation and a Cypress shopping-flow project, as listed on the CV",
+    ],
+    social: {
+      linkedin: "https://www.linkedin.com/in/tanjil-bhoiyan-0982a125a",
+    },
+    resumeUrl: "/assets/team/tanjil-bhoiyan-cv.pdf",
     status: "contributor",
     featured: true,
   },
@@ -591,6 +656,7 @@ export const teamDepartments: TeamDepartment[] = [
   "AI Research & Agents",
   "Clinical & Sensory Tech",
   "Brand Strategy & DevRel",
+  "Quality Assurance",
 ];
 
 export function getTeamByDepartment(dept: TeamDepartment): TeammateProfile[] {

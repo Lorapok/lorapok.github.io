@@ -368,7 +368,7 @@ Revise, expand, and perfect the entire paper to directly resolve each critique p
     type: blogData.type || 'DEEP DIVE',
     author,
     source: 'ai-agent',
-    status: 'published',
+    status: 'draft',
     publishedAt: new Date(),
     views: 0,
     readTime

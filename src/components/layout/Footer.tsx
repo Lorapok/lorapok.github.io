@@ -58,6 +58,8 @@ export default function Footer() {
               <li><Link to="/changelog" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Changelog & Releases</Link></li>
               <li><Link to="/about" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Founder & Mission</Link></li>
               <li><Link to="/contact" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Contact Labs</Link></li>
+              <li><Link to="/privacy" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Terms of Use</Link></li>
             </ul>
           </div>
 
@@ -76,11 +78,25 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[rgba(255,255,255,0.06)] pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+        <div className="border-t border-[rgba(255,255,255,0.06)] pt-8 flex flex-col gap-4 text-sm text-gray-500">
+          <p>
+            <span className="mr-2 rounded border border-white/15 px-1.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-[#67ff8f]">Sponsored</span>
+            Higgsfield is a partner tool, not a Lorapok product.{" "}
+            <a
+              href="https://higgsfield.ai?fpr=lorapoklabs"
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              className="text-gray-300 hover:text-[var(--lp-accent,#67ff8f)] underline"
+            >
+              Visit Higgsfield
+            </a>
+          </p>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© 2026 Lorapok Labs. MIT Licensed.</p>
           <div className="flex items-center gap-6">
             <Link to="/dev" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Developer Portal</Link>
             <p>Built with React 19 + Vite</p>
+          </div>
           </div>
         </div>
       </div>

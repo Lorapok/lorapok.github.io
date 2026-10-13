@@ -20,7 +20,7 @@ export interface AgentFormation {
 }
 
 export const agentFormations: AgentFormation[] = [
-  { id: "all", name: "All Autonomous Units", description: "All 240+ specialized agents and skill modules across the Loragent ecosystem." },
+  { id: "all", name: "All skill definitions", description: "224 agent skill definitions counted in the Loragent catalog." },
   { id: "skill", name: "Autonomous Skills", description: "Directly executable, deterministic skills and automated workflows." },
   { id: "auto", name: "Auto Formations", description: "Autonomous domain specialists dynamically assigned by Loragent." },
   { id: "orchestrator", name: "Orchestrators", description: "Meta-agents that govern multi-agent task execution, pipelines, and state." },

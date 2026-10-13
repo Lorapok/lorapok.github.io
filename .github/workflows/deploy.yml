@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'public/blog/archive/**'
+      - '.github/workflows/lolabo-agent.yml'
   workflow_dispatch:
 
 permissions:

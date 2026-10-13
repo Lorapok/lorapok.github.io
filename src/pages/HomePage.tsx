@@ -46,37 +46,37 @@ const itemVariants = {
 
 const DEFAULT_DISPATCHES = [
   {
-    slug: "ebpf-kernel-probes-vs-user-space-telemetry-formal-micro-architectural-analysis-and-concurrency-limits",
-    title: "eBPF Kernel Probes vs. User-Space Telemetry: Formal Micro-Architectural Analysis and Concurrency Limits",
-    excerpt: "Deep micro-architectural benchmark isolating NUMA latency, instruction cache line bouncing, and context transitions across high thread counts.",
-    type: "BENCHMARK & PERF",
-    category: "Backend & Infrastructure",
-    readTime: 16,
-    citations: [1, 2, 3, 4, 5, 6],
-    coverImage: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=85&w=1200&h=630",
-    author: { name: "Captain Deploy", designation: "Infrastructure Overlord", avatar: "🚀" }
+    slug: "lorapok-atlas-public-api-directory",
+    title: "Lorapok Atlas is a public directory for browsing open APIs",
+    excerpt: "The Lorapok-API_Atlas repository describes a dashboard for browsing and live-testing public APIs.",
+    type: "Product note",
+    category: "Developer Tools",
+    readTime: 4,
+    citations: [],
+    coverImage: "/assets/projects/atlas-social.jpg",
+    author: { name: "Mohammad Maizied Hasan Majumder", designation: "Founder, Lorapok Labs", avatar: "/assets/founder-avatar.jpg" }
   },
   {
-    slug: "beyond-c-interop-engineering-production-rust-migration-pipelines-with-zero-downtime-ffi-boundaries",
-    title: "Beyond C++ Interop: Engineering Production Rust Migration Pipelines with Zero-Downtime FFI Boundaries",
-    excerpt: "An exhaustive systems architecture blueprint detailing automated FFI safety invariants, memory ownership transitions, and zero-downtime canary routing.",
-    type: "ARCHITECTURE BLUEPRINT",
-    category: "Backend & Infrastructure",
-    readTime: 11,
-    citations: [1, 2, 3, 4],
-    coverImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=85&w=1200&h=630",
-    author: { name: "Dr. Larva", designation: "Chief Neural Officer", avatar: "🧬" }
+    slug: "cursor-curse-monitor-usage-dashboard",
+    title: "Cursor Curse Monitor tracks Cursor usage on your machine",
+    excerpt: "The extension README describes a local dashboard for Cursor limits, quota, and billing-cycle reset.",
+    type: "Product note",
+    category: "Developer Tools",
+    readTime: 4,
+    citations: [],
+    coverImage: "/assets/projects/cursor-monitor-preview.png",
+    author: { name: "Mohammad Maizied Hasan Majumder", designation: "Founder, Lorapok Labs", avatar: "/assets/founder-avatar.jpg" }
   },
   {
-    slug: "the-architectural-limits-of-cross-platform-frameworks-why-shopify-is-transitioning-back-to-native-development",
-    title: "The Architectural Limits of Cross-Platform Frameworks: Why Shopify is Transitioning Back to Native Development",
-    excerpt: "A deep dive into why abstractions leak at scale, evaluating Hermes runtime GC stutters, JSI bridge maintenance costs, and the shift back to Swift and Kotlin.",
-    type: "CASE STUDY",
-    category: "Mobile & UX",
-    readTime: 8,
-    citations: [1, 2, 3, 4],
-    coverImage: "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=85&w=1200&h=630",
-    author: { name: "Swipe Right Sally", designation: "Mobile Experience Architect", avatar: "📱" }
+    slug: "loragent-skill-catalog",
+    title: "Loragent ships a catalog of agent skill definitions",
+    excerpt: "The Loragent repository is a multi-agent orchestration framework. This site counts 224 skill definitions in that catalog.",
+    type: "Product note",
+    category: "AI",
+    readTime: 4,
+    citations: [],
+    coverImage: "/assets/projects/loragent-social.png",
+    author: { name: "Mohammad Maizied Hasan Majumder", designation: "Founder, Lorapok Labs", avatar: "/assets/founder-avatar.jpg" }
   }
 ];
 
@@ -89,13 +89,15 @@ export default function HomePage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          setLatestPosts(data.slice(0, 3));
+          const notes = data.filter((p) => p?.source === "manual" && (p.status || "published") === "published");
+          setLatestPosts(notes.slice(0, 3));
         }
       })
       .catch(() => {});
   }, []);
 
-  const featuredProjects = projects.filter(p => p.featured);
+  const newProjects = projects.filter(p => p.isNew);
+  const featuredProjects = projects.filter(p => p.featured && !p.isNew);
   const displayDispatches = latestPosts.length > 0 ? latestPosts : DEFAULT_DISPATCHES;
 
   return (
@@ -117,7 +119,7 @@ export default function HomePage() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#67ff8f]" />
           </span>
           <span className="text-[11px] font-mono font-bold tracking-[0.2em] text-[#67ff8f] uppercase">
-            AUTONOMOUS RESEARCH PUBLICATION & MULTI-AGENT LAB
+            OPEN-SOURCE LAB · PUBLIC GITHUB SNAPSHOT 14 OCT 2026
           </span>
         </motion.div>
 
@@ -131,7 +133,7 @@ export default function HomePage() {
 
         {/* Subtitle */}
         <motion.p variants={itemVariants} className="text-base sm:text-xl text-gray-400 mb-6 max-w-3xl mx-auto leading-relaxed">
-          Lorapok Labs engineers biological user interfaces, autonomous multi-agent intelligence runtimes, and peer-reviewed systems architecture research. 42+ production tools, 240+ specialized agents, and continuous hourly dispatches.
+          Lorapok Labs builds open-source developer tools, media apps, and the Loragent catalog of {ecosystemStats.agentSkillDefinitions} agent skill definitions. Counts below are the public GitHub snapshot from {ecosystemStats.snapshotDate}.
         </motion.p>
 
         {/* Elevated Social Proof & Ecosystem Traction (Above the Fold) */}
@@ -140,27 +142,37 @@ export default function HomePage() {
           className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-mono text-gray-400 mb-8 py-2.5 px-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-inner"
         >
           <a 
-            href="https://github.com/lorapok" 
+            href="https://github.com/Maijied" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="flex items-center gap-1.5 text-gray-300 hover:text-[#67ff8f] transition-colors"
           >
             <Star size={14} className="text-amber-400 fill-amber-400" />
-            <span className="font-bold text-white">14.8k+</span>
-            <span>GitHub Stars</span>
+            <span className="font-bold text-white">{ecosystemStats.maijiedPublicRepos}</span>
+            <span>@Maijied public repos</span>
           </a>
           <span className="text-white/20 hidden sm:inline">•</span>
-          <div className="flex items-center gap-1.5 text-gray-300">
-            <DownloadCloud size={14} className="text-[#38bdf8]" />
-            <span className="font-bold text-white">85,000+</span>
-            <span>Global Installs</span>
-          </div>
-          <span className="text-white/20 hidden sm:inline">•</span>
-          <div className="flex items-center gap-1.5 text-gray-300">
+          <a
+            href="https://github.com/Maijied"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-gray-300 hover:text-[#67ff8f] transition-colors"
+          >
             <Users size={14} className="text-purple-400" />
-            <span className="font-bold text-white">12,000+</span>
-            <span>Systems Engineers</span>
-          </div>
+            <span className="font-bold text-white">{ecosystemStats.maijiedFollowers}</span>
+            <span>@Maijied followers</span>
+          </a>
+          <span className="text-white/20 hidden sm:inline">•</span>
+          <a
+            href="https://github.com/Lorapok"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-gray-300 hover:text-[#67ff8f] transition-colors"
+          >
+            <DownloadCloud size={14} className="text-[#38bdf8]" />
+            <span className="font-bold text-white">{ecosystemStats.lorapokPublicRepos}</span>
+            <span>@Lorapok public repos</span>
+          </a>
           <span className="text-white/20 hidden sm:inline">•</span>
           <div className="flex items-center gap-1.5 text-[#67ff8f]">
             <ShieldCheck size={14} />
@@ -175,7 +187,7 @@ export default function HomePage() {
             className="flex items-center gap-2 bg-[#67ff8f] text-[#0a0a0f] px-6 py-3.5 rounded-xl font-bold hover:bg-[#52cc72] transition-all shadow-[0_0_25px_rgba(103,255,143,0.3)] hover:scale-[1.02] active:scale-[0.98]"
           >
             <Sparkles size={18} />
-            <span>Explore 42+ Products</span>
+            <span>Explore Products</span>
             <ArrowRight size={18} />
           </Link>
 
@@ -199,10 +211,7 @@ export default function HomePage() {
             className="flex items-center gap-2 bg-gradient-to-r from-purple-500/15 to-purple-600/10 border border-purple-500/30 text-purple-200 hover:text-white px-5 py-3.5 rounded-xl font-semibold hover:bg-purple-500/20 transition-all backdrop-blur-md hover:scale-[1.02] active:scale-[0.98]"
           >
             <Zap size={18} className="text-purple-400" />
-            <span>Research Journal</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/30 text-white font-bold">
-              9 LIVE
-            </span>
+            <span>Product Notes</span>
           </Link>
 
           <Link
@@ -210,7 +219,7 @@ export default function HomePage() {
             className="flex items-center gap-2 bg-white/5 border border-white/10 text-white px-5 py-3.5 rounded-xl font-semibold hover:bg-white/10 transition-all backdrop-blur-md"
           >
             <Bot size={18} className="text-[#38bdf8]" />
-            <span>240+ Agents</span>
+            <span>{ecosystemStats.agentSkillDefinitions} Agent Skills</span>
           </Link>
 
           <a
@@ -238,11 +247,11 @@ export default function HomePage() {
           viewport={{ once: true }}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-6xl mx-auto"
         >
-          <StatsCounter label="Open-Source Products" value={ecosystemStats.totalProducts} suffix="+" />
-          <StatsCounter label="Autonomous Agents" value={ecosystemStats.totalAgents} suffix="+" />
-          <StatsCounter label="Research Treatises" value={9} suffix="+" />
-          <StatsCounter label="APIs Catalogued" value={ecosystemStats.apisCatalogued} suffix="+" />
-          <StatsCounter label="Global Marketplaces" value={ecosystemStats.marketplaces} />
+          <StatsCounter label="@Maijied public repos" value={ecosystemStats.maijiedPublicRepos} />
+          <StatsCounter label="@Maijied followers" value={ecosystemStats.maijiedFollowers} />
+          <StatsCounter label="@Lorapok public repos" value={ecosystemStats.lorapokPublicRepos} />
+          <StatsCounter label="Loragent skill definitions" value={ecosystemStats.agentSkillDefinitions} />
+          <StatsCounter label="Distribution platforms" value={ecosystemStats.marketplaces} />
         </motion.div>
       </section>
 
@@ -258,13 +267,13 @@ export default function HomePage() {
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-mono text-[#67ff8f] uppercase tracking-wider mb-2">
                 <span className="w-2 h-2 rounded-full bg-[#67ff8f] animate-ping" />
-                <BookOpen size={14} /> LoLaBo Autonomous Research Journal
+                <BookOpen size={14} /> LoLaBo Product Notes
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-                Peer-Reviewed Systems Treatises
+                Notes on real repositories
               </h2>
               <p className="text-gray-400 max-w-2xl text-sm sm:text-base mt-2 leading-relaxed">
-                Empirical distributed systems investigations, NUMA benchmark audits, and micro-architectural specifications synthesized autonomously and verified with formal citations.
+                Short notes on public Lorapok and Maijied repositories: what each project is, the language GitHub reports, and the live or source link.
               </p>
             </div>
 
@@ -273,7 +282,7 @@ export default function HomePage() {
                 to="/blog"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--lp-accent,#67ff8f)] text-black font-bold text-xs hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(103,255,143,0.25)]"
               >
-                <span>Explore All 9 Dispatches</span>
+                <span>Read the notes</span>
                 <ArrowRight size={15} />
               </Link>
               <a
@@ -332,8 +341,12 @@ export default function HomePage() {
 
                     <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-gray-400">
                       <div className="flex items-center gap-2">
-                        <span className="text-base">{post.author?.avatar || "🧬"}</span>
-                        <span className="text-gray-300 text-[11px] truncate max-w-[110px]">{post.author?.name || "LoLaBo Author"}</span>
+                        {typeof post.author?.avatar === "string" && post.author.avatar.startsWith("/") ? (
+                          <img src={post.author.avatar} alt="" className="w-5 h-5 rounded-full object-cover border border-white/20" />
+                        ) : (
+                          <span className="text-base">🧬</span>
+                        )}
+                        <span className="text-gray-300 text-[11px] truncate max-w-[110px]">{post.author?.name || "Mohammad Maizied Hasan Majumder"}</span>
                       </div>
                       <div className="flex items-center gap-2 text-[11px]">
                         {citationsCount > 0 && (
@@ -353,6 +366,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      {newProjects.length > 0 && (
+        <section className="px-4 max-w-7xl mx-auto w-full">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#67ff8f] uppercase tracking-wider mb-1">
+                <Sparkles size={14} /> Added from public repositories
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">New products</h2>
+              <p className="text-gray-400">Recent catalog additions with images taken from each project's own repo or site.</p>
+            </div>
+            <Link to="/projects" className="text-[#67ff8f] hover:underline flex items-center gap-1 mt-4 md:mt-0 font-mono text-sm">
+              View all products <ArrowRight size={16} />
+            </Link>
+          </div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {newProjects.map(project => (
+              <motion.div key={project.name} variants={itemVariants}>
+                <Card project={project} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+      )}
+
       {/* ─── Featured Products ─── */}
       <section className="px-4 max-w-7xl mx-auto w-full">
         <div className="flex flex-col md:flex-row justify-between items-end mb-10">
@@ -364,7 +407,7 @@ export default function HomePage() {
             <p className="text-gray-400">Our most popular and impactful open-source creations.</p>
           </div>
           <Link to="/projects" className="text-[#67ff8f] hover:underline flex items-center gap-1 mt-4 md:mt-0 font-mono text-sm">
-            View All 42+ Products <ArrowRight size={16} />
+            View all products <ArrowRight size={16} />
           </Link>
         </div>
         <motion.div 
@@ -400,7 +443,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             {[
               { name: "SeeYou SEO", sub: "seeyou.lorapok.tech", url: "https://seeyou.lorapok.tech/", tag: "iCanSeeYou" },
-              { name: "Atlas Console", sub: "atlas.lorapok.tech", url: "https://atlas.lorapok.tech/", tag: "2.1k APIs" },
+              { name: "Atlas Console", sub: "atlas.lorapok.tech", url: "https://atlas.lorapok.tech/", tag: "API directory" },
               { name: "Cursor Monitor", sub: "cursor.lorapok.tech", url: "https://cursor.lorapok.tech/", tag: "Live Limits" },
               { name: "Loragent AI", sub: "loragent.lorapok.tech", url: "https://loragent.lorapok.tech/", tag: "Multi-Agent" },
               { name: "ReportKit Stack", sub: "reportkit.lorapok.tech", url: "https://reportkit.lorapok.tech/", tag: "Reporting Engine" },
@@ -445,11 +488,11 @@ export default function HomePage() {
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Autonomous Agents & Skills</h2>
             <p className="text-gray-400 max-w-xl">
-              Over 240+ specialized intelligence units, autonomous formations, and deterministic skill modules ready for CLI and MCP summon.
+              {ecosystemStats.agentSkillDefinitions} agent skill definitions shipped in the Loragent catalog, ready to summon from the CLI or an MCP client.
             </p>
           </div>
           <Link to="/agents" className="text-[#67ff8f] hover:underline flex items-center gap-1.5 mt-4 md:mt-0 font-mono text-sm">
-            Explore All 240+ Units <ArrowRight size={16} />
+            Explore the skill catalog <ArrowRight size={16} />
           </Link>
         </div>
 

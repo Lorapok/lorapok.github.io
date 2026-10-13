@@ -42,8 +42,8 @@ const admin = __importStar(require("firebase-admin"));
 const collector_1 = require("./collector");
 const writer_1 = require("./writer");
 const imageGen_1 = require("./imageGen");
-const distributor_1 = require("./distributor");
 const validator_1 = require("./validator");
+const catalogPolicy_1 = require("./catalogPolicy");
 // ─── Environment Auto-loading ───
 try {
     const rootEnv = path.resolve(__dirname, '../.env');
@@ -176,6 +176,8 @@ function updateFeedsLocally(posts, baseDir) {
             { path: 'about', priority: '0.7', changefreq: 'monthly' },
             { path: 'changelog', priority: '0.6', changefreq: 'weekly' },
             { path: 'contact', priority: '0.5', changefreq: 'monthly' },
+            { path: 'privacy', priority: '0.4', changefreq: 'yearly' },
+            { path: 'terms', priority: '0.4', changefreq: 'yearly' },
         ];
         let rootSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
         for (const route of coreRoutes) {
@@ -192,7 +194,7 @@ function updateFeedsLocally(posts, baseDir) {
         fs.writeFileSync(path.join(rootDir, 'sitemap.xml'), rootSitemap, 'utf8');
         // 3. Blog RSS 2.0 Feed
         let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
-        rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>${blogBaseUrl}</link>\n  <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n  <atom:link href="${blogBaseUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
+        rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>${blogBaseUrl}</link>\n  <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n  <atom:link href="${blogBaseUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
         for (const p of posts.slice(0, 30)) {
             if (!p.slug)
                 continue;
@@ -270,13 +272,7 @@ async function runAgent() {
     try {
         // 0. Load active catalog for anti-duplication baseline
         const postsJsonPath = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
-        let currentPosts = [];
-        try {
-            if (fs.existsSync(postsJsonPath)) {
-                currentPosts = JSON.parse(fs.readFileSync(postsJsonPath, 'utf8'));
-            }
-        }
-        catch (err) { }
+        const currentPosts = (0, catalogPolicy_1.loadAllForDedup)();
         // 3. News Collection (with catalog duplicate exclusion)
         const news = await (0, collector_1.collectNews)(currentPosts);
         if (news.length === 0)
@@ -324,7 +320,8 @@ async function runAgent() {
         const newPost = {
             id: docId,
             ...blogPost,
-            status: 'published',
+            source: 'ai-agent',
+            status: 'draft',
             publishedAt: new Date().toISOString()
         };
         if (db) {
@@ -339,54 +336,13 @@ async function runAgent() {
                 triggerRequested: false
             }).catch(() => { });
         }
-        // Always persist to local catalog as well
-        console.log(`📝 [Local Catalog] Persisting post: ${blogPost.title}`);
-        const updatedPosts = [newPost, ...currentPosts.filter((p) => p.slug !== blogPost.slug)];
+        console.log(`📝 [Local Catalog] Archiving draft: ${blogPost.title}`);
+        (0, catalogPolicy_1.persistDraft)(newPost);
+        const publicNotes = (0, catalogPolicy_1.loadPublicPosts)();
         const dir = path.dirname(postsJsonPath);
-        // Ensure all posts have balanced code fences
-        for (const p of updatedPosts) {
-            if (p.content) {
-                const fences = (p.content.split('```').length - 1);
-                if (fences % 2 !== 0) {
-                    const footerMarker = '\n---\n*Authored autonomously';
-                    const footerIdx = p.content.lastIndexOf(footerMarker);
-                    if (footerIdx !== -1) {
-                        p.content = p.content.slice(0, footerIdx).trimEnd() + '\n```\n' + p.content.slice(footerIdx);
-                    }
-                    else {
-                        p.content = p.content.trimEnd() + '\n```\n';
-                    }
-                }
-            }
-        }
-        fs.writeFileSync(postsJsonPath, JSON.stringify(updatedPosts, null, 2), 'utf8');
-        console.log(`✅ Post persisted locally to ${postsJsonPath} (${updatedPosts.length} total posts)`);
-        // Update sitemaps & RSS feed
-        updateFeedsLocally(updatedPosts, dir);
-        // 9. Synchronized Social Distribution (Staged for live verification)
-        const webhookUrl = config.discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
-        const pendingBroadcastPath = path.resolve(__dirname, '.pending-broadcast.json');
-        const isBroadcastNow = process.argv.includes('--broadcast-now');
-        if (webhookUrl && webhookUrl.trim()) {
-            if (isBroadcastNow) {
-                console.log("📢 Immediate broadcast requested (--broadcast-now)...");
-                await (0, distributor_1.distributeSocially)(newPost, config.enabledSocials || ['discord'], webhookUrl);
-            }
-            else {
-                console.log("📋 Staging post for synchronized live broadcast (.pending-broadcast.json)...");
-                fs.writeFileSync(pendingBroadcastPath, JSON.stringify({
-                    slug: newPost.slug,
-                    title: newPost.title,
-                    post: newPost,
-                    enabledSocials: config.enabledSocials || ['discord'],
-                    stagedAt: new Date().toISOString()
-                }, null, 2), 'utf8');
-                console.log(`✅ Post staged for broadcast after production deployment is confirmed live (HTTP 200).`);
-            }
-        }
-        else {
-            console.log("ℹ️ [Discord Broadcast] Skipped: No DISCORD_WEBHOOK_URL configured in environment or Firestore.");
-        }
+        updateFeedsLocally(publicNotes, dir);
+        console.log(`✅ Draft archived. Public index still has ${publicNotes.length} manual notes.`);
+        console.log("ℹ️ Draft archived only. Discord broadcast stays off until a note is published as source=manual.");
         console.log("🎉 LoLaBo Agent run completed successfully!");
     }
     catch (e) {

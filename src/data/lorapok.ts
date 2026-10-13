@@ -28,10 +28,12 @@ export type Project = {
   category: ProjectCategory;
   language: string;
   featured?: boolean;
+  isNew?: boolean;
   image?: string;
   imageType?: "cover" | "icon";
   badge?: string;
   links: ProjectLink[];
+  ownerAvatar?: string;
 };
 
 export type SupportAddress = {
@@ -59,7 +61,7 @@ export const founder = {
   role: "Senior Software Engineer @ Shohoz",
   location: "Dhaka, Bangladesh",
   email: "mdshvo40@gmail.com",
-  bio: "Full Stack Systems Architect and open-source engineer building biological UI, sensory computing systems, and high-concurrency digital platforms. Leading infrastructure at Shohoz and directing 28+ open-source Lorapok products.",
+  bio: "Full Stack Systems Architect and open-source engineer building biological UI, sensory computing systems, and high-concurrency digital platforms. Senior Software Engineer at Shohoz and maintainer of the public Lorapok repositories.",
   links: {
     portfolio: "https://maijied.github.io/Maijied/",
     github: "https://github.com/Maijied",
@@ -128,8 +130,11 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "JavaScript",
     featured: true,
-    image: "/assets/projects/atlas-preview.png",
+    isNew: true,
+    badge: "New",
+    image: "/assets/projects/seeyou-cover.png",
     imageType: "cover",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/280749521?v=4",
     links: [
       { label: "Live", url: "https://seeyou.lorapok.tech/", icon: "web" },
       { label: "API", url: "https://seeyou-api.mdshuvo40.workers.dev/", icon: "server" },
@@ -143,7 +148,7 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "TypeScript",
     featured: true,
-    image: "/assets/projects/atlas-preview.png",
+    image: "/assets/projects/atlas-social.jpg",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://atlas.lorapok.tech/", icon: "web" },
@@ -370,19 +375,6 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "Lorapok Windows Activator",
-    tagline: "Windows utility reference",
-    description: "A neutral utility listing retained as part of the broader open-source catalog with a direct repository link.",
-    category: "Games/Utilities",
-    language: "Docs",
-    image: "/assets/projects/windows-activator.png",
-    imageType: "cover",
-    links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Windows-Activator/", icon: "web" },
-      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Windows-Activator", icon: "github" },
-    ],
-  },
-  {
     name: "Cursor Curse Monitor",
     tagline: "Live Cursor usage dashboard",
     description:
@@ -404,11 +396,11 @@ export const projects: Project[] = [
     name: "Loragent",
     tagline: "Enterprise multi-agent orchestration",
     description:
-      "Universal, enterprise-grade multi-agent orchestration framework with a 250-resource AI marketplace.",
+      "Multi-agent orchestration framework. The catalog on this site counts 224 skill definitions.",
     category: "AI",
     language: "JavaScript",
     featured: true,
-    image: "/assets/projects/loragent-banner.jpg",
+    image: "/assets/projects/loragent-social.png",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://loragent.lorapok.tech/", icon: "web" },
@@ -509,7 +501,7 @@ export const projects: Project[] = [
     category: "Desktop/Linux",
     language: "Python",
     featured: true,
-    image: "/assets/projects/aswitchi-hero.png",
+    image: "/assets/projects/aswitchi-social.jpg",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/AswitchI", icon: "github" },
@@ -542,21 +534,6 @@ export const projects: Project[] = [
     links: [
       { label: "Web", url: "https://maijied.github.io/Bab.La/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Bab.La", icon: "github" },
-    ],
-  },
-  {
-    name: "IrrigationPlanner",
-    tagline: "Full-stack visual irrigation design platform",
-    description:
-      "A professional, full-stack irrigation system design tool — plan, calculate hydraulic flow, and order your irrigation installation directly from an interactive canvas.",
-    category: "Developer Tools",
-    language: "TypeScript",
-    featured: true,
-    image: "/assets/projects/irrigation-planner.svg",
-    imageType: "cover",
-    links: [
-      { label: "Live", url: "https://irrigationplanner.craftechbd.com/", icon: "web" },
-      { label: "GitHub", url: "https://github.com/Lorapok/IrrigationPlanner", icon: "github" },
     ],
   },
   {
@@ -627,19 +604,6 @@ export const projects: Project[] = [
     links: [
       { label: "Web", url: "https://lorapok.github.io/LoraCon/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Lorapok/LoraCon", icon: "github" },
-    ],
-  },
-  {
-    name: "LoraBet",
-    tagline: "Sports analytics and probability engine",
-    description:
-      "Native Kotlin predictive analytics engine for modeling event probabilities and statistical performance vectors.",
-    category: "Mobile Apps",
-    language: "Kotlin",
-    image: "/assets/projects/lorabet-visual.svg",
-    imageType: "cover",
-    links: [
-      { label: "GitHub", url: "https://github.com/Lorapok/LoraBet", icon: "github" },
     ],
   },
   {
@@ -729,16 +693,159 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "Cursor Duplicator",
-    tagline: "Multi-instance Cursor IDE environment manager",
+    name: "dCursor",
+    tagline: "A second, isolated Cursor install",
     description:
-      "Enterprise developer tool for spinning up isolated, parallel Cursor AI development environments with separate keyrings, profiles, and extensions.",
+      "dCursor stands for duplicate Cursor: a standalone Debian package that runs a second Cursor instance with its own account, extensions, agent, MCP servers, and settings.",
     category: "Developer Tools",
-    language: "Shell",
+    language: "Python",
+    isNew: true,
+    badge: "New",
+    featured: true,
     image: "/assets/projects/dcursor-logo.png",
     imageType: "icon",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "GitHub", url: "https://github.com/Maijied/Cursor-Duplicator", icon: "github" },
+      { label: "GitHub", url: "https://github.com/Maijied/dCursor", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok Inventory System",
+    tagline: "Multi-tenant inventory and point of sale",
+    description:
+      "Multi-tenant inventory and point-of-sale for shops that sell serialised goods. One super admin provisions shops. Each shop gets its own subdomain, branding, and database.",
+    category: "Laravel/PHP",
+    language: "PHP",
+    isNew: true,
+    badge: "New",
+    featured: true,
+    image: "/assets/projects/inventory-og.png",
+    imageType: "cover",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Inventory-System/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Inventory-System", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok Sorcerer",
+    tagline: "Original-media discovery and Discord delivery",
+    description:
+      "A Lorapok Labs product for original-media discovery and Discord delivery, powered by the LoraMediaFinder engine.",
+    category: "Media",
+    language: "JavaScript",
+    isNew: true,
+    badge: "New",
+    featured: true,
+    image: "/assets/projects/sorcerer-logo.svg",
+    imageType: "icon",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Sorcerer/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Sorcerer", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok MindNode",
+    tagline: "Key-based encrypted notepad",
+    description:
+      "A key-based digital notepad. Notes are encrypted in the browser with the Web Crypto API (PBKDF2 and AES-GCM) before they leave the device. No accounts and no server-side keys.",
+    category: "Developer Tools",
+    language: "JavaScript",
+    isNew: true,
+    badge: "New",
+    featured: true,
+    image: "/assets/projects/mindnode-logo.svg",
+    imageType: "icon",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-MindNode/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-MindNode", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok Git Geek",
+    tagline: "Automated Git agent web platform",
+    description:
+      "Automated Git agent and web platform from the Lorapok Git Geek repository, with Azure Node handlers and optional Gemini or OpenAI features described in its README.",
+    category: "Developer Tools",
+    language: "TypeScript",
+    isNew: true,
+    badge: "New",
+    image: "/assets/projects/git-geek-cover.svg",
+    imageType: "cover",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Git-Geek", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Git-Geek", icon: "github" },
+    ],
+  },
+  {
+    name: "IntelliJ Lorapok",
+    tagline: "AI agent plugin for JetBrains",
+    description:
+      "Open-source AI agent IDE plugin for JetBrains, with multi-provider models, MCP, and sub-agent orchestration. The repository lists a public site and a JetBrains Marketplace vendor page.",
+    category: "Developer Tools",
+    language: "CSS",
+    isNew: true,
+    badge: "New",
+    image: "/assets/projects/intellij-lorapok-og.svg",
+    imageType: "cover",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Intellij-Lorapok/", icon: "web" },
+      { label: "Marketplace", url: "https://plugins.jetbrains.com/vendor/lorapok-labs", icon: "box" },
+      { label: "GitHub", url: "https://github.com/Maijied/Intellij-Lorapok", icon: "github" },
+    ],
+  },
+  {
+    name: "Lorapok Labs Bible",
+    tagline: "Brand guide and ecosystem site",
+    description:
+      "The public brand guide and website for the Lorapok Labs ecosystem, hosted from the Lorapok-Labs-Bible repository.",
+    category: "Developer Tools",
+    language: "TypeScript",
+    isNew: true,
+    badge: "New",
+    image: "/assets/projects/labs-bible-cover.svg",
+    imageType: "cover",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "Web", url: "https://maijied.github.io/Lorapok-Labs-Bible/", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Labs-Bible", icon: "github" },
+    ],
+  },
+  {
+    name: "Arduino Laser Stop",
+    tagline: "Gear motor stop with a photo resistor and laser",
+    description:
+      "Arduino Uno project that stops a gear motor using a motor driver, a photo resistor module, and a laser sensor.",
+    category: "Sensory & Hardware",
+    language: "Arduino",
+    isNew: true,
+    badge: "New",
+    image: "/assets/projects/arduino-laser-cover.svg",
+    imageType: "cover",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Arduino-gear-motor-stoping-mechanism-by-Photo-Resistor-Module-and-Laser-sensor", icon: "github" },
+    ],
+  },
+  {
+    name: "Smilo",
+    tagline: "Rust camera engine and creative studio",
+    description:
+      "Modular camera suite and studio engine written in Rust. The repository describes real-time filter graphs, smile-detection shutter triggers, lossless recording, and SDK bindings for desktop and web shells.",
+    category: "Sensory & Hardware",
+    language: "Rust",
+    isNew: true,
+    badge: "New",
+    featured: true,
+    image: "/assets/projects/smilo-logo.jpg",
+    imageType: "icon",
+    ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
+    links: [
+      { label: "GitHub", url: "https://github.com/Maijied/Smilo", icon: "github" },
     ],
   },
 ];

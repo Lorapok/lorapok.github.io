@@ -55,6 +55,7 @@ export const Card = (props: CardProps) => {
   const links = p.links || [];
   const image = props.image || props.project?.image;
   const badge = props.badge || props.project?.badge;
+  const ownerAvatar = props.project?.ownerAvatar;
   const onClick = props.onClick;
 
   // Determine whether this asset is an emblem icon or panoramic cover banner
@@ -169,6 +170,9 @@ export const Card = (props: CardProps) => {
       
       <div className="flex items-center justify-between mt-auto pt-4 border-t border-[rgba(255,255,255,0.06)]">
         <div className="flex items-center gap-2">
+          {ownerAvatar && (
+            <img src={ownerAvatar} alt="" className="w-5 h-5 rounded-full border border-white/20" />
+          )}
           <span className="w-2.5 h-2.5 rounded-full bg-[#67ff8f]/70 animate-pulse"></span>
           <span className="text-xs text-gray-400 font-medium">{language}</span>
         </div>

@@ -40,7 +40,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const admin = __importStar(require("firebase-admin"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const imageGen_1 = require("./imageGen");
 // ─── Environment Auto-loading ───
 try {
     const rootEnv = path.resolve(__dirname, '../.env');
@@ -215,13 +214,36 @@ async function exportBlogData() {
     else {
         console.log("ℹ️ Skipping Firestore query; maintaining existing local catalog.");
     }
-    // 3. Filter published posts and sort descending by publishedAt
-    let mergedPosts = Array.from(postMap.values())
-        .filter((p) => p.status === 'published')
+    // 3. Public index is manual notes only. Generated drafts stay in the archive.
+    const isPublicManualPost = (p) => p && p.source === 'manual' && (p.status || 'published') === 'published';
+    const allMerged = Array.from(postMap.values());
+    const archiveDir = path.join(__dirname, '../public/blog/archive');
+    const archivePath = path.join(archiveDir, 'ai-posts.json');
+    if (!fs.existsSync(archiveDir))
+        fs.mkdirSync(archiveDir, { recursive: true });
+    let archived = [];
+    if (fs.existsSync(archivePath)) {
+        try {
+            const prior = JSON.parse(fs.readFileSync(archivePath, 'utf8'));
+            if (Array.isArray(prior))
+                archived = prior;
+        }
+        catch {
+            archived = [];
+        }
+    }
+    const archiveMap = new Map();
+    for (const p of archived.concat(allMerged.filter((p) => !isPublicManualPost(p)))) {
+        const key = p.slug || p.id;
+        if (key)
+            archiveMap.set(key, p);
+    }
+    fs.writeFileSync(archivePath, JSON.stringify(Array.from(archiveMap.values()), null, 2), 'utf8');
+    let mergedPosts = allMerged
+        .filter(isPublicManualPost)
         .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-    // 4. Strict 100% Online AI Flux Normalization & Zero-Duplicate Guarantee
-    const { posts: normalizedPosts, updatedCount } = (0, imageGen_1.normalizePostImages)(mergedPosts);
-    mergedPosts = normalizedPosts;
+    // Manual notes keep their repository covers. Do not replace them with generated images.
+    const updatedCount = 0;
     // If any posts had their visual normalized and Firestore is connected, sync back to Firestore
     if (db && updatedCount > 0) {
         console.log(`🔥 [Export] Syncing ${updatedCount} normalized AI Flux cover images back to Cloud Firestore...`);
@@ -257,7 +279,7 @@ async function exportBlogData() {
         fs.mkdirSync(dir, { recursive: true });
     }
     fs.writeFileSync(outputPath, JSON.stringify(mergedPosts, null, 2), 'utf8');
-    console.log(`✅ Consolidated and saved ${mergedPosts.length} posts to ${outputPath} (100% unique online AI visuals guaranteed)`);
+    console.log(`✅ Consolidated and saved ${mergedPosts.length} manual notes to ${outputPath}`);
     // 6. Update Sitemaps and RSS Feed
     updateSitemapsAndRss(mergedPosts);
 }
@@ -302,6 +324,8 @@ function updateSitemapsAndRss(posts) {
         { path: 'about', priority: '0.7', changefreq: 'monthly' },
         { path: 'changelog', priority: '0.6', changefreq: 'weekly' },
         { path: 'contact', priority: '0.5', changefreq: 'monthly' },
+        { path: 'privacy', priority: '0.4', changefreq: 'yearly' },
+        { path: 'terms', priority: '0.4', changefreq: 'yearly' },
     ];
     let rootSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     for (const route of coreRoutes) {
@@ -322,7 +346,7 @@ function updateSitemapsAndRss(posts) {
     let rss = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n  <channel>\n`;
     rss += `    <title>LoLaBo — Lorapok Labs Blog</title>\n`;
     rss += `    <link>${blogBaseUrl}</link>\n`;
-    rss += `    <description>Autonomous AI-curated tech insights, system architecture deep-dives, and research by Lorapok Labs.</description>\n`;
+    rss += `    <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>\n`;
     rss += `    <language>en-us</language>\n`;
     rss += `    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
     rss += `    <atom:link href="${blogBaseUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
@@ -337,7 +361,7 @@ function updateSitemapsAndRss(posts) {
         rss += `      <link>${postUrl}</link>\n`;
         rss += `      <guid isPermaLink="true">${postUrl}</guid>\n`;
         rss += `      <pubDate>${pubDate}</pubDate>\n`;
-        rss += `      <author>agent@lorapok.labs (${escapeXml(post.author?.name || 'LoLaBo AI')})</author>\n`;
+        rss += `      <author>lorapokdev@gmail.com (${escapeXml(post.author?.name || 'Mohammad Maizied Hasan Majumder')})</author>\n`;
         rss += `      <description>${escapeXml(post.excerpt || post.title)}</description>\n`;
         rss += `${categories}\n`;
         rss += `    </item>\n`;

@@ -8,6 +8,7 @@ import { collectNews } from './collector';
 import { writeBlogPost } from './writer';
 import { keyManager } from './keyManager';
 import { validateDuplicatePost } from './validator';
+import { loadAllForDedup, loadPublicPosts, persistDraft } from './catalogPolicy';
 
 // Auto-load environment
 try {
@@ -64,7 +65,7 @@ function updateSitemapsAndRss(posts: any[]) {
   fs.writeFileSync(path.join(sitemapDir, 'sitemap.xml'), sitemapXml, 'utf8');
 
   let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
-  rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
+  rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
   for (const p of posts.slice(0, 20)) {
     if (!p.slug) continue;
     rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>https://lorapok.tech/blog/${p.slug}</link>\n    <guid>https://lorapok.tech/blog/${p.slug}</guid>\n    <pubDate>${new Date(p.publishedAt || Date.now()).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt || p.title}]]></description>\n  </item>\n`;
@@ -79,14 +80,8 @@ async function runCatchUp(targetPostCount = 2) {
   console.log(`🎯 Target posts to generate: ${targetPostCount}`);
   console.log("=================================================================\n");
 
-  let currentPosts: any[] = [];
-  if (fs.existsSync(POSTS_JSON_PATH)) {
-    try {
-      currentPosts = JSON.parse(fs.readFileSync(POSTS_JSON_PATH, 'utf8'));
-    } catch {}
-  }
-
-  console.log(`📚 Initial Catalog Size: ${currentPosts.length} posts.`);
+  let currentPosts = loadAllForDedup();
+  console.log(`📚 Dedup catalog size: ${currentPosts.length} posts (public notes + archive drafts).`);
   let generatedCount = 0;
 
   for (let i = 0; i < targetPostCount; i++) {
@@ -136,12 +131,14 @@ async function runCatchUp(targetPostCount = 2) {
     const postEntry = {
       id: blogPost.slug,
       ...blogPost,
-      publishedAt: new Date(Date.now() - (targetPostCount - 1 - i) * 3600000).toISOString() // realistically distribute
+      source: 'ai-agent',
+      status: 'draft',
+      publishedAt: new Date(Date.now() - (targetPostCount - 1 - i) * 3600000).toISOString()
     };
 
-    currentPosts.unshift(postEntry);
-    fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(currentPosts, null, 2), 'utf8');
-    updateSitemapsAndRss(currentPosts);
+    persistDraft(postEntry);
+    currentPosts = loadAllForDedup();
+    updateSitemapsAndRss(loadPublicPosts());
     generatedCount++;
 
     console.log(`✅ Successfully synthesized and cataloged post #${generatedCount}:`);

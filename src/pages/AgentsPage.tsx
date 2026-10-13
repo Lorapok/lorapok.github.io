@@ -111,7 +111,7 @@ export default function AgentsPage() {
     <>
       <SEOHead
         title="Autonomous Agents & Skills"
-        description="Explore 240+ specialized intelligence units, autonomous formations, and deterministic skill modules powering the Loragent ecosystem."
+        description="Browse the 224 agent skill definitions in the Loragent catalog, grouped by formation."
         path="/agents"
       />
 
@@ -304,7 +304,7 @@ export default function AgentsPage() {
               No agents or skills match your search
             </h3>
             <p className="text-sm text-gray-400 max-w-md mb-6">
-              Try adjusting your query or resetting filters to browse all 240+ autonomous units.
+              Try adjusting your query or resetting filters to browse the skill catalog.
             </p>
             <button
               onClick={() => {
@@ -327,7 +327,7 @@ export default function AgentsPage() {
             Deploy Multi-Agent Systems in Your Terminal
           </h2>
           <p className="text-gray-400 text-sm max-w-xl mx-auto mb-8 leading-relaxed">
-            All 240+ agents and skills can be summoned dynamically using the Loragent CLI, Claude Plugin, Cursor rules, or MCP server integration.
+            Skill definitions in this catalog can be summoned with the Loragent CLI, a Claude plugin, Cursor rules, or an MCP server.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a

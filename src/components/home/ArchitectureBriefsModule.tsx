@@ -140,7 +140,7 @@ export const ArchitectureBriefsModule: React.FC = () => {
             </h2>
 
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed max-w-xl">
-              Join <strong className="text-white font-semibold">12,000+ systems engineers</strong> and autonomous agent architects. Every Saturday morning, get rigorous, peer-reviewed engineering analyses on kernel bypasses, eBPF telemetry, distributed consensus, and multi-agent topologies.
+              A Saturday note about the public Lorapok repositories: what shipped, which repo it lives in, and how to try it. No inflated audience counts.
             </p>
 
             {/* Value Highlights */}
@@ -148,16 +148,16 @@ export const ArchitectureBriefsModule: React.FC = () => {
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/5">
                 <FileText size={18} className="text-[#67ff8f] shrink-0 mt-0.5" />
                 <div className="text-xs">
-                  <div className="font-bold text-white">Instant Bonus</div>
-                  <div className="text-gray-400 text-[11px] mt-0.5">3,353-word eBPF Whitepaper unlocked</div>
+                  <div className="font-bold text-white">Repository notes</div>
+                  <div className="text-gray-400 text-[11px] mt-0.5">Written from public GitHub READMEs</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/5">
                 <Zap size={18} className="text-[#38bdf8] shrink-0 mt-0.5" />
                 <div className="text-xs">
-                  <div className="font-bold text-white">Zero Noise</div>
-                  <div className="text-gray-400 text-[11px] mt-0.5">100% production code, ASTs & benchmarks</div>
+                  <div className="font-bold text-white">Source linked</div>
+                  <div className="text-gray-400 text-[11px] mt-0.5">Every note points at a public repository</div>
                 </div>
               </div>
 
@@ -197,20 +197,20 @@ export const ArchitectureBriefsModule: React.FC = () => {
 
                     <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-left space-y-3">
                       <div className="flex items-center gap-2 text-xs font-mono text-[#38bdf8] uppercase tracking-wider font-bold">
-                        <BookOpen size={14} /> Unlocked Architecture Whitepaper
+                        <BookOpen size={14} /> Product notes
                       </div>
                       <h4 className="text-sm font-bold text-white leading-snug">
-                        eBPF Kernel Probes vs. User-Space Telemetry: Formal Micro-Architectural Analysis
+                        Read the public repository notes
                       </h4>
                       <p className="text-xs text-gray-400">
-                        3,353-word empirical benchmark with 6 peer-reviewed citations, NUMA latency charts, and memory layout proofs.
+                        Each note describes a real GitHub repository, its language, and where to open the source.
                       </p>
                       
                       <Link
-                        to="/blog/ebpf-kernel-probes-vs-user-space-telemetry-formal-micro-architectural-analysis-and-concurrency-limits"
+                        to="/blog"
                         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#67ff8f] text-black font-bold text-xs hover:bg-[#52cc72] transition-colors shadow-md"
                       >
-                        <span>Read Full Treatise Online</span>
+                        <span>Open the lab notes</span>
                         <ArrowRight size={14} />
                       </Link>
                     </div>
@@ -241,7 +241,7 @@ export const ArchitectureBriefsModule: React.FC = () => {
                         </span>
                       </div>
                       <p className="text-xs text-gray-400">
-                        Enter your developer email to receive weekly architectural deep dives and unlock the latest treatise.
+                        Enter your email to get a Saturday note about the public repositories.
                       </p>
                     </div>
 
@@ -307,7 +307,7 @@ export const ArchitectureBriefsModule: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <span>Subscribe & Unlock Whitepaper</span>
+                          <span>Subscribe</span>
                           <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </>
                       )}

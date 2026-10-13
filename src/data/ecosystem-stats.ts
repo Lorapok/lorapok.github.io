@@ -1,15 +1,13 @@
+/** Public GitHub snapshot, 14 Oct 2026. Do not replace these with estimated reach. */
 export const ecosystemStats = {
-  totalProducts: 42,
-  totalAgents: 242,
-  ecosystemStars: 14800,
-  totalDownloads: 85000,
-  activeEngineers: 12000,
-  npmPackages: 5,
+  snapshotDate: "14 Oct 2026",
+  maijiedPublicRepos: 141,
+  maijiedFollowers: 27,
+  lorapokPublicRepos: 7,
+  lorapokFollowers: 7,
+  /** Skill definitions counted in src/data/agents-index.json. */
+  agentSkillDefinitions: 224,
   marketplaces: 7,
-  githubRepos: 133,
-  apisCatalogued: 2100,
-  categories: 11,
-  productHuntLaunch: "2026-05-06",
   languages: [
     "TypeScript",
     "JavaScript",

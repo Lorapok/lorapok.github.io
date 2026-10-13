@@ -42,6 +42,7 @@ const collector_1 = require("./collector");
 const writer_1 = require("./writer");
 const keyManager_1 = require("./keyManager");
 const validator_1 = require("./validator");
+const catalogPolicy_1 = require("./catalogPolicy");
 // Auto-load environment
 try {
     const localEnv = path.resolve(__dirname, '.env');
@@ -96,7 +97,7 @@ function updateSitemapsAndRss(posts) {
     sitemapXml += `</urlset>\n`;
     fs.writeFileSync(path.join(sitemapDir, 'sitemap.xml'), sitemapXml, 'utf8');
     let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
-    rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
+    rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
     for (const p of posts.slice(0, 20)) {
         if (!p.slug)
             continue;
@@ -110,14 +111,8 @@ async function runCatchUp(targetPostCount = 2) {
     console.log("⚡ [LoLaBo Catch-Up Engine] Starting missing post generation batch...");
     console.log(`🎯 Target posts to generate: ${targetPostCount}`);
     console.log("=================================================================\n");
-    let currentPosts = [];
-    if (fs.existsSync(POSTS_JSON_PATH)) {
-        try {
-            currentPosts = JSON.parse(fs.readFileSync(POSTS_JSON_PATH, 'utf8'));
-        }
-        catch { }
-    }
-    console.log(`📚 Initial Catalog Size: ${currentPosts.length} posts.`);
+    let currentPosts = (0, catalogPolicy_1.loadAllForDedup)();
+    console.log(`📚 Dedup catalog size: ${currentPosts.length} posts (public notes + archive drafts).`);
     let generatedCount = 0;
     for (let i = 0; i < targetPostCount; i++) {
         console.log(`\n-------------------------------------------------------------`);
@@ -159,11 +154,13 @@ async function runCatchUp(targetPostCount = 2) {
         const postEntry = {
             id: blogPost.slug,
             ...blogPost,
-            publishedAt: new Date(Date.now() - (targetPostCount - 1 - i) * 3600000).toISOString() // realistically distribute
+            source: 'ai-agent',
+            status: 'draft',
+            publishedAt: new Date(Date.now() - (targetPostCount - 1 - i) * 3600000).toISOString()
         };
-        currentPosts.unshift(postEntry);
-        fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(currentPosts, null, 2), 'utf8');
-        updateSitemapsAndRss(currentPosts);
+        (0, catalogPolicy_1.persistDraft)(postEntry);
+        currentPosts = (0, catalogPolicy_1.loadAllForDedup)();
+        updateSitemapsAndRss((0, catalogPolicy_1.loadPublicPosts)());
         generatedCount++;
         console.log(`✅ Successfully synthesized and cataloged post #${generatedCount}:`);
         console.log(`   📌 Title: "${blogPost.title}"`);

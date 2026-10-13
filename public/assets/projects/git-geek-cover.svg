@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Git Geek">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="100%" stop-color="#04060a"/>
+    </linearGradient>
+    <radialGradient id="r" cx="80%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#67ff8f" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#67ff8f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <rect width="1200" height="630" fill="url(#r)"/>
+  <g fill="none" stroke="#67ff8f" stroke-opacity="0.18" stroke-width="1">
+    <path d="M0 420h1200M0 210h1200M240 0v630M960 0v630"/>
+  </g>
+  <rect x="72" y="72" width="180" height="8" rx="4" fill="#67ff8f"/>
+  <text x="72" y="180" fill="#e8fff0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="64" font-weight="800">Git Geek</text>
+  <text x="72" y="250" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="28">Automated Git agent</text>
+  <text x="72" y="560" fill="#8aa396" font-family="ui-monospace, monospace" font-size="20">Lorapok Labs · public repository</text>
+</svg>

@@ -42,6 +42,7 @@ import {
   type Project,
   type ProjectCategory,
 } from "./data/lorapok";
+import { sendContactMail } from "./lib/contactMail";
 import "./App.css";
 import DevModePortal from "./dev/DevModePortal";
 
@@ -51,7 +52,6 @@ const devBadgeImage = "/assets/lorapok-dev-logo.png";
 const founderImage = "/assets/founder-avatar.jpg";
 const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/portfolio/bkash.jpg";
 const gravatarUrl = "https://gravatar.com/lorapok";
-const mailProxyUrl = import.meta.env.VITE_MAIL_PROXY_URL as string | undefined;
 const contactTargets = [
   {
     id: "labs",
@@ -165,51 +165,23 @@ function App() {
 
   const submitContactForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!mailProxyUrl) {
-      setContactStatus("error");
-      setContactStatusText("Mail Proxy is not configured. Transmission aborted.");
-      return;
-    }
-
-
-
     setContactStatus("sending");
     setContactStatusText("Sending your message...");
 
     try {
-      // Use custom Mail Proxy (Cloudflare/Resend) for premium HTML design
-      if (!mailProxyUrl) {
-        throw new Error("Mail Proxy is not configured.");
-      }
-
-      const response = await fetch(mailProxyUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: contactName || "Visitor",
-          email: contactEmail,
-          message: contactMessage,
-          route: activeContactTarget.label,
-        }),
+      const result = await sendContactMail({
+        name: contactName || "Visitor",
+        email: contactEmail,
+        subject: contactSubject,
+        message: contactMessage,
+        route: activeContactTarget.label,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Mail Proxy Error:", errorData);
-        throw new Error("Transmission failed. Please try again later.");
-      }
-
-      const result = (await response.json()) as { message?: string; success?: boolean; id?: string };
-
-      // Success if response is OK and (Resend ID exists or Proxy confirms success)
-      const isSuccessful = response.ok && (result.success || result.id || mailProxyUrl);
-
-      if (!isSuccessful) {
-        throw new Error(result.message || "Message could not be sent.");
-      }
-
       setContactStatus("success");
-      setContactStatusText(`Message sent to ${activeContactTarget.recipientLabel}.`);
+      setContactStatusText(
+        result.via === "mailto"
+          ? `Mail app opened for ${activeContactTarget.recipientLabel}.`
+          : `Message sent to ${activeContactTarget.recipientLabel}.`,
+      );
       setContactName("");
       setContactEmail("");
       setContactSubject("");

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Lorapok Labs Bible">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10180f"/>
+      <stop offset="100%" stop-color="#04060a"/>
+    </linearGradient>
+    <radialGradient id="r" cx="20%" cy="80%" r="70%">
+      <stop offset="0%" stop-color="#67ff8f" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#67ff8f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <rect width="1200" height="630" fill="url(#r)"/>
+  <rect x="72" y="72" width="180" height="8" rx="4" fill="#67ff8f"/>
+  <text x="72" y="180" fill="#e8fff0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="64" font-weight="800">Labs Bible</text>
+  <text x="72" y="250" fill="#67ff8f" font-family="ui-monospace, monospace" font-size="28">Brand guide and ecosystem site</text>
+  <text x="72" y="560" fill="#8aa396" font-family="ui-monospace, monospace" font-size="20">Lorapok Labs · public repository</text>
+</svg>

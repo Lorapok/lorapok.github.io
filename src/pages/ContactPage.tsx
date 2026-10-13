@@ -2,18 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MessageSquare, Send, Code2, BriefcaseBusiness, Briefcase, Globe } from 'lucide-react';
 import { brand, founder } from '../data/lorapok';
+import { sendContactMail } from '../lib/contactMail';
 
 const contactTargets = [
   {
     id: 'labs',
     title: 'Contact Lorapok Labs',
     description: 'For business inquiries, partnerships, or open-source collaboration.',
+    route: 'Contact Lorapok Labs',
     icon: Briefcase
   },
   {
     id: 'founder',
     title: 'Contact the Founder',
     description: 'For personal inquiries, speaking engagements, or direct messages.',
+    route: 'Contact Founder',
     icon: Mail
   }
 ];
@@ -23,6 +26,8 @@ export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorText, setErrorText] = useState('');
+  const [successText, setSuccessText] = useState('Thanks for reaching out. We will reply to the address you entered.');
 
   useEffect(() => {
     document.title = `Contact | ${brand.name}`;
@@ -32,16 +37,31 @@ export default function ContactPage() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorText('');
     setIsSubmitting(true);
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const target = contactTargets.find((item) => item.id === activeTarget) ?? contactTargets[0];
+    try {
+      const result = await sendContactMail({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        route: target.route,
+      });
       setIsSuccess(true);
+      setSuccessText(
+        result.via === "mailto"
+          ? "Your mail app opened with the message. Send it from there if the window appeared."
+          : "Thanks for reaching out. We will reply to the address you entered."
+      );
       setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setIsSuccess(false), 5000);
-    }, 1500);
+    } catch (error) {
+      setErrorText(error instanceof Error ? error.message : "Message could not be sent.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -52,23 +72,22 @@ export default function ContactPage() {
     >
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">Get in Touch</h1>
-        <p className="text-lg text-gray-400">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+        <p className="text-lg text-gray-400">Send a message to Lorapok Labs or the founder. The form delivers to the matching inbox.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
-        {/* Sidebar / Targets */}
         <div className="md:col-span-4 space-y-4">
           {contactTargets.map((target) => {
             const Icon = target.icon;
             const isActive = activeTarget === target.id;
-            
+
             return (
               <button
                 key={target.id}
                 onClick={() => setActiveTarget(target.id)}
                 className={`w-full text-left p-6 rounded-2xl border transition-all duration-200 ${
-                  isActive 
-                    ? 'bg-white/10 border-[#67ff8f]/50' 
+                  isActive
+                    ? 'bg-white/10 border-[#67ff8f]/50'
                     : 'bg-white/5 border-white/10 hover:bg-white/[0.07]'
                 }`}
               >
@@ -104,6 +123,9 @@ export default function ContactPage() {
                   <MessageSquare size={16} className="text-[#67ff8f]" /> Telegram (@Maijied)
                 </a>
               )}
+              <a href="mailto:lorapokdev@gmail.com" className="flex items-center gap-2 hover:text-white transition-colors">
+                <Mail size={16} className="text-[#67ff8f]" /> lorapokdev@gmail.com
+              </a>
               {founder.email && (
                 <a href={`mailto:${founder.email}`} className="flex items-center gap-2 hover:text-white transition-colors">
                   <Mail size={16} className="text-[#67ff8f]" /> Direct Founder Email
@@ -113,10 +135,9 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* Form */}
         <div className="md:col-span-8 bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-md">
           {isSuccess ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-16 text-center"
@@ -124,8 +145,15 @@ export default function ContactPage() {
               <div className="w-16 h-16 bg-[#67ff8f]/20 text-[#67ff8f] rounded-full flex items-center justify-center mb-6">
                 <MessageSquare size={32} />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Message Sent!</h2>
-              <p className="text-gray-400">Thanks for reaching out. We'll get back to you shortly.</p>
+              <h2 className="text-2xl font-bold text-white mb-2">Message ready</h2>
+              <p className="text-gray-400">{successText}</p>
+              <button
+                type="button"
+                onClick={() => setIsSuccess(false)}
+                className="mt-6 text-sm font-mono text-[#67ff8f] hover:underline"
+              >
+                Send another message
+              </button>
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -140,7 +168,7 @@ export default function ContactPage() {
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#67ff8f]/50 focus:ring-1 focus:ring-[#67ff8f]/50 transition-all"
-                    placeholder="John Doe"
+                    placeholder="Your name"
                   />
                 </div>
                 <div className="space-y-2">
@@ -153,11 +181,11 @@ export default function ContactPage() {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#67ff8f]/50 focus:ring-1 focus:ring-[#67ff8f]/50 transition-all"
-                    placeholder="john@example.com"
+                    placeholder="you@example.com"
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <label htmlFor="subject" className="text-sm font-medium text-gray-300">Subject</label>
                 <input
@@ -185,6 +213,10 @@ export default function ContactPage() {
                   placeholder="Write your message here..."
                 />
               </div>
+
+              {errorText && (
+                <p className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">{errorText}</p>
+              )}
 
               <button
                 type="submit"
