@@ -18,7 +18,8 @@ export type TeamDepartment =
   | "AI Research & Agents"
   | "Clinical & Sensory Tech"
   | "Brand Strategy & DevRel"
-  | "Quality Assurance";
+  | "Quality Assurance"
+  | "3D Art & Design";
 
 export interface TeammateProfile {
   id: string; // URL-safe slug
@@ -648,6 +649,82 @@ export const teamMembers: TeammateProfile[] = [
     status: "contributor",
     featured: true,
   },
+  {
+    id: "borshon-mondol",
+    name: "Borshon Mondol",
+    handle: "@BorshonMondol",
+    role: "3D Artist & Designer",
+    department: "3D Art & Design",
+    avatar: "/assets/team/borshon-mondol.jpg",
+    location: "Dhaka, Bangladesh",
+    email: "borshonm563@gmail.com",
+    tagline: "Figurative sculpture, kinetic-illusion installations, and craft-rooted object making.",
+    bio: "BFA candidate in 3D Art and Design at Jagannath University. Studio practice bridges figurative sculpture, kinetic-illusion installations, and craft-rooted object making, with a focus on material research, structural armature fabrication, anatomical modelling, and spatial narrative.",
+    cvSummary:
+      "Works with materials in motion — paint, clay, thread, metal — to hold duration open for the viewer to measure. Studio profile and CV are on her public site.",
+    skills: [
+      "Figurative modelling",
+      "Animal anatomy",
+      "Clay relief",
+      "Armature building",
+      "Mixed-media construction",
+      "Plaster and stone carving",
+      "Composite inlay",
+      "Terracotta surface treatment",
+      "Folk-art painting",
+      "Alpana-style ornament",
+      "Wood and bamboo craft",
+      "Maquette development",
+      "3D visualization",
+    ],
+    experience: [
+      {
+        role: "BFA Candidate, 3D Art and Design",
+        organization: "Faculty of Fine Arts, Jagannath University, Dhaka",
+        period: "September 2023 — Present",
+        description:
+          "Studio and coursework in sculptural engineering, spatial installation, material chemistry, anatomical modelling, and craft-led 3D design. Faculty advisor: Mohammad Jahidul Hoque, Assistant Professor.",
+        highlights: [
+          "FAS-4102: Kinetic Illusion Installations & Structural Armatures",
+          "FAS-3102 / 3103: Advanced Animal & Human Life Modelling",
+          "Subtractive stone, terracotta inlay, ceramic bas-relief, and Alpana folk painting",
+        ],
+      },
+      {
+        role: "The Weave of Memory and the Inner Cage",
+        organization: "Independent studio practice",
+        period: "2026",
+        description:
+          "Mixed-media sculpture and spatial installation — reclaimed textiles, wire armatures, and a canvas backdrop. An ascending helical sculpture investigating subconscious memory and protective psychological architectures.",
+      },
+      {
+        role: "The Frozen Liquidity",
+        organization: "Independent studio practice",
+        period: "2025 — 2026",
+        description:
+          "Mixed-media sculpture and installation — acrylic, wire armature, adhesive compounds, and canvas. A suspended paint can pours red and blue acrylic; the stream and splash are held as a single frozen kinetic sculpture.",
+      },
+    ],
+    education: [
+      {
+        degree: "Bachelor of Fine Arts, 3D Art and Design (candidate)",
+        institution: "Jagannath University, Dhaka, Bangladesh",
+        year: "September 2023 — Present (session 2023–2026)",
+      },
+    ],
+    achievements: [
+      "Annual Faculty Art Exhibition — Faculty of Fine Arts Gallery, Jagannath University, Dhaka (Group, 2024, 2025)",
+      "Departmental 3D Studio Showcase — Department of 3D Art and Design, Jagannath University, Dhaka (Group, 2023–2025)",
+      "Studio works listed on the public CV include Sleeping Dog Study, Cape Buffalo Head, Female Torso Study, Bird and Foliage Relief, Terracotta-Inlay Head Study, Alpana Pidi, painted Kula, and ceremonial painted vessel",
+    ],
+    social: {
+      linkedin: "https://www.linkedin.com/in/borshon-mondol-7ab4bb436/",
+      portfolio: "https://borshon.lorapok.tech/",
+    },
+    resumeUrl: "/assets/team/borshon-mondol-cv.pdf",
+    status: "contributor",
+    featured: true,
+  },
 ];
 
 export const teamDepartments: TeamDepartment[] = [
@@ -657,6 +734,7 @@ export const teamDepartments: TeamDepartment[] = [
   "Clinical & Sensory Tech",
   "Brand Strategy & DevRel",
   "Quality Assurance",
+  "3D Art & Design",
 ];
 
 export function getTeamByDepartment(dept: TeamDepartment): TeammateProfile[] {

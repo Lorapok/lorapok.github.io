@@ -601,7 +601,7 @@ export default function HomePage() {
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">The Minds Behind Lorapok</h2>
             <p className="text-gray-400 max-w-xl">
-              Systems architects, AI researchers, clinical specialists, speech pathologists, and creative storytellers collaborating on open technology.
+              Systems architects, AI researchers, clinical specialists, speech pathologists, 3D artists, and creative storytellers collaborating on open technology.
             </p>
           </div>
           <Link
