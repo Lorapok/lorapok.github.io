@@ -20,9 +20,12 @@ import {
   Cpu,
   Star,
   DownloadCloud,
-  Mail
+  Mail,
+  Palette,
+  Frame
 } from 'lucide-react';
-import { brand, philosophy, projects } from '../data/lorapok';
+import { brand, philosophy, projects, getCreatorWorks } from '../data/lorapok';
+import { SEOHead } from '../components/SEOHead';
 import { ecosystemStats } from '../data/ecosystem-stats';
 import { teamMembers } from '../data/team';
 import { StatsCounter } from '../components/ui/StatsCounter';
@@ -98,7 +101,32 @@ export default function HomePage() {
 
   const newProjects = projects.filter(p => p.isNew);
   const featuredProjects = projects.filter(p => p.featured && !p.isNew);
+  const creatorWorksPreview = getCreatorWorks().slice(0, 3);
   const displayDispatches = latestPosts.length > 0 ? latestPosts : DEFAULT_DISPATCHES;
+
+  const homeJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        name: 'Lorapok Labs',
+        url: 'https://lorapok.tech',
+        description:
+          'Open-source products, AI agent skills, and Creator Works in 3D art and design from Lorapok collective.',
+      },
+      {
+        '@type': 'Organization',
+        name: 'Lorapok Labs',
+        url: 'https://lorapok.tech',
+        logo: 'https://lorapok.tech/assets/lorapok-labs-logo.png',
+        sameAs: [
+          'https://github.com/Lorapok',
+          'https://github.com/Maijied',
+          'https://x.com/LorapokLabs',
+        ],
+      },
+    ],
+  };
 
   return (
     <motion.div
@@ -107,6 +135,14 @@ export default function HomePage() {
       variants={containerVariants}
       className="flex flex-col gap-24 py-12"
     >
+      <SEOHead
+        title="Open-source Products That Feel Alive"
+        description="Lorapok Labs ships open-source software, 224 Loragent skills, and Creator Works in 3D art and design — biological UI, sensory computing, and practical engineering from Dhaka."
+        path="/"
+        image="/assets/lorapok-labs-logo.png"
+        keywords="Lorapok Labs, open source, Creator Works, 3D art and design, Loragent, developer tools, sensory computing, biological UI, LoLaBo"
+        jsonLd={homeJsonLd}
+      />
       {/* ─── Hero Section ─── */}
       <section className="relative flex flex-col items-center text-center px-4 max-w-5xl mx-auto pt-6 pb-2">
         {/* Ambient Top Glow */}
@@ -407,7 +443,7 @@ export default function HomePage() {
             <p className="text-gray-400">Our most popular and impactful open-source creations.</p>
           </div>
           <Link to="/projects" className="text-[#67ff8f] hover:underline flex items-center gap-1 mt-4 md:mt-0 font-mono text-sm">
-            View all products <ArrowRight size={16} />
+            View all {projects.length} products <ArrowRight size={16} />
           </Link>
         </div>
         <motion.div 
@@ -423,7 +459,68 @@ export default function HomePage() {
             </motion.div>
           ))}
         </motion.div>
+        <div className="mt-10 text-center">
+          <Link
+            to="/projects"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white/[0.04] hover:bg-[#67ff8f]/10 text-white hover:text-[#67ff8f] border border-white/10 hover:border-[#67ff8f]/40 font-mono text-sm transition-all duration-300 shadow-lg"
+          >
+            <span>Explore all {projects.length} products across 11 categories</span>
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </section>
+
+      {/* ─── Creator Works (studio aesthetic) ─── */}
+      {creatorWorksPreview.length > 0 && (
+        <section className="px-4 max-w-7xl mx-auto w-full">
+          <div className="relative overflow-hidden rounded-3xl border border-[#f5d0c5]/15 bg-gradient-to-br from-[#1a1210]/80 via-[#0f0f16] to-[#0a0a0f] p-8 md:p-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(245,208,197,0.14),transparent_50%)] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 text-xs font-mono text-[#fda4af] uppercase tracking-[0.18em] mb-1">
+                    <Palette size={14} /> Creator Works
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">3D Art & Design</h2>
+                  <p className="text-gray-400 max-w-xl">
+                    Sculpture, installation, and heritage craft from Lorapok collective creators — curated apart from our software catalog.
+                  </p>
+                </div>
+                <Link
+                  to="/creator-works"
+                  className="text-[#f5d0c5] hover:underline flex items-center gap-1 font-mono text-sm shrink-0"
+                >
+                  Open studio archive <ArrowRight size={16} />
+                </Link>
+              </div>
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={containerVariants}
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              >
+                {creatorWorksPreview.map((project, index) => (
+                  <motion.div
+                    key={project.name}
+                    variants={itemVariants}
+                    className={index === 0 ? 'md:col-span-2 md:row-span-1' : ''}
+                  >
+                    <Card project={project} />
+                  </motion.div>
+                ))}
+              </motion.div>
+              <p className="mt-8 text-center text-xs font-mono text-gray-500 flex items-center justify-center gap-2">
+                <Frame size={12} className="text-[#f5d0c5]/70" />
+                Full gallery on{' '}
+                <Link to="/creator-works" className="text-[#f5d0c5] hover:underline">
+                  /creator-works
+                </Link>
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ─── Live Cloud Subdomains ─── */}
       <section className="px-4 max-w-7xl mx-auto w-full">
@@ -612,7 +709,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-4">
           {teamMembers.map((member) => (
             <Link
               key={member.id}

@@ -220,6 +220,128 @@ export const teamMembers: TeammateProfile[] = [
     featured: true,
   },
   {
+    id: "shamim-ahammed",
+    name: "Shamim Ahammed",
+    handle: "@sasoibal",
+    role: "Senior Full-Stack Software Engineer",
+    department: "Core Engineering",
+    avatar: "/assets/team/shamim-ahammed.jpg",
+    location: "Dhaka, Bangladesh",
+    email: "sa.soibal@gmail.com",
+    tagline: "High-concurrency ERP/HRMS architecture, Laravel/Lumen REST APIs, and scalable React/Next.js platforms.",
+    bio: "Senior Full-Stack Software Engineer with over 8 years of production experience architecting scalable web applications across ERP, HRMS, multi-vendor e-commerce, and enterprise CRM platforms. Specialist in PHP (Laravel/Lumen) high-throughput backend services and modern reactive frontends (React, Next.js, Vue).",
+    cvSummary:
+      "Senior Software Engineer with 8+ years leading full-stack delivery across Akaar IT, BYSL Global Technology Group, Infinity Infotech, OfficeNeeds, and jhoroTEK. Expert in modular web architectures, payment gateway integrations, and distributed relational/NoSQL datastores.",
+    skills: [
+      "PHP",
+      "Laravel",
+      "Lumen",
+      "React",
+      "Next.js",
+      "Vue.js",
+      "Angular",
+      "TypeScript",
+      "JavaScript",
+      "REST APIs & Auth",
+      "Payment Integrations (Stripe, PayPal, SSLCOMMERZ)",
+      "MySQL",
+      "MongoDB",
+      "Docker",
+      "CI/CD",
+      "Redux",
+      "ERP / HRMS Architecture",
+    ],
+    experience: [
+      {
+        role: "Senior Software Engineer (Full-time)",
+        organization: "Akaar IT, Uttara, Dhaka",
+        period: "Jun 2026 — Present",
+        description:
+          "Own and deliver full-stack features using PHP/Laravel and modern frontend frameworks; ensure clean, maintainable code and scalable design.",
+        highlights: [
+          "Develop and maintain REST APIs, database schemas, and integrations aligned with product and business requirements.",
+          "Collaborate cross-functionally (Product, UI/UX, SQA) to improve delivery quality, performance, and user experience.",
+        ],
+      },
+      {
+        role: "Sr. Executive Software Engineer (Full-time)",
+        organization: "BYSL Global Technology Group, Gulshan, Dhaka",
+        period: "Mar 2025 — Jun 2026",
+        description:
+          "Collaborated with Product, SQA, and UI/UX teams to translate requirements into deliverable features and release-ready implementations.",
+        highlights: [
+          "Implemented key product capabilities including advanced filtering and customizable fields to improve usability and workflow flexibility.",
+          "Contributed to code reviews and technical discussions focused on maintainability, performance, and quality.",
+        ],
+      },
+      {
+        role: "Full Stack Software Engineer (Full-time)",
+        organization: "Infinity Infotech Ltd., Gulshan 1, Dhaka",
+        period: "Dec 2021 — Feb 2025",
+        description:
+          "Delivered full-stack features in collaboration with stakeholders; clarified scope, broke down work into sprints, and ensured on-time delivery.",
+        highlights: [
+          "Built and maintained REST APIs, database schemas, and frontend components across multiple modules and client requirements.",
+          "Mentored junior engineers through code reviews, task guidance, and best-practice enforcement to maintain consistent code quality.",
+        ],
+      },
+      {
+        role: "Sr. Software Engineer (Full-time)",
+        organization: "OfficeNeeds, Bashundhara R/A, Dhaka",
+        period: "Sep 2018 — Dec 2021",
+        description:
+          "Developed and maintained production web applications with a focus on reliability, user experience, and clean delivery. Worked closely with designers and QA to ship bug-free features using Agile practices.",
+        highlights: [
+          "Contributed to e-commerce customization and integrations (Magento-based platform) to support multi-vendor operations.",
+        ],
+      },
+      {
+        role: "Software Engineer (Full-time)",
+        organization: "jhoroTEK, Badda Link Rd, Dhaka",
+        period: "Oct 2015 — Aug 2018",
+        description:
+          "Assisted in selecting technologies and frameworks for new projects aligned with client requirements and delivery timelines. Provided technical support for production systems including server/hosting setup and dependency configuration.",
+      },
+    ],
+    education: [
+      {
+        degree: "B.Sc. in Computer Science and Engineering",
+        institution: "World University of Bangladesh (WUB), Dhaka",
+        year: "2013 — 2016",
+      },
+      {
+        degree: "Diploma in Computer Engineering (4 Years) – CGPA: 3.14/4.00",
+        institution: "Dhaka Polytechnic Institute, Dhaka",
+        year: "2008 — 2012",
+      },
+      {
+        degree: "Secondary School Certificate (S.S.C.), Science – GPA: 4.63/5.00",
+        institution: "Naba Kishalay High School, Narayangonj",
+        year: "2008",
+      },
+    ],
+    achievements: [
+      "8+ years of production full-stack engineering across ERP/HRMS, E-commerce, and CRM platforms",
+      "Lead Architect for enterprise products: SmartOffice.ai, Property Index (propertyindexbd.com), and Maslowbd LMS",
+      "Payment Gateway Integration Specialist across Stripe, PayPal, and SSLCOMMERZ multi-channel checkouts",
+      "Co-Founder, Onirban Foundation (Demra, Dhaka) — Voluntary blood donation initiatives and community support",
+    ],
+    featuredProjects: [
+      "HomeDyn Restaurant System",
+      "SmartOffice.ai",
+      "Property Index",
+      "ReportKit Core",
+      "Maslowbd",
+    ],
+    social: {
+      github: "https://github.com/sasoibal",
+      linkedin: "https://www.linkedin.com/in/sasoibal",
+    },
+    resumeUrl: "/assets/team/shamim-ahammed-cv.pdf",
+    status: "core",
+    featured: true,
+  },
+  {
     id: "raisa-meem",
     name: "Raisa Fairooz Meem",
     handle: "@RXX17",
@@ -721,6 +843,14 @@ export const teamMembers: TeammateProfile[] = [
       linkedin: "https://www.linkedin.com/in/borshon-mondol-7ab4bb436/",
       portfolio: "https://borshon.lorapok.tech/",
     },
+    featuredProjects: [
+      "The Frozen Liquidity",
+      "The Weave of Memory and the Inner Cage",
+      "Sleeping Dog Study",
+      "Cape Buffalo Head",
+      "Female Torso Study",
+      "Traditional Painted Wooden Panel (Alpana Pidi)",
+    ],
     resumeUrl: "/assets/team/borshon-mondol-cv.pdf",
     status: "contributor",
     featured: true,

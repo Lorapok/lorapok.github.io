@@ -5,6 +5,8 @@ type SEOHeadProps = {
   description?: string;
   path?: string;
   image?: string;
+  keywords?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 };
 
 const BASE_TITLE = "Lorapok Labs";
@@ -18,6 +20,8 @@ export function SEOHead({
   description = BASE_DESCRIPTION,
   path = "/",
   image = BASE_IMAGE,
+  keywords,
+  jsonLd,
 }: SEOHeadProps) {
   const fullTitle = title ? `${title} — ${BASE_TITLE}` : BASE_TITLE;
   const canonicalUrl = `${BASE_URL}${path}`;
@@ -44,6 +48,9 @@ export function SEOHead({
     };
 
     setMeta("description", description);
+    if (keywords) {
+      setMeta("keywords", keywords);
+    }
     setMeta("og:title", fullTitle);
     setMeta("og:description", description);
     setMeta("og:url", canonicalUrl);
@@ -64,7 +71,18 @@ export function SEOHead({
       document.head.appendChild(canonical);
     }
     canonical.setAttribute("href", canonicalUrl);
-  }, [fullTitle, description, canonicalUrl, imageUrl]);
+
+    const jsonLdId = "lorapok-page-jsonld";
+    const existing = document.getElementById(jsonLdId);
+    if (existing) existing.remove();
+    if (jsonLd) {
+      const script = document.createElement("script");
+      script.id = jsonLdId;
+      script.type = "application/ld+json";
+      script.textContent = JSON.stringify(jsonLd);
+      document.head.appendChild(script);
+    }
+  }, [fullTitle, description, canonicalUrl, imageUrl, keywords, jsonLd]);
 
   return null;
 }

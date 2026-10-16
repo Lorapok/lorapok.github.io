@@ -1,18 +1,30 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { projects, categories, brand } from '../data/lorapok';
+import { projects, categories, CREATOR_WORKS_CATEGORY, categoryToSlug } from '../data/lorapok';
+import { SEOHead } from '../components/SEOHead';
 import { Card } from '../components/ui/Card';
 import { SearchBar } from '../components/ui/SearchBar';
 import { CategoryFilter } from '../components/ui/CategoryFilter';
 import { SearchX } from 'lucide-react';
 
 export default function ProjectsPage() {
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
 
   useEffect(() => {
-    document.title = `Products | ${brand.name}`;
-  }, []);
+    const catSlug = searchParams.get('category');
+    if (!catSlug) return;
+    if (catSlug === categoryToSlug(CREATOR_WORKS_CATEGORY)) {
+      setActiveCategory(CREATOR_WORKS_CATEGORY);
+      return;
+    }
+    const match = categories.find(
+      (c) => c !== 'All' && categoryToSlug(c) === catSlug
+    );
+    if (match) setActiveCategory(match);
+  }, [searchParams]);
 
   const filteredProjects = useMemo(() => {
     return projects
@@ -47,6 +59,12 @@ export default function ProjectsPage() {
       exit={{ opacity: 0 }}
       className="py-12 px-4 max-w-7xl mx-auto w-full min-h-screen"
     >
+      <SEOHead
+        title="Projects & Products"
+        description="Browse Lorapok Labs open-source repositories, browser extensions, AI tools, media apps, and Creator Works in 3D art and design — with GitHub links and live demos."
+        path="/projects"
+        keywords="Lorapok projects, open source products, developer tools, 3D art and design, browser extensions, AI, GitHub"
+      />
       <div className="mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6">All Products</h1>
         

@@ -284,6 +284,7 @@ function updateSitemapsAndRss(posts: any[]) {
   const coreRoutes = [
     { path: '', priority: '1.0', changefreq: 'weekly' },
     { path: 'projects', priority: '0.9', changefreq: 'weekly' },
+    { path: 'creator-works', priority: '0.85', changefreq: 'weekly' },
     { path: 'agents', priority: '0.9', changefreq: 'weekly' },
     { path: 'blog', priority: '0.95', changefreq: 'hourly' },
     { path: 'team', priority: '0.8', changefreq: 'weekly' },

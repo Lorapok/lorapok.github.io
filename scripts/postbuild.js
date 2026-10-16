@@ -70,9 +70,16 @@ const baseContent = fs.readFileSync(indexHtml, 'utf8');
 const routeMeta = {
   projects: {
     title: "Projects & Products — Lorapok Labs",
-    description: "Public open-source repositories from @Maijied and @Lorapok, with GitHub links and repository descriptions.",
-    keywords: "Lorapok, open source projects, developer tools, AI, sensory computing, browser extensions",
+    description: "Public open-source repositories from @Maijied and @Lorapok, plus Creator Works in 3D art and design, with GitHub links and live demos.",
+    keywords: "Lorapok, open source projects, developer tools, 3D art and design, AI, sensory computing, browser extensions",
     canonical: "https://lorapok.tech/projects"
+  },
+  'creator-works': {
+    title: "Creator Works — Studio Sculpture & 3D Art — Lorapok Labs",
+    description: "Selected studio works in 3D art and design from Lorapok collective creators — figurative sculpture, kinetic installations, clay life studies, and Bengali folk craft.",
+    keywords: "Creator Works, 3D art and design, sculpture, Borshon Mondol, Lorapok Labs, mixed media, figurative art",
+    canonical: "https://lorapok.tech/creator-works",
+    image: "https://lorapok.tech/assets/projects/borshon-frozen-liquidity.jpg"
   },
   agents: {
     title: "AI Agents & Autonomous Multi-Agent Ecosystem — Lorapok Labs",
@@ -89,8 +96,8 @@ const routeMeta = {
   },
   team: {
     title: "The Team & Autonomous Agents — Lorapok Labs",
-    description: "Engineers and specialists at Lorapok Labs, including founder Mohammad Maizied Hasan Majumder and SQA engineer Tanjil Bhoiyan.",
-    keywords: "Lorapok Labs team, engineers, SQA, Mohammad Maizied Hasan Majumder",
+    description: "Engineers, 3D artists, and specialists at Lorapok Labs — including founder Mohammad Maizied Hasan Majumder, senior full-stack engineer Shamim Ahammed, 3D Artist Borshon Mondol, and SQA engineer Tanjil Bhoiyan.",
+    keywords: "Lorapok Labs team, engineers, Shamim Ahammed, 3D art and design, Borshon Mondol, SQA, Mohammad Maizied Hasan Majumder",
     canonical: "https://lorapok.tech/team"
   },
   about: {
@@ -134,6 +141,16 @@ for (const [route, meta] of Object.entries(routeMeta)) {
   fs.writeFileSync(path.join(routeDir, 'index.html'), rendered);
 }
 console.log(`✓ Postbuild: generated SEO-optimized index.html for ${Object.keys(routeMeta).length} core routes.`);
+
+const homeSeo = injectSeo(baseContent, {
+  title: "Lorapok Labs — Open-source Products That Feel Alive",
+  description: "Lorapok Labs ships open-source software, 224 Loragent skills, and Creator Works in 3D art and design — biological UI, sensory computing, and practical engineering from Dhaka.",
+  keywords: "Lorapok Labs, open source, Creator Works, 3D art and design, Loragent, developer tools, sensory computing, biological UI, LoLaBo",
+  canonical: "https://lorapok.tech",
+  image: "https://lorapok.tech/assets/lorapok-labs-logo.png"
+});
+fs.writeFileSync(indexHtml, homeSeo);
+console.log("✓ Postbuild: refreshed root index.html SEO meta.");
 
 // 2. Pre-render Static SEO Pages for Every Blog Post
 const postsJsonPath = path.resolve('public/blog/posts.json');

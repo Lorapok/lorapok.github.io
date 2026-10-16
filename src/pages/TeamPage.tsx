@@ -54,8 +54,9 @@ export default function TeamPage() {
     <>
       <SEOHead
         title="Collective & Core Teammates"
-        description="Meet the software engineers, autonomous AI researchers, and sensory UI designers driving the Lorapok Labs collective."
+        description="Meet Lorapok Labs engineers, 3D artists, and autonomous AI researchers — including founder Mohammad Maizied Hasan Majumder, senior full-stack engineer Shamim Ahammed, and 3D Artist & Designer Borshon Mondol."
         path="/team"
+        keywords="Lorapok team, Shamim Ahammed, Borshon Mondol, full-stack engineers, Lorapok Labs collective"
       />
 
       <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">

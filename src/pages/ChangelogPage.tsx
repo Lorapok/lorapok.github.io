@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Rocket, Sparkles, Wrench, Flag } from 'lucide-react';
 import { changelog } from '../data/changelog';
-import { brand } from '../data/lorapok';
+import { SEOHead } from '../components/SEOHead';
 
 const typeConfig = {
   launch: { icon: Rocket, color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
@@ -12,15 +11,18 @@ const typeConfig = {
 };
 
 export default function ChangelogPage() {
-  useEffect(() => {
-    document.title = `Changelog | ${brand.name}`;
-  }, []);
-
   const sortedChangelog = [...changelog].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   return (
+    <>
+    <SEOHead
+      title="Changelog & Releases"
+      description="Release history, product updates, and ecosystem milestones across Lorapok Labs open-source projects and Creator Works."
+      path="/changelog"
+      keywords="Lorapok changelog, releases, updates, open source milestones"
+    />
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -82,5 +84,6 @@ export default function ChangelogPage() {
         })}
       </div>
     </motion.div>
+    </>
   );
 }

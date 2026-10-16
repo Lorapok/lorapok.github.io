@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Property Index">
+  <title>Property Index — Real Estate Portal</title>
+  <defs>
+    <linearGradient id="pi-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="50%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <radialGradient id="pi-glow" cx="80%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#040e0b"/>
+  <rect width="1200" height="630" fill="url(#pi-glow)"/>
+
+  <!-- Icon emblem: House / Building motif -->
+  <g transform="translate(88, 120)">
+    <rect width="120" height="120" rx="28" fill="#06241b" stroke="#10b981" stroke-opacity="0.3" stroke-width="2"/>
+    <path d="M60 30 L95 60 L85 60 L85 92 L70 92 L70 72 L50 72 L50 92 L35 92 L35 60 L25 60 Z" fill="url(#pi-grad)"/>
+  </g>
+
+  <text x="88" y="340" font-family="system-ui, -apple-system, sans-serif"
+        font-size="68" font-weight="800" fill="#f8fafc" letter-spacing="-1.5">Property Index</text>
+  <text x="88" y="410" font-family="system-ui, -apple-system, sans-serif"
+        font-size="34" font-weight="500" fill="#34d399">Real Estate Listing &amp; Property Search Engine</text>
+  <text x="88" y="470" font-family="system-ui, -apple-system, sans-serif"
+        font-size="24" font-weight="400" fill="#94a3b8">propertyindexbd.com • Full-Stack React, Laravel &amp; MySQL</text>
+</svg>

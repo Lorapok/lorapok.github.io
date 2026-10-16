@@ -8,7 +8,8 @@ export type ProjectCategory =
   | "Browser Extensions"
   | "Games/Utilities"
   | "Mobile Apps"
-  | "Sensory & Hardware";
+  | "Sensory & Hardware"
+  | "3D Art & Design";
 
 export type ProjectLink = {
   label: string;
@@ -122,6 +123,57 @@ export const philosophy = [
 ];
 
 export const projects: Project[] = [
+  {
+    name: "HomeDyn Restaurant System",
+    tagline: "Interactive restaurant operating system & hospitality demo",
+    description:
+      "Enterprise multi-role restaurant management prototype developed for HomeDyn (founded by MD IMRAN HOSSAIN) by Lorapok Labs. Features 95 responsive routes spanning guest table booking, dine-in order rounds, station gates, verified billing, inventory & stock ledger, recipe batching, CRM retention, and audit trails.",
+    category: "Developer Tools",
+    language: "JavaScript / HTML5",
+    featured: true,
+    isNew: true,
+    badge: "Client Showcase",
+    image: "/assets/projects/homedyn-preview.png",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/shamim-ahammed.jpg",
+    links: [
+      { label: "Live Demo", url: "https://homedyn.lorapok.tech", icon: "web" },
+      { label: "GitHub", url: "https://github.com/Lorapok/homedyn", icon: "github" },
+      { label: "Review Guide", url: "https://github.com/Lorapok/homedyn/blob/main/HomeDyn-Prototype-Review-Guide-v3.md", icon: "book" },
+    ],
+  },
+  {
+    name: "SmartOffice.ai",
+    tagline: "Modular ERP & business automation platform",
+    description:
+      "Enterprise ERP and business process automation system featuring modular HRMS, Supply Chain Management (SCM), role-based permissions, and real-time operational workflows.",
+    category: "Laravel/PHP",
+    language: "Laravel / React",
+    featured: false,
+    image: "/assets/projects/smartoffice-og.svg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/shamim-ahammed.jpg",
+    links: [
+      { label: "Portal", url: "https://smartoffice.ai", icon: "web" },
+      { label: "Architect", url: "https://github.com/sasoibal", icon: "github" },
+    ],
+  },
+  {
+    name: "Property Index",
+    tagline: "Modern real estate listing & property search portal",
+    description:
+      "High-performance property search, listing workflows, and real estate inquiry platform built with Laravel, React, and MySQL to support renting, buying, and commercial operations.",
+    category: "Laravel/PHP",
+    language: "Laravel / React",
+    featured: false,
+    image: "/assets/projects/property-index-og.svg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/shamim-ahammed.jpg",
+    links: [
+      { label: "Portal", url: "https://propertyindexbd.com", icon: "web" },
+      { label: "Architect", url: "https://github.com/sasoibal", icon: "github" },
+    ],
+  },
   {
     name: "SeeYou",
     tagline: "iCanSeeYou — agentic SEO specialist",
@@ -848,7 +900,106 @@ export const projects: Project[] = [
       { label: "GitHub", url: "https://github.com/Maijied/Smilo", icon: "github" },
     ],
   },
+  {
+    name: "The Frozen Liquidity",
+    tagline: "Frozen kinetic paint pour — acrylic, wire, canvas",
+    description:
+      "Studio work by Borshon Mondol. A suspended paint can pours red and blue acrylic onto a canvas; the stream and splash are held as a single frozen kinetic sculpture.",
+    category: "3D Art & Design",
+    language: "Mixed media",
+    image: "/assets/projects/borshon-frozen-liquidity.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/borshon-mondol.jpg",
+    links: [
+      { label: "Work", url: "https://borshon.lorapok.tech/work/frozen-liquidity/", icon: "web" },
+      { label: "Studio", url: "https://borshon.lorapok.tech/", icon: "web" },
+    ],
+  },
+  {
+    name: "The Weave of Memory and the Inner Cage",
+    tagline: "Helical textile sculpture and spatial installation",
+    description:
+      "Studio work by Borshon Mondol. An ascending helical sculpture hand-wrapped in post-consumer textiles, paired with a geometric arch backdrop, on subconscious memory and protective psychological architectures.",
+    category: "3D Art & Design",
+    language: "Mixed media",
+    image: "/assets/projects/borshon-weave-of-memory.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/borshon-mondol.jpg",
+    links: [
+      { label: "Work", url: "https://borshon.lorapok.tech/work/weave-of-memory/", icon: "web" },
+      { label: "Studio", url: "https://borshon.lorapok.tech/", icon: "web" },
+    ],
+  },
+  {
+    name: "Sleeping Dog Study",
+    tagline: "Life-size clay anatomical study",
+    description:
+      "Studio work by Borshon Mondol. Life-size figurative sculpture exploring skeletal alignment, resting body mass distribution, and muscular relaxation.",
+    category: "3D Art & Design",
+    language: "Clay",
+    image: "/assets/projects/borshon-sleeping-dog.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/borshon-mondol.jpg",
+    links: [
+      { label: "Work", url: "https://borshon.lorapok.tech/work/sleeping-dog/", icon: "web" },
+    ],
+  },
+  {
+    name: "Cape Buffalo Head",
+    tagline: "High-relief clay bust — animal form",
+    description:
+      "Studio work by Borshon Mondol. Animal bust analyzing cranial bone architecture and the cantilevered mass of sweeping horn structure.",
+    category: "3D Art & Design",
+    language: "Clay",
+    image: "/assets/projects/borshon-cape-buffalo.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/borshon-mondol.jpg",
+    links: [
+      { label: "Work", url: "https://borshon.lorapok.tech/work/cape-buffalo-head/", icon: "web" },
+    ],
+  },
+  {
+    name: "Female Torso Study",
+    tagline: "Classical life-modelling in clay",
+    description:
+      "Studio work by Borshon Mondol. Figurative clay study from direct observation, capturing contrapposto posture, thoracic twist, and weight distribution.",
+    category: "3D Art & Design",
+    language: "Clay",
+    image: "/assets/projects/borshon-female-torso.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/borshon-mondol.jpg",
+    links: [
+      { label: "Work", url: "https://borshon.lorapok.tech/work/female-torso/", icon: "web" },
+    ],
+  },
+  {
+    name: "Traditional Painted Wooden Panel (Alpana Pidi)",
+    tagline: "Bengali ceremonial seating panel with folk ornament",
+    description:
+      "Studio work by Borshon Mondol. Traditional ceremonial wooden seating panel (pidi) painted with symmetrical Mayur (peacock), sacred Kalka (paisley), and border motifs.",
+    category: "3D Art & Design",
+    language: "Folk painting",
+    image: "/assets/projects/borshon-painted-pidi.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/borshon-mondol.jpg",
+    links: [
+      { label: "Work", url: "https://borshon.lorapok.tech/work/painted-pidi/", icon: "web" },
+    ],
+  },
 ];
+
+export const CREATOR_WORKS_CATEGORY: ProjectCategory = "3D Art & Design";
+
+export function getCreatorWorks(): Project[] {
+  return projects.filter((p) => p.category === CREATOR_WORKS_CATEGORY);
+}
+
+export function categoryToSlug(category: string): string {
+  return category
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
 
 export const categories: ("All" | ProjectCategory)[] = [
   "All",
@@ -862,5 +1013,6 @@ export const categories: ("All" | ProjectCategory)[] = [
   "Browser Extensions",
   "Mobile Apps",
   "Games/Utilities",
+  "3D Art & Design",
 ];
 

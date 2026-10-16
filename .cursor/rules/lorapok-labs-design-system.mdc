@@ -1,0 +1,31 @@
+---
+description: Figma-to-code and UI conventions for the Lorapok Labs portal
+globs:
+  - "src/**/*.tsx"
+  - "src/**/*.ts"
+  - "src/**/*.css"
+alwaysApply: false
+---
+
+# Lorapok Labs Portal Design Rules
+
+These rules apply to `lorapok.github.io`, not to every product in the Labs portfolio.
+
+## Existing system
+
+- The portal uses React 19, TypeScript, Vite 8, Tailwind CSS 4, Framer Motion, and Lucide React. Follow the patterns already used in `src/` and `src/components/`.
+- Reuse UI components in `src/components/ui/` and layout components before adding equivalents. Keep page content and shared presentation components in their current locations.
+- The portal’s site tokens are scoped on `.site-shell` in `src/App.css`: background `#030711`, panel surfaces, line colors, text `#f5fff9`, muted text `#8fb3b1`, green `#67ff8f`, cyan `#6cecff`, and gold `#ffcf5a`. Prefer these variables where available instead of introducing near-duplicate colors.
+- `src/index.css` imports DM Mono and Syne, while the root font stack uses Inter/system fonts. Do not assume Syne is the active display font. Use the current rendered styles and raise this mismatch when a typography-system change is in scope.
+- The site has responsive breakpoints and a `prefers-reduced-motion` section in `src/App.css`. Preserve reduced-motion behavior for all new animation and interaction states.
+- Maintain visible keyboard focus, semantic landmarks, useful accessible names, and readable contrast. Avoid conveying status through color or animation alone.
+
+## Figma-to-code flow
+
+When a Figma file or node is provided, fetch its design context and screenshot before implementation. Map colors, typography, spacing, and components to the portal’s existing tokens and components. Treat generated markup as design evidence; adapt it to the project’s React, Tailwind, and CSS conventions. Use supplied Figma assets when available and do not add another icon package when Lucide or an approved asset already covers the need.
+
+Compare the result with the supplied frame at desktop and narrow widths. Check keyboard focus and reduced motion before calling the work complete. If the design conflicts with the portal’s established tokens or accessibility behavior, explain the tradeoff and keep the change scoped.
+
+## Brand copy
+
+Use the Labs brand rule for product counts, ownership, status, license, performance, privacy, and compatibility claims. The portal catalog is a discovery source, not proof that every record is a distinct active product.

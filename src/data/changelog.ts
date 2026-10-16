@@ -10,6 +10,27 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-10-17",
+    product: "HomeDyn",
+    title: "HomeDyn Restaurant System Showcase & Prototype Handoff",
+    description:
+      "Interactive multi-role restaurant management prototype developed for HomeDyn by Lorapok Labs. Features 95 responsive routes spanning guest table booking, dine-in ordering, kitchen station gates, verified billing, and stock ledger.",
+    type: "launch",
+    links: [
+      { label: "Live Demo", url: "https://homedyn.lorapok.tech" },
+      { label: "GitHub", url: "https://github.com/Lorapok/homedyn" },
+    ],
+  },
+  {
+    date: "2026-10-17",
+    product: "lorapok.tech",
+    title: "Senior Full-Stack Engineer Shamim Ahammed Joins Collective",
+    description:
+      "Welcomed Shamim Ahammed (@sasoibal) as Senior Full-Stack Software Engineer in Core Engineering, bringing 8+ years of enterprise PHP/Laravel, modern React/Next.js, and high-concurrency ERP/HRMS architecture experience.",
+    type: "milestone",
+    links: [{ label: "Team Directory", url: "/team" }],
+  },
+  {
     date: "2026-09-05",
     product: "lorapok.tech",
     title: "Brand Showcase, Sensory Media Banners & Privacy Guard",

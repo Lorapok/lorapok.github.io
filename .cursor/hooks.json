@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      {
+        "command": ".cursor/hooks/check-public-claims.mjs",
+        "matcher": "Write|TabWrite"
+      }
+    ]
+  }
+}

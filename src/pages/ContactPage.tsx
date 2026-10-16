@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MessageSquare, Send, Code2, BriefcaseBusiness, Briefcase, Globe } from 'lucide-react';
-import { brand, founder } from '../data/lorapok';
+import { founder } from '../data/lorapok';
 import { sendContactMail } from '../lib/contactMail';
+import { SEOHead } from '../components/SEOHead';
 
 const contactTargets = [
   {
@@ -28,10 +29,6 @@ export default function ContactPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorText, setErrorText] = useState('');
   const [successText, setSuccessText] = useState('Thanks for reaching out. We will reply to the address you entered.');
-
-  useEffect(() => {
-    document.title = `Contact | ${brand.name}`;
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -65,6 +62,13 @@ export default function ContactPage() {
   };
 
   return (
+    <>
+    <SEOHead
+      title="Contact & Community"
+      description="Connect with Lorapok Labs for partnerships, open-source collaboration, or Creator Works inquiries — GitHub, LinkedIn, and secure contact form."
+      path="/contact"
+      keywords="Contact Lorapok Labs, partnership, open source, Discord, GitHub support"
+    />
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -231,5 +235,6 @@ export default function ContactPage() {
         </div>
       </div>
     </motion.div>
+    </>
   );
 }
