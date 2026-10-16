@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
@@ -103,6 +103,35 @@ export default function HomePage() {
   const featuredProjects = projects.filter(p => p.featured && !p.isNew);
   const creatorWorksPreview = getCreatorWorks().slice(0, 3);
   const displayDispatches = latestPosts.length > 0 ? latestPosts : DEFAULT_DISPATCHES;
+
+  const [homeSelectedCategory, setHomeSelectedCategory] = useState<string>("featured");
+
+  const homeCategoryTabs = useMemo(() => [
+    { id: 'featured', label: 'Featured Flagships', count: featuredProjects.length },
+    { id: 'all', label: `All Products (${projects.length})`, count: projects.length },
+    { id: 'Developer Tools', label: 'Dev Tools', count: projects.filter(p => p.category === 'Developer Tools').length },
+    { id: 'Laravel/PHP', label: 'Laravel/PHP', count: projects.filter(p => p.category === 'Laravel/PHP').length },
+    { id: 'AI', label: 'AI', count: projects.filter(p => p.category === 'AI').length },
+    { id: 'Browser Extensions', label: 'Browser Extensions', count: projects.filter(p => p.category === 'Browser Extensions').length },
+    { id: 'Sensory & Hardware', label: 'Hardware', count: projects.filter(p => p.category === 'Sensory & Hardware').length },
+    { id: 'Desktop/Linux', label: 'Desktop/Linux', count: projects.filter(p => p.category === 'Desktop/Linux').length },
+    { id: 'Games/Utilities', label: 'Games/Utilities', count: projects.filter(p => p.category === 'Games/Utilities').length },
+    { id: 'Mobile Apps', label: 'Mobile Apps', count: projects.filter(p => p.category === 'Mobile Apps').length },
+    { id: 'Media', label: 'Media', count: projects.filter(p => p.category === 'Media').length },
+    { id: '3D Art & Design', label: '3D Art & Design', count: projects.filter(p => p.category === '3D Art & Design').length },
+  ], [featuredProjects.length]);
+
+  const displayedProjects = useMemo(() => {
+    if (homeSelectedCategory === 'featured') {
+      return featuredProjects;
+    }
+    if (homeSelectedCategory === 'all') {
+      return projects;
+    }
+    return projects.filter(
+      (p) => p.category.toLowerCase() === homeSelectedCategory.toLowerCase()
+    );
+  }, [homeSelectedCategory, featuredProjects]);
 
   const homeJsonLd = {
     '@context': 'https://schema.org',
@@ -432,31 +461,68 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ─── Featured Products ─── */}
-      <section className="px-4 max-w-7xl mx-auto w-full">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-10">
+      {/* ─── Featured Products & Category Explorer ─── */}
+      <section className="px-4 max-w-7xl mx-auto w-full" id="ecosystem-products">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-mono text-[#67ff8f] uppercase tracking-wider mb-1">
-              <Layers size={14} /> Ecosystem Flagships
+              <Layers size={14} /> Ecosystem Products ({projects.length} Active Catalog)
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Featured Products</h2>
-            <p className="text-gray-400">Our most popular and impactful open-source creations.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              {homeSelectedCategory === 'featured'
+                ? 'Featured Products'
+                : homeSelectedCategory === 'all'
+                ? `All Products (${projects.length})`
+                : `${homeSelectedCategory} (${displayedProjects.length})`}
+            </h2>
+            <p className="text-gray-400">
+              {homeSelectedCategory === 'featured'
+                ? 'Our most popular and impactful open-source creations.'
+                : `Showing ${displayedProjects.length} products in ${homeSelectedCategory}.`}
+            </p>
           </div>
-          <Link to="/projects" className="text-[#67ff8f] hover:underline flex items-center gap-1 mt-4 md:mt-0 font-mono text-sm">
-            View all {projects.length} products <ArrowRight size={16} />
+          <Link to="/projects" className="text-[#67ff8f] hover:underline flex items-center gap-1 font-mono text-sm whitespace-nowrap">
+            View full searchable catalog <ArrowRight size={16} />
           </Link>
         </div>
+
+        {/* Category Pills Navigation */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          {homeCategoryTabs.map((tab) => {
+            const isActive = homeSelectedCategory === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setHomeSelectedCategory(tab.id)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap border cursor-pointer ${
+                  isActive
+                    ? 'bg-[#67ff8f]/15 border-[#67ff8f] text-[#67ff8f] shadow-[0_0_15px_rgba(103,255,143,0.2)]'
+                    : 'bg-white/[0.03] border-white/10 text-gray-400 hover:text-white hover:border-white/20'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                  isActive ? 'bg-[#67ff8f]/20 text-[#67ff8f]' : 'bg-white/5 text-gray-500'
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
         <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={containerVariants}
+          key={homeSelectedCategory}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {featuredProjects.map(project => (
-            <motion.div key={project.name} variants={itemVariants}>
+          {displayedProjects.map(project => (
+            <div key={project.name}>
               <Card project={project} />
-            </motion.div>
+            </div>
           ))}
         </motion.div>
         <div className="mt-10 text-center">
@@ -464,7 +530,7 @@ export default function HomePage() {
             to="/projects"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white/[0.04] hover:bg-[#67ff8f]/10 text-white hover:text-[#67ff8f] border border-white/10 hover:border-[#67ff8f]/40 font-mono text-sm transition-all duration-300 shadow-lg"
           >
-            <span>Explore all {projects.length} products across 11 categories</span>
+            <span>Explore all {projects.length} products with live search & deep filters</span>
             <ArrowRight size={16} />
           </Link>
         </div>
