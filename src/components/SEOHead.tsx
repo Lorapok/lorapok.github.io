@@ -82,7 +82,19 @@ export function SEOHead({
       script.textContent = JSON.stringify(jsonLd);
       document.head.appendChild(script);
     }
-  }, [fullTitle, description, canonicalUrl, imageUrl, keywords, jsonLd]);
+
+    // Push SPA virtual pageview to Google Tag Manager dataLayer
+    if (typeof window !== "undefined") {
+      const win = window as unknown as { dataLayer?: Record<string, unknown>[] };
+      win.dataLayer = win.dataLayer || [];
+      win.dataLayer.push({
+        event: "page_view",
+        page_title: fullTitle,
+        page_location: canonicalUrl,
+        page_path: path,
+      });
+    }
+  }, [fullTitle, description, canonicalUrl, imageUrl, keywords, jsonLd, path]);
 
   return null;
 }
