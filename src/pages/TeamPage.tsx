@@ -54,9 +54,9 @@ export default function TeamPage() {
     <>
       <SEOHead
         title="Collective & Core Teammates"
-        description="Meet Lorapok Labs engineers, business operations leaders, visual directors, and autonomous AI researchers — including founder Mohammad Maizied Hasan Majumder, Executive Director of Business Operations Taif Ul Islam, and Visual Media Director Ashraf Uddin Ahmed (Joy)."
+        description="Meet Lorapok Labs engineers, technical advisors, business operations leaders, visual directors, and autonomous AI researchers — including founder Mohammad Maizied Hasan Majumder, Principal Technical Advisor Ishtiak Shovon, Executive Director of Business Operations Taif Ul Islam, and Visual Media Director Ashraf Uddin Ahmed (Joy)."
         path="/team"
-        keywords="Lorapok team, Taif Ul Islam, business operations, client onboarding, DebugVision, Ashraf Uddin Ahmed, Shamim Ahammed, Borshon Mondol, Lorapok Labs collective"
+        keywords="Lorapok team, Ishtiak Shovon, technical advisor, systems architect, Taif Ul Islam, business operations, client onboarding, DebugVision, Ashraf Uddin Ahmed, Shamim Ahammed, Borshon Mondol, Lorapok Labs collective"
       />
 
       <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
@@ -69,7 +69,7 @@ export default function TeamPage() {
             The Minds Behind <span className="text-[#67ff8f]">Lorapok Labs</span>
           </h1>
           <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
-            A distributed collective of full-stack engineers, autonomous agent architects, visual directors, cinematographers, and legal strategists building open technology with craft and soul.
+            A distributed collective of full-stack engineers, strategic technical advisors, autonomous agent architects, visual directors, cinematographers, and legal strategists building open technology with craft and soul.
           </p>
         </div>
 

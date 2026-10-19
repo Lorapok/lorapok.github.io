@@ -15,6 +15,7 @@ export interface TeammateEducation {
 export type TeamDepartment =
   | "All"
   | "Core Engineering"
+  | "Strategic Technology Advisory"
   | "AI Research & Agents"
   | "Clinical & Sensory Tech"
   | "Brand Strategy & DevRel"
@@ -134,6 +135,101 @@ export const teamMembers: TeammateProfile[] = [
       telegram: "https://t.me/Maijied",
       twitter: "https://x.com/LorapokLabs",
     },
+    status: "core",
+    featured: true,
+  },
+  {
+    id: "ishtiak-shovon",
+    name: "Ishtiak Shovon",
+    handle: "@ishtiak-shovon",
+    role: "Principal Technical Advisor & Systems Architect",
+    department: "Strategic Technology Advisory",
+    avatar: "/assets/team/ishtiak-shovon.jpg",
+    location: "Dhaka, Bangladesh",
+    tagline:
+      "Guiding high-throughput system architecture, enterprise software engineering, and strategic tech evolution.",
+    bio:
+      "Principal Technical Advisor at Lorapok Labs with a deep software engineering foundation across enterprise platforms, distributed services, and database architectures. Formerly Software Engineer at Infinity Infotech Ltd and Junior Software Engineer at Sheba Technologies Limited. Holds a B.Sc. in Computer Science from East West University (EWU), advising the collective on architectural scalability, service reliability, and modern software craftsmanship.",
+    cvSummary:
+      "Technical Advisor and seasoned Software Engineer with over 5+ years of verified industry expertise delivering scalable enterprise platforms, database architectures, and microservices at Infinity Infotech Ltd and Sheba Technologies. Advises the Lorapok collective on architectural strategy, tech stack modernization, and engineering governance.",
+    skills: [
+      "Technical Advisory & Strategy",
+      "System Architecture",
+      "Enterprise Software Engineering",
+      "Distributed Systems",
+      "Cloud Infrastructure & Microservices",
+      "Database Modeling & Optimization",
+      "RESTful & GraphQL APIs",
+      "Relational DBMS (MySQL / PostgreSQL)",
+      "High-Concurrency Backends",
+      "Code Governance & CI/CD",
+      "Agile Engineering Leadership",
+      "Docker & Containerization",
+    ],
+    experience: [
+      {
+        role: "Principal Technical Advisor & Systems Architect",
+        organization: "Lorapok Labs Collective",
+        period: "2024 — Present",
+        description:
+          "Guiding core engineering leadership on architectural vision, system resilience, and technological governance across autonomous agent frameworks and developer tools.",
+        highlights: [
+          "Steering the architectural roadmap for distributed state coordination, multi-agent autonomous frameworks, and high-performance developer platforms.",
+          "Advising engineering squads on high-concurrency backend patterns, database normalization, and fault-tolerant service design.",
+          "Benchmarking code quality, CI/CD automation pipelines, and automated test coverage across open-source and enterprise deliverables.",
+        ],
+      },
+      {
+        role: "Software Engineer",
+        organization: "Infinity Infotech Ltd",
+        period: "2021 — 2024",
+        description:
+          "Engineered enterprise-grade software systems, responsive web applications, and database architectures for institutional and commercial clients.",
+        highlights: [
+          "Architected multi-tier backend microservices and RESTful API endpoints, reducing query latency by over 30%.",
+          "Led relational database schema modeling, query indexing, and transactional data migrations.",
+          "Spearheaded code reviews, architectural discussions, and automated deployment pipelines, maintaining 99.9% service reliability.",
+        ],
+      },
+      {
+        role: "Junior Software Engineer",
+        organization: "Sheba Technologies Limited (Sheba Group)",
+        period: "2019 — 2021",
+        description:
+          "Developed core functional modules, business logic, and API endpoints for enterprise and telecom-grade IT solutions.",
+        highlights: [
+          "Contributed to enterprise web application development, bug resolution, and backend API enhancements within Sheba Group.",
+          "Collaborated with senior architects on relational database design, query optimization, and frontend responsive interfaces.",
+          "Delivered high-reliability features and integration tests within fast-paced agile development sprint cycles.",
+        ],
+      },
+    ],
+    education: [
+      {
+        degree: "Bachelor of Science (B.Sc.) in Computer Science",
+        institution: "East West University (EWU)",
+        year: "2015 — 2018",
+      },
+    ],
+    achievements: [
+      "Principal Technical Advisor to Lorapok Labs, steering architectural scalability and technological innovation",
+      "Over 5+ years of verified software engineering excellence delivering mission-critical applications at Infinity Infotech Ltd and Sheba Technologies",
+      "B.Sc. in Computer Science graduate from East West University (Class of 2018)",
+      "Architected resilient enterprise web solutions and optimized high-throughput database systems",
+      "Pioneered architectural reviews that optimized API throughput and established automated continuous delivery standards",
+    ],
+    featuredProjects: [
+      "Lorapok API Atlas",
+      "Loragent",
+      "CLoraMF",
+      "Lorapok LocalSync",
+      "ReportKit Core",
+    ],
+    social: {
+      linkedin: "https://www.linkedin.com/in/ishtiak-shovon",
+      portfolio: "https://lorapok.tech",
+    },
+    resumeUrl: "/assets/team/ishtiak-shovon-cv.pdf",
     status: "core",
     featured: true,
   },
@@ -1038,6 +1134,7 @@ export const teamMembers: TeammateProfile[] = [
 export const teamDepartments: TeamDepartment[] = [
   "All",
   "Core Engineering",
+  "Strategic Technology Advisory",
   "AI Research & Agents",
   "Clinical & Sensory Tech",
   "Brand Strategy & DevRel",
