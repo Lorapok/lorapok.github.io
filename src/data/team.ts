@@ -19,7 +19,9 @@ export type TeamDepartment =
   | "Clinical & Sensory Tech"
   | "Brand Strategy & DevRel"
   | "Quality Assurance"
-  | "3D Art & Design";
+  | "3D Art & Design"
+  | "Visual Media & Legal Strategy"
+  | "Business Operations & Strategy";
 
 export interface TeammateProfile {
   id: string; // URL-safe slug
@@ -855,6 +857,182 @@ export const teamMembers: TeammateProfile[] = [
     status: "contributor",
     featured: true,
   },
+  {
+    id: "ashraf-joy",
+    name: "Ashraf Uddin Ahmed (Joy)",
+    handle: "@LawyerJoy",
+    role: "Visual Media Director, Cinematographer & Legal Counsel",
+    department: "Visual Media & Legal Strategy",
+    avatar: "/assets/team/ashraf-joy.jpg",
+    location: "Dhaka, Bangladesh",
+    email: "joy@lorapok.tech",
+    tagline: "Cinematography, AI-assisted visual generation, documentary filmmaking, and media law.",
+    bio: "Cross-disciplinary Visual Director, Cinematographer, and Legal Counsel. Alumnus of the School of Law at BRAC University and Executive Committee Member of the Law Alumni Association of BRAC University (LAABRACU). Blends cinematic lenswork, documentary storytelling, and generative AI prompting with rigorous legal frameworks across intellectual property, entertainment media, and digital contracts.",
+    cvSummary:
+      "Advocate and Visual Media Director with extensive credits across institutional documentaries (Dhaka Central Jail, BRAC University BIL), rock band music visual productions (Arbovirus - 'Obastob' via AIA Lemonsky), narrative cinema ('Mala\\'r Sanglap'), and internationally recognized street photography (35AWARDS, PROWEDaward). Executive Committee Member of LAABRACU specializing in media law, copyright, and entertainment compliance.",
+    skills: [
+      "Cinematography & Camera Direction",
+      "Generative AI Visuals & Prompting",
+      "Documentary Filmmaking",
+      "Post-Production & Video Editing",
+      "Street Photography (35AWARDS)",
+      "Corporate & Media Law",
+      "Intellectual Property & Copyright",
+      "Contract Drafting & Negotiation",
+      "Visual Narrative Architecture",
+      "Audio-Visual Institutional Production",
+      "Lighting Design & Color Grading",
+      "Digital Media Rights & Licensure",
+    ],
+    experience: [
+      {
+        role: "Visual Director & Cinematographer",
+        organization: "Independent Studio Practice & AIA Lemonsky Collaborations",
+        period: "2020 — Present",
+        description:
+          "Directing, shooting, and editing narrative film projects, rock music visuals, and multi-camera institutional productions.",
+        highlights: [
+          "Prompting, visualization, and artwork for ARBOVIRUS — 'OBASTOB' Official Animated Visual (Republic of Arbovirus) with AIA Lemonsky & Lumastrike Studios.",
+          "Directed, filmed, and edited 'Mala\\'r Sanglap' (Trailer), exploring high-contrast dramatic cinematography and character-driven framing.",
+          "Produced institutional AV documentary for the BRAC Institute of Languages (BIL) at BRAC University.",
+          "Cinematography and photography for the 2020 official documentary on Dhaka Central Jail, Keraniganj with Storybox 360, highlighting modern humane correctional reform.",
+        ],
+      },
+      {
+        role: "Executive Committee Member",
+        organization: "Law Alumni Association of BRAC University (LAABRACU)",
+        period: "2024 — Present",
+        description:
+          "Serving on the executive board guiding legal alumni networks, legal literacy initiatives, and professional compliance symposia across Bangladesh.",
+        highlights: [
+          "Advising on intellectual property governance, media distribution compliance, and entertainment legal rights.",
+          "Fostering professional collaboration between legal practitioners, academic institutions, and technology collectives.",
+        ],
+      },
+      {
+        role: "Documentary & Street Photographer",
+        organization: "Dossi Photographic Portfolio (35AWARDS)",
+        period: "2019 — Present",
+        description:
+          "Capturing urban street life, architectural shadows, and evocative human moments across Dhaka and international circuits.",
+        highlights: [
+          "Featured portfolio on 35AWARDS for cinematic street photography from Dhaka.",
+          "Recognized on international photography networks for atmospheric compositions, dramatic silhouettes, and narrative depth.",
+        ],
+      },
+    ],
+    education: [
+      {
+        degree: "Bachelor of Laws (LL.B. Hons)",
+        institution: "School of Law, BRAC University (BRACU), Dhaka",
+        year: "Alumnus / Executive Committee (LAABRACU)",
+      },
+    ],
+    achievements: [
+      "Executive Committee Member — Law Alumni Association of BRAC University (LAABRACU, 2024–2026)",
+      "Visual Artist & Prompting Collaborator for ARBOVIRUS 'OBASTOB' Official Animated Visual (Album: Republic of Arbovirus)",
+      "Cinematographer & Photographer — Dhaka Central Jail, Keraniganj Official Documentary 2020",
+      "Director, Cinematographer & Editor — 'Mala\\'r Sanglap' (মালার সংলাপ) Narrative Film Trailer",
+      "Featured Photographer — 35AWARDS (Cinematic Street Photography from Dhaka)",
+      "Producer & Director — BRAC University BIL (BRAC Institute of Languages) Institutional AV",
+    ],
+    featuredProjects: [
+      "Arbovirus: Obastob [Official Animated Visual]",
+      "Dhaka Central Jail Official Documentary",
+      "Mala'r Sanglap (মালার সংলাপ)",
+      "BRAC University BIL Audio-Visual",
+      "Lorapok Media Player",
+      "Lorapok Sorcerer",
+    ],
+    social: {
+      portfolio: "https://35awards.com/en/author/dossi/",
+      twitter: "https://www.youtube.com/@Joy-rx8lo",
+    },
+    resumeUrl: "/assets/team/ashraf-uddin-ahmed-cv.pdf",
+    status: "core",
+    featured: true,
+  },
+  {
+    id: "taif-ul-islam",
+    name: "Taif Ul Islam",
+    handle: "@TaifUlIslam",
+    role: "Executive Director of Business Operations & Strategic Client Partnerships",
+    department: "Business Operations & Strategy",
+    avatar: "/assets/team/taif-ul-islam.jpg",
+    location: "Mohammadpur, Dhaka, Bangladesh",
+    email: "taifulislam9m@gmail.com",
+    tagline: "Leading high-touch enterprise client engagement, commercial discovery, and seamless software onboarding.",
+    bio: "Executive Director of Business Operations and Strategic Client Partnerships at Lorapok Labs and DebugVision. Spearheads high-touch client acquisition, solution scoping, executive stakeholder consensus, and end-to-end client onboarding across enterprise SaaS platforms, bespoke web ecosystems, and multi-tenant systems. Translates complex technical capabilities into measurable business ROI and long-term client retention.",
+    cvSummary:
+      "Accomplished Business Operations and Marketing Executive at DebugVision and Lorapok Labs with a proven track record of acquiring, structuring, and onboarding 50+ enterprise and SME accounts. Specialist in commercial SLA design, B2B solution architecture, client success frameworks, and multi-quarter revenue retention.",
+    skills: [
+      "Enterprise Client Onboarding",
+      "Strategic Client Partnerships",
+      "B2B Solution Discovery",
+      "Business Operations (BizOps)",
+      "Revenue Operations (RevOps)",
+      "Executive Stakeholder Alignment",
+      "Commercial SLA & Contract Design",
+      "Client Success & Retention",
+      "Go-To-Market (GTM) Strategy",
+      "Scope & SOW Architecture",
+      "Commercial Pricing Models",
+      "Account Lifecycle Governance",
+    ],
+    experience: [
+      {
+        role: "Executive Director of Business Operations & Client Partnerships",
+        organization: "Lorapok Labs Collective",
+        period: "2024 — Present",
+        description:
+          "Directing enterprise client engagement pipelines, commercial governance, and rapid onboarding for flagship software deployments.",
+        highlights: [
+          "Spearheaded enterprise client discovery and onboarding for marquee platforms including HomeDyn Restaurant System and SmartOffice.ai.",
+          "Engineered high-velocity onboarding workflows, cutting client ramp-up time by 40% and maintaining a 98% on-time milestone delivery benchmark.",
+          "Aligned client executive sponsors with Lorapok deep-tech engineering squads to guarantee transparent project velocity and SLA fidelity.",
+        ],
+      },
+      {
+        role: "Executive Director Marketing & Business Operations",
+        organization: "DebugVision, Shyamoli, Dhaka",
+        period: "2023 — Present",
+        description:
+          "Overseeing commercial positioning, marketing governance, and B2B client acquisition for advanced software solutions and innovative SaaS applications development.",
+        highlights: [
+          "Successfully originated, negotiated, and onboarded 50+ enterprise and SME accounts across healthcare, multi-tenant ERP, and custom SaaS platforms.",
+          "Partnered with CEO & Business Analysis Lead to translate client operational bottlenecks into high-value technical deliverables.",
+          "Achieved a 95%+ client retention and renewal rate through structured quarterly business reviews (QBRs) and proactive account health governance.",
+        ],
+      },
+    ],
+    education: [
+      {
+        degree: "Bachelor of Business Administration (BBA) in Marketing & Operations",
+        institution: "Dhaka, Bangladesh",
+        year: "Executive Alumnus",
+      },
+    ],
+    achievements: [
+      "Successfully engaged and onboarded 50+ enterprise and SME clients across high-value SaaS, ERP, and bespoke web platforms",
+      "Executive Director of Marketing & Business Operations at DebugVision (Shyamoli Cinema Complex, Dhaka)",
+      "Pioneered structured onboarding SLAs, reducing client time-to-deployment while ensuring strict technical scope adherence",
+      "Achieved 95%+ client retention and renewal rate across multi-quarter software development and maintenance agreements",
+      "Lead Commercial Strategist for flagship enterprise deployments including HomeDyn Restaurant System and SmartOffice.ai",
+    ],
+    featuredProjects: [
+      "HomeDyn Restaurant System",
+      "SmartOffice.ai",
+      "Property Index",
+      "ReportKit Core",
+      "Lorapok LocalSync",
+    ],
+    social: {
+      portfolio: "https://www.debugvision.com",
+    },
+    resumeUrl: "/assets/team/taif-ul-islam-cv.pdf",
+    status: "core",
+    featured: true,
+  },
 ];
 
 export const teamDepartments: TeamDepartment[] = [
@@ -865,6 +1043,8 @@ export const teamDepartments: TeamDepartment[] = [
   "Brand Strategy & DevRel",
   "Quality Assurance",
   "3D Art & Design",
+  "Visual Media & Legal Strategy",
+  "Business Operations & Strategy",
 ];
 
 export function getTeamByDepartment(dept: TeamDepartment): TeammateProfile[] {

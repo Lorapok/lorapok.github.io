@@ -986,6 +986,72 @@ export const projects: Project[] = [
       { label: "Work", url: "https://borshon.lorapok.tech/work/painted-pidi/", icon: "web" },
     ],
   },
+  {
+    name: "Arbovirus: Obastob [Official Animated Visual]",
+    tagline: "AI-assisted dark surrealist animated music visual",
+    description:
+      "Official AI-assisted animated music visual for Bangladeshi alternative rock legend Arbovirus's single 'Obastob' (album: Republic of Arbovirus). Produced in collaboration with AIA Lemonsky Production with prompting, artwork, photography, and visualization by Joy, Somudro, and Lumastrike Studios.",
+    category: "Media",
+    language: "Generative AI / Video",
+    featured: true,
+    isNew: true,
+    badge: "Music Video",
+    image: "/assets/projects/arbovirus-obastob.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/ashraf-joy.jpg",
+    links: [
+      { label: "YouTube", url: "https://youtu.be/16QNHpgi4Ok", icon: "web" },
+      { label: "Channel", url: "https://www.youtube.com/@arbovirustv", icon: "web" },
+    ],
+  },
+  {
+    name: "Dhaka Central Jail Official Documentary",
+    tagline: "Modern humane correction & institutional documentary film",
+    description:
+      "Official 2020 documentary capturing the architecture, vocational rehabilitation programs, and humanitarian modernization of Dhaka Central Jail, Keraniganj. Cinematography and still photography directed by Ashraf Joy in association with Storybox 360 and Bangladesh Jail Department.",
+    category: "Media",
+    language: "Documentary Film",
+    featured: true,
+    badge: "Official Documentary",
+    image: "/assets/projects/dhaka-jail-doc.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/ashraf-joy.jpg",
+    links: [
+      { label: "Documentary", url: "https://youtu.be/PMONuB7BlMU", icon: "web" },
+    ],
+  },
+  {
+    name: "Mala'r Sanglap (মালার সংলাপ)",
+    tagline: "Cinematic narrative trailer & dramatic character direction",
+    description:
+      "Cinematic narrative trailer directed, shot, and edited by Ashraf Uddin Ahmed (Joy). Features dramatic lighting, intimate character framing, and atmospheric urban storytelling in Dhaka.",
+    category: "Media",
+    language: "Cinematography",
+    badge: "Narrative Film",
+    image: "/assets/projects/malar-sanglap.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/ashraf-joy.jpg",
+    links: [
+      { label: "Trailer", url: "https://youtu.be/mMijUdRAMgs", icon: "web" },
+      { label: "Lawyer Joy", url: "https://www.youtube.com/@Joy-rx8lo", icon: "web" },
+    ],
+  },
+  {
+    name: "BRAC University BIL Audio-Visual",
+    tagline: "Institutional AV & documentary narrative for BIL",
+    description:
+      "Official audio-visual institutional documentary produced for the BRAC Institute of Languages (BIL) at BRAC University, documenting academic methodology, student perspectives, and cultural life.",
+    category: "Media",
+    language: "Institutional AV",
+    badge: "Higher Ed AV",
+    image: "/assets/projects/bracu-bil-av.jpg",
+    imageType: "cover",
+    ownerAvatar: "/assets/team/ashraf-joy.jpg",
+    links: [
+      { label: "Watch AV", url: "https://youtu.be/Cf1gT0bDDX8", icon: "web" },
+      { label: "Channel", url: "https://www.youtube.com/@Joy-rx8lo", icon: "web" },
+    ],
+  },
 ];
 
 export const CREATOR_WORKS_CATEGORY: ProjectCategory = "3D Art & Design";
