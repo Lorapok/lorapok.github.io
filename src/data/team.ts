@@ -957,15 +957,15 @@ export const teamMembers: TeammateProfile[] = [
     id: "ashraf-joy",
     name: "Ashraf Uddin Ahmed (Joy)",
     handle: "@LawyerJoy",
-    role: "Visual Media Director, Cinematographer & Legal Counsel",
+    role: "Visual Media Director, Cinematographer & Lawyer",
     department: "Visual Media & Legal Strategy",
     avatar: "/assets/team/ashraf-joy.jpg",
     location: "Dhaka, Bangladesh",
     email: "joy@lorapok.tech",
     tagline: "Cinematography, AI-assisted visual generation, documentary filmmaking, and media law.",
-    bio: "Cross-disciplinary Visual Director, Cinematographer, and Legal Counsel. Alumnus of the School of Law at BRAC University and Executive Committee Member of the Law Alumni Association of BRAC University (LAABRACU). Blends cinematic lenswork, documentary storytelling, and generative AI prompting with rigorous legal frameworks across intellectual property, entertainment media, and digital contracts.",
+    bio: "Cross-disciplinary Visual Director, Cinematographer, and Lawyer. Alumnus of the School of Law at BRAC University and Executive Committee Member of the Law Alumni Association of BRAC University (LAABRACU). Blends cinematic lenswork, documentary storytelling, and generative AI prompting with rigorous legal frameworks across intellectual property, entertainment media, and digital contracts.",
     cvSummary:
-      "Advocate and Visual Media Director with extensive credits across institutional documentaries (Dhaka Central Jail, BRAC University BIL), rock band music visual productions (Arbovirus - 'Obastob' via AIA Lemonsky), narrative cinema ('Mala\\'r Sanglap'), and internationally recognized street photography (35AWARDS, PROWEDaward). Executive Committee Member of LAABRACU specializing in media law, copyright, and entertainment compliance.",
+      "Lawyer and Visual Media Director with extensive credits across institutional documentaries (Dhaka Central Jail, BRAC University BIL), rock band music visual productions (Arbovirus - 'Obastob' via AIA Lemonsky), narrative cinema ('Mala\\'r Sanglap'), and internationally recognized street photography (35AWARDS, PROWEDaward). Executive Committee Member of LAABRACU specializing in media law, copyright, and entertainment compliance.",
     skills: [
       "Cinematography & Camera Direction",
       "Generative AI Visuals & Prompting",
