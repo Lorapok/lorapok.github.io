@@ -64,7 +64,7 @@ export const founder = {
   email: "mdshvo40@gmail.com",
   bio: "Full Stack Systems Architect and open-source engineer building biological UI, sensory computing systems, and high-concurrency digital platforms. Senior Software Engineer at Shohoz and maintainer of the public Lorapok repositories.",
   links: {
-    portfolio: "https://maijied.github.io/Maijied/",
+    portfolio: "https://maizied.lorapok.tech",
     github: "https://github.com/Maijied",
     linkedin: "https://www.linkedin.com/in/maijied/",
     telegram: "https://t.me/Maijied",
@@ -238,7 +238,7 @@ export const projects: Project[] = [
     image: "/assets/projects/keyboard-banner.png",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Keyboard/", icon: "web" },
+      { label: "Live", url: "https://keyboard.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Keyboard", icon: "github" },
     ],
   },
@@ -266,7 +266,6 @@ export const projects: Project[] = [
     image: "/assets/projects/roast-service-logo.png",
     imageType: "icon",
     links: [
-      { label: "Web", url: "https://maijied.github.io/roast-as-a-service/", icon: "web" },
       { label: "npm", url: "https://www.npmjs.com/package/roast-api", icon: "npm" },
       { label: "PyPI", url: "https://pypi.org/project/roast-api/", icon: "pypi" },
       { label: "Packagist", url: "https://packagist.org/packages/maizied/roast-api", icon: "packagist" },
@@ -282,7 +281,7 @@ export const projects: Project[] = [
     image: "/assets/projects/localsync-icon.png",
     imageType: "icon",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-LocalSync/", icon: "web" },
+      { label: "Live", url: "https://localsync.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-LocalSync", icon: "github" },
     ],
   },
@@ -295,7 +294,6 @@ export const projects: Project[] = [
     image: "/assets/projects/ollama-chat-banner.svg",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Dynamic-Ollama-LLM-Chat-Interface/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Dynamic-Ollama-LLM-Chat-Interface", icon: "github" },
     ],
   },
@@ -309,7 +307,6 @@ export const projects: Project[] = [
     image: "/assets/projects/laravel-monitor.png",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://maijied.github.io/lorapok/", icon: "web" },
       { label: "Packagist", url: "https://packagist.org/packages/lorapok/laravel-execution-monitor", icon: "packagist" },
       { label: "GitHub", url: "https://github.com/Maijied/lorapok", icon: "github" },
     ],
@@ -361,7 +358,7 @@ export const projects: Project[] = [
     image: "/assets/projects/hazari-scoreboard.png",
     imageType: "cover",
     links: [
-      { label: "Live", url: "https://maijied.github.io/Hazari_Scoreboard/", icon: "web" },
+      { label: "Live", url: "https://hazari.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Hazari_Scoreboard", icon: "github" },
     ],
   },
@@ -374,7 +371,7 @@ export const projects: Project[] = [
     image: "/assets/projects/linpad-preview.png",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://maijied.github.io/linpad/", icon: "web" },
+      { label: "Live", url: "https://linpad.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/linpad", icon: "github" },
     ],
   },
@@ -556,6 +553,7 @@ export const projects: Project[] = [
     image: "/assets/projects/aswitchi-social.jpg",
     imageType: "cover",
     links: [
+      { label: "Live", url: "https://aswitchi.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/AswitchI", icon: "github" },
     ],
   },
@@ -584,7 +582,7 @@ export const projects: Project[] = [
     image: "/assets/projects/babla-banner.svg",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Bab.La/", icon: "web" },
+      { label: "Live", url: "https://babla.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Bab.La", icon: "github" },
     ],
   },
@@ -598,7 +596,6 @@ export const projects: Project[] = [
     image: "/assets/projects/brainspark-preview.jpg",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-GameSpark/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-GameSpark", icon: "github" },
     ],
   },
@@ -612,7 +609,7 @@ export const projects: Project[] = [
     image: "/assets/projects/tabman-icon.png",
     imageType: "icon",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-TabMan/", icon: "web" },
+      { label: "Live", url: "https://tabman.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-TabMan", icon: "github" },
     ],
   },
@@ -626,7 +623,6 @@ export const projects: Project[] = [
     image: "/assets/projects/lorasports-icon.png",
     imageType: "icon",
     links: [
-      { label: "Web", url: "https://maijied.github.io/LoraSports/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/LoraSports", icon: "github" },
     ],
   },
@@ -654,7 +650,7 @@ export const projects: Project[] = [
     image: "/assets/projects/loracon-icon.png",
     imageType: "icon",
     links: [
-      { label: "Web", url: "https://lorapok.github.io/LoraCon/", icon: "web" },
+      { label: "Live", url: "https://loracon.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Lorapok/LoraCon", icon: "github" },
     ],
   },
@@ -668,7 +664,7 @@ export const projects: Project[] = [
     image: "/assets/projects/hadi-memoriam.png",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://hadi-memoriam.vercel.app", icon: "web" },
+      { label: "Live", url: "https://hadi.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Lorapok/Hadi-Memoriam", icon: "github" },
     ],
   },
@@ -682,7 +678,7 @@ export const projects: Project[] = [
     image: "/assets/projects/red-bot-icon.png",
     imageType: "icon",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Red-Bot/", icon: "web" },
+      { label: "Live", url: "https://redbot.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Red-Bot", icon: "github" },
     ],
   },
@@ -696,7 +692,6 @@ export const projects: Project[] = [
     image: "/assets/projects/querycraft-visual.svg",
     imageType: "cover",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Querycraft/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Querycraft", icon: "github" },
     ],
   },
@@ -726,7 +721,6 @@ export const projects: Project[] = [
     image: "/assets/projects/cloramf-icon.png",
     imageType: "icon",
     links: [
-      { label: "Live Web", url: "https://maijied.github.io/CLoraMF/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/CLoraMF", icon: "github" },
     ],
   },
@@ -775,7 +769,6 @@ export const projects: Project[] = [
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Inventory-System/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Inventory-System", icon: "github" },
     ],
   },
@@ -793,7 +786,6 @@ export const projects: Project[] = [
     imageType: "icon",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Sorcerer/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Sorcerer", icon: "github" },
     ],
   },
@@ -811,7 +803,6 @@ export const projects: Project[] = [
     imageType: "icon",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-MindNode/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-MindNode", icon: "github" },
     ],
   },
@@ -828,7 +819,7 @@ export const projects: Project[] = [
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Git-Geek", icon: "web" },
+      { label: "Live", url: "https://gitgeek.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Git-Geek", icon: "github" },
     ],
   },
@@ -845,7 +836,6 @@ export const projects: Project[] = [
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Intellij-Lorapok/", icon: "web" },
       { label: "Marketplace", url: "https://plugins.jetbrains.com/vendor/lorapok-labs", icon: "box" },
       { label: "GitHub", url: "https://github.com/Maijied/Intellij-Lorapok", icon: "github" },
     ],
@@ -863,7 +853,6 @@ export const projects: Project[] = [
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "Web", url: "https://maijied.github.io/Lorapok-Labs-Bible/", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Labs-Bible", icon: "github" },
     ],
   },
@@ -897,6 +886,7 @@ export const projects: Project[] = [
     imageType: "icon",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
+      { label: "Live Studio", url: "https://smilo.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Smilo", icon: "github" },
     ],
   },

@@ -22,7 +22,11 @@ import {
   DownloadCloud,
   Mail,
   Palette,
-  Frame
+  Frame,
+  Box,
+  Server,
+  Globe,
+  CheckCircle2
 } from 'lucide-react';
 import { brand, philosophy, projects, getCreatorWorks } from '../data/lorapok';
 import { SEOHead } from '../components/SEOHead';
@@ -594,50 +598,282 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-mono text-[#67ff8f] uppercase tracking-wider mb-1">
-                <Activity size={14} className="animate-pulse" /> Edge & Cloud Services
+                <Activity size={14} className="animate-pulse" /> Edge & Cloud Services Network
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Live lorapok.tech Subdomains</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Live lorapok.tech Ecosystem Subdomains</h2>
             </div>
             <span className="text-xs font-mono text-gray-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
-              Global CDN • Zero Latency
+              Cloudflare Anycast CDN • Zero Latency • Global Edge
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5">
             {[
-              { name: "SeeYou SEO", sub: "seeyou.lorapok.tech", url: "https://seeyou.lorapok.tech/", tag: "iCanSeeYou" },
-              { name: "Atlas Console", sub: "atlas.lorapok.tech", url: "https://atlas.lorapok.tech/", tag: "API directory" },
-              { name: "Cursor Monitor", sub: "cursor.lorapok.tech", url: "https://cursor.lorapok.tech/", tag: "Live Limits" },
-              { name: "Loragent AI", sub: "loragent.lorapok.tech", url: "https://loragent.lorapok.tech/", tag: "Multi-Agent" },
-              { name: "ReportKit Stack", sub: "reportkit.lorapok.tech", url: "https://reportkit.lorapok.tech/", tag: "Reporting Engine" },
-              { name: "Media Engine", sub: "media.lorapok.tech", url: "https://media.lorapok.tech/", tag: "Sensory UI" },
-              { name: "AI Coding Agent", sub: "ai.lorapok.tech", url: "https://ai.lorapok.tech/", tag: "Autonomous" },
-              { name: "Maizied", sub: "maizied.lorapok.tech", url: "https://maizied.lorapok.tech/", tag: "Portfolio" },
+              { name: "SeeYou SEO", sub: "seeyou.lorapok.tech", url: "https://seeyou.lorapok.tech/", tag: "Agentic SEO & AEO" },
+              { name: "Atlas Console", sub: "atlas.lorapok.tech", url: "https://atlas.lorapok.tech/", tag: "2,100+ Free APIs" },
+              { name: "Cursor Monitor", sub: "cursor.lorapok.tech", url: "https://cursor.lorapok.tech/", tag: "Live AI Quota" },
+              { name: "Loragent AI", sub: "loragent.lorapok.tech", url: "https://loragent.lorapok.tech/", tag: "Multi-Agent System" },
+              { name: "Smilo Studio", sub: "smilo.lorapok.tech", url: "https://smilo.lorapok.tech/", tag: "Rust Camera Suite" },
+              { name: "Linpad Editor", sub: "linpad.lorapok.tech", url: "https://linpad.lorapok.tech/", tag: "Minimalist Text" },
+              { name: "Media Engine", sub: "media.lorapok.tech", url: "https://media.lorapok.tech/", tag: "Biological UI Player" },
+              { name: "AI Coding Agent", sub: "ai.lorapok.tech", url: "https://ai.lorapok.tech/", tag: "Autonomous CLI" },
+              { name: "AswitchI Launchpad", sub: "aswitchi.lorapok.tech", url: "https://aswitchi.lorapok.tech/", tag: "Ubuntu Switcher" },
+              { name: "Bab.La Broadcast", sub: "babla.lorapok.tech", url: "https://babla.lorapok.tech/", tag: "Multi-Channel Post" },
+              { name: "Bangla Keyboard", sub: "keyboard.lorapok.tech", url: "https://keyboard.lorapok.tech/", tag: "Bengali NLP Input" },
+              { name: "LoraHost Cloud", sub: "lorahost.lorapok.tech", url: "https://lorahost.lorapok.tech/", tag: "Cloud Web Hosting" },
+              { name: "HomeDyn OS", sub: "homedyn.lorapok.tech", url: "https://homedyn.lorapok.tech/", tag: "Hospitality Suite" },
+              { name: "LoraCon Engine", sub: "loracon.lorapok.tech", url: "https://loracon.lorapok.tech/", tag: "Format & Unit Convert" },
+              { name: "TabMan Manager", sub: "tabman.lorapok.tech", url: "https://tabman.lorapok.tech/", tag: "Memory Hibernation" },
+              { name: "LocalSync Net", sub: "localsync.lorapok.tech", url: "https://localsync.lorapok.tech/", tag: "Local Router P2P" },
+              { name: "Hazari Scoreboard", sub: "hazari.lorapok.tech", url: "https://hazari.lorapok.tech/", tag: "Glassmorphism Card" },
+              { name: "Hadi Memoriam", sub: "hadi.lorapok.tech", url: "https://hadi.lorapok.tech/", tag: "Civic Memorial" },
+              { name: "Lora Super-App", sub: "lora.lorapok.tech", url: "https://lora.lorapok.tech/", tag: "339+ Screen App" },
+              { name: "NoCatch Harvester", sub: "nocatch.lorapok.tech", url: "https://nocatch.lorapok.tech/", tag: "NotebookLM Harvester" },
+              { name: "Borshon 3D Studio", sub: "borshon.lorapok.tech", url: "https://borshon.lorapok.tech/", tag: "Fine Art & Sculpt" },
+              { name: "Lorapok Red Bot", sub: "redbot.lorapok.tech", url: "https://redbot.lorapok.tech/", tag: "Reddit Moderator" },
+              { name: "Git Geek Agent", sub: "gitgeek.lorapok.tech", url: "https://gitgeek.lorapok.tech/", tag: "Git Automation Hub" },
+              { name: "Maizied Portfolio", sub: "maizied.lorapok.tech", url: "https://maizied.lorapok.tech/", tag: "Architect Portal" },
             ].map((sub) => (
               <a
                 key={sub.sub}
                 href={sub.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group p-4 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 hover:border-[#67ff8f]/40 transition-all flex flex-col justify-between"
+                className="group p-3.5 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 hover:border-[#67ff8f]/40 transition-all flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#67ff8f]">
-                      <span className="w-2 h-2 rounded-full bg-[#67ff8f] animate-ping" />
-                      ONLINE
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-[#67ff8f]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#67ff8f] animate-ping" />
+                      LIVE
                     </span>
-                    <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                    <ExternalLink size={12} className="text-gray-500 group-hover:text-white transition-colors" />
                   </div>
-                  <h3 className="text-sm font-bold text-white group-hover:text-[#67ff8f] transition-colors">{sub.name}</h3>
-                  <p className="text-xs font-mono text-gray-400">{sub.sub}</p>
+                  <h3 className="text-xs font-bold text-white group-hover:text-[#67ff8f] transition-colors line-clamp-1">{sub.name}</h3>
+                  <p className="text-[10px] font-mono text-gray-400 truncate">{sub.sub}</p>
                 </div>
-                <div className="mt-4 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-gray-400">
-                  <span>{sub.tag}</span>
-                  <span className="text-[#67ff8f] group-hover:translate-x-1 transition-transform">&rarr;</span>
+                <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-gray-400">
+                  <span className="truncate mr-1">{sub.tag}</span>
+                  <span className="text-[#67ff8f] group-hover:translate-x-1 transition-transform shrink-0">&rarr;</span>
                 </div>
               </a>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── IDE Plugins, MCP Servers & Extensibility Matrix ─── */}
+      <section className="px-4 max-w-7xl mx-auto w-full">
+        <div className="bg-gradient-to-b from-[#0c0f1a] via-[#090b14] to-[#07080f] border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#38bdf8]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#67ff8f]/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10 pb-6 border-b border-white/10 relative z-10">
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#38bdf8] uppercase tracking-wider mb-2">
+                <Cpu size={14} /> Developer Toolchain & Protocols
+              </div>
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+                IDE Plugins, MCP Servers & Agent Skills
+              </h2>
+              <p className="text-gray-400 max-w-2xl text-sm sm:text-base mt-2 leading-relaxed">
+                Seamlessly augment your workflow across Cursor AI, VS Code, JetBrains, Windsurf, Claude Code, and Antigravity IDE with Lorapok's public MCP servers and autonomous skill protocols.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-[#38bdf8]/10 text-[#38bdf8] border border-[#38bdf8]/30">
+                Universal Model Context Protocol (MCP)
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
+            {/* Card 1: Cursor AI Tooling */}
+            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#38bdf8]/40 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border text-cyan-400 bg-cyan-400/10 border-cyan-400/30">
+                    IDE Plugin & Quotas
+                  </span>
+                  <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-[#38bdf8] transition-colors mb-2">
+                  Cursor Curse Monitor
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                  Real-time usage, quota, and budget burn-rate monitor for Cursor AI accounts. Includes automated free-fallback model rollover and VS Code / Firefox AMO extensions.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Cursor AI</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">VS Code</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Firefox AMO</span>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                <a href="https://cursor.lorapok.tech" target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-[#38bdf8] hover:underline flex items-center gap-1">
+                  Launch Monitor &rarr;
+                </a>
+                <a href="https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor" target="_blank" rel="noopener noreferrer" className="text-[11px] font-mono text-gray-400 hover:text-white">
+                  Marketplace
+                </a>
+              </div>
+            </div>
+
+            {/* Card 2: Lorapok API Atlas MCP */}
+            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#67ff8f]/40 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border text-[#67ff8f] bg-[#67ff8f]/10 border-[#67ff8f]/30">
+                    Remote MCP & Extension
+                  </span>
+                  <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-[#67ff8f] transition-colors mb-2">
+                  Lorapok Atlas MCP Server
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                  Published on npm as <code className="text-[#67ff8f]">lorapok-atlas-mcp</code>. Gives any MCP-compliant AI assistant live tools to search and execute 2,100+ public and open APIs.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">npm</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Open VSX</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Claude Code</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Antigravity</span>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                <a href="https://atlas.lorapok.tech" target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-[#67ff8f] hover:underline flex items-center gap-1">
+                  Open Atlas Console &rarr;
+                </a>
+                <a href="https://www.npmjs.com/package/lorapok-atlas-mcp" target="_blank" rel="noopener noreferrer" className="text-[11px] font-mono text-gray-400 hover:text-white">
+                  npm package
+                </a>
+              </div>
+            </div>
+
+            {/* Card 3: SeeYou Agentic SEO MCP */}
+            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-purple-400/40 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border text-purple-400 bg-purple-400/10 border-purple-400/30">
+                    Agentic SEO MCP
+                  </span>
+                  <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors mb-2">
+                  SeeYou (iCanSeeYou) MCP
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                  Remote MCP + API + interactive dashboard auditing web pages from the crawler perspective. Analyzes render gaps, schema definitions, and returns prioritized ROI fix plans.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Cloudflare Workers</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Remote SSE</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">AEO Engine</span>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                <a href="https://seeyou.lorapok.tech" target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-purple-400 hover:underline flex items-center gap-1">
+                  Launch SeeYou &rarr;
+                </a>
+                <a href="https://github.com/Lorapok/SeeYou" target="_blank" rel="noopener noreferrer" className="text-[11px] font-mono text-gray-400 hover:text-white">
+                  GitHub
+                </a>
+              </div>
+            </div>
+
+            {/* Card 4: IntelliJ Lorapok */}
+            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-amber-400/40 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border text-amber-400 bg-amber-400/10 border-amber-400/30">
+                    JetBrains Marketplace
+                  </span>
+                  <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors mb-2">
+                  IntelliJ Lorapok AI Agent
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                  JetBrains IDE plugin with multi-provider model routing, local MCP integration, and autonomous sub-agent delegation across IntelliJ IDEA, PhpStorm, and PyCharm.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">PhpStorm</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">IntelliJ IDEA</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Sub-Agents</span>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                <a href="https://plugins.jetbrains.com/vendor/lorapok-labs" target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-amber-400 hover:underline flex items-center gap-1">
+                  Vendor Portal &rarr;
+                </a>
+                <a href="https://github.com/Maijied/Intellij-Lorapok" target="_blank" rel="noopener noreferrer" className="text-[11px] font-mono text-gray-400 hover:text-white">
+                  GitHub
+                </a>
+              </div>
+            </div>
+
+            {/* Card 5: Loragent MCP Engine */}
+            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#67ff8f]/40 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border text-[#67ff8f] bg-[#67ff8f]/10 border-[#67ff8f]/30">
+                    Multi-Agent MCP Standard
+                  </span>
+                  <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-[#67ff8f] transition-colors mb-2">
+                  Loragent MCP Protocol
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                  Native tool delegation primitives: <code className="text-[#67ff8f]">summon_agent</code>, <code className="text-[#67ff8f]">dismiss_agent</code>, <code className="text-[#67ff8f]">steer</code>, <code className="text-[#67ff8f]">watchman_save</code>, and lifecycle telemetry sync across IDE runtimes.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">224 Skills</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Spidernet</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Watchman Cache</span>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                <a href="https://loragent.lorapok.tech" target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-[#67ff8f] hover:underline flex items-center gap-1">
+                  Explore Loragent &rarr;
+                </a>
+                <Link to="/agents" className="text-[11px] font-mono text-gray-400 hover:text-white">
+                  Skill Catalog
+                </Link>
+              </div>
+            </div>
+
+            {/* Card 6: Firefox AMO Developer Addons */}
+            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-orange-400/40 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full border text-orange-400 bg-orange-400/10 border-orange-400/30">
+                    Browser Extensions
+                  </span>
+                  <ExternalLink size={14} className="text-gray-500 group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">
+                  Firefox AMO Addon Suite
+                </h3>
+                <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                  Official published Mozilla extensions including Lorapok Atlas, Cursor Curse Monitor, SubtitleMaster, TabMan memory manager, and XSnap media downloader.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Firefox AMO</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Opera</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300">Manifest V3</span>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                <a href="https://addons.mozilla.org/firefox/user/lorapok/" target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-orange-400 hover:underline flex items-center gap-1">
+                  Mozilla AMO Portal &rarr;
+                </a>
+                <Link to="/projects?category=browser-extensions" className="text-[11px] font-mono text-gray-400 hover:text-white">
+                  Catalog
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
