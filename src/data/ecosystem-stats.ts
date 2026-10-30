@@ -21,13 +21,16 @@ export const ecosystemStats = {
     "HTML",
   ],
   platforms: [
+    { name: "Cursor AI", icon: "vscode" as const, url: "https://cursor.lorapok.tech" },
     { name: "VS Code", icon: "vscode" as const, url: "https://marketplace.visualstudio.com/publishers/LorapokLabs" },
     { name: "Open VSX", icon: "vscode" as const, url: "https://open-vsx.org/namespace/LorapokLabs" },
+    { name: "JetBrains", icon: "vscode" as const, url: "https://plugins.jetbrains.com/vendor/lorapok-labs" },
     { name: "Firefox AMO", icon: "firefox" as const, url: "https://addons.mozilla.org/firefox/user/lorapok/" },
     { name: "npm", icon: "npm" as const, url: "https://www.npmjs.com/search?q=lorapok" },
     { name: "PyPI", icon: "pypi" as const, url: "https://pypi.org/project/roast-api/" },
     { name: "Packagist", icon: "packagist" as const, url: "https://packagist.org/packages/lorapok/" },
     { name: "Snapcraft", icon: "snap" as const, url: "https://snapcraft.io/lorapokmediaplayer" },
+    { name: "MCP Registry", icon: "box" as const, url: "https://www.npmjs.com/package/lorapok-atlas-mcp" },
   ],
   social: [
     { name: "GitHub", url: "https://github.com/Lorapok" },
