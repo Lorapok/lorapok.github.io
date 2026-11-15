@@ -339,6 +339,11 @@ async function runAgent() {
         }
         console.log(`📝 [Local Catalog] Archiving draft: ${blogPost.title}`);
         (0, catalogPolicy_1.persistDraft)(newPost);
+        // Mirror the quality-gate verdict into Firestore so the live blog and exports agree with the repo.
+        const verdict = (0, catalogPolicy_1.loadAllForDedup)().find((p) => (p.slug || p.id) === docId);
+        if (db && verdict) {
+            await db.collection('blog_posts').doc(docId).set({ status: verdict.status, gate: verdict.gate, gateReasons: verdict.gateReasons || [] }, { merge: true }).catch(() => { });
+        }
         const publicNotes = (0, catalogPolicy_1.loadPublicPosts)();
         const dir = path.dirname(postsJsonPath);
         updateFeedsLocally(publicNotes, dir);

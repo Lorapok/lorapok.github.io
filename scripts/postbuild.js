@@ -166,7 +166,8 @@ if (fs.existsSync(postsJsonPath)) {
 let blogPagesCount = 0;
 for (const post of posts) {
   if (!post.slug) continue;
-  if (post.source !== "manual" || (post.status && post.status !== "published")) continue;
+  const isPublic = (post.status || "published") === "published" && (post.source === "manual" || (post.source === "ai-agent" && post.gate === "passed"));
+  if (!isPublic) continue;
 
   const postDir = path.join(distDir, 'blog', post.slug);
   if (!fs.existsSync(postDir)) {
