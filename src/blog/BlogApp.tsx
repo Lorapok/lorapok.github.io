@@ -197,9 +197,9 @@ export function matchesCategory(post: BlogPost, catId: string): boolean {
 
 const DEMO_POSTS: BlogPost[] = [];
 
-function isPublicNote(post: { source?: string; status?: string } | null | undefined): boolean {
-  if (!post) return false;
-  return post.source === "manual" && (post.status || "published") === "published";
+function isPublicNote(post: { source?: string; status?: string; gate?: string } | null | undefined): boolean {
+  if (!post || (post.status || "published") !== "published") return false;
+  return post.source === "manual" || (post.source === "ai-agent" && post.gate === "passed");
 }
 
 // ─── Helper Functions ───

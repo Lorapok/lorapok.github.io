@@ -3,79 +3,239 @@
   <channel>
     <title>LoLaBo — Lorapok Labs Blog</title>
     <link>https://lorapok.tech/blog</link>
-    <description>Notes on public Lorapok repositories by Mohammad Maizied Hasan Majumder.</description>
+    <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>
     <language>en-us</language>
-    <lastBuildDate>Tue, 14 Oct 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 15 Nov 2026 04:31:19 GMT</lastBuildDate>
     <atom:link href="https://lorapok.tech/blog/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Deep Dive: Architecting Lock-Free LSM-B+Tree Engines: SIMD Vector Clocks, Page Recirculation, and Bounded WAL Shadowing</title>
+      <link>https://lorapok.tech/blog/deep-dive-architecting-lock-free-lsm-b-tree-engines-simd-vector-clocks-page-recirculation-and-bounded-wal-shadowing/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/deep-dive-architecting-lock-free-lsm-b-tree-engines-simd-vector-clocks-page-recirculation-and-bounded-wal-shadowing/</guid>
+      <pubDate>Sun, 25 Oct 2026 20:08:59 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>An in-depth systems analysis of building zero-allocation, crash-consistent edge storage engines optimized for low-connectivity environments, featuring lock-free skiplist memtables and SIMD-accelerated vector clock reconciliation.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Rust</category>
+    <category>SQLite</category>
+    <category>EdgeComputing</category>
+    <category>Architecture</category>
+    </item>
     <item>
       <title>Lorapok Inventory System keeps each shop in its own database</title>
       <link>https://lorapok.tech/blog/lorapok-inventory-system/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/lorapok-inventory-system/</guid>
-      <pubDate>2026-10-14T02:00:00.000Z</pubDate>
+      <pubDate>Wed, 14 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The Lorapok-Inventory-System README describes a multi-tenant point of sale where each shop has its own subdomain, branding, and database.</description>
+    <category>php</category>
+    <category>inventory</category>
+    <category>lorapok</category>
     </item>
     <item>
       <title>MindNode encrypts notes in the browser before they are stored</title>
       <link>https://lorapok.tech/blog/lorapok-mindnode/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/lorapok-mindnode/</guid>
-      <pubDate>2026-10-13T02:00:00.000Z</pubDate>
+      <pubDate>Tue, 13 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The MindNode README describes a key-based notepad that encrypts notes with the Web Crypto API and does not keep server-side keys.</description>
+    <category>javascript</category>
+    <category>encryption</category>
+    <category>notepad</category>
     </item>
     <item>
       <title>Lorapok Atlas is a dashboard for browsing public APIs</title>
       <link>https://lorapok.tech/blog/lorapok-atlas-public-api-directory/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/lorapok-atlas-public-api-directory/</guid>
-      <pubDate>2026-10-12T02:00:00.000Z</pubDate>
+      <pubDate>Mon, 12 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The Atlas README describes a directory where developers browse and live-test public APIs. The same repository is published under both @Maijied and @Lorapok.</description>
+    <category>typescript</category>
+    <category>api</category>
+    <category>atlas</category>
     </item>
     <item>
       <title>Cursor Curse Monitor reads Cursor usage on the local machine</title>
       <link>https://lorapok.tech/blog/cursor-curse-monitor-usage-dashboard/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/cursor-curse-monitor-usage-dashboard/</guid>
-      <pubDate>2026-10-11T02:00:00.000Z</pubDate>
+      <pubDate>Sun, 11 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The extension README describes a dashboard for Cursor limits, remaining quota, billing-cycle reset, and on-demand spend.</description>
+    <category>javascript</category>
+    <category>cursor</category>
+    <category>vscode</category>
     </item>
     <item>
       <title>Loragent is a multi-agent catalog with 224 skill definitions on this site</title>
       <link>https://lorapok.tech/blog/loragent-skill-catalog/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/loragent-skill-catalog/</guid>
-      <pubDate>2026-10-10T02:00:00.000Z</pubDate>
+      <pubDate>Sat, 10 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The Loragent README describes an orchestration framework for IDE agents. The skill index in this repository counts 224 definitions.</description>
+    <category>javascript</category>
+    <category>agents</category>
+    <category>loragent</category>
     </item>
     <item>
       <title>SeeYou audits a site the way a crawler renders it</title>
       <link>https://lorapok.tech/blog/seeyou-crawler-view/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/seeyou-crawler-view/</guid>
-      <pubDate>2026-10-09T02:00:00.000Z</pubDate>
+      <pubDate>Fri, 09 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The SeeYou README describes an agentic SEO tool with a remote MCP server, a hosted API, and a dashboard.</description>
+    <category>javascript</category>
+    <category>seo</category>
+    <category>mcp</category>
+    </item>
+    <item>
+      <title>Architecting Deterministic Replay Systems: High-Fidelity State Reconstruction for Autonomous Agentic Runtimes</title>
+      <link>https://lorapok.tech/blog/architecting-deterministic-replay-systems-high-fidelity-state-reconstruction-for-autonomous-agentic-runtimes/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/architecting-deterministic-replay-systems-high-fidelity-state-reconstruction-for-autonomous-agentic-runtimes/</guid>
+      <pubDate>Thu, 08 Oct 2026 20:56:51 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>A deep dive into the engineering of deterministic event-loop replay systems, focusing on syscall virtualization, non-deterministic input masking, and memory-safe state serialization for auditing agentic decision-making.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Rust</category>
+    <category>Architecture</category>
+    <category>DistributedSystems</category>
     </item>
     <item>
       <title>FreqGhost visualizes WiFi sensing and vital signs</title>
       <link>https://lorapok.tech/blog/freqghost-wifi-sensing/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/freqghost-wifi-sensing/</guid>
-      <pubDate>2026-10-08T02:00:00.000Z</pubDate>
+      <pubDate>Thu, 08 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The FreqGhost README describes a WiFi sensing observatory that maps motion and estimates respiration and heart rate from channel state information.</description>
+    <category>python</category>
+    <category>wifi</category>
+    <category>sensing</category>
     </item>
     <item>
       <title>ReportKit is a PHP report stack for Laravel and plain PHP</title>
       <link>https://lorapok.tech/blog/reportkit-php-report-stack/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/reportkit-php-report-stack/</guid>
-      <pubDate>2026-10-07T02:00:00.000Z</pubDate>
+      <pubDate>Wed, 07 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The ReportKit README describes a prepare, store, compose, and send flow that targets current Laravel and older plain-PHP deployments.</description>
+    <category>php</category>
+    <category>laravel</category>
+    <category>reports</category>
     </item>
     <item>
       <title>Roast as a Service is a static JSON API of developer roasts</title>
       <link>https://lorapok.tech/blog/roast-as-a-service-static-api/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/roast-as-a-service-static-api/</guid>
-      <pubDate>2026-10-06T02:00:00.000Z</pubDate>
+      <pubDate>Tue, 06 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The roast-as-a-service README describes a static API on GitHub Pages that returns developer roasts for apps, bots, terminals, or CI logs.</description>
+    <category>api</category>
+    <category>javascript</category>
+    <category>humor</category>
     </item>
     <item>
       <title>dCursor runs a second Cursor instance beside the first</title>
       <link>https://lorapok.tech/blog/dcursor-second-cursor-install/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/dcursor-second-cursor-install/</guid>
-      <pubDate>2026-10-05T02:00:00.000Z</pubDate>
+      <pubDate>Mon, 05 Oct 2026 02:00:00 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
       <description>The dCursor README describes a Debian package that mirrors Cursor with a separate account, extensions, agent, MCP servers, and settings.</description>
+    <category>python</category>
+    <category>cursor</category>
+    <category>linux</category>
+    </item>
+    <item>
+      <title>Architecting Disaggregated GPU Memory Fabrics: RDMA-Accelerated KV-Cache Offloading via CUDA Unified Virtual Addressing</title>
+      <link>https://lorapok.tech/blog/architecting-disaggregated-gpu-memory-fabrics-rdma-accelerated-kv-cache-offloading-via-cuda-unified-virtual-addressing/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/architecting-disaggregated-gpu-memory-fabrics-rdma-accelerated-kv-cache-offloading-via-cuda-unified-virtual-addressing/</guid>
+      <pubDate>Sat, 26 Sep 2026 17:07:04 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>A formal analysis of disaggregated inference architectures, detailing the implementation of RDMA-backed KV-cache offloading to overcome GPU VRAM bottlenecks in high-concurrency LLM serving.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Rust</category>
+    <category>Architecture</category>
+    <category>DistributedSystems</category>
+    <category>RDMA</category>
+    <category>CUDA</category>
+    </item>
+    <item>
+      <title>Architecting Interruptible Agentic Control Planes: Non-Blocking Pause Barriers and Kernel-Enforced Execution Abort Protocols for Autonomous Systems</title>
+      <link>https://lorapok.tech/blog/architecting-interruptible-agentic-control-planes-non-blocking-pause-barriers-and-kernel-enforced-execution-abort-protocols-for-autonomous-systems/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/architecting-interruptible-agentic-control-planes-non-blocking-pause-barriers-and-kernel-enforced-execution-abort-protocols-for-autonomous-systems/</guid>
+      <pubDate>Thu, 24 Sep 2026 11:40:23 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>An exhaustive engineering blueprint detailing kernel-level pause barriers, non-blocking asynchronous interrupt mechanics, and ring-buffer abort protocols for autonomous agents executing live system mutations.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Rust</category>
+    <category>Architecture</category>
+    <category>DistributedSystems</category>
+    <category>eBPF</category>
+    <category>Kernel</category>
+    </item>
+    <item>
+      <title>Architecting Distributed Continuous-Evaluation Fabrics for Foundation Models: MicroVM Snapshot Cloning, Lock-Free Trace Buses, and Sharded Metric Quorums</title>
+      <link>https://lorapok.tech/blog/architecting-distributed-continuous-evaluation-fabrics-for-foundation-models-microvm-snapshot-cloning-lock-free-trace-buses-and-sharded-metric-quorums/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/architecting-distributed-continuous-evaluation-fabrics-for-foundation-models-microvm-snapshot-cloning-lock-free-trace-buses-and-sharded-metric-quorums/</guid>
+      <pubDate>Sat, 19 Sep 2026 14:51:25 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>A deep architectural blueprint for enterprise-grade autonomous model verification, detailing hardware-assisted microVM snapshot isolation, zero-copy IPC trace buses, and Byzantine-fault-tolerant metric quorum consensus.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Architecture</category>
+    <category>DistributedSystems</category>
+    <category>Virtualization</category>
+    <category>Rust</category>
+    <category>Infrastructure</category>
+    </item>
+    <item>
+      <title>Deep Dive: Architecting Decentralized Autonomous Coding Agent State Fabrics via Local Memory Inspectors, Lock-Free Ring Buffers, and AST-Driven Hashing</title>
+      <link>https://lorapok.tech/blog/deep-dive-architecting-decentralized-autonomous-coding-agent-state-fabrics-via-local-memory-inspectors-lock-free-ring-buffers-and-ast-driven-hashing/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/deep-dive-architecting-decentralized-autonomous-coding-agent-state-fabrics-via-local-memory-inspectors-lock-free-ring-buffers-and-ast-driven-hashing/</guid>
+      <pubDate>Fri, 18 Sep 2026 15:30:03 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>An exhaustive systems-engineering breakdown of local memory inspection engines and lock-free ring buffers for multi-agent coding swarms, mitigating the &apos;vibe-coding&apos; trap through deterministic AST-driven state synchronization.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Rust</category>
+    <category>Architecture</category>
+    <category>DistributedSystems</category>
+    <category>MemoryManagement</category>
+    </item>
+    <item>
+      <title>RFC-0182: Deterministic Fault-Injection Frameworks for Agentic State Machines via Hardware-Assisted Taint Tracking</title>
+      <link>https://lorapok.tech/blog/rfc-0182-deterministic-fault-injection-frameworks-for-agentic-state-machines-via-hardware-assisted-taint-tracking/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/rfc-0182-deterministic-fault-injection-frameworks-for-agentic-state-machines-via-hardware-assisted-taint-tracking/</guid>
+      <pubDate>Mon, 14 Sep 2026 16:56:24 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>A formal specification for embedding deterministic fault-injection into autonomous agent runtimes to validate safety invariants against non-deterministic LLM output and systemic environment drift.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Rust</category>
+    <category>Architecture</category>
+    <category>DistributedSystems</category>
+    <category>SafetyEngineering</category>
+    </item>
+    <item>
+      <title>Architecting a Multi-Modal Ingestion Engine for Robotics Foundation Models: Real-Time Sensor Alignment, Zero-Copy Ring Buffers, and GPUDirect Storage Integration</title>
+      <link>https://lorapok.tech/blog/architecting-a-multi-modal-ingestion-engine-for-robotics-foundation-models-real-time-sensor-alignment-zero-copy-ring-buffers-and-gpudirect-storage-integration/</link>
+      <guid isPermaLink="true">https://lorapok.tech/blog/architecting-a-multi-modal-ingestion-engine-for-robotics-foundation-models-real-time-sensor-alignment-zero-copy-ring-buffers-and-gpudirect-storage-integration/</guid>
+      <pubDate>Sat, 12 Sep 2026 19:45:55 GMT</pubDate>
+      <author>lorapokdev@gmail.com (Captain Deploy)</author>
+      <description>Discover how to design a high-throughput, low-latency ingestion pipeline for Vision-Language-Action (VLA) models. Learn to eliminate CPU-GPU bottlenecking using RoCEv2, lock-free ring buffers, and GPUDirect Storage.</description>
+    <category>LorapokLabs</category>
+    <category>Lorapok</category>
+    <category>CitationsAvailable</category>
+    <category>Architecture</category>
+    <category>Cloud</category>
     </item>
   </channel>
 </rss>

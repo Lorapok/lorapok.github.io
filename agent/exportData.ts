@@ -165,6 +165,13 @@ async function exportBlogData() {
         };
 
         const key = (postObj.slug || postObj.id) as string;
+        // A local quality-gate verdict is authoritative: Firestore may still hold the pre-gate 'draft' copy.
+        const local = postMap.get(key);
+        if (local && local.gate === 'passed') {
+          postObj.status = local.status || 'published';
+          postObj.gate = 'passed';
+          postObj.gateReasons = [];
+        }
         // Merge or update with Firestore data only if not in purged set
         if (!PURGED_SLUGS.has(key)) {
           postMap.set(key, postObj);
