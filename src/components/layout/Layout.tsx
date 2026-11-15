@@ -1,20 +1,25 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import ScrollProgress from './ScrollProgress';
-import '../../styles/layout.css';
+import { useV4Effects } from '../v4/useV4Effects';
+import '../../styles/v4.css';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const { pathname } = useLocation();
+  useV4Effects([pathname]);
+  const isHome = pathname === '/';
   return (
-    <div className="lp-shell min-h-screen text-gray-200 flex flex-col font-sans">
-      <a href="#main" className="lp-skip">Skip to content</a>
-      <ScrollProgress />
+    <div className="v4 min-h-screen flex flex-col">
+      <a href="#main" className="skip">Skip to content</a>
+      <div className="scroll-progress" aria-hidden="true" />
+      <div className="cursor-glow" aria-hidden="true" />
       <Navbar />
-      <main id="main" style={{ minHeight: '100vh', paddingTop: '64px' }} className="flex-grow flex flex-col relative">
+      <main id="main" className={`flex-grow flex flex-col relative${isHome ? '' : ' page-top'}`}>
         {children}
       </main>
       <Footer />
