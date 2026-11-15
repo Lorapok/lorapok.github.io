@@ -232,3 +232,5 @@
 .v4 .light p.intro,.v4 .light .section-lead{color:#355f4c}
 .v4 .light .eyebrow{color:#127f5e}
 .v4 .light h2{color:#061c17}
+.v4 .page-top h1{font-family:'Space Grotesk',sans-serif;letter-spacing:-.05em;line-height:.98;font-size:clamp(2.6rem,5.5vw,5rem)}
+.v4 .page-top h2{font-family:'Space Grotesk',sans-serif;letter-spacing:-.04em}
