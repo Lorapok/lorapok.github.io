@@ -1,0 +1,14 @@
+/* Shared Biological UI layer — applies to every page via <Layout>. */
+.lp-shell { --lp-mint: #67f5bb; background: #07120f; background-image: radial-gradient(60% 40% at 80% -5%, rgba(103,245,187,.10), transparent 70%), radial-gradient(40% 30% at 0% 40%, rgba(212,204,255,.06), transparent 70%); background-attachment: fixed; }
+.lp-shell main h1, .lp-shell main h2 { font-family: 'Syne', system-ui, sans-serif; letter-spacing: -0.03em; }
+.lp-shell ::selection { background: rgba(103,245,187,.35); color: #fff; }
+.lp-shell :focus-visible { outline: 2px solid var(--lp-mint); outline-offset: 3px; border-radius: 6px; }
+
+.lp-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 300; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, #67f5bb, #ebfa87); pointer-events: none; }
+.lp-skip { position: fixed; left: 1rem; top: -4rem; z-index: 400; background: #67f5bb; color: #061c17; padding: .6rem 1rem; border-radius: 999px; font-weight: 700; transition: top .2s; }
+.lp-skip:focus { top: 1rem; }
+
+.lp-shell nav.lp-nav { background: rgba(6,28,23,.72); border-bottom-color: rgba(103,245,187,.12); }
+.lp-shell footer { border-top: 1px solid rgba(103,245,187,.12); }
+
+@media (prefers-reduced-motion: reduce) { .lp-progress { display: none; } html { scroll-behavior: auto; } }

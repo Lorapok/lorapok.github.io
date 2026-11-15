@@ -20,7 +20,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[200] border-b border-[rgba(255,255,255,0.06)] bg-[#0a0a0f]/80 backdrop-blur-md">
+    <nav className="lp-nav fixed top-0 left-0 right-0 z-[200] border-b backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
