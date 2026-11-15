@@ -2,7 +2,7 @@ name: LoLaBo AI Agent
 
 on:
   schedule:
-    # Keep generating drafts on the 15-minute cadence. They are archived, not published.
+    # Generate on the 15-minute cadence. Posts publish only if they pass agent/qualityGate.ts; the rest stay private drafts.
     - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
@@ -50,15 +50,16 @@ jobs:
           node index.js
           node exportData.js
 
-      - name: Commit archived drafts only
+      - name: Commit drafts and gate-approved posts
         run: |
           git config --global user.name "LoLaBo Agent"
           git config --global user.email "agent@lorapok.labs"
-          git add public/blog/archive/ai-posts.json
+          git add public/blog/archive/ai-posts.json public/blog/posts.json public/blog/rss.xml public/sitemap.xml
           if git diff --cached --quiet; then
-            echo "No new drafts to archive."
+            echo "Nothing new."
           else
-            git commit -m "chore(blog): archive LoLaBo draft (not public)"
+            if git diff --cached --quiet -- public/blog/posts.json; then MSG="chore(blog): archive LoLaBo draft (not public)"; else MSG="chore(blog): publish LoLaBo post (quality gate passed)"; fi
+            git commit -m "$MSG"
             git pull --rebase origin main || true
             git push origin main
           fi
