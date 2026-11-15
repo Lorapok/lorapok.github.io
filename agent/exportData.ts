@@ -6,6 +6,7 @@
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
+import { isPublicPost } from './catalogPolicy';
 
 // ─── Environment Auto-loading ───
 try {
@@ -176,8 +177,8 @@ async function exportBlogData() {
     console.log("ℹ️ Skipping Firestore query; maintaining existing local catalog.");
   }
 
-  // 3. Public index is manual notes only. Generated drafts stay in the archive.
-  const isPublicManualPost = (p: any) => p && p.source === 'manual' && (p.status || 'published') === 'published';
+  // 3. Public index = manual notes + generated posts that passed the quality gate. Everything else stays in the archive.
+  const isPublicManualPost = (p: any) => isPublicPost(p);
   const allMerged = Array.from(postMap.values());
   const archiveDir = path.join(__dirname, '../public/blog/archive');
   const archivePath = path.join(archiveDir, 'ai-posts.json');

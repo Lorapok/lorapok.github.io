@@ -35,17 +35,28 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ARCHIVE_POSTS = exports.PUBLIC_POSTS = void 0;
 exports.isPublicManualPost = isPublicManualPost;
+exports.isPublicPost = isPublicPost;
 exports.loadPublicPosts = loadPublicPosts;
 exports.loadArchivePosts = loadArchivePosts;
 exports.loadAllForDedup = loadAllForDedup;
 exports.persistDraft = persistDraft;
+exports.promoteApproved = promoteApproved;
 exports.rewritePublicIndex = rewritePublicIndex;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const qualityGate_1 = require("./qualityGate");
 exports.PUBLIC_POSTS = path.resolve(__dirname, '../public/blog/posts.json');
 exports.ARCHIVE_POSTS = path.resolve(__dirname, '../public/blog/archive/ai-posts.json');
 function isPublicManualPost(post) {
     return Boolean(post && post.source === 'manual' && (post.status || 'published') === 'published');
+}
+/** Public = hand-written notes, or generated posts that were promoted by the quality gate. */
+function isPublicPost(post) {
+    if (!post || (post.status || 'published') !== 'published')
+        return false;
+    if (post.source === 'manual')
+        return true;
+    return post.source === 'ai-agent' && post.gate === 'passed';
 }
 function readJsonArray(file) {
     if (!fs.existsSync(file))
@@ -63,8 +74,13 @@ function writeJson(file, data) {
     fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
 }
 function loadPublicPosts() {
-    return readJsonArray(exports.PUBLIC_POSTS)
-        .filter(isPublicManualPost)
+    const map = new Map();
+    for (const post of readJsonArray(exports.PUBLIC_POSTS).concat(readJsonArray(exports.ARCHIVE_POSTS))) {
+        const key = post.slug || post.id;
+        if (key && isPublicPost(post))
+            map.set(key, post);
+    }
+    return Array.from(map.values())
         .sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime());
 }
 function loadArchivePosts() {
@@ -83,11 +99,14 @@ function persistDraft(post) {
     const key = post.slug || post.id;
     if (!key)
         throw new Error('Draft post is missing slug/id');
+    const verdict = post.source === 'manual' ? { pass: false, reasons: [] } : (0, qualityGate_1.evaluateGate)(post, loadPublicPosts());
     const draft = {
         ...post,
         id: post.id || key,
         source: post.source || 'ai-agent',
-        status: 'draft',
+        status: verdict.pass ? 'published' : 'draft',
+        gate: verdict.pass ? 'passed' : 'held',
+        gateReasons: verdict.reasons,
     };
     const map = new Map();
     for (const item of loadArchivePosts()) {
@@ -98,7 +117,30 @@ function persistDraft(post) {
     map.set(key, draft);
     writeJson(exports.ARCHIVE_POSTS, Array.from(map.values()));
     writeJson(exports.PUBLIC_POSTS, loadPublicPosts());
+    console.log(verdict.pass
+        ? `🚀 [Quality Gate] PASSED - publishing "${post.title}"`
+        : `🛑 [Quality Gate] HELD as draft: ${verdict.reasons.join('; ')}`);
     return key;
+}
+/** Re-run the gate over the whole archive and promote anything that qualifies. */
+function promoteApproved() {
+    const archive = loadArchivePosts();
+    const published = loadPublicPosts();
+    const promoted = [];
+    const next = archive.map((post) => {
+        if (post.source === 'manual' || post.gate === 'passed')
+            return post;
+        const verdict = (0, qualityGate_1.evaluateGate)(post, published);
+        if (!verdict.pass)
+            return { ...post, status: 'draft', gate: 'held', gateReasons: verdict.reasons };
+        const out = { ...post, status: 'published', gate: 'passed', gateReasons: [] };
+        published.push(out);
+        promoted.push(post.slug || post.id);
+        return out;
+    });
+    writeJson(exports.ARCHIVE_POSTS, next);
+    writeJson(exports.PUBLIC_POSTS, loadPublicPosts());
+    return { promoted, held: next.filter((p) => p.gate !== 'passed' && p.source !== 'manual').length };
 }
 function rewritePublicIndex() {
     writeJson(exports.PUBLIC_POSTS, loadPublicPosts());
