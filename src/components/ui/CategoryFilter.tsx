@@ -27,7 +27,7 @@ export const CategoryFilter = ({
               key={category}
               onClick={() => onChange(category)}
               className={`
-                px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2
+                filter-chip px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2
                 ${isActive 
                   ? 'bg-[#67ff8f] text-[#0a0a0f] shadow-[0_0_15px_rgba(103,255,143,0.3)] font-semibold' 
                   : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white border border-white/5'

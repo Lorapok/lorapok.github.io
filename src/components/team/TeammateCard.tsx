@@ -14,7 +14,7 @@ export function TeammateCard({ member, onSelect }: TeammateCardProps) {
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       onClick={() => onSelect(member)}
-      className="group relative flex flex-col justify-between p-6 rounded-2xl bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.06)] hover:border-[#67ff8f]/40 transition-all duration-300 backdrop-blur-md cursor-pointer shadow-lg hover:shadow-[0_0_30px_rgba(103,255,143,0.12)]"
+      className="teammate-card group relative flex flex-col justify-between p-6 rounded-2xl bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.06)] hover:border-[#67ff8f]/40 transition-all duration-300 backdrop-blur-md cursor-pointer shadow-lg hover:shadow-[0_0_30px_rgba(103,255,143,0.12)]"
     >
       {/* Top Header */}
       <div>

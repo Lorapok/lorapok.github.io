@@ -24,7 +24,7 @@ export function DepartmentFilter({
               key={dept}
               onClick={() => onChange(dept)}
               className={`
-                px-4 py-2 rounded-full text-xs font-mono font-medium transition-all duration-200 flex items-center gap-2
+                filter-chip px-4 py-2 rounded-full text-xs font-mono font-medium transition-all duration-200 flex items-center gap-2
                 ${
                   isActive
                     ? "bg-[#67ff8f] text-[#0a0a0f] shadow-[0_0_15px_rgba(103,255,143,0.3)] font-bold"

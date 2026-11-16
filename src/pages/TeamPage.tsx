@@ -13,6 +13,7 @@ import { DepartmentFilter } from "../components/team/DepartmentFilter";
 import { SearchBar } from "../components/ui/SearchBar";
 import { SEOHead } from "../components/SEOHead";
 import { Link } from "react-router-dom";
+import PageIntro from "../components/layout/PageIntro";
 
 export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,19 +60,14 @@ export default function TeamPage() {
         keywords="Lorapok team, Ishtiak Shovon, technical advisor, systems architect, Taif Ul Islam, business operations, client onboarding, DebugVision, Ashraf Uddin Ahmed, Shamim Ahammed, Borshon Mondol, Lorapok Labs collective"
       />
 
-      <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <div className="v4-inner-page min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#67ff8f]/10 border border-[#67ff8f]/20 text-[#67ff8f] text-xs font-mono uppercase tracking-widest mb-4">
-            <Users size={14} /> Lorapok Collective
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-            The Minds Behind <span className="text-[#67ff8f]">Lorapok Labs</span>
-          </h1>
-          <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
-            A distributed collective of full-stack engineers, strategic technical advisors, autonomous agent architects, visual directors, cinematographers, and legal strategists building open technology with craft and soul.
-          </p>
-        </div>
+        <PageIntro
+          align="center"
+          eyebrow={<><Users size={14} /> LORAPOK COLLECTIVE</>}
+          title={<>The minds behind <em>Lorapok Labs.</em></>}
+          description="A distributed collective of engineers, technical advisors, agent architects, visual directors, and strategists building open technology with craft and soul."
+        />
 
         {/* Search & Department Filters */}
         <div className="flex flex-col gap-6 max-w-4xl mx-auto mb-10">

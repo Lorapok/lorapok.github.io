@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { brand } from "../data/lorapok";
 import { SEOHead } from "../components/SEOHead";
+import PageIntro from "../components/layout/PageIntro";
 
 export default function PrivacyPage() {
   useEffect(() => {
@@ -15,12 +16,13 @@ export default function PrivacyPage() {
         description="How lorapok.tech uses cookies, Google AdSense, and the information you send through the contact form."
         path="/privacy"
       />
-      <article className="py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
-        <header className="space-y-3">
-          <p className="text-xs font-mono uppercase tracking-wider text-[#67ff8f]">Lorapok Labs</p>
-          <h1 className="text-4xl font-extrabold text-white">Privacy Policy</h1>
-          <p className="text-sm text-gray-500">Effective 14 October 2026. This policy covers lorapok.tech.</p>
-        </header>
+      <article className="v4-inner-page v4-legal py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
+        <PageIntro
+          tone="lavender"
+          eyebrow="LORAPOK LABS / LEGAL"
+          title={<>Privacy, in <em>plain language.</em></>}
+          description="Effective 14 October 2026. This policy covers lorapok.tech and explains the small amount of data the site may use."
+        />
 
         <section className="space-y-3">
           <h2 className="text-2xl font-bold text-white">Who we are</h2>

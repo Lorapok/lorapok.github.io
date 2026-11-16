@@ -4,6 +4,7 @@ import { Mail, MessageSquare, Send, Code2, BriefcaseBusiness, Briefcase, Globe }
 import { founder } from '../data/lorapok';
 import { sendContactMail } from '../lib/contactMail';
 import { SEOHead } from '../components/SEOHead';
+import PageIntro from '../components/layout/PageIntro';
 
 const contactTargets = [
   {
@@ -72,12 +73,14 @@ export default function ContactPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="py-16 px-4 max-w-5xl mx-auto w-full"
+      className="v4-inner-page py-16 px-4 max-w-5xl mx-auto w-full"
     >
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">Get in Touch</h1>
-        <p className="text-lg text-gray-400">Send a message to Lorapok Labs or the founder. The form delivers to the matching inbox.</p>
-      </div>
+      <PageIntro
+        align="center"
+        eyebrow="OPEN CHANNEL / DHAKA"
+        title={<>Let’s make something <em>alive.</em></>}
+        description="Send a message to Lorapok Labs or directly to the founder. Choose the route and we’ll carry it to the right inbox."
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
         <div className="md:col-span-4 space-y-4">
@@ -89,7 +92,7 @@ export default function ContactPage() {
               <button
                 key={target.id}
                 onClick={() => setActiveTarget(target.id)}
-                className={`w-full text-left p-6 rounded-2xl border transition-all duration-200 ${
+                className={`contact-route w-full text-left p-6 rounded-2xl border transition-all duration-200 ${
                   isActive
                     ? 'bg-white/10 border-[#67ff8f]/50'
                     : 'bg-white/5 border-white/10 hover:bg-white/[0.07]'
@@ -139,7 +142,7 @@ export default function ContactPage() {
           </div>
         </div>
 
-        <div className="md:col-span-8 bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-md">
+        <div className="contact-form-card md:col-span-8 bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-md">
           {isSuccess ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}

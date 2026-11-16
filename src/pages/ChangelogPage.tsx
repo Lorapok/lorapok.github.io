@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ExternalLink, Rocket, Sparkles, Wrench, Flag } from 'lucide-react';
 import { changelog } from '../data/changelog';
 import { SEOHead } from '../components/SEOHead';
+import PageIntro from '../components/layout/PageIntro';
 
 const typeConfig = {
   launch: { icon: Rocket, color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
@@ -26,12 +27,15 @@ export default function ChangelogPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="py-16 px-4 max-w-4xl mx-auto w-full"
+      className="v4-inner-page py-16 px-4 max-w-4xl mx-auto w-full"
     >
-      <div className="mb-16 text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">Changelog</h1>
-        <p className="text-lg text-gray-400">Keep track of our latest releases, features, and improvements.</p>
-      </div>
+      <PageIntro
+        align="center"
+        tone="gold"
+        eyebrow="SHIP LOG / LORAPOK LABS"
+        title={<>Built in public.<br /><em>Recorded with care.</em></>}
+        description="Follow product launches, new capabilities, repairs, and ecosystem milestones across the studio."
+      />
 
       <div className="relative border-l border-white/10 ml-4 md:ml-8 space-y-12">
         {sortedChangelog.map((entry, idx) => {

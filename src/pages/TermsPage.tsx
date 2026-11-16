@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { brand } from "../data/lorapok";
 import { SEOHead } from "../components/SEOHead";
+import PageIntro from "../components/layout/PageIntro";
 
 export default function TermsPage() {
   useEffect(() => {
@@ -15,12 +16,13 @@ export default function TermsPage() {
         description="Terms for using lorapok.tech, including open-source projects, advertising, and the sponsored partner link."
         path="/terms"
       />
-      <article className="py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
-        <header className="space-y-3">
-          <p className="text-xs font-mono uppercase tracking-wider text-[#67ff8f]">Lorapok Labs</p>
-          <h1 className="text-4xl font-extrabold text-white">Terms of Use</h1>
-          <p className="text-sm text-gray-500">Effective 14 October 2026.</p>
-        </header>
+      <article className="v4-inner-page v4-legal py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
+        <PageIntro
+          tone="gold"
+          eyebrow="LORAPOK LABS / LEGAL"
+          title={<>Clear terms.<br /><em>Open intent.</em></>}
+          description="Effective 14 October 2026. These terms explain how the public catalog, repositories, advertising, and partner links work."
+        />
 
         <section className="space-y-3">
           <h2 className="text-2xl font-bold text-white">The site</h2>

@@ -73,7 +73,7 @@ export const Card = (props: CardProps) => {
     <motion.div
       onClick={onClick}
       whileHover={{ y: -5 }}
-      className={`relative p-6 rounded-2xl flex flex-col h-full bg-[rgba(255,255,255,0.03)] backdrop-blur-md border border-[rgba(255,255,255,0.06)] hover:border-[#67ff8f]/50 hover:shadow-[0_0_24px_rgba(103,255,143,0.12)] transition-all duration-300 overflow-hidden ${onClick ? 'cursor-pointer' : ''}`}
+      className={`catalog-card relative p-6 rounded-2xl flex flex-col h-full bg-[rgba(255,255,255,0.03)] backdrop-blur-md border border-[rgba(255,255,255,0.06)] hover:border-[#67ff8f]/50 hover:shadow-[0_0_24px_rgba(103,255,143,0.12)] transition-all duration-300 overflow-hidden ${onClick ? 'cursor-pointer' : ''}`}
     >
       {image && !imgError ? (
         imageType === 'icon' ? (
