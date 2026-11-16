@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // src/dev/DevAuth.tsx
 // Global Context for Lorapok Labs Developer Mode: Auth, API Keys, and Workspace State
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
@@ -12,8 +13,16 @@ import {
   type User,
 } from "firebase/auth";
 import { auth, googleProvider, isFirebaseConfigured, db } from "../lib/firebase";
-import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { AI_PROVIDERS, type AIProviderId } from "./constants/providers";
+import {
+  BOOTSTRAP_OWNER_EMAILS,
+  hasOfficePermission,
+  normalizeOfficeRole,
+  type OfficeAccessStatus,
+  type OfficePermission,
+  type OfficeRole,
+} from "./rbac";
 
 export type { AIProviderId };
 export type LogCategory = 'auth' | 'ai' | 'nav' | 'config' | 'system' | 'profile';
@@ -24,6 +33,11 @@ interface DevContextType {
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  canAccessOffice: boolean;
+  role: OfficeRole;
+  accessStatus: OfficeAccessStatus;
+  accessProfile: OfficeAccessProfile | null;
+  can: (permission: OfficePermission) => boolean;
   
   // API Key Management
   apiKeys: Record<string, string>;
@@ -34,17 +48,34 @@ interface DevContextType {
   setActiveModel: (provider: AIProviderId, model: string) => void;
   
   // Analytics & Logging
-  logEvent: (category: LogCategory, action: string, metadata?: any) => Promise<void>;
+  logEvent: (category: LogCategory, action: string, metadata?: Record<string, unknown>) => Promise<void>;
   logChat: (provider: AIProviderId, model: string, messages: { role: 'user' | 'assistant', content: string }[]) => Promise<void>;
+}
+
+export interface OfficeAccessProfile {
+  uid: string;
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+  role: OfficeRole;
+  status: OfficeAccessStatus;
+  department?: string;
+  title?: string;
+  lastLogin?: unknown;
 }
 
 const DevContext = createContext<DevContextType | undefined>(undefined);
 
-const ADMIN_EMAILS = ["imaizied@gmail.com", "mdshuvo40@gmail.com", "lorapokdev@gmail.com"];
+function authError(error: unknown) {
+  const record = error && typeof error === "object" ? error as { code?: string; message?: string } : {};
+  return { code: record.code || "auth/unknown", message: record.message || "Authentication could not be completed." };
+}
 
 export function DevAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(isFirebaseConfigured);
+  const [accessLoading, setAccessLoading] = useState(isFirebaseConfigured);
+  const [accessProfile, setAccessProfile] = useState<OfficeAccessProfile | null>(null);
   const [activeProvider, setActiveProvider] = useState<AIProviderId>(() => {
     return (localStorage.getItem("lpk_active_provider") as AIProviderId) || "claude";
   });
@@ -65,15 +96,77 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     return saved;
   });
 
-  // Sync non-secret preferences from Firestore when a user logs in.
-  // Provider credentials never leave this browser session.
+  // Provision the signed-in identity, then subscribe to its server-controlled access record.
   useEffect(() => {
-    if (!isFirebaseConfigured || !user) return;
-    const fetchUserData = async () => {
+    if (!isFirebaseConfigured || !user) {
+      return;
+    }
+
+    let disposed = false;
+    let unsubscribe = () => undefined;
+    const userRef = doc(db, "users", user.uid);
+
+    const provisionAndSubscribe = async () => {
+      setAccessLoading(true);
       try {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
+        const email = (user.email || "").trim().toLowerCase();
+        const current = await getDoc(userRef);
+        const isBootstrapOwner = BOOTSTRAP_OWNER_EMAILS.includes(email as typeof BOOTSTRAP_OWNER_EMAILS[number]);
+        let initialAccess: Pick<OfficeAccessProfile, "role" | "status"> | null = null;
+        let shouldAcceptInvitation = false;
+
+        if (!current.exists()) {
+          const invitation = email ? await getDoc(doc(db, "office_invites", email)) : null;
+          const inviteData = invitation?.exists() ? invitation.data() : null;
+          shouldAcceptInvitation = inviteData?.status === "invited";
+          initialAccess = isBootstrapOwner
+            ? { role: "owner", status: "active" }
+            : inviteData?.status === "invited"
+              ? { role: normalizeOfficeRole(inviteData.role), status: "active" }
+              : { role: "viewer", status: "pending" };
+        } else if (isBootstrapOwner) {
+          initialAccess = { role: "owner", status: "active" };
+        }
+
+        await setDoc(userRef, {
+          uid: user.uid,
+          email,
+          displayName: user.displayName || email.split("@")[0] || "Office user",
+          photoURL: user.photoURL || "",
+          lastLogin: serverTimestamp(),
+          ...(initialAccess || {}),
+        }, { merge: true });
+
+        if (shouldAcceptInvitation) {
+          await setDoc(doc(db, "office_invites", email), {
+            status: "accepted",
+            acceptedAt: serverTimestamp(),
+            acceptedUid: user.uid,
+          }, { merge: true }).catch(() => undefined);
+        }
+
+        if (disposed) return;
+        unsubscribe = onSnapshot(userRef, (snapshot) => {
+          const data = snapshot.data();
+          if (!data) {
+            setAccessProfile(null);
+            setAccessLoading(false);
+            return;
+          }
+          const profile: OfficeAccessProfile = {
+            uid: user.uid,
+            email,
+            displayName: data.displayName,
+            photoURL: data.photoURL,
+            role: normalizeOfficeRole(data.role),
+            status: (["pending", "active", "suspended"] as const).includes(data.status) ? data.status : "pending",
+            department: data.department,
+            title: data.title,
+            lastLogin: data.lastLogin,
+          };
+          setAccessProfile(profile);
+          setAccessLoading(false);
+
           if (data.activeProvider) {
             setActiveProvider(data.activeProvider as AIProviderId);
             localStorage.setItem("lpk_active_provider", data.activeProvider);
@@ -87,12 +180,22 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
               return newModels;
             });
           }
-        }
+        }, () => {
+          setAccessProfile(null);
+          setAccessLoading(false);
+        });
       } catch (err) {
-        console.error("Failed to fetch user data:", err);
+        console.error("Failed to initialize Office access:", err);
+        setAccessProfile(null);
+        setAccessLoading(false);
       }
     };
-    fetchUserData();
+
+    void provisionAndSubscribe();
+    return () => {
+      disposed = true;
+      unsubscribe();
+    };
   }, [user]);
 
   useEffect(() => {
@@ -101,6 +204,10 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
+      if (!u) {
+        setAccessProfile(null);
+        setAccessLoading(false);
+      }
     });
     return unsub;
   }, []);
@@ -118,17 +225,15 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     
     try {
       // Try Popup first
-      const res = await signInWithPopup(auth, googleProvider);
-      if (res.user) {
-        await handleUserDoc(res.user);
-      }
-    } catch (err: any) {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error: unknown) {
+      const err = authError(error);
       console.warn("Auth Attempt Failed:", err.code);
       if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request" || err.code === "auth/popup-closed-by-user") {
         try {
           await signInWithRedirect(auth, googleProvider);
-        } catch (redirErr: any) {
-          setLoginError(redirErr.message);
+        } catch (redirectError: unknown) {
+          setLoginError(authError(redirectError).message);
         }
       } else {
         setLoginError(`${err.code}: ${err.message}`);
@@ -138,24 +243,10 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const handleUserDoc = async (u: User) => {
-    const { uid, email, displayName, photoURL } = u;
-    await setDoc(doc(db, "users", uid), {
-      uid, email, displayName, photoURL,
-      lastLogin: serverTimestamp(),
-      role: ADMIN_EMAILS.includes(email || "") ? "admin" : "user"
-    }, { merge: true }).catch(() => {});
-    logEvent("auth", "login_success", { email });
-  };
-
   // Handle Redirect Result (Fallback)
   useEffect(() => {
     if (!isFirebaseConfigured) return;
-    getRedirectResult(auth).then(async (res) => {
-      if (res?.user) {
-        handleUserDoc(res.user);
-      }
-    }).catch(err => {
+    getRedirectResult(auth).catch(err => {
       if (err.code !== 'auth/web-storage-unsupported') {
         setLoginError(err.message);
       }
@@ -223,7 +314,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logEvent = async (category: LogCategory, action: string, metadata: any = {}) => {
+  const logEvent = async (category: LogCategory, action: string, metadata: Record<string, unknown> = {}) => {
     if (!isFirebaseConfigured || !user) return;
     try {
       // Use a timeout for analytics so they don't block anything
@@ -238,7 +329,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
         platform: navigator.platform,
         userAgent: navigator.userAgent
       });
-    } catch (e) {
+    } catch {
       // Analytics should NEVER cause a visible console error for the user
     }
   };
@@ -255,17 +346,22 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       });
       // Also log as a general event
       logEvent('ai', 'chat_saved', { provider, model });
-    } catch (e) {
+    } catch {
       // Silent fail
     }
   };
 
-  const isAdmin = Boolean(user && ADMIN_EMAILS.includes(user.email ?? ""));
+  const role = accessProfile?.role || "viewer";
+  const accessStatus = accessProfile?.status || "pending";
+  const canAccessOffice = Boolean(user && accessProfile && accessStatus === "active" && hasOfficePermission(role, "view_office"));
+  const can = (permission: OfficePermission) => canAccessOffice && hasOfficePermission(role, permission);
+  const isAdmin = can("manage_users");
 
   return (
     <DevContext.Provider
       value={{ 
-        user, loading: loading || signingIn, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
+        user, loading: loading || signingIn || accessLoading, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
+        canAccessOffice, role, accessStatus, accessProfile, can,
         apiKeys, setApiKey: updateApiKey,
         activeProvider, setActiveProvider: updateActiveProvider,
         activeModels, setActiveModel: updateActiveModel,
@@ -294,7 +390,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
                 setSigningIn(true);
                 try {
                   await signInWithRedirect(auth, googleProvider);
-                } catch (e: any) { setLoginError(e.message); setSigningIn(false); }
+                } catch (error: unknown) { setLoginError(authError(error).message); setSigningIn(false); }
               }}
               style={{ background: "#fff", border: "none", color: "#000", padding: "6px 12px", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
             >
@@ -322,30 +418,56 @@ export function useDevAuth() {
 }
 
 export function AdminGate({ children }: { children: ReactNode }) {
-  const { user, loading, signIn, isAdmin } = useDevAuth();
+  const { loading, can } = useDevAuth();
 
   if (loading) return <div className="dev-auth-loading"><div className="dev-auth-spinner" /><span>Authenticating…</span></div>;
 
-  if (!user || !isAdmin) {
+  if (!can("manage_users")) {
+    return (
+      <div className="dev-auth-gate compact">
+        <div className="dev-auth-gate-inner">
+          <div className="dev-auth-badge">Restricted workspace</div>
+          <h2 className="dev-auth-title"><span>Owner</span> permission required</h2>
+          <p className="dev-auth-sub">Your account can use its assigned Office tools, but it cannot manage teammate roles or access states.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+export function OfficeGate({ children }: { children: ReactNode }) {
+  const { user, loading, signIn, signOut: leaveOffice, canAccessOffice, accessStatus } = useDevAuth();
+
+  if (loading) return <div className="dev-auth-loading"><div className="dev-auth-spinner" /><span>Authenticating…</span></div>;
+
+  if (!user || !canAccessOffice) {
+    const statusMessage = accessStatus === "suspended"
+      ? "This Office account is suspended. Contact an owner if access should be restored."
+      : "Your Google identity is recorded as pending. An Office owner must approve it or send an invitation before workspace access is granted.";
     return (
       <div className="dev-auth-gate">
         <div className="dev-auth-gate-inner">
           <div className="dev-auth-badge">Lorapok Labs Office</div>
           <h2 className="dev-auth-title"><span>Office</span> Sign-in</h2>
-          <p className="dev-auth-sub">Sign in with an approved Google account to enter the private studio, project control plane, and LoLaBo operations center.</p>
+          <p className="dev-auth-sub">Sign in with an invited Google account to enter the role-controlled studio, project control plane, and LoLaBo operations center.</p>
           
-          <button 
-            className="dev-btn dev-btn-primary dev-auth-signin" 
-            onClick={signIn}
-            disabled={loading}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", width: "100%" }}
-          >
-            {loading ? <div className="dev-auth-spinner" style={{ width: "16px", height: "16px" }} /> : "Sign in with Google"}
-          </button>
-
-          {user && !isAdmin && (
-            <div style={{ marginTop: "1rem", color: "var(--dev-red)", fontSize: "0.8rem", textAlign: "center" }}>
-              ⚠ Access Denied: Your account ({user.email}) is not in the maintainer whitelist.
+          {!user ? (
+            <button
+              className="dev-btn dev-btn-primary dev-auth-signin"
+              onClick={signIn}
+              disabled={loading}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", width: "100%" }}
+            >
+              {loading ? <div className="dev-auth-spinner" style={{ width: "16px", height: "16px" }} /> : "Sign in with Google"}
+            </button>
+          ) : (
+            <div className="dev-access-state">
+              <strong>{accessStatus === "suspended" ? "Access suspended" : "Approval pending"}</strong>
+              <p>{statusMessage}</p>
+              <small>{user.email}</small>
+              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={leaveOffice}>Use another account</button>
             </div>
           )}
         </div>
@@ -355,6 +477,4 @@ export function AdminGate({ children }: { children: ReactNode }) {
 
   return <>{children}</>;
 }
-
-export const OfficeGate = AdminGate;
 

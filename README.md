@@ -223,7 +223,7 @@ Lorapok Labs v2.0 transitions the ecosystem from a single-page portfolio into a 
 | `/changelog` | [`ChangelogPage.tsx`](src/pages/ChangelogPage.tsx) | Chronological release milestones, semantic versions, and platform launch notes. |
 | `/support` | [`SupportPage.tsx`](src/pages/SupportPage.tsx) | bKash funding channel, multi-chain crypto addresses, and backer recognition. |
 | `/contact` | [`ContactPage.tsx`](src/pages/ContactPage.tsx) | Direct routing contact bridge for commercial inquiries, partnerships, and bug reports. |
-| `/dev` | [`DevModePortal.tsx`](src/dev/DevModePortal.tsx) | Authenticated developer workspace, multi-provider AI lab, API playground, live system telemetry. |
+| `/dev` | [`DevModePortal.tsx`](src/dev/DevModePortal.tsx) | Google-authenticated, role-controlled Office with teammate management, project operations, AI lab, LoLaBo, and developer tools. |
 | `/blog` | [`BlogApp.tsx`](src/blog/BlogApp.tsx) | LoLaBo research portal, category/format filters, progressive image caching, reading progress. |
 | `/blog/:slug` | [`BlogApp.tsx`](src/blog/BlogApp.tsx) | Pre-rendered individual research treatise view, formal citations, LaTeX math, code highlighting. |
 

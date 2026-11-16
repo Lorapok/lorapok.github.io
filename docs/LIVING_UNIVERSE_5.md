@@ -56,12 +56,12 @@ Both universes share the same biological interface language, Ribo mascot, brand 
 | 12 | AI laboratory | Connected | Configure providers and run existing AI experiments. |
 | 13 | Prompt library | Connected | Reuse existing prompt workflows. |
 | 14 | Analytics | Connected | Review available audience and product signals. |
-| 15 | Access control | Connected | Google sign-in and an administrator allowlist protect the complete Office route. |
+| 15 | People & access | Connected | Google sign-in, invitation-by-email, approval and suspension states, and database-enforced RBAC protect the Office. |
 | 16 | LoLaBo operations | Connected | Operate the restored research pipeline: source focus, model route, peer review, refinement, quality gate, publishing, and verified distribution. |
 
 ## Lorapok Labs Office control plane
 
-`/dev` is the private Lorapok Labs Office. The entire route is protected by Firebase Google authentication and a maintainer allowlist; individual panels are not exposed before access is established. Firestore rules enforce the same boundary for project overrides, LoLaBo configuration, administrative blog records, analytics, and user workspaces.
+`/dev` is the private Lorapok Labs Office. The entire route is protected by Firebase Google authentication and database-backed role-based access control; individual panels are not exposed before access is established. Owners can invite teammates, approve pending identities, assign roles and team metadata, suspend access, and review an append-only access audit trail. Administrator, editor, researcher, teammate, and viewer presets limit both visible Office modules and their corresponding Firestore operations. The three bootstrap owner identities remain protected from accidental lockout, while every other account must be invited or explicitly approved.
 
 The public project inventory is generated from repositories owned by `Lorapok` and `Maijied`. A separate local scanner discovers non-Git project folders and writes them only to the administrator-protected `office_projects` collection as private ideas. Nothing from that scan enters the committed browser bundle or the public Firestore projection until an administrator supplies a public URL and explicitly publishes it. Project Office can classify every record as unclassified, open source, or commercial; set its lifecycle stage; and publish, draft, hide, feature, categorize, rename, and summarize it.
 

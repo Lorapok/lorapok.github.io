@@ -16,6 +16,7 @@ import CommitsPanel from "./panels/CommitsPanel";
 import LoLaBoPanel from "./panels/LoLaBoPanel";
 import UserProfilePanel from "./panels/UserProfilePanel";
 import StudioOperationsPanel, { type StudioTool } from "./panels/StudioOperationsPanel";
+import { OFFICE_ROLES, PANEL_PERMISSIONS } from "./rbac";
 import {
   Hexagon, 
   FileText, 
@@ -140,7 +141,7 @@ function NavGroup({ label, items, activePanel, onSelect, primary = false }: {
 
 function DevPortalInner({ onClose }: { onClose: () => void }) {
   const [activePanel, setActivePanel] = useState<PanelId>("dashboard");
-  const { user, signIn, signOut } = useDevAuth();
+  const { user, signIn, signOut, role, can } = useDevAuth();
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -167,14 +168,20 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
   void showToast;
 
   const switchPanel = (id: string) => {
-    if (PANEL_IDS.includes(id as PanelId)) {
+    const permission = PANEL_PERMISSIONS[id];
+    if (PANEL_IDS.includes(id as PanelId) && (!permission || can(permission))) {
       setActivePanel(id as PanelId);
       setSidebarOpen(false);
+    } else if (permission) {
+      showToast("That workspace is not included in your current role.");
     }
   };
 
+  const activePermission = PANEL_PERMISSIONS[activePanel];
+  const permittedPanel: PanelId = activePermission && !can(activePermission) ? "dashboard" : activePanel;
+
   const renderPanel = () => {
-    switch (activePanel) {
+    switch (permittedPanel) {
       case "dashboard": return <DashboardPanel onSwitchPanel={switchPanel} />;
       case "profile": return <UserProfilePanel />;
       case "ai-labs": return <AILabsPanel onSwitchPanel={switchPanel} />;
@@ -200,13 +207,17 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
       case "meetings":
       case "tasks":
       case "social":
-      case "brand": return <StudioOperationsPanel tool={activePanel} />;
+      case "brand": return <StudioOperationsPanel tool={permittedPanel} />;
       default: return <DashboardPanel onSwitchPanel={switchPanel} />;
     }
   };
 
   const allProviders = ["claude", "openai", "gemini", "mistral", "groq", "cohere"];
   const configuredProviders = allProviders.filter(p => sessionStorage.getItem(`lpk_key_${p}`));
+  const visibleWorkspaceItems = WORKSPACE_ITEMS.filter((item) => can(PANEL_PERMISSIONS[item.id]));
+  const visibleToolItems = TOOL_ITEMS.filter((item) => can(PANEL_PERMISSIONS[item.id]));
+  const visibleSystemItems = SYSTEM_ITEMS.filter((item) => can(PANEL_PERMISSIONS[item.id]));
+  const visibleAdvancedItems = ADVANCED_ITEMS.filter((item) => can(PANEL_PERMISSIONS[item.id]));
 
   return (
     <div className="dev-portal">
@@ -220,6 +231,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
             <img src={devBadgeImage} alt="Lorapok" className="dev-nav-larva" />
             <span className="dev-logo-wordmark">Lorapok <small>Studio</small></span>
             <span className="dev-badge-pill">LU 5.0</span>
+            <span className="dev-role-pill">{OFFICE_ROLES[role].label}</span>
           </div>
 
           <div className="dev-breadcrumb">
@@ -227,7 +239,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
             <span className="bc-sep">/</span>
             <span className="bc-active">
               {(() => {
-                const item = [...WORKSPACE_ITEMS, ...TOOL_ITEMS, ...SYSTEM_ITEMS, ...ADVANCED_ITEMS].find(i => i.id === activePanel);
+                const item = [...WORKSPACE_ITEMS, ...TOOL_ITEMS, ...SYSTEM_ITEMS, ...ADVANCED_ITEMS].find(i => i.id === permittedPanel);
                 return item ? item.label.toUpperCase() : "DASHBOARD";
               })()}
             </span>
@@ -278,17 +290,17 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
         <button className={`dev-sidebar-backdrop ${sidebarOpen ? "visible" : ""}`} onClick={() => setSidebarOpen(false)} aria-label="Close navigation" />
         <aside className={`dev-sidebar ${sidebarOpen ? "open" : ""}`}>
           <div className="dev-sidebar-intro"><span>Studio navigation</span><p>Open source and business operations in one workspace.</p></div>
-          <NavGroup label="Publish" items={WORKSPACE_ITEMS} activePanel={activePanel} onSelect={switchPanel} primary />
-          <NavGroup label="Collaborate & Create" items={TOOL_ITEMS} activePanel={activePanel} onSelect={switchPanel} />
-          <NavGroup label="Signals & System" items={SYSTEM_ITEMS} activePanel={activePanel} onSelect={switchPanel} />
-          <NavGroup label="Advanced tools" items={ADVANCED_ITEMS} activePanel={activePanel} onSelect={switchPanel} />
+          {visibleWorkspaceItems.length > 0 && <NavGroup label="Publish" items={visibleWorkspaceItems} activePanel={permittedPanel} onSelect={switchPanel} primary />}
+          {visibleToolItems.length > 0 && <NavGroup label="Collaborate & Create" items={visibleToolItems} activePanel={permittedPanel} onSelect={switchPanel} />}
+          {visibleSystemItems.length > 0 && <NavGroup label="Signals & System" items={visibleSystemItems} activePanel={permittedPanel} onSelect={switchPanel} />}
+          {visibleAdvancedItems.length > 0 && <NavGroup label="Advanced tools" items={visibleAdvancedItems} activePanel={permittedPanel} onSelect={switchPanel} />}
 
           {/* System Status */}
           <div style={{ marginTop: "auto", paddingTop: "2rem" }}>
             <div className="dev-system-status">
               <div className="status-heading"><span /> Workspace status</div>
               <div>Public catalog · live</div>
-              <div>Studio modules · mixed</div>
+              <div>Role · {OFFICE_ROLES[role].label}</div>
               <div>{configuredProviders.length} AI provider{configuredProviders.length !== 1 ? "s" : ""} configured</div>
             </div>
           </div>

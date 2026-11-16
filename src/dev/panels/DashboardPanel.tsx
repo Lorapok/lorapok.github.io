@@ -25,7 +25,7 @@ const modules: StudioModule[] = [
   { title: "AI laboratory", description: "Compare providers and run prompt experiments.", state: "connected", icon: FlaskConical, panel: "ai-labs" },
   { title: "Prompt library", description: "Reusable workflows for the Lorapok toolchain.", state: "connected", icon: Sparkles, panel: "prompts" },
   { title: "Analytics", description: "Review audience and product signals with clear provenance.", state: "connected", icon: BarChart3, panel: "analytics" },
-  { title: "Access control", description: "Review publishing permissions and workspace settings.", state: "review", icon: ShieldCheck, panel: "admin" },
+  { title: "People & access", description: "Invite teammates, assign roles, and suspend workspace access.", state: "connected", icon: ShieldCheck, panel: "admin" },
 ];
 
 const statusCopy: Record<ModuleState, string> = {

@@ -18,14 +18,11 @@ export default function AnalyticsPanel() {
   useEffect(() => {
     const loadAnalytics = async () => {
       try {
-        const [aSnap, uSnap] = await Promise.all([
-          getDocs(collection(db, "analytics")),
-          getDocs(collection(db, "users"))
-        ]);
+        const aSnap = await getDocs(collection(db, "analytics"));
 
         const events = aSnap.docs.map(doc => doc.data());
         setTotalViews(events.length);
-        setUniqueUsers(uSnap.size);
+        setUniqueUsers(new Set(events.map((event) => event.uid).filter(Boolean)).size);
 
         // Aggregate AI provider usage
         const aiUsage: Record<string, number> = {};

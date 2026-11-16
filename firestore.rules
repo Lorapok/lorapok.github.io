@@ -6,47 +6,205 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isOfficeAdmin() {
-      return signedIn() && request.auth.token.email in [
+    function isBootstrapOwnerEmail(email) {
+      return email in [
         "imaizied@gmail.com",
         "mdshuvo40@gmail.com",
         "lorapokdev@gmail.com"
       ];
     }
 
+    function hasUserRecord() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function currentUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isOwner() {
+      return signedIn() && (
+        isBootstrapOwnerEmail(request.auth.token.email)
+        || (hasUserRecord() && currentUser().status == "active" && currentUser().role == "owner")
+      );
+    }
+
+    function isAccessAdmin() {
+      return isOwner() || (
+        hasUserRecord()
+        && currentUser().status == "active"
+        && currentUser().role == "admin"
+      );
+    }
+
+    function canEditPublishing() {
+      return isAccessAdmin() || (
+        hasUserRecord()
+        && currentUser().status == "active"
+        && currentUser().role == "editor"
+      );
+    }
+
+    function canRunResearch() {
+      return isAccessAdmin() || (
+        hasUserRecord()
+        && currentUser().status == "active"
+        && currentUser().role == "researcher"
+      );
+    }
+
+    function canViewAnalytics() {
+      return isAccessAdmin() || (
+        hasUserRecord()
+        && currentUser().status == "active"
+        && currentUser().role == "researcher"
+      );
+    }
+
+    function canUseDeveloperTools() {
+      return isAccessAdmin() || (
+        hasUserRecord()
+        && currentUser().status == "active"
+        && currentUser().role in ["editor", "researcher"]
+      );
+    }
+
+    function validManagedRole(role) {
+      return role in ["admin", "editor", "researcher", "teammate", "viewer"];
+    }
+
+    function validInvitation() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/office_invites/$(request.auth.token.email))
+        && get(/databases/$(database)/documents/office_invites/$(request.auth.token.email)).data.status == "invited";
+    }
+
+    function ownSafeProfileUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        "displayName", "photoURL", "lastLogin", "activeProvider", "activeModels"
+      ]);
+    }
+
+    function adminCanManageTarget() {
+      return isOwner() || (
+        isAccessAdmin()
+        && resource.data.role != "owner"
+        && resource.data.role != "admin"
+        && request.resource.data.role != "owner"
+        && request.resource.data.role != "admin"
+      );
+    }
+
     match /office_projects/{projectId} {
-      allow read, write: if isOfficeAdmin();
+      allow read, write: if canEditPublishing();
     }
 
     match /published_projects/{projectId} {
       allow read: if true;
-      allow write: if isOfficeAdmin();
+      allow write: if canEditPublishing();
     }
 
     match /agent_config/{documentId} {
-      allow read, write: if isOfficeAdmin();
+      allow read, write: if canRunResearch();
     }
 
     match /blog_posts/{postId} {
-      allow read: if resource.data.status == "published" || isOfficeAdmin();
-      allow write: if isOfficeAdmin();
+      allow read: if resource.data.status == "published" || canEditPublishing() || canRunResearch();
+      allow write: if canEditPublishing() || canRunResearch();
+    }
+
+    match /office_invites/{inviteId} {
+      allow read: if isAccessAdmin() || (signedIn() && inviteId == request.auth.token.email);
+      allow create: if request.resource.data.email == inviteId
+        && request.resource.data.status == "invited"
+        && validManagedRole(request.resource.data.role)
+        && (
+          isOwner()
+          || (isAccessAdmin() && request.resource.data.role != "admin")
+        );
+      allow update: if (
+        request.resource.data.email == resource.data.email
+        && request.resource.data.status in ["invited", "revoked"]
+        && validManagedRole(request.resource.data.role)
+        && (
+          isOwner()
+          || (
+            isAccessAdmin()
+            && resource.data.role != "admin"
+            && request.resource.data.role != "admin"
+          )
+        )
+      ) || (
+        signedIn()
+        && inviteId == request.auth.token.email
+        && resource.data.status == "invited"
+        && request.resource.data.status == "accepted"
+        && request.resource.data.acceptedUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "acceptedAt", "acceptedUid"])
+      );
+      allow delete: if false;
     }
 
     match /users/{userId} {
-      allow read: if signedIn() && (request.auth.uid == userId || isOfficeAdmin());
-      allow create, update: if signedIn()
+      allow read: if signedIn() && (request.auth.uid == userId || isAccessAdmin());
+      allow create: if signedIn()
         && request.auth.uid == userId
-        && (request.resource.data.role != "admin" || isOfficeAdmin());
-      allow delete: if isOfficeAdmin();
+        && request.resource.data.uid == userId
+        && request.resource.data.email == request.auth.token.email
+        && (
+          (
+            isBootstrapOwnerEmail(request.auth.token.email)
+            && request.resource.data.role == "owner"
+            && request.resource.data.status == "active"
+          )
+          || (
+            validInvitation()
+            && request.resource.data.role == get(/databases/$(database)/documents/office_invites/$(request.auth.token.email)).data.role
+            && request.resource.data.status == "active"
+          )
+          || (
+            request.resource.data.role == "viewer"
+            && request.resource.data.status == "pending"
+          )
+        );
+      allow update: if signedIn() && (
+        (
+          request.auth.uid == userId
+          && (ownSafeProfileUpdate() || isBootstrapOwnerEmail(request.auth.token.email))
+        )
+        || adminCanManageTarget()
+      );
+      allow delete: if false;
+
+      match /data/{dataId} {
+        allow read, write: if signedIn() && (request.auth.uid == userId || isAccessAdmin());
+      }
 
       match /chats/{chatId} {
-        allow read, write: if signedIn() && (request.auth.uid == userId || isOfficeAdmin());
+        allow read, write: if signedIn() && (request.auth.uid == userId || isAccessAdmin());
       }
+    }
+
+    match /rbac_audit/{eventId} {
+      allow create: if isAccessAdmin()
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.actorEmail == request.auth.token.email;
+      allow read: if isAccessAdmin();
+      allow update, delete: if false;
     }
 
     match /analytics/{eventId} {
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
-      allow read, update, delete: if isOfficeAdmin();
+      allow read: if canViewAnalytics();
+      allow update, delete: if false;
+    }
+
+    match /readme_templates/{templateId} {
+      allow read, write: if canUseDeveloperTools();
+    }
+
+    match /commit_explanations/{explanationId} {
+      allow read, write: if canUseDeveloperTools();
     }
 
     match /{document=**} {

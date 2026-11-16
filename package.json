@@ -14,6 +14,8 @@
     "agent:build": "npm --prefix agent run build",
     "sync:projects": "node scripts/sync-github-projects.mjs",
     "sync:local-projects": "node scripts/sync-local-project-ideas.mjs",
+    "migrate:office-rbac": "node scripts/migrate-office-rbac.mjs",
+    "test:rbac": "node scripts/test-office-rbac.mjs",
     "validate": "node scripts/validate-all.js"
   },
   "dependencies": {
@@ -33,6 +35,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
