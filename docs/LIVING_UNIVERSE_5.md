@@ -42,7 +42,7 @@ Both universes share the same biological interface language, Ribo mascot, brand 
 
 | # | Module | Current mode | Purpose |
 |---|---|---|---|
-| 01 | Project Office | Live data | Sync public GitHub repositories and manage public catalog metadata from the authenticated Office. |
+| 01 | Project Office | Live data | Sync public GitHub repositories, privately inventory local project ideas, and manage catalog metadata and business models. |
 | 02 | Content desk | Browser demo | Draft and classify Open Source or Business stories. |
 | 03 | Team portfolios | Connected | Search real team profiles and public portfolio links. |
 | 04 | Offers | Browser demo | Prepare commercial offers without publishing unverified prices. |
@@ -57,15 +57,15 @@ Both universes share the same biological interface language, Ribo mascot, brand 
 | 13 | Prompt library | Connected | Reuse existing prompt workflows. |
 | 14 | Analytics | Connected | Review available audience and product signals. |
 | 15 | Access control | Connected | Google sign-in and an administrator allowlist protect the complete Office route. |
-| 16 | LoLaBo operations | Connected | Configure review cadence, queue a run, and inspect evidence-backed publishing signals. |
+| 16 | LoLaBo operations | Connected | Operate the restored research pipeline: source focus, model route, peer review, refinement, quality gate, publishing, and verified distribution. |
 
 ## Lorapok Labs Office control plane
 
 `/dev` is the private Lorapok Labs Office. The entire route is protected by Firebase Google authentication and a maintainer allowlist; individual panels are not exposed before access is established. Firestore rules enforce the same boundary for project overrides, LoLaBo configuration, administrative blog records, analytics, and user workspaces.
 
-The project inventory is generated from the public repositories owned by `Lorapok` and `Maijied`. The committed JSON artifact contains public metadata only. Private repository names, descriptions, and URLs are deliberately excluded from the browser bundle. Project Office can publish, draft, hide, feature, categorize, rename, and summarize records in Firestore; the public Projects page subscribes to those overrides while retaining the curated product catalog as its resilient fallback.
+The public project inventory is generated from repositories owned by `Lorapok` and `Maijied`. A separate local scanner discovers non-Git project folders and writes them only to the administrator-protected `office_projects` collection as private ideas. Nothing from that scan enters the committed browser bundle or the public Firestore projection until an administrator supplies a public URL and explicitly publishes it. Project Office can classify every record as unclassified, open source, or commercial; set its lifecycle stage; and publish, draft, hide, feature, categorize, rename, and summarize it.
 
-LoLaBo now follows a daily, review-first schedule. Manual requests from Office queue the next scheduled cycle rather than claiming an immediate deployment. Candidates must pass the deterministic score, length, citation, and duplicate checks before they become public; failed candidates remain private drafts. Provider credentials and distribution webhooks are deployment secrets and are never returned to the browser.
+LoLaBo is again an autonomous research engine. An hourly runner checks the administrator-selected cadence, while Office can queue the next cycle and configure editorial mode, model route, research agenda, domain focus, audience, tone, visual strategy, and zero-to-three review refinements. The real pipeline performs source collection and novelty ranking, long-form synthesis, multi-model/key failover, academic peer review, technical visual generation, and deterministic score, length, citation, duplicate, completeness, and placeholder checks. Failed candidates stay private; approved candidates can either await Office approval or publish automatically. Distribution is staged only for quality-approved posts and occurs only after the deployed article returns successfully from the live site. Provider credentials and webhooks remain deployment secrets and are never returned to the browser.
 
 ## Public experience
 

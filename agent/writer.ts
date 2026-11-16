@@ -93,7 +93,7 @@ export function extractCitationsFromMarkdown(content: string): Citation[] {
 
 export async function writeBlogPost(
   newsItems: NewsItem[], 
-  config: { provider: string, targetAudience: string, tone: string, isResearch?: boolean },
+  config: { provider: string, targetAudience: string, tone: string, isResearch?: boolean, researchFocus?: string, categoryFocus?: string, maxRefinementPasses?: number },
   existingPosts: any[] = []
 ) {
   // Strict Model Tiering Policy:
@@ -217,7 +217,10 @@ OUTPUT FORMAT (JSON):
   }
 }`;
 
-  const userPrompt = `TRENDING NEWS CONTEXT:\n${newsContext}\n\nPlease write an authoritative, long-form technical treatise (~1800-2800 words) for Lorapok Labs. Select the appropriate editorial type, execute its structured breakdown with high depth, and provide formal citations. Ensure it does not duplicate any previously published topic.`;
+  const userPrompt = `RESEARCH AGENDA: ${config.researchFocus || 'systems architecture, AI infrastructure, security, performance, and open-source engineering'}
+PREFERRED DOMAIN: ${config.categoryFocus || 'Auto-select'}
+
+TRENDING NEWS CONTEXT:\n${newsContext}\n\nPlease write an authoritative, long-form technical treatise (~1800-2800 words) for Lorapok Labs. Select the appropriate editorial type, execute its structured breakdown with high depth, and provide formal citations. Ensure it does not duplicate any previously published topic.`;
 
   // Dynamic API Calling with Multi-Account Failover & Model Tier Adaptation
   let aiResult: AIProviderResult | string;
@@ -249,7 +252,7 @@ OUTPUT FORMAT (JSON):
   });
 
   let refinementPass = 0;
-  const maxRefinementPasses = 2;
+  const maxRefinementPasses = Math.max(0, Math.min(3, Number(config.maxRefinementPasses ?? 2)));
 
   while (verdict.decision === 'REVISION_REQUIRED' && refinementPass < maxRefinementPasses) {
     refinementPass++;

@@ -20,7 +20,15 @@ const FEEDS = [
     { name: 'Dev.to', url: 'https://dev.to/feed' },
     { name: 'Wired', url: 'https://www.wired.com/feed/rss' }
 ];
-async function collectNews(existingPosts = []) {
+function focusScore(item, options) {
+    const tokens = `${options.researchFocus || ''} ${options.categoryFocus || ''}`
+        .toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((token) => token.length > 3);
+    if (!tokens.length)
+        return 0;
+    const haystack = `${item.title} ${item.content} ${item.source}`.toLowerCase();
+    return tokens.reduce((score, token) => score + (haystack.includes(token) ? 1 : 0), 0);
+}
+async function collectNews(existingPosts = [], options = {}) {
     console.log("📡 Collecting news from RSS feeds...");
     const allItems = [];
     for (const feed of FEEDS) {
@@ -53,7 +61,8 @@ async function collectNews(existingPosts = []) {
             return true;
         });
         console.log(`🔍 [Collector] Filtered ${validItems.length - novelItems.length} duplicate stories. Returning ${novelItems.length} fresh candidates.`);
-        return novelItems.length > 0 ? novelItems : validItems;
+        const candidates = novelItems.length > 0 ? novelItems : validItems;
+        return candidates.sort((a, b) => focusScore(b, options) - focusScore(a, options));
     }
-    return validItems;
+    return validItems.sort((a, b) => focusScore(b, options) - focusScore(a, options));
 }

@@ -200,8 +200,7 @@ async function postToDiscord(post, customWebhook) {
             reason: 'No DISCORD_WEBHOOK_URL provided in .env or Firestore configuration.'
         };
     }
-    const maskedUrl = webhookUrl.trim().slice(0, 35) + '...';
-    console.log(`📢 [Discord Broadcast] Broadcasting announcement to webhook (${maskedUrl})...`);
+    console.log("📢 [Discord Broadcast] Broadcasting through the protected deployment webhook...");
     const payload = buildDiscordPayload(post);
     try {
         const res = await fetch(webhookUrl.trim(), {

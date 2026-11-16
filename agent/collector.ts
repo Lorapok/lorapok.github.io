@@ -26,7 +26,20 @@ export interface NewsItem {
   source: string;
 }
 
-export async function collectNews(existingPosts: any[] = []): Promise<NewsItem[]> {
+export interface CollectionOptions {
+  researchFocus?: string;
+  categoryFocus?: string;
+}
+
+function focusScore(item: NewsItem, options: CollectionOptions): number {
+  const tokens = `${options.researchFocus || ''} ${options.categoryFocus || ''}`
+    .toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((token) => token.length > 3);
+  if (!tokens.length) return 0;
+  const haystack = `${item.title} ${item.content} ${item.source}`.toLowerCase();
+  return tokens.reduce((score, token) => score + (haystack.includes(token) ? 1 : 0), 0);
+}
+
+export async function collectNews(existingPosts: any[] = [], options: CollectionOptions = {}): Promise<NewsItem[]> {
   console.log("📡 Collecting news from RSS feeds...");
   const allItems: NewsItem[] = [];
 
@@ -62,8 +75,9 @@ export async function collectNews(existingPosts: any[] = []): Promise<NewsItem[]
     });
 
     console.log(`🔍 [Collector] Filtered ${validItems.length - novelItems.length} duplicate stories. Returning ${novelItems.length} fresh candidates.`);
-    return novelItems.length > 0 ? novelItems : validItems;
+    const candidates = novelItems.length > 0 ? novelItems : validItems;
+    return candidates.sort((a, b) => focusScore(b, options) - focusScore(a, options));
   }
 
-  return validItems;
+  return validItems.sort((a, b) => focusScore(b, options) - focusScore(a, options));
 }

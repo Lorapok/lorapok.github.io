@@ -2,8 +2,8 @@ name: LoLaBo AI Agent
 
 on:
   schedule:
-    # One review candidate per day. Gate failures remain private drafts.
-    - cron: '17 2 * * *'
+    # Hourly research check. Firestore cadence controls whether a candidate is generated.
+    - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
       mode:
@@ -61,7 +61,8 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          INTERVAL_HOURS: '24'
+          INTERVAL_HOURS: '1'
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'force' }}
         run: |
@@ -70,15 +71,24 @@ jobs:
           node exportData.js
 
       - name: Commit inventory, drafts, and gate-approved posts
+        id: git-push
         run: |
           git config --global user.name "LoLaBo Agent"
           git config --global user.email "agent@lorapok.labs"
           git add public/data/github-projects.json public/blog/archive/ai-posts.json public/blog/posts.json public/blog/rss.xml public/sitemap.xml
           if git diff --cached --quiet; then
             echo "Nothing new."
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
           else
             if git diff --cached --quiet -- public/blog/posts.json; then MSG="chore(blog): archive LoLaBo draft (not public)"; else MSG="chore(blog): publish LoLaBo post (quality gate passed)"; fi
             git commit -m "$MSG"
             git pull --rebase origin main
             git push origin main
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Verify live publication and distribute approved research
+        if: ${{ steps.git-push.outputs.pushed == 'true' && (github.event_name != 'workflow_dispatch' || inputs.mode != 'projects-only') }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: node agent/broadcastLivePost.js

@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDocs,
   onSnapshot,
@@ -20,6 +21,9 @@ function sanitizeProject(input: Partial<OfficeProject> & Pick<OfficeProject, "id
     topics: Array.isArray(input.topics) ? input.topics.filter(Boolean).slice(0, 20) : [],
     visibility: input.visibility || "published",
     featured: Boolean(input.featured),
+    projectModel: input.projectModel || "unclassified",
+    stage: input.stage || (input.archived ? "archived" : "active"),
+    origin: input.origin || (input.source === "github" ? "github" : "office"),
   };
 }
 
@@ -28,7 +32,7 @@ function mergeProjects(base: OfficeProject[], overrides: Array<Partial<OfficePro
   for (const override of overrides) {
     const current = map.get(override.id);
     if (current) map.set(override.id, { ...current, ...override } as OfficeProject);
-    else if (override.name && override.url) map.set(override.id, override as OfficeProject);
+    else if (override.name && (override.url || override.origin === "local")) map.set(override.id, override as OfficeProject);
   }
   return Array.from(map.values()).sort((a, b) => {
     if (a.featured !== b.featured) return Number(b.featured) - Number(a.featured);
@@ -115,10 +119,12 @@ export function subscribePublishedOfficeProjects(
 }
 
 async function syncPublicProjection(project: OfficeProject) {
-  const projection = project.visibility === "published"
-    ? sanitizeProject(project)
-    : { id: project.id, visibility: project.visibility };
-  await setDoc(doc(db, PUBLIC_COLLECTION, project.id), projection);
+  const reference = doc(db, PUBLIC_COLLECTION, project.id);
+  if (project.visibility !== "published") {
+    await deleteDoc(reference);
+    return;
+  }
+  await setDoc(reference, sanitizeProject(project));
 }
 
 export async function saveOfficeProject(project: OfficeProject, updatedBy: string) {

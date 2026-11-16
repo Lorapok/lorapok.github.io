@@ -25,23 +25,35 @@ export interface AgentConfig {
   intervalHours: number;
   lastRunAt: Timestamp | null;
   writingProvider: string; // 'gemini' | 'openai' | 'claude' | 'groq'
-  imageGenMode: 'gemini' | 'stock' | 'auto'; // auto means gemini with stock fallback
+  imageGenMode: 'ai' | 'stock' | 'auto';
   enabledSocials: string[]; // ['discord', 'twitter', 'linkedin', 'reddit']
   targetAudience: string;
   tone: string;
+  editorialMode: 'research' | 'technical' | 'auto';
+  researchFocus: string;
+  categoryFocus: string;
+  maxRefinementPasses: number;
+  autoPublishPassed: boolean;
+  autoDistributePassed: boolean;
   triggerRequested?: boolean;
   lastTriggerAt?: Timestamp | null;
 }
 
 export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   isEnabled: true,
-  intervalHours: 24,
+  intervalHours: 1,
   lastRunAt: null,
   writingProvider: 'gemini',
   imageGenMode: 'auto',
   enabledSocials: ['discord'],
   targetAudience: 'Developers & Engineers',
   tone: 'Technical & precise',
+  editorialMode: 'research',
+  researchFocus: 'distributed systems, AI infrastructure, security, performance engineering, and open-source architecture',
+  categoryFocus: 'Auto-select',
+  maxRefinementPasses: 2,
+  autoPublishPassed: true,
+  autoDistributePassed: true,
   triggerRequested: false
 };
 

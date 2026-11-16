@@ -12,7 +12,7 @@ import { writeBlogPost } from './writer';
 import { generateCoverImage } from './imageGen';
 import { distributeSocially } from './distributor';
 import { validateDuplicatePost } from './validator';
-import { isPublicManualPost, loadAllForDedup, loadPublicPosts, persistDraft, rewritePublicIndex } from './catalogPolicy';
+import { isPublicManualPost, isPublicPost, loadAllForDedup, loadPublicPosts, persistDraft, rewritePublicIndex } from './catalogPolicy';
 
 // ─── Environment Auto-loading ───
 try {
@@ -170,7 +170,7 @@ const telemetry: MicroserviceTelemetry = {
   totalDispatches: 0,
   isDispatching: false,
   daemonActive: false,
-  intervalHours: 24,
+  intervalHours: 1,
   nextScheduledDispatch: null,
 };
 
@@ -245,7 +245,7 @@ async function getActivePosts(): Promise<any[]> {
 }
 
 // ─── Export Data Helper ───
-async function exportStaticData(): Promise<number> {
+async function exportStaticData(options: { autoPublishPassed?: boolean } = {}): Promise<number> {
   let posts: any[] = [];
 
   if (db) {
@@ -265,7 +265,10 @@ async function exportStaticData(): Promise<number> {
 
         posts = posts.sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
         for (const post of posts.filter((p: any) => !isPublicManualPost(p))) {
-          persistDraft({ ...post, source: post.source || 'ai-agent', status: 'draft' });
+          persistDraft(
+            { ...post, source: post.source || 'ai-agent', status: 'draft' },
+            { autoPublishPassed: options.autoPublishPassed },
+          );
         }
         rewritePublicIndex();
         posts = loadPublicPosts();
@@ -280,7 +283,7 @@ async function exportStaticData(): Promise<number> {
     posts = getCachedPosts();
   }
 
-  posts = posts.filter(isPublicManualPost);
+  posts = posts.filter(isPublicPost);
   rewritePublicIndex();
 
   // Regenerate XML Sitemaps and RSS
@@ -297,7 +300,7 @@ async function exportStaticData(): Promise<number> {
   fs.writeFileSync(path.join(sitemapDir, 'sitemap.xml'), sitemapXml, 'utf8');
 
   let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
-  rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
+  rssXml += `  <title>LoLaBo — Lorapok Labs Research</title>\n  <link>https://lorapok.tech/blog</link>\n  <description>Peer-reviewed systems research from the autonomous LoLaBo research engine.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
   for (const p of (posts as any[]).slice(0, 20)) {
     if (!p.slug) continue;
     rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>https://lorapok.tech/blog/${p.slug}</link>\n    <guid>https://lorapok.tech/blog/${p.slug}</guid>\n    <pubDate>${new Date(p.publishedAt || Date.now()).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt}]]></description>\n  </item>\n`;
@@ -325,7 +328,13 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       targetAudience: 'Developers & Systems Architects',
       tone: 'Technical, deep-dive & architectural',
       imageGenMode: 'ai',
-      enabledSocials: ['discord']
+      enabledSocials: ['discord'],
+      editorialMode: 'research',
+      researchFocus: 'distributed systems, AI infrastructure, security, performance engineering, and open-source architecture',
+      categoryFocus: 'Auto-select',
+      maxRefinementPasses: 2,
+      autoPublishPassed: true,
+      autoDistributePassed: true,
     };
 
     if (db) {
@@ -352,7 +361,10 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
         source: 'Microservice Trigger'
       }];
     } else {
-      news = await collectNews(currentPosts);
+      news = await collectNews(currentPosts, {
+        researchFocus: config.researchFocus,
+        categoryFocus: config.categoryFocus,
+      });
     }
 
     if (!news || news.length === 0) {
@@ -364,7 +376,11 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
     const blogPost = await writeBlogPost(news, {
       provider: config.writingProvider || 'gemini',
       targetAudience: config.targetAudience || 'Developers',
-      tone: config.tone || 'Technical'
+      tone: config.tone || 'Technical',
+      isResearch: config.editorialMode !== 'technical',
+      researchFocus: options.customTopic || config.researchFocus,
+      categoryFocus: config.categoryFocus,
+      maxRefinementPasses: config.maxRefinementPasses,
     }, currentPosts);
 
     // 3. Sluggify
@@ -441,13 +457,21 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
     }
 
     console.log(`💾 [Local Microservice] Archiving draft: ${blogPost.title}`);
-    persistDraft(newPostEntry);
-    console.log(`✅ Draft archived. Public index still has ${loadPublicPosts().length} manual notes.`);
-    console.log("ℹ️ Draft archived only. Discord broadcast stays off until a note is published as source=manual.");
+    persistDraft(newPostEntry, { autoPublishPassed: config.autoPublishPassed !== false });
+    const verdict = loadAllForDedup().find((post: any) => (post.slug || post.id) === postId);
+    if (db && verdict) {
+      await db.collection('blog_posts').doc(postId).set({
+        status: verdict.status,
+        gate: verdict.gate,
+        gateReasons: verdict.gateReasons || [],
+        source: 'ai-agent',
+      }, { merge: true }).catch(() => {});
+    }
+    console.log(`✅ Research archived. Public index contains ${loadPublicPosts().length} quality-approved or manual notes.`);
 
     // 8. Update Static JSON & Sitemaps
     console.log("📁 Updating static posts.json and XML feeds...");
-    await exportStaticData();
+    await exportStaticData({ autoPublishPassed: config.autoPublishPassed !== false });
 
     // 9. Update Telemetry
     telemetry.lastDispatchAt = new Date().toISOString();
@@ -479,7 +503,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
 }
 
 // ─── Autonomous Daemon Scheduler ───
-function startAutonomousDaemon(intervalHours = 24) {
+function startAutonomousDaemon(intervalHours = 1) {
   if (telemetry.daemonActive) return;
   telemetry.daemonActive = true;
   telemetry.intervalHours = intervalHours;
@@ -816,7 +840,7 @@ export function startServer(port = PORT, host = HOST) {
   // Check if autonomous daemon mode was requested
   const isDaemonArg = process.argv.includes('--daemon') || process.argv.includes('--cron') || process.env.DAEMON === 'true';
   if (isDaemonArg) {
-    const intervalHours = parseFloat(process.env.INTERVAL_HOURS || '24');
+    const intervalHours = parseFloat(process.env.INTERVAL_HOURS || '1');
     startAutonomousDaemon(intervalHours);
   }
 

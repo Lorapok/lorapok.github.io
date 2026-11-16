@@ -180,8 +180,7 @@ export async function postToDiscord(post: any, customWebhook?: string): Promise<
     };
   }
 
-  const maskedUrl = webhookUrl.trim().slice(0, 35) + '...';
-  console.log(`📢 [Discord Broadcast] Broadcasting announcement to webhook (${maskedUrl})...`);
+  console.log("📢 [Discord Broadcast] Broadcasting through the protected deployment webhook...");
 
   const payload = buildDiscordPayload(post);
 

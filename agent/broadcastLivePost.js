@@ -119,7 +119,9 @@ async function main() {
         await sleep(10000);
     }
     if (!isLive) {
-        console.warn(`⚠️ Post URL did not return HTTP 200 within 5 minutes. Proceeding with broadcast as fallback.`);
+        console.warn("⚠️ Post is not live after the verification window. Broadcast remains staged for a later retry.");
+        process.exitCode = 1;
+        return;
     }
     // Broadcast now that website is live
     console.log("📢 Broadcasting synchronized rich embed to Discord webhook...");

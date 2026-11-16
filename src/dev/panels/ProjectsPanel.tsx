@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, ExternalLink, GitBranch, Plus, RefreshCw, Save, Search, ShieldCheck } from "lucide-react";
 import { categories, type ProjectCategory } from "../../data/lorapok";
 import { createOfficeProject, saveOfficeProject, subscribeOfficeProjects } from "../../lib/projectOfficeService";
-import type { GitHubProjectInventory, OfficeProject, ProjectVisibility } from "../../types/officeProjects";
+import type { GitHubProjectInventory, OfficeProject, ProjectModel, ProjectStage, ProjectVisibility } from "../../types/officeProjects";
 import { useDevAuth } from "../DevAuth";
 
 const EDITABLE_CATEGORIES = categories.filter((category): category is ProjectCategory => category !== "All");
@@ -35,6 +35,9 @@ function emptyOfficeProject(): OfficeProject {
     pushedAt: now,
     source: "office",
     badge: "Office draft",
+    projectModel: "unclassified",
+    stage: "idea",
+    origin: "office",
   };
 }
 
@@ -47,6 +50,7 @@ export default function ProjectsPanel() {
   const [search, setSearch] = useState("");
   const [owner, setOwner] = useState("all");
   const [visibility, setVisibility] = useState<"all" | ProjectVisibility>("all");
+  const [projectModel, setProjectModel] = useState<"all" | ProjectModel>("all");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
@@ -74,15 +78,16 @@ export default function ProjectsPanel() {
         .filter(Boolean).some((value) => String(value).toLowerCase().includes(query));
       const matchesOwner = owner === "all" || project.owner === owner;
       const matchesVisibility = visibility === "all" || project.visibility === visibility;
-      return matchesQuery && matchesOwner && matchesVisibility;
+      const matchesModel = projectModel === "all" || (project.projectModel || "unclassified") === projectModel;
+      return matchesQuery && matchesOwner && matchesVisibility && matchesModel;
     });
-  }, [owner, projects, search, visibility]);
+  }, [owner, projectModel, projects, search, visibility]);
 
   const stats = useMemo(() => ({
     repos: projects.length,
     published: projects.filter((project) => project.visibility === "published").length,
-    featured: projects.filter((project) => project.featured).length,
-    languages: new Set(projects.map((project) => project.language).filter(Boolean)).size,
+    commercial: projects.filter((project) => project.projectModel === "commercial").length,
+    openSource: projects.filter((project) => project.projectModel === "open-source").length,
   }), [projects]);
 
   const updateDraft = <K extends keyof OfficeProject>(key: K, value: OfficeProject[K]) => {
@@ -91,6 +96,10 @@ export default function ProjectsPanel() {
 
   const save = async () => {
     if (!draft || !user?.email) return;
+    if (draft.visibility === "published" && !draft.url && !draft.homepage) {
+      setNotice("Add a public repository, website, or documentation URL before publishing this local project.");
+      return;
+    }
     setSaving(true);
     setNotice("");
     try {
@@ -99,7 +108,7 @@ export default function ProjectsPanel() {
       } else {
         await saveOfficeProject(draft, user.email);
       }
-      setNotice("Project record saved. Public project views receive the update in real time.");
+      setNotice(draft.visibility === "published" ? "Project saved and published to the live catalog." : "Project saved privately in Lorapok Labs Office.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Project record could not be saved.");
     } finally {
@@ -129,10 +138,10 @@ export default function ProjectsPanel() {
 
       <div className="dev-g4 office-projects__stats">
         {[
-          [stats.repos, "public repositories"],
+          [stats.repos, "Office records"],
           [stats.published, "published records"],
-          [stats.featured, "featured records"],
-          [stats.languages, "languages"],
+          [stats.openSource, "open-source"],
+          [stats.commercial, "commercial"],
         ].map(([value, label]) => (
           <div key={label} className="dev-card dev-card-sm"><div className="dev-stat-num">{value}</div><div className="dev-stat-label">{label}</div></div>
         ))}
@@ -157,13 +166,16 @@ export default function ProjectsPanel() {
             <select value={visibility} onChange={(event) => setVisibility(event.target.value as typeof visibility)} aria-label="Filter by publishing state">
               <option value="all">All states</option><option value="published">Published</option><option value="draft">Draft</option><option value="hidden">Hidden</option>
             </select>
+            <select value={projectModel} onChange={(event) => setProjectModel(event.target.value as typeof projectModel)} aria-label="Filter by business model">
+              <option value="all">All models</option><option value="unclassified">Unclassified</option><option value="open-source">Open source</option><option value="commercial">Commercial</option>
+            </select>
           </div>
 
           <div className="office-projects__list">
             {loading ? <div className="dev-shimmer office-projects__loading" /> : filtered.map((project) => (
               <button key={project.id} type="button" className={`office-project-row${selectedId === project.id ? " active" : ""}`} onClick={() => { setSelectedId(project.id); setDraft({ ...project, topics: [...project.topics] }); }}>
                 <span className="office-project-row__icon"><GitBranch size={16} /></span>
-                <span><strong>{project.displayName || project.name}</strong><small>{project.fullName}</small></span>
+                <span><strong>{project.displayName || project.name}</strong><small>{project.fullName} · {project.projectModel === "open-source" ? "open source" : project.projectModel || "unclassified"}</small></span>
                 <span className={`office-project-row__state state-${project.visibility}`}>{project.visibility}</span>
               </button>
             ))}
@@ -175,7 +187,7 @@ export default function ProjectsPanel() {
             <>
               <div className="office-projects__editor-heading">
                 <div><span>Project record</span><h2>{draft.displayName || draft.name}</h2><p>{draft.fullName}</p></div>
-                <a href={draft.url} target="_blank" rel="noreferrer" className="dev-btn dev-btn-ghost dev-btn-sm">GitHub <ExternalLink size={13} /></a>
+                {draft.url ? <a href={draft.url} target="_blank" rel="noreferrer" className="dev-btn dev-btn-ghost dev-btn-sm">Repository <ExternalLink size={13} /></a> : <span className="office-projects__local-badge">Local idea</span>}
               </div>
 
               <div className="office-projects__form-grid">
@@ -183,10 +195,13 @@ export default function ProjectsPanel() {
                 <label><span>Publishing state</span><select value={draft.visibility} onChange={(event) => updateDraft("visibility", event.target.value as ProjectVisibility)}><option value="published">Published</option><option value="draft">Draft</option><option value="hidden">Hidden</option></select></label>
                 <label><span>Category</span><select value={draft.category} onChange={(event) => updateDraft("category", event.target.value as ProjectCategory)}>{EDITABLE_CATEGORIES.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
                 <label><span>Language / stack</span><input value={draft.language} onChange={(event) => updateDraft("language", event.target.value)} /></label>
+                <label><span>Business model</span><select value={draft.projectModel || "unclassified"} onChange={(event) => updateDraft("projectModel", event.target.value as ProjectModel)}><option value="unclassified">Unclassified — decide later</option><option value="open-source">Open source</option><option value="commercial">Commercial</option></select></label>
+                <label><span>Lifecycle stage</span><select value={draft.stage || "active"} onChange={(event) => updateDraft("stage", event.target.value as ProjectStage)}><option value="idea">Idea</option><option value="prototype">Prototype</option><option value="active">Active</option><option value="paused">Paused</option><option value="archived">Archived</option></select></label>
                 <label className="office-projects__wide"><span>Public summary</span><textarea rows={3} value={draft.summary || draft.description} onChange={(event) => updateDraft("summary", event.target.value)} /></label>
                 <label className="office-projects__wide"><span>Live or documentation URL</span><input type="url" value={draft.homepage} onChange={(event) => updateDraft("homepage", event.target.value)} placeholder="https://project.lorapok.tech" /></label>
                 <label><span>Badge</span><input value={draft.badge || ""} onChange={(event) => updateDraft("badge", event.target.value)} placeholder="Open source" /></label>
                 <label><span>Topics</span><input value={draft.topics.join(", ")} onChange={(event) => updateDraft("topics", event.target.value.split(",").map((topic) => topic.trim()).filter(Boolean))} /></label>
+                {draft.localFolder && <label className="office-projects__wide"><span>Local source folder</span><input value={draft.localFolder} readOnly /></label>}
               </div>
 
               <label className="office-projects__featured"><input type="checkbox" checked={draft.featured} onChange={(event) => updateDraft("featured", event.target.checked)} /><span><Check size={14} /> Feature this project in Office-powered views</span></label>

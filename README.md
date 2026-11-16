@@ -48,7 +48,7 @@ flowchart TD
     end
 
     subgraph LoLaBoAI ["🧠 LoLaBo Autonomous AI Subsystem (agent/)"]
-        Trigger["⏱️ Staggered Cron / CI Trigger<br/>(GitHub Actions: :17, :47)"]
+        Trigger["⏱️ Hourly Cron / CI Trigger<br/>(GitHub Actions: minute :17)"]
         
         KeyPool["🔑 Multi-Account Key Rotator (keyManager.ts)<br/>• 4+ Google Account Pool<br/>• Smart Round-Robin & Instant 429 Failover"]
         
@@ -114,7 +114,7 @@ The sequence diagram below illustrates the end-to-end autonomous research synthe
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Cron as ⏱️ Cron Runner (:17, :47)
+    actor Cron as ⏱️ Hourly Cron Runner (:17)
     participant KeyMgr as 🔑 KeyManager (4-Key Pool)
     participant Validator as 🛡️ Model Validator (modelValidator.ts)
     participant Writer as ✍️ LoLaBo Authoring Engine
@@ -273,7 +273,7 @@ Audits all generated manuscripts against an academic 100-point rubric before pub
 | **Citations & Literature Integrity** | **15 pts** | Inline citations referencing authoritative RFCs/papers, dedicated references section ($\ge 3$). |
 | **Anti-Hallucination & Tone** | **10 pts** | Zero template placeholders (`TODO`, `TBD`), zero abrupt cutoffs, authoritative engineering voice. |
 
-*Drafts scoring $< 85$ receive targeted critique prompts and enter an iterative revision cycle (up to 2 passes).*
+*Drafts scoring $< 85$ receive targeted critique prompts and enter an administrator-configurable revision cycle (zero to three passes).*
 
 ### 7. Aggregate Publishing Capacity (4 Google Accounts + Free Mesh)
 
@@ -344,7 +344,7 @@ lorapok.github.io/
 │   ├── pages/                     # Core Route Page Views
 │   └── styles/                    # Tailwind CSS v4 & custom design tokens
 ├── .github/workflows/             # Continuous Integration & Automation
-│   ├── lolabo-agent.yml           # Twice-hourly autonomous research publisher
+│   ├── lolabo-agent.yml           # Hourly cadence-aware autonomous research publisher
 │   └── deploy.yml                 # Automated edge build & GitHub Pages deploy
 └── package.json                   # Project dependencies & operational scripts
 ```

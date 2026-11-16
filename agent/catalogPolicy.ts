@@ -54,17 +54,18 @@ export function loadAllForDedup(): any[] {
   return Array.from(map.values());
 }
 
-export function persistDraft(post: any): string {
+export function persistDraft(post: any, options: { autoPublishPassed?: boolean } = {}): string {
   const key = post.slug || post.id;
   if (!key) throw new Error('Draft post is missing slug/id');
   const verdict = post.source === 'manual' ? { pass: false, reasons: [] } : evaluateGate(post, loadPublicPosts());
+  const shouldPublish = verdict.pass && options.autoPublishPassed !== false;
   const draft = {
     ...post,
     id: post.id || key,
     source: post.source || 'ai-agent',
-    status: verdict.pass ? 'published' : 'draft',
-    gate: verdict.pass ? 'passed' : 'held',
-    gateReasons: verdict.reasons,
+    status: shouldPublish ? 'published' : 'draft',
+    gate: shouldPublish ? 'passed' : (verdict.pass ? 'approved' : 'held'),
+    gateReasons: verdict.pass && !shouldPublish ? ['quality gate passed; awaiting Office approval'] : verdict.reasons,
   };
   const map = new Map<string, any>();
   for (const item of loadArchivePosts()) {
@@ -74,9 +75,11 @@ export function persistDraft(post: any): string {
   map.set(key, draft);
   writeJson(ARCHIVE_POSTS, Array.from(map.values()));
   writeJson(PUBLIC_POSTS, loadPublicPosts());
-  console.log(verdict.pass
+  console.log(shouldPublish
     ? `🚀 [Quality Gate] PASSED - publishing "${post.title}"`
-    : `🛑 [Quality Gate] HELD as draft: ${verdict.reasons.join('; ')}`);
+    : verdict.pass
+      ? `✅ [Quality Gate] APPROVED - awaiting Office approval for "${post.title}"`
+      : `🛑 [Quality Gate] HELD as draft: ${verdict.reasons.join('; ')}`);
   return key;
 }
 

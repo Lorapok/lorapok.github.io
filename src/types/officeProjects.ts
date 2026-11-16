@@ -1,6 +1,9 @@
 import type { ProjectCategory } from "../data/lorapok";
 
 export type ProjectVisibility = "published" | "draft" | "hidden";
+export type ProjectModel = "unclassified" | "open-source" | "commercial";
+export type ProjectStage = "idea" | "prototype" | "active" | "paused" | "archived";
+export type ProjectOrigin = "github" | "local" | "office";
 
 export interface OfficeProject {
   id: string;
@@ -28,6 +31,10 @@ export interface OfficeProject {
   pushedAt?: string;
   source: "github" | "office";
   badge?: string;
+  projectModel?: ProjectModel;
+  stage?: ProjectStage;
+  origin?: ProjectOrigin;
+  localFolder?: string;
 }
 
 export interface GitHubProjectInventory {

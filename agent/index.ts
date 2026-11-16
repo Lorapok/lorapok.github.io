@@ -154,7 +154,7 @@ function updateFeedsLocally(posts: any[], baseDir: string) {
 
     // 3. Blog RSS 2.0 Feed
     let rssXml = `<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n`;
-    rssXml += `  <title>LoLaBo — Lorapok Labs Blog</title>\n  <link>${blogBaseUrl}</link>\n  <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n  <atom:link href="${blogBaseUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
+    rssXml += `  <title>LoLaBo — Lorapok Labs Research</title>\n  <link>${blogBaseUrl}</link>\n  <description>Peer-reviewed systems research from the autonomous LoLaBo research engine.</description>\n  <language>en-us</language>\n  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n  <atom:link href="${blogBaseUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
     for (const p of posts.slice(0, 30)) {
       if (!p.slug) continue;
       rssXml += `  <item>\n    <title><![CDATA[${p.title}]]></title>\n    <link>${blogBaseUrl}/${p.slug}/</link>\n    <guid isPermaLink="true">${blogBaseUrl}/${p.slug}/</guid>\n    <pubDate>${new Date(p.publishedAt || Date.now()).toUTCString()}</pubDate>\n    <description><![CDATA[${p.excerpt || p.title}]]></description>\n  </item>\n`;
@@ -172,13 +172,19 @@ async function runAgent() {
 
   let config: any = {
     isEnabled: true,
-    intervalHours: 24,
+    intervalHours: 1,
     lastRunAt: null,
     writingProvider: 'gemini',
     imageGenMode: 'ai',
     enabledSocials: ['discord'],
     targetAudience: 'Developers & Engineers',
     tone: 'Technical & precise',
+    editorialMode: 'research',
+    researchFocus: 'distributed systems, AI infrastructure, security, performance engineering, and open-source architecture',
+    categoryFocus: 'Auto-select',
+    maxRefinementPasses: 2,
+    autoPublishPassed: true,
+    autoDistributePassed: true,
     triggerRequested: false
   };
 
@@ -190,7 +196,7 @@ async function runAgent() {
         config = { ...config, ...configDoc.data() };
       } else {
         await db.collection('agent_config').doc('lolabo_settings').set(config);
-        console.log("✅ Default agent config initialized in Firestore (daily review cadence).");
+        console.log("✅ Default LoLaBo research configuration initialized in Firestore (hourly cadence).");
       }
     } catch (err) {
       console.warn("⚠️ Could not read remote Firestore config:", err);
@@ -214,7 +220,7 @@ async function runAgent() {
   const minutesSinceLastRun = (now.getTime() - lastRun.getTime()) / (1000 * 60);
   const targetIntervalHours = typeof config.intervalHours === 'number' 
     ? config.intervalHours 
-    : parseFloat(process.env.INTERVAL_HOURS || '24');
+    : parseFloat(process.env.INTERVAL_HOURS || '1');
   const targetMinutes = targetIntervalHours * 60;
   const jitterThresholdMinutes = Math.max(12, targetMinutes * 0.8);
   const isManualTrigger = config.triggerRequested === true || process.env.FORCE_RUN === 'true' || isOnceFlag;
@@ -236,21 +242,27 @@ async function runAgent() {
     const currentPosts = loadAllForDedup();
 
     // 3. News Collection (with catalog duplicate exclusion)
-    const news = await collectNews(currentPosts);
+    const news = await collectNews(currentPosts, {
+      researchFocus: config.researchFocus,
+      categoryFocus: config.categoryFocus,
+    });
     if (news.length === 0) throw new Error("No news collected.");
 
     // 4. Content Generation (with model tiering: 3.8 Flash for Blogs, 3.8/3.1 Pro for Research)
-    const isResearchMode = config.isResearchMode === true || 
+    const isResearchMode = config.editorialMode === 'research' || config.isResearchMode === true ||
       config.writingProvider === 'gemini-pro' || 
       config.writingProvider === 'gemini-3.8-pro' || 
       config.writingProvider === 'gemini-3.1-pro' ||
-      (config.category && ['Architecture', 'AI & Machine Learning', 'Security'].includes(config.category));
+      (config.editorialMode !== 'technical' && ['Backend & Infrastructure', 'AI & Machine Learning', 'Security'].includes(config.categoryFocus));
 
     const blogPost = await writeBlogPost(news, {
       provider: config.writingProvider || (isResearchMode ? 'gemini-3.8-pro' : 'gemini-3.8-flash'),
       targetAudience: config.targetAudience || 'Developers & Systems Architects',
       tone: config.tone || (isResearchMode ? 'Rigorous academic systems engineering' : 'Technical & precise'),
-      isResearch: isResearchMode
+      isResearch: isResearchMode,
+      researchFocus: config.researchFocus,
+      categoryFocus: config.categoryFocus,
+      maxRefinementPasses: config.maxRefinementPasses,
     }, currentPosts);
 
     if (blogPost.peerReview) {
@@ -317,7 +329,7 @@ async function runAgent() {
     }
 
     console.log(`📝 [Local Catalog] Archiving draft: ${blogPost.title}`);
-    persistDraft(newPost);
+    persistDraft(newPost, { autoPublishPassed: config.autoPublishPassed !== false });
     // Mirror the quality-gate verdict into Firestore so the live blog and exports agree with the repo.
     const verdict = loadAllForDedup().find((p: any) => (p.slug || p.id) === docId);
     if (db && verdict) {
@@ -329,9 +341,25 @@ async function runAgent() {
     const publicNotes = loadPublicPosts();
     const dir = path.dirname(postsJsonPath);
     updateFeedsLocally(publicNotes, dir);
-    console.log(`✅ Draft archived. Public index still has ${publicNotes.length} manual notes.`);
+    console.log(`✅ Research candidate archived. Public index now contains ${publicNotes.length} quality-approved or manual notes.`);
 
-    console.log("ℹ️ Draft archived only. Discord broadcast stays off until a note is published as source=manual.");
+    if (verdict?.status === 'published' && verdict?.gate === 'passed' && config.autoDistributePassed !== false) {
+      const enabledSocials = (Array.isArray(config.enabledSocials) ? config.enabledSocials : ['discord'])
+        .filter((channel: string) => channel === 'discord');
+      if (enabledSocials.length > 0) {
+        const pendingBroadcastPath = path.resolve(__dirname, '.pending-broadcast.json');
+        fs.writeFileSync(pendingBroadcastPath, JSON.stringify({
+          post: verdict,
+          enabledSocials,
+          stagedAt: new Date().toISOString(),
+        }, null, 2), 'utf8');
+        console.log("📋 Quality-approved research staged for post-deployment distribution.");
+      }
+    } else if (verdict?.gate === 'approved') {
+      console.log("✅ Research passed the quality gate and is awaiting manual Office approval.");
+    } else {
+      console.log("ℹ️ Research remains private because it did not clear every publication control.");
+    }
     console.log("🎉 LoLaBo Agent run completed successfully!");
   } catch (e) {
     console.error("💥 LoLaBo Agent failed:", e);

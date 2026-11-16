@@ -13,6 +13,7 @@
     "agent:dispatch": "node agent/index.js --once",
     "agent:build": "npm --prefix agent run build",
     "sync:projects": "node scripts/sync-github-projects.mjs",
+    "sync:local-projects": "node scripts/sync-local-project-ideas.mjs",
     "validate": "node scripts/validate-all.js"
   },
   "dependencies": {

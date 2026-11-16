@@ -86,6 +86,9 @@ for (const owner of OWNERS) {
       updatedAt: repo.updatedAt,
       pushedAt: repo.pushedAt,
       source: "github",
+      origin: "github",
+      projectModel: "unclassified",
+      stage: repo.isArchived ? "archived" : "active",
     });
   }
 }

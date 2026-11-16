@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T22:26:43.512Z",
+  "generatedAt": "2026-11-16T22:43:34.610Z",
   "owners": [
     "Lorapok",
     "Maijied"
@@ -27,8 +27,11 @@
       "defaultBranch": "main",
       "createdAt": "2026-05-03T23:06:17Z",
       "updatedAt": "2026-11-12T04:40:34Z",
-      "pushedAt": "2026-11-16T21:53:07Z",
-      "source": "github"
+      "pushedAt": "2026-11-16T22:30:02Z",
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-cursor-curse-monitor-by-lorapok",
@@ -62,7 +65,10 @@
       "createdAt": "2026-08-11T12:13:10Z",
       "updatedAt": "2026-11-05T05:10:02Z",
       "pushedAt": "2026-11-16T14:28:47Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "lorapok-nocatch",
@@ -95,7 +101,10 @@
       "createdAt": "2026-10-19T00:39:03Z",
       "updatedAt": "2026-11-04T21:33:46Z",
       "pushedAt": "2026-11-16T04:18:46Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-bnp",
@@ -119,7 +128,10 @@
       "createdAt": "2026-10-29T13:22:53Z",
       "updatedAt": "2026-11-05T19:26:36Z",
       "pushedAt": "2026-11-05T19:26:35Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-otari",
@@ -143,7 +155,10 @@
       "createdAt": "2026-11-05T07:08:32Z",
       "updatedAt": "2026-11-05T07:08:33Z",
       "pushedAt": "2026-11-05T02:19:29Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "lorapok-loragi",
@@ -167,7 +182,10 @@
       "createdAt": "2026-11-04T22:35:25Z",
       "updatedAt": "2026-11-05T01:06:48Z",
       "pushedAt": "2026-11-05T01:06:46Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-lorek",
@@ -191,7 +209,10 @@
       "createdAt": "2026-10-30T19:43:58Z",
       "updatedAt": "2026-10-30T19:43:58Z",
       "pushedAt": "2026-10-28T12:31:33Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-luni",
@@ -215,7 +236,10 @@
       "createdAt": "2026-10-13T20:47:19Z",
       "updatedAt": "2026-10-15T20:28:32Z",
       "pushedAt": "2026-10-13T19:02:37Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-crypto-nft-tool-sdk",
@@ -239,7 +263,10 @@
       "createdAt": "2026-09-15T21:20:14Z",
       "updatedAt": "2026-10-15T20:28:43Z",
       "pushedAt": "2026-09-09T00:23:44Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-antigravity-mobile",
@@ -263,7 +290,10 @@
       "createdAt": "2026-08-21T13:08:00Z",
       "updatedAt": "2026-10-15T20:28:49Z",
       "pushedAt": "2026-08-21T02:50:26Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-ruview",
@@ -287,7 +317,10 @@
       "createdAt": "2026-08-09T20:41:13Z",
       "updatedAt": "2026-10-15T20:29:03Z",
       "pushedAt": "2026-08-09T18:16:42Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-turbovec",
@@ -311,7 +344,10 @@
       "createdAt": "2026-07-24T23:33:03Z",
       "updatedAt": "2026-10-15T20:29:08Z",
       "pushedAt": "2026-07-24T23:29:02Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-awesome-claude-skills",
@@ -335,7 +371,10 @@
       "createdAt": "2026-08-04T03:09:10Z",
       "updatedAt": "2026-10-15T20:29:10Z",
       "pushedAt": "2026-07-24T07:48:01Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-agentsmesh",
@@ -359,7 +398,10 @@
       "createdAt": "2026-06-08T09:49:52Z",
       "updatedAt": "2026-10-15T20:29:27Z",
       "pushedAt": "2026-06-08T06:08:19Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-deepagents-claude-code-architecture",
@@ -383,7 +425,10 @@
       "createdAt": "2026-06-08T13:57:56Z",
       "updatedAt": "2026-10-15T20:29:28Z",
       "pushedAt": "2026-06-08T01:52:41Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-easy-docker",
@@ -407,7 +452,10 @@
       "createdAt": "2026-05-18T08:06:07Z",
       "updatedAt": "2026-10-15T20:29:29Z",
       "pushedAt": "2026-06-07T14:26:08Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-free-llm-api-resources",
@@ -431,7 +479,10 @@
       "createdAt": "2026-05-20T07:51:00Z",
       "updatedAt": "2026-10-15T20:29:34Z",
       "pushedAt": "2026-05-20T00:52:20Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-free-claude-code",
@@ -455,7 +506,10 @@
       "createdAt": "2026-05-10T20:03:49Z",
       "updatedAt": "2026-10-15T20:29:38Z",
       "pushedAt": "2026-05-10T10:15:59Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-register",
@@ -479,7 +533,10 @@
       "createdAt": "2025-09-28T13:11:02Z",
       "updatedAt": "2026-10-15T20:29:41Z",
       "pushedAt": "2026-05-07T09:53:35Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-perplexity-ai-bypass",
@@ -503,7 +560,10 @@
       "createdAt": "2026-06-14T17:23:04Z",
       "updatedAt": "2026-10-15T20:29:48Z",
       "pushedAt": "2026-03-25T17:10:14Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-countries-states-cities-database",
@@ -527,7 +587,10 @@
       "createdAt": "2023-03-06T07:47:04Z",
       "updatedAt": "2026-10-15T20:30:28Z",
       "pushedAt": "2023-03-06T07:11:37Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-aman-barnwal-leetcode-solutions",
@@ -551,7 +614,10 @@
       "createdAt": "2024-12-02T17:20:29Z",
       "updatedAt": "2026-10-15T20:30:55Z",
       "pushedAt": "2022-04-02T19:37:24Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-dsa-interview-challenges",
@@ -575,7 +641,10 @@
       "createdAt": "2023-11-06T14:00:08Z",
       "updatedAt": "2026-10-15T20:30:58Z",
       "pushedAt": "2022-02-24T17:37:53Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-companies-sponsoring-visas",
@@ -599,7 +668,10 @@
       "createdAt": "2023-11-06T13:58:54Z",
       "updatedAt": "2026-10-15T20:31:00Z",
       "pushedAt": "2022-01-15T10:16:47Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-nsfw-data-scraper",
@@ -623,7 +695,10 @@
       "createdAt": "2021-03-20T06:20:01Z",
       "updatedAt": "2026-10-15T20:31:11Z",
       "pushedAt": "2021-03-10T13:47:23Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-laravel-migrations-generator",
@@ -647,7 +722,10 @@
       "createdAt": "2021-04-27T04:46:59Z",
       "updatedAt": "2026-10-15T20:31:18Z",
       "pushedAt": "2021-01-07T02:33:34Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-awesome-ielts",
@@ -671,7 +749,10 @@
       "createdAt": "2023-05-22T17:34:27Z",
       "updatedAt": "2026-04-30T11:08:14Z",
       "pushedAt": "2020-11-17T02:05:00Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     },
     {
       "id": "maijied-wav-audio",
@@ -695,7 +776,10 @@
       "createdAt": "2023-02-07T09:14:10Z",
       "updatedAt": "2026-10-15T20:31:35Z",
       "pushedAt": "2018-12-23T05:02:35Z",
-      "source": "github"
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
     }
   ]
 }
