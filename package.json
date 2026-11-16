@@ -11,7 +11,8 @@
     "service:lolabo": "node agent/server.js",
     "service:lolabo:daemon": "node agent/server.js --daemon",
     "agent:dispatch": "node agent/index.js --once",
-    "agent:build": "tsc -p agent/tsconfig.json",
+    "agent:build": "npm --prefix agent run build",
+    "sync:projects": "node scripts/sync-github-projects.mjs",
     "validate": "node scripts/validate-all.js"
   },
   "dependencies": {

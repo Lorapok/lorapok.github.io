@@ -7,6 +7,8 @@ import {
   signInWithRedirect,
   getRedirectResult,
   signOut,
+  setPersistence,
+  browserLocalPersistence,
   type User,
 } from "firebase/auth";
 import { auth, googleProvider, isFirebaseConfigured, db } from "../lib/firebase";
@@ -38,7 +40,7 @@ interface DevContextType {
 
 const DevContext = createContext<DevContextType | undefined>(undefined);
 
-const ADMIN_EMAILS = ["mdshuvo40@gmail.com", "lorapokdev@gmail.com"];
+const ADMIN_EMAILS = ["imaizied@gmail.com", "mdshuvo40@gmail.com", "lorapokdev@gmail.com"];
 
 export function DevAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -61,16 +63,6 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       saved[p.id] = localStorage.getItem(`lpk_model_${p.id}`) || p.availableModels[0];
     });
     return saved;
-  });
-
-  // Anonymous session ID for non-logged-in users
-  const [anonId] = useState<string>(() => {
-    let id = localStorage.getItem('lpk_anon_id');
-    if (!id) {
-      id = 'anon_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
-      localStorage.setItem('lpk_anon_id', id);
-    }
-    return id;
   });
 
   // Sync non-secret preferences from Firestore when a user logs in.
@@ -105,10 +97,10 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
+    void setPersistence(auth, browserLocalPersistence);
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
-      if (u) logEvent("auth", "session_start", { email: u.email });
     });
     return unsub;
   }, []);
@@ -124,9 +116,6 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     setLoginError(null);
     setSigningIn(true);
     
-    // Debug info (silently log for diagnostics)
-    console.log("Initiating login for:", window.location.origin);
-
     try {
       // Try Popup first
       const res = await signInWithPopup(auth, googleProvider);
@@ -235,16 +224,16 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logEvent = async (category: LogCategory, action: string, metadata: any = {}) => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured || !user) return;
     try {
       // Use a timeout for analytics so they don't block anything
       await addDoc(collection(db, "analytics"), {
         category,
         action,
         metadata,
-        uid: user?.uid || anonId,
-        email: user?.email || 'anonymous',
-        isAnonymous: !user,
+        uid: user.uid,
+        email: user.email,
+        isAnonymous: false,
         timestamp: serverTimestamp(),
         platform: navigator.platform,
         userAgent: navigator.userAgent
@@ -255,15 +244,14 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logChat = async (provider: AIProviderId, model: string, messages: { role: 'user' | 'assistant', content: string }[]) => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured || !user) return;
     try {
-      const docId = user ? user.uid : anonId;
-      await addDoc(collection(db, `users/${docId}/chats`), {
+      await addDoc(collection(db, `users/${user.uid}/chats`), {
         provider,
         model,
         messages,
         timestamp: serverTimestamp(),
-        email: user?.email || 'anonymous'
+        email: user.email
       });
       // Also log as a general event
       logEvent('ai', 'chat_saved', { provider, model });
@@ -342,9 +330,9 @@ export function AdminGate({ children }: { children: ReactNode }) {
     return (
       <div className="dev-auth-gate">
         <div className="dev-auth-gate-inner">
-          <div className="dev-auth-badge">⚙ Admin Panel</div>
-          <h2 className="dev-auth-title"><span>Restricted</span> Access</h2>
-          <p className="dev-auth-sub">This panel requires Lorapok Labs administrator credentials.</p>
+          <div className="dev-auth-badge">Lorapok Labs Office</div>
+          <h2 className="dev-auth-title"><span>Office</span> Sign-in</h2>
+          <p className="dev-auth-sub">Sign in with an approved Google account to enter the private studio, project control plane, and LoLaBo operations center.</p>
           
           <button 
             className="dev-btn dev-btn-primary dev-auth-signin" 
@@ -367,4 +355,6 @@ export function AdminGate({ children }: { children: ReactNode }) {
 
   return <>{children}</>;
 }
+
+export const OfficeGate = AdminGate;
 

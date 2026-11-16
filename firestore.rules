@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOfficeAdmin() {
+      return signedIn() && request.auth.token.email in [
+        "imaizied@gmail.com",
+        "mdshuvo40@gmail.com",
+        "lorapokdev@gmail.com"
+      ];
+    }
+
+    match /office_projects/{projectId} {
+      allow read, write: if isOfficeAdmin();
+    }
+
+    match /published_projects/{projectId} {
+      allow read: if true;
+      allow write: if isOfficeAdmin();
+    }
+
+    match /agent_config/{documentId} {
+      allow read, write: if isOfficeAdmin();
+    }
+
+    match /blog_posts/{postId} {
+      allow read: if resource.data.status == "published" || isOfficeAdmin();
+      allow write: if isOfficeAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isOfficeAdmin());
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && (request.resource.data.role != "admin" || isOfficeAdmin());
+      allow delete: if isOfficeAdmin();
+
+      match /chats/{chatId} {
+        allow read, write: if signedIn() && (request.auth.uid == userId || isOfficeAdmin());
+      }
+    }
+
+    match /analytics/{eventId} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if isOfficeAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

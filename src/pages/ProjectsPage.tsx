@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { projects, categories, CREATOR_WORKS_CATEGORY, categoryToSlug } from '../data/lorapok';
+import { projects, categories, CREATOR_WORKS_CATEGORY, categoryToSlug, type Project } from '../data/lorapok';
+import { subscribePublishedOfficeProjects } from '../lib/projectOfficeService';
+import type { OfficeProject } from '../types/officeProjects';
 import { SEOHead } from '../components/SEOHead';
 import { Card } from '../components/ui/Card';
 import { SearchBar } from '../components/ui/SearchBar';
@@ -13,6 +15,55 @@ export default function ProjectsPage() {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [officeProjects, setOfficeProjects] = useState<OfficeProject[]>([]);
+
+  useEffect(() => subscribePublishedOfficeProjects(setOfficeProjects), []);
+
+  const publicProjects = useMemo(() => {
+    const normalize = (value: string) => value.replace(/\/$/, '').toLowerCase();
+    const byRepository = new Map(
+      officeProjects
+        .filter((project) => project.visibility === 'published')
+        .map((project) => [normalize(project.url), project]),
+    );
+    const matched = new Set<string>();
+
+    const curated = projects.map((project) => {
+      const githubLink = project.links.find((link) => link.icon === 'github' && /github\.com/i.test(link.url));
+      const office = githubLink ? byRepository.get(normalize(githubLink.url)) : undefined;
+      if (!office) return project;
+      matched.add(normalize(office.url));
+      return {
+        ...project,
+        name: office.displayName || project.name,
+        tagline: office.summary || project.tagline,
+        description: office.summary || office.description || project.description,
+        category: office.category,
+        language: office.language || project.language,
+        featured: office.featured || project.featured,
+        badge: office.badge || project.badge,
+      } satisfies Project;
+    });
+
+    const discovered: Project[] = officeProjects
+      .filter((project) => project.visibility === 'published' && !matched.has(normalize(project.url)))
+      .map((project) => ({
+        name: project.displayName || project.name,
+        tagline: project.summary || project.description || 'Public Lorapok repository',
+        description: project.description || project.summary || 'Open-source project maintained in the Lorapok ecosystem.',
+        category: project.category,
+        language: project.language || 'Other',
+        featured: project.featured,
+        isNew: !project.archived,
+        badge: project.badge || (project.fork ? 'Community fork' : 'GitHub'),
+        links: [
+          ...(project.homepage ? [{ label: 'Live', url: project.homepage, icon: 'web' as const }] : []),
+          { label: 'GitHub', url: project.url, icon: 'github' as const },
+        ],
+      }));
+
+    return [...curated, ...discovered];
+  }, [officeProjects]);
 
   useEffect(() => {
     const catSlug = searchParams.get('category');
@@ -28,7 +79,7 @@ export default function ProjectsPage() {
   }, [searchParams]);
 
   const filteredProjects = useMemo(() => {
-    return projects
+    return publicProjects
       .filter(project => {
         const matchesSearch =
           project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,18 +91,18 @@ export default function ProjectsPage() {
         return matchesSearch && matchesCategory;
       })
       .sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew)));
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, publicProjects]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
-      All: projects.length,
-      all: projects.length,
+      All: publicProjects.length,
+      all: publicProjects.length,
     };
-    for (const p of projects) {
+    for (const p of publicProjects) {
       counts[p.category] = (counts[p.category] || 0) + 1;
     }
     return counts;
-  }, []);
+  }, [publicProjects]);
 
   return (
     <motion.div
@@ -69,7 +120,7 @@ export default function ProjectsPage() {
       <PageIntro
         eyebrow="THE PRODUCT UNIVERSE"
         title={<>Tools made to <em>feel alive.</em></>}
-        description={<>Browse {projects.length} open-source products, experiments, extensions, and creative tools built across the Lorapok ecosystem.</>}
+        description={<>Browse {publicProjects.length} curated products and live public repositories across the Lorapok ecosystem.</>}
       />
 
       <div className="v4-filter-dock mb-12">
@@ -89,7 +140,7 @@ export default function ProjectsPage() {
       </div>
 
       <div className="mb-6 text-gray-400 text-sm font-medium">
-        Showing {filteredProjects.length} of {projects.length} products
+        Showing {filteredProjects.length} of {publicProjects.length} products
       </div>
 
       {filteredProjects.length > 0 ? (
@@ -100,7 +151,7 @@ export default function ProjectsPage() {
           <AnimatePresence>
             {filteredProjects.map(project => (
               <motion.div
-                key={project.name}
+                key={`${project.name}-${project.links[0]?.url || project.category}`}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}

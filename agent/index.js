@@ -213,15 +213,14 @@ async function runAgent() {
     console.log("🚀 Starting LoLaBo Agent...");
     let config = {
         isEnabled: true,
-        intervalHours: 0.25,
+        intervalHours: 24,
         lastRunAt: null,
         writingProvider: 'gemini',
         imageGenMode: 'ai',
         enabledSocials: ['discord'],
         targetAudience: 'Developers & Engineers',
         tone: 'Technical & precise',
-        triggerRequested: true,
-        discordWebhookUrl: process.env.DISCORD_WEBHOOK_URL
+        triggerRequested: false
     };
     // 1. Fetch Config if Firestore is available
     if (db) {
@@ -232,7 +231,7 @@ async function runAgent() {
             }
             else {
                 await db.collection('agent_config').doc('lolabo_settings').set(config);
-                console.log("✅ Default agent config initialized in Firestore (15-minute publishing interval).");
+                console.log("✅ Default agent config initialized in Firestore (daily review cadence).");
             }
         }
         catch (err) {
@@ -244,7 +243,7 @@ async function runAgent() {
         console.log("⏸️ Agent is currently disabled. Skipping run.");
         return;
     }
-    // 2. Check Interval or Manual Trigger (Default 15 minutes)
+    // 2. Check interval or an explicit queued/manual trigger.
     let lastRun = new Date(0);
     if (config.lastRunAt && typeof config.lastRunAt.toDate === 'function') {
         lastRun = config.lastRunAt.toDate();
@@ -256,8 +255,8 @@ async function runAgent() {
     const minutesSinceLastRun = (now.getTime() - lastRun.getTime()) / (1000 * 60);
     const targetIntervalHours = typeof config.intervalHours === 'number'
         ? config.intervalHours
-        : parseFloat(process.env.INTERVAL_HOURS || '0.25');
-    const targetMinutes = targetIntervalHours * 60; // 15 minutes default
+        : parseFloat(process.env.INTERVAL_HOURS || '24');
+    const targetMinutes = targetIntervalHours * 60;
     const jitterThresholdMinutes = Math.max(12, targetMinutes * 0.8);
     const isManualTrigger = config.triggerRequested === true || process.env.FORCE_RUN === 'true' || isOnceFlag;
     if (minutesSinceLastRun < jitterThresholdMinutes && !process.env.FORCE_RUN && !isManualTrigger) {
@@ -268,7 +267,7 @@ async function runAgent() {
         console.log("⚡ Manual trigger detected (--once / triggerRequested / FORCE_RUN). Bypassing interval check.");
     }
     else {
-        console.log(`⏱️ 15-minute cycle triggered (${minutesSinceLastRun.toFixed(1)}m elapsed >= ${jitterThresholdMinutes.toFixed(1)}m threshold). Generating post...`);
+        console.log(`⏱️ Scheduled cycle triggered (${minutesSinceLastRun.toFixed(1)}m elapsed >= ${jitterThresholdMinutes.toFixed(1)}m threshold). Generating a review candidate...`);
     }
     try {
         // 0. Load active catalog for anti-duplication baseline

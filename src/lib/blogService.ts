@@ -31,19 +31,18 @@ export interface AgentConfig {
   tone: string;
   triggerRequested?: boolean;
   lastTriggerAt?: Timestamp | null;
-  discordWebhookUrl?: string;
 }
 
 export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   isEnabled: true,
-  intervalHours: 1,
+  intervalHours: 24,
   lastRunAt: null,
   writingProvider: 'gemini',
   imageGenMode: 'auto',
   enabledSocials: ['discord'],
   targetAudience: 'Developers & Engineers',
   tone: 'Technical & precise',
-  discordWebhookUrl: ''
+  triggerRequested: false
 };
 
 export const blogService = {
@@ -80,7 +79,7 @@ export const blogService = {
     const configRef = doc(db, CONFIG_COLLECTION, CONFIG_DOC_ID);
     const snap = await getDoc(configRef);
     if (!snap.exists()) {
-      await setDoc(configRef, DEFAULT_AGENT_CONFIG);
+      await setDoc(configRef, DEFAULT_AGENT_CONFIG, { merge: true });
       return DEFAULT_AGENT_CONFIG;
     }
     return snap.data() as AgentConfig;
@@ -88,15 +87,15 @@ export const blogService = {
 
   async updateAgentConfig(updates: Partial<AgentConfig>) {
     const configRef = doc(db, CONFIG_COLLECTION, CONFIG_DOC_ID);
-    return await updateDoc(configRef, updates);
+    return await setDoc(configRef, updates, { merge: true });
   },
 
   async triggerAgentRun() {
     const configRef = doc(db, CONFIG_COLLECTION, CONFIG_DOC_ID);
-    return await updateDoc(configRef, {
+    return await setDoc(configRef, {
       triggerRequested: true,
       lastTriggerAt: Timestamp.now()
-    });
+    }, { merge: true });
   },
 
   // ─── Analytics ───

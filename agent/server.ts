@@ -170,7 +170,7 @@ const telemetry: MicroserviceTelemetry = {
   totalDispatches: 0,
   isDispatching: false,
   daemonActive: false,
-  intervalHours: 0.25,
+  intervalHours: 24,
   nextScheduledDispatch: null,
 };
 
@@ -325,8 +325,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
       targetAudience: 'Developers & Systems Architects',
       tone: 'Technical, deep-dive & architectural',
       imageGenMode: 'ai',
-      enabledSocials: ['discord'],
-      discordWebhookUrl: process.env.DISCORD_WEBHOOK_URL
+      enabledSocials: ['discord']
     };
 
     if (db) {
@@ -480,7 +479,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
 }
 
 // ─── Autonomous Daemon Scheduler ───
-function startAutonomousDaemon(intervalHours = 0.25) {
+function startAutonomousDaemon(intervalHours = 24) {
   if (telemetry.daemonActive) return;
   telemetry.daemonActive = true;
   telemetry.intervalHours = intervalHours;
@@ -817,7 +816,7 @@ export function startServer(port = PORT, host = HOST) {
   // Check if autonomous daemon mode was requested
   const isDaemonArg = process.argv.includes('--daemon') || process.argv.includes('--cron') || process.env.DAEMON === 'true';
   if (isDaemonArg) {
-    const intervalHours = parseFloat(process.env.INTERVAL_HOURS || '0.25');
+    const intervalHours = parseFloat(process.env.INTERVAL_HOURS || '24');
     startAutonomousDaemon(intervalHours);
   }
 

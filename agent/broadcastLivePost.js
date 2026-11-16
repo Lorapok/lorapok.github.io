@@ -92,13 +92,13 @@ async function main() {
         console.error("❌ Failed to parse .pending-broadcast.json:", err);
         return;
     }
-    const { post, enabledSocials, discordWebhookUrl } = broadcastData;
+    const { post, enabledSocials } = broadcastData;
     if (!post || !post.slug) {
         console.warn("⚠️ Invalid post data in pending broadcast file. Aborting.");
         fs.unlinkSync(PENDING_FILE);
         return;
     }
-    const webhookUrl = discordWebhookUrl || process.env.DISCORD_WEBHOOK_URL;
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl || !webhookUrl.trim()) {
         console.log("ℹ️ No DISCORD_WEBHOOK_URL configured. Cleaning up pending broadcast file.");
         fs.unlinkSync(PENDING_FILE);

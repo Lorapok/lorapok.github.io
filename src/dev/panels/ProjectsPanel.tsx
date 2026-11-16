@@ -1,112 +1,204 @@
-// src/dev/panels/ProjectsPanel.tsx
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, ExternalLink, GitBranch, Plus, RefreshCw, Save, Search, ShieldCheck } from "lucide-react";
+import { categories, type ProjectCategory } from "../../data/lorapok";
+import { createOfficeProject, saveOfficeProject, subscribeOfficeProjects } from "../../lib/projectOfficeService";
+import type { GitHubProjectInventory, OfficeProject, ProjectVisibility } from "../../types/officeProjects";
+import { useDevAuth } from "../DevAuth";
 
-const LANG_COLORS: Record<string, string> = {
-  JavaScript: "#f1e05a", TypeScript: "#3178c6", Python: "#3572A5",
-  PHP: "#4F5D95", HTML: "#e34c26", CSS: "#563d7c", Go: "#00ADD8",
-  Rust: "#dea584", Java: "#b07219", Vue: "#41b883", Svelte: "#ff3e00",
-};
+const EDITABLE_CATEGORIES = categories.filter((category): category is ProjectCategory => category !== "All");
 
-const DEMO_REPOS = [
-  { name: "lorapok-ui", description: "Headless component library for accessible UIs. Zero runtime, full control.", language: "TypeScript", stargazers_count: 47, forks_count: 12, html_url: "https://github.com/lorapok" },
-  { name: "blade-cli", description: "Lightweight CLI toolkit for scaffolding projects with opinionated defaults.", language: "Go", stargazers_count: 31, forks_count: 8, html_url: "https://github.com/lorapok" },
-  { name: "formkraft", description: "Schema-driven form engine. Define forms in JSON, ship anywhere.", language: "JavaScript", stargazers_count: 88, forks_count: 22, html_url: "https://github.com/lorapok" },
-  { name: "relay-db", description: "Tiny SQLite-backed key-value store for edge environments.", language: "Rust", stargazers_count: 19, forks_count: 4, html_url: "https://github.com/lorapok" },
-  { name: "devpulse", description: "GitHub activity dashboard — self-hostable, no auth required.", language: "Vue", stargazers_count: 62, forks_count: 17, html_url: "https://github.com/lorapok" },
-  { name: "maildrop", description: "Minimal transactional email sender. SMTP-compatible, under 2 kB.", language: "Python", stargazers_count: 24, forks_count: 6, html_url: "https://github.com/lorapok" },
-];
-
-interface Repo {
-  name: string;
-  description: string;
-  language: string;
-  stargazers_count: number;
-  forks_count: number;
-  html_url: string;
+function emptyOfficeProject(): OfficeProject {
+  const now = new Date().toISOString();
+  const id = `office-${Date.now()}`;
+  return {
+    id,
+    owner: "Lorapok Office",
+    name: "new-project",
+    fullName: `Lorapok Office/${id}`,
+    displayName: "New project",
+    description: "",
+    summary: "",
+    url: "https://github.com/Lorapok",
+    homepage: "",
+    language: "Other",
+    topics: [],
+    stars: 0,
+    forks: 0,
+    archived: false,
+    fork: false,
+    visibility: "draft",
+    category: "Developer Tools",
+    featured: false,
+    defaultBranch: "main",
+    createdAt: now,
+    updatedAt: now,
+    pushedAt: now,
+    source: "office",
+    badge: "Office draft",
+  };
 }
 
 export default function ProjectsPanel() {
-  const [repos, setRepos] = useState<Repo[]>([]);
+  const { user } = useDevAuth();
+  const [projects, setProjects] = useState<OfficeProject[]>([]);
+  const [inventory, setInventory] = useState<GitHubProjectInventory | null>(null);
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [draft, setDraft] = useState<OfficeProject | null>(null);
+  const [search, setSearch] = useState("");
+  const [owner, setOwner] = useState("all");
+  const [visibility, setVisibility] = useState<"all" | ProjectVisibility>("all");
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ repos: 0, stars: 0, forks: 0, langs: 0 });
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState("");
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("https://api.github.com/orgs/lorapok/repos?per_page=30&sort=updated");
-        if (!res.ok) throw new Error("rate limited");
-        const data: Repo[] = await res.json();
-        const filtered = data.filter((r: any) => !r.fork && !r.archived);
-        setRepos(filtered.slice(0, 9));
-        setStats({
-          repos: filtered.length,
-          stars: filtered.reduce((a: number, r: any) => a + r.stargazers_count, 0),
-          forks: filtered.reduce((a: number, r: any) => a + r.forks_count, 0),
-          langs: new Set(filtered.map((r: any) => r.language).filter(Boolean)).size,
-        });
-      } catch {
-        setRepos(DEMO_REPOS);
-        setStats({
-          repos: DEMO_REPOS.length,
-          stars: DEMO_REPOS.reduce((a, r) => a + r.stargazers_count, 0),
-          forks: DEMO_REPOS.reduce((a, r) => a + r.forks_count, 0),
-          langs: new Set(DEMO_REPOS.map(r => r.language)).size,
-        });
-      } finally {
-        setLoading(false);
+  useEffect(() => subscribeOfficeProjects(
+    (next, meta) => {
+      setProjects(next);
+      setInventory(meta);
+      setLoading(false);
+      const first = next[0];
+      setSelectedId((current) => current || first?.id || "");
+      setDraft((current) => current || (first ? { ...first, topics: [...first.topics] } : null));
+    },
+    () => {
+      setLoading(false);
+      setNotice("The static inventory is available, but live Office overrides could not be loaded.");
+    },
+  ), []);
+
+  const owners = useMemo(() => Array.from(new Set(projects.map((project) => project.owner))).sort(), [projects]);
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return projects.filter((project) => {
+      const matchesQuery = !query || [project.displayName, project.name, project.fullName, project.summary, project.description, project.language]
+        .filter(Boolean).some((value) => String(value).toLowerCase().includes(query));
+      const matchesOwner = owner === "all" || project.owner === owner;
+      const matchesVisibility = visibility === "all" || project.visibility === visibility;
+      return matchesQuery && matchesOwner && matchesVisibility;
+    });
+  }, [owner, projects, search, visibility]);
+
+  const stats = useMemo(() => ({
+    repos: projects.length,
+    published: projects.filter((project) => project.visibility === "published").length,
+    featured: projects.filter((project) => project.featured).length,
+    languages: new Set(projects.map((project) => project.language).filter(Boolean)).size,
+  }), [projects]);
+
+  const updateDraft = <K extends keyof OfficeProject>(key: K, value: OfficeProject[K]) => {
+    setDraft((current) => current ? { ...current, [key]: value } : current);
+  };
+
+  const save = async () => {
+    if (!draft || !user?.email) return;
+    setSaving(true);
+    setNotice("");
+    try {
+      if (draft.source === "office" && !projects.some((project) => project.id === draft.id)) {
+        await createOfficeProject(draft, user.email);
+      } else {
+        await saveOfficeProject(draft, user.email);
       }
+      setNotice("Project record saved. Public project views receive the update in real time.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Project record could not be saved.");
+    } finally {
+      setSaving(false);
     }
-    load();
-  }, []);
+  };
+
+  const addProject = () => {
+    const project = emptyOfficeProject();
+    setDraft(project);
+    setSelectedId(project.id);
+    setNotice("Complete the new Office project record, then save it as a draft or publish it.");
+  };
 
   return (
-    <div className="dev-panel-content">
-      <div className="dev-panel-header">
-        <div className="dev-panel-title">Open-source <span>Projects</span></div>
-        <div className="dev-panel-sub">All Lorapok repos — live from GitHub API.</div>
+    <div className="dev-panel-content office-projects">
+      <div className="dev-panel-header office-projects__header">
+        <div>
+          <div className="dev-panel-title">Project <span>Office</span></div>
+          <div className="dev-panel-sub">GitHub inventory, publishing metadata, and public catalog controls in one authenticated workspace.</div>
+        </div>
+        <div className="office-projects__actions">
+          <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={() => window.location.reload()}><RefreshCw size={14} /> Refresh inventory</button>
+          <button className="dev-btn dev-btn-primary dev-btn-sm" onClick={addProject}><Plus size={14} /> New Office project</button>
+        </div>
       </div>
 
-      <div className="dev-g4" style={{ marginBottom: "1.5rem" }}>
+      <div className="dev-g4 office-projects__stats">
         {[
-          { num: stats.repos || "—", label: "repositories" },
-          { num: stats.stars || "—", label: "total stars" },
-          { num: stats.forks || "—", label: "total forks" },
-          { num: stats.langs || "—", label: "languages" },
-        ].map(s => (
-          <div key={s.label} className="dev-card dev-card-sm">
-            <div className="dev-stat-num">{s.num}</div>
-            <div className="dev-stat-label">{s.label}</div>
-          </div>
+          [stats.repos, "public repositories"],
+          [stats.published, "published records"],
+          [stats.featured, "featured records"],
+          [stats.languages, "languages"],
+        ].map(([value, label]) => (
+          <div key={label} className="dev-card dev-card-sm"><div className="dev-stat-num">{value}</div><div className="dev-stat-label">{label}</div></div>
         ))}
       </div>
 
-      {loading ? (
-        <div className="dev-g3">
-          {[1, 2, 3].map(i => <div key={i} className="dev-card dev-shimmer" style={{ height: "140px" }} />)}
-        </div>
-      ) : (
-        <div className="dev-g3">
-          {repos.map(repo => (
-            <a key={repo.name} className="dev-repo-card" href={repo.html_url} target="_blank" rel="noopener noreferrer">
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                <div style={{ fontFamily: "var(--dev-font-head)", fontSize: "0.9rem", fontWeight: 700 }}>{repo.name}</div>
-                <span>📦</span>
+      <div className="office-projects__boundary">
+        <ShieldCheck size={16} />
+        <span><strong>Privacy boundary:</strong> the committed inventory contains public repositories only. Private repository names and metadata never enter the public website bundle.</span>
+        {inventory && <small>GitHub snapshot: {new Date(inventory.generatedAt).toLocaleString()}</small>}
+      </div>
+
+      {notice && <div className="office-projects__notice" role="status">{notice}</div>}
+
+      <div className="office-projects__workspace">
+        <section className="office-projects__browser" aria-label="Repository inventory">
+          <div className="office-projects__filters">
+            <label className="office-projects__search"><Search size={15} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search repositories" /></label>
+            <select value={owner} onChange={(event) => setOwner(event.target.value)} aria-label="Filter by owner">
+              <option value="all">All owners</option>
+              {owners.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+            <select value={visibility} onChange={(event) => setVisibility(event.target.value as typeof visibility)} aria-label="Filter by publishing state">
+              <option value="all">All states</option><option value="published">Published</option><option value="draft">Draft</option><option value="hidden">Hidden</option>
+            </select>
+          </div>
+
+          <div className="office-projects__list">
+            {loading ? <div className="dev-shimmer office-projects__loading" /> : filtered.map((project) => (
+              <button key={project.id} type="button" className={`office-project-row${selectedId === project.id ? " active" : ""}`} onClick={() => { setSelectedId(project.id); setDraft({ ...project, topics: [...project.topics] }); }}>
+                <span className="office-project-row__icon"><GitBranch size={16} /></span>
+                <span><strong>{project.displayName || project.name}</strong><small>{project.fullName}</small></span>
+                <span className={`office-project-row__state state-${project.visibility}`}>{project.visibility}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="office-projects__editor" aria-label="Project editor">
+          {draft ? (
+            <>
+              <div className="office-projects__editor-heading">
+                <div><span>Project record</span><h2>{draft.displayName || draft.name}</h2><p>{draft.fullName}</p></div>
+                <a href={draft.url} target="_blank" rel="noreferrer" className="dev-btn dev-btn-ghost dev-btn-sm">GitHub <ExternalLink size={13} /></a>
               </div>
-              <div style={{ fontSize: "0.8rem", color: "var(--dev-muted2)", lineHeight: 1.55, flex: 1 }}>{repo.description || "No description."}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.25rem" }}>
-                {repo.language && (
-                  <>
-                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: LANG_COLORS[repo.language] || "#6b6b7a", flexShrink: 0, display: "inline-block" }} />
-                    <span style={{ fontSize: "0.72rem", color: "var(--dev-muted)", fontFamily: "var(--dev-font-mono)" }}>{repo.language}</span>
-                  </>
-                )}
-                <span style={{ fontSize: "0.72rem", color: "var(--dev-amber)", fontFamily: "var(--dev-font-mono)", marginLeft: "auto" }}>★ {repo.stargazers_count}</span>
-                <span style={{ fontSize: "0.72rem", color: "var(--dev-muted)", fontFamily: "var(--dev-font-mono)" }}>⑂ {repo.forks_count}</span>
+
+              <div className="office-projects__form-grid">
+                <label><span>Display name</span><input value={draft.displayName || ""} onChange={(event) => updateDraft("displayName", event.target.value)} /></label>
+                <label><span>Publishing state</span><select value={draft.visibility} onChange={(event) => updateDraft("visibility", event.target.value as ProjectVisibility)}><option value="published">Published</option><option value="draft">Draft</option><option value="hidden">Hidden</option></select></label>
+                <label><span>Category</span><select value={draft.category} onChange={(event) => updateDraft("category", event.target.value as ProjectCategory)}>{EDITABLE_CATEGORIES.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+                <label><span>Language / stack</span><input value={draft.language} onChange={(event) => updateDraft("language", event.target.value)} /></label>
+                <label className="office-projects__wide"><span>Public summary</span><textarea rows={3} value={draft.summary || draft.description} onChange={(event) => updateDraft("summary", event.target.value)} /></label>
+                <label className="office-projects__wide"><span>Live or documentation URL</span><input type="url" value={draft.homepage} onChange={(event) => updateDraft("homepage", event.target.value)} placeholder="https://project.lorapok.tech" /></label>
+                <label><span>Badge</span><input value={draft.badge || ""} onChange={(event) => updateDraft("badge", event.target.value)} placeholder="Open source" /></label>
+                <label><span>Topics</span><input value={draft.topics.join(", ")} onChange={(event) => updateDraft("topics", event.target.value.split(",").map((topic) => topic.trim()).filter(Boolean))} /></label>
               </div>
-            </a>
-          ))}
-        </div>
-      )}
+
+              <label className="office-projects__featured"><input type="checkbox" checked={draft.featured} onChange={(event) => updateDraft("featured", event.target.checked)} /><span><Check size={14} /> Feature this project in Office-powered views</span></label>
+
+              <div className="office-projects__savebar">
+                <div><strong>{draft.stars}</strong> stars · <strong>{draft.forks}</strong> forks · pushed {draft.pushedAt ? new Date(draft.pushedAt).toLocaleDateString() : "not recorded"}</div>
+                <button className="dev-btn dev-btn-primary" disabled={saving} onClick={save}>{saving ? <RefreshCw className="dev-auth-spinner" size={15} /> : <Save size={15} />} {saving ? "Saving" : "Save project"}</button>
+              </div>
+            </>
+          ) : <div className="office-projects__empty">Select a repository to review its Office metadata.</div>}
+        </section>
+      </div>
     </div>
   );
 }

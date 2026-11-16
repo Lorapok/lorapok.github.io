@@ -1,7 +1,7 @@
 // src/dev/DevModePortal.tsx
 // The full Lorapok Labs Developer Mode workspace
 import React, { useState, useEffect } from "react";
-import { DevAuthProvider, useDevAuth } from "./DevAuth";
+import { DevAuthProvider, OfficeGate, useDevAuth } from "./DevAuth";
 import AILabsPanel from "./panels/AILabsPanel";
 import BlogPanel from "./panels/BlogPanel";
 import PlaygroundPanel from "./panels/PlaygroundPanel";
@@ -340,7 +340,9 @@ interface DevModePortalProps {
 export default function DevModePortal({ onClose }: DevModePortalProps) {
   return (
     <DevAuthProvider>
-      <DevPortalInner onClose={onClose} />
+      <OfficeGate>
+        <DevPortalInner onClose={onClose} />
+      </OfficeGate>
     </DevAuthProvider>
   );
 }

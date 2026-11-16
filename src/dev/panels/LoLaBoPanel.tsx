@@ -1,407 +1,98 @@
-// src/dev/panels/LoLaBoPanel.tsx
-import { useState, useEffect } from "react";
-import { 
-  Activity, 
-  Share2, 
-  MessageSquare, 
-  Heart, 
-  Eye, 
-  RefreshCw, 
-  Zap, 
-  ArrowUpRight,
-  ShieldCheck,
-  ToggleRight,
-  ToggleLeft,
-  Clock,
-  Globe,
-  BarChart3,
-  Terminal
-} from "lucide-react";
-import { blogService, DEFAULT_AGENT_CONFIG } from "../../lib/blogService";
-import type { AgentConfig } from "../../lib/blogService";
+import { useEffect, useState } from "react";
+import { Activity, BarChart3, Clock, FileCheck2, RefreshCw, ShieldCheck, Zap } from "lucide-react";
+import { blogService, DEFAULT_AGENT_CONFIG, type AgentConfig } from "../../lib/blogService";
+
+type BlogStats = Awaited<ReturnType<typeof blogService.getBlogStats>>;
 
 export default function LoLaBoPanel() {
   const [config, setConfig] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<BlogStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isTriggering, setIsTriggering] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [c, s] = await Promise.all([
-          blogService.getAgentConfig(),
-          blogService.getBlogStats()
-        ]);
-        setConfig(c);
-        setStats(s);
-      } catch (e) {
-        console.error("LoLaBo Panel load failed:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
+    void Promise.all([blogService.getAgentConfig(), blogService.getBlogStats()])
+      .then(([nextConfig, nextStats]) => {
+        setConfig({ ...DEFAULT_AGENT_CONFIG, ...nextConfig });
+        setStats(nextStats);
+      })
+      .catch(() => setNotice("LoLaBo data is temporarily unavailable. No settings were changed."))
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleToggleAgent = async () => {
-    const nextValue = !config.isEnabled;
-    setConfig(prev => ({ ...prev, isEnabled: nextValue }));
-    await blogService.updateAgentConfig({ isEnabled: nextValue });
-  };
-
-  const handleUpdateConfig = async (updates: Partial<AgentConfig>) => {
-    setIsSaving(true);
-    setConfig(prev => ({ ...prev, ...updates }));
+  const save = async (updates: Partial<AgentConfig>) => {
+    const previous = config;
+    setConfig((current) => ({ ...current, ...updates }));
+    setSaving(true);
+    setNotice("");
     try {
       await blogService.updateAgentConfig(updates);
-    } catch (e) {
-      console.error("Config save failed:", e);
+      setNotice("LoLaBo configuration saved.");
+    } catch {
+      setConfig(previous);
+      setNotice("The configuration could not be saved.");
     } finally {
-      setIsSaving(false);
+      setSaving(false);
     }
   };
 
-  const handleTriggerNow = async () => {
-    setIsTriggering(true);
+  const queueRun = async () => {
+    setSaving(true);
+    setNotice("");
     try {
       await blogService.triggerAgentRun();
-      alert("LoLaBo Agent triggered! Deployment started in background.");
-    } catch (e) {
-      alert("Trigger failed.");
+      setConfig((current) => ({ ...current, triggerRequested: true }));
+      setNotice("The next scheduled LoLaBo cycle is queued. Content remains a draft until it passes the quality gate.");
+    } catch {
+      setNotice("The run could not be queued.");
     } finally {
-      setIsTriggering(false);
+      setSaving(false);
     }
   };
 
-  if (loading) return (
-    <div style={{ padding: '5rem', textAlign: 'center', opacity: 0.5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-      <div className="dev-auth-spinner" style={{ width: '30px', height: '30px' }} />
-      <span style={{ fontSize: '0.85rem' }}>SYNCHRONIZING WITH LOLABO ENGINE...</span>
-    </div>
-  );
+  if (loading) return <div className="dev-auth-loading"><div className="dev-auth-spinner" /><span>Loading LoLaBo operations…</span></div>;
+
+  const lastRun = config.lastRunAt?.toDate ? config.lastRunAt.toDate().toLocaleString() : "No recorded run";
+  const queueState = config.triggerRequested ? "Queued" : "Clear";
 
   return (
-    <div className="dev-panel-content" style={{ padding: '1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
-      
-      {/* ─── Header ─── */}
-      <div className="dev-panel-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <div>
-          <div className="dev-panel-title" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>LoLaBo <span>Command Center</span></div>
-          <div className="dev-panel-sub" style={{ opacity: 0.6, fontSize: '0.85rem' }}>Autonomous AI Agent monitoring and lifecycle management.</div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ textAlign: 'right', opacity: 0.6 }}>
-            <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Last Run</div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{config.lastRunAt?.toDate ? config.lastRunAt.toDate().toLocaleString() : 'Never'}</div>
+    <div className="dev-panel-content lolabo-office">
+      <div className="dev-panel-header lolabo-office__header">
+        <div><div className="dev-panel-title">LoLaBo <span>Operations</span></div><div className="dev-panel-sub">Review-first research automation, publishing controls, and honest operational signals.</div></div>
+        <button className="dev-btn dev-btn-primary" onClick={queueRun} disabled={saving || config.triggerRequested}>{saving ? <RefreshCw className="dev-auth-spinner" size={15} /> : <Zap size={15} />} {config.triggerRequested ? "Run queued" : "Queue next run"}</button>
+      </div>
+
+      {notice && <div className="office-projects__notice" role="status">{notice}</div>}
+
+      <div className="dev-g4 lolabo-office__stats">
+        {[[stats?.totalPosts ?? 0, "catalog posts"], [stats?.totalViews ?? 0, "recorded views"], ["85 / 100", "quality threshold"], [queueState, "run queue"]].map(([value, label]) => <div className="dev-card dev-card-sm" key={label}><div className="dev-stat-num">{value}</div><div className="dev-stat-label">{label}</div></div>)}
+      </div>
+
+      <div className="lolabo-office__grid">
+        <section className="dev-card lolabo-office__card">
+          <div className="lolabo-office__card-title"><Activity size={18} /><div><strong>Engine control</strong><span>{config.isEnabled ? "Active" : "Paused"} · last run {lastRun}</span></div></div>
+          <div className="lolabo-office__form">
+            <label><span>Automation state</span><select value={config.isEnabled ? "enabled" : "disabled"} onChange={(event) => void save({ isEnabled: event.target.value === "enabled" })}><option value="enabled">Enabled</option><option value="disabled">Paused</option></select></label>
+            <label><span>Review cadence</span><select value={config.intervalHours} onChange={(event) => void save({ intervalHours: Number(event.target.value) })}><option value={6}>Every 6 hours</option><option value={12}>Every 12 hours</option><option value={24}>Daily</option><option value={168}>Weekly</option></select></label>
+            <label><span>Writing route</span><select value={config.writingProvider} onChange={(event) => void save({ writingProvider: event.target.value })}><option value="gemini">Gemini standard</option><option value="gemini-pro">Gemini research</option><option value="groq">Groq</option><option value="openai">OpenAI</option><option value="claude">Claude</option></select></label>
+            <label><span>Audience</span><select value={config.targetAudience} onChange={(event) => void save({ targetAudience: event.target.value })}><option>Developers & Engineers</option><option>Engineers & Architects</option><option>Startup Founders</option><option>General Audience</option></select></label>
+            <label className="lolabo-office__wide"><span>Editorial tone</span><select value={config.tone} onChange={(event) => void save({ tone: event.target.value })}><option>Technical & precise</option><option>Professional & informative</option><option>Educational & step-by-step</option><option>Opinionated & bold</option></select></label>
           </div>
-          <button 
-            onClick={handleTriggerNow} 
-            disabled={isTriggering}
-            style={{ 
-              background: 'var(--dev-green)', 
-              color: '#000', 
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-          >
-            {isTriggering ? <RefreshCw className="dev-auth-spinner" size={16} /> : <Zap size={16} />}
-            TRIGGER NOW
-          </button>
-        </div>
+          <p className="lolabo-office__secret-note"><ShieldCheck size={14} /> Provider keys and distribution webhooks stay in protected deployment secrets and are never readable from this browser.</p>
+        </section>
+
+        <section className="dev-card lolabo-office__card">
+          <div className="lolabo-office__card-title"><FileCheck2 size={18} /><div><strong>Publication safety</strong><span>Deterministic checks before public release</span></div></div>
+          <div className="lolabo-office__checks"><div><strong>85 / 100</strong><span>minimum review score</span></div><div><strong>1,200+</strong><span>minimum article words</span></div><div><strong>3+</strong><span>required citations</span></div><div><strong>Draft first</strong><span>failed candidates stay private</span></div></div>
+          <div className="lolabo-office__flow"><Clock size={15} /><span>Collect</span><i /><span>Synthesize</span><i /><span>Review</span><i /><span>Publish or archive</span></div>
+        </section>
+
+        <section className="dev-card lolabo-office__card lolabo-office__wide-card">
+          <div className="lolabo-office__card-title"><BarChart3 size={18} /><div><strong>Recorded catalog activity</strong><span>Counts come from stored blog records; no estimated capacity claims.</span></div></div>
+          <div className="lolabo-office__distribution">{stats?.categoryDistribution && Object.keys(stats.categoryDistribution).length > 0 ? Object.entries(stats.categoryDistribution).map(([category, count]) => <div key={category}><span>{category}</span><strong>{count} post{count === 1 ? "" : "s"}</strong></div>) : <p>No categorized activity has been recorded yet.</p>}</div>
+        </section>
       </div>
-
-      {/* ─── Stats Grid ─── */}
-      <div className="dev-g4" style={{ marginBottom: '2.5rem', gap: '1.5rem' }}>
-        {[
-          { label: 'Total Views', val: stats?.totalViews || 0, icon: <Eye size={18} />, color: '#10b981' },
-          { label: 'Engagement', val: stats?.totalLikes || 0, icon: <Heart size={18} />, color: '#ef4444' },
-          { label: 'Social Reach', val: stats?.totalShares || 0, icon: <Share2 size={18} />, color: '#3b82f6' },
-          { label: 'Comments', val: stats?.totalComments || 0, icon: <MessageSquare size={18} />, color: '#eab308' }
-        ].map(s => (
-          <div key={s.label} className="dev-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <div style={{ padding: '0.75rem', background: `${s.color}15`, color: s.color, borderRadius: '10px' }}>{s.icon}</div>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', lineHeight: 1 }}>{s.val}</div>
-              <div style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '0.25rem' }}>{s.label}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2.5rem' }}>
-        
-        {/* LEFT COLUMN */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-          
-          <section>
-            <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={18} /> AGENT ARCHITECTURE
-            </div>
-            
-            <div className="dev-card" style={{ padding: '0', border: '1px solid rgba(255,255,255,0.08)' }}>
-              
-              {/* Status Header */}
-              <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <Activity size={24} color={config.isEnabled ? '#10b981' : '#ef4444'} />
-                  <div>
-                    <div style={{ fontSize: '1rem', fontWeight: 'bold' }}>ENGINE STATUS</div>
-                    <div style={{ fontSize: '0.8rem', color: config.isEnabled ? '#10b981' : '#ef4444', fontWeight: 600 }}>{config.isEnabled ? 'ACTIVE' : 'DORMANT'}</div>
-                  </div>
-                </div>
-                <button 
-                  onClick={handleToggleAgent}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: config.isEnabled ? '#10b981' : 'rgba(255,255,255,0.3)', transition: 'all 0.2s' }}
-                >
-                  {config.isEnabled ? <ToggleRight size={40} /> : <ToggleLeft size={40} />}
-                </button>
-              </div>
-
-              {/* Form Config */}
-              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                  <div className="dev-form-group" style={{ margin: 0 }}>
-                    <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Clock size={12} /> Publishing Interval
-                    </label>
-                    <select className="dev-form-select" value={config.intervalHours} onChange={e => handleUpdateConfig({ intervalHours: parseInt(e.target.value) })}>
-                      <option value={1}>Every Hour</option>
-                      <option value={6}>6 Hours</option>
-                      <option value={12}>12 Hours</option>
-                      <option value={24}>Daily</option>
-                      <option value={168}>Weekly</option>
-                    </select>
-                  </div>
-
-                  <div className="dev-form-group" style={{ margin: 0 }}>
-                    <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Zap size={12} /> AI Model & Specialization Tier
-                    </label>
-                    <select className="dev-form-select" value={config.writingProvider} onChange={e => handleUpdateConfig({ writingProvider: e.target.value })}>
-                      <option value="gemini">Google Gemini 3.8 Flash (Standard Blogs • Fast ~62/hr)</option>
-                      <option value="gemini-pro">Google Gemini 3.8 Pro / 3.1 Pro (Research & Thesis Treatises • 4x Pooled)</option>
-                      <option value="gemini-thinking">Google Gemini 3.0 Thinking (Chain-of-Thought Proofs)</option>
-                      <option value="groq">Groq Llama 3.3 70B (Blazing Fast Free Synthesis)</option>
-                      <option value="cerebras">Cerebras Llama 3.3 70B (2,000 tok/sec Free)</option>
-                      <option value="sambanova">SambaNova DeepSeek R1 671B (Full Reasoning Free)</option>
-                      <option value="openai">OpenAI GPT-4o</option>
-                      <option value="claude">Claude 3.5 Sonnet</option>
-                    </select>
-                  </div>
-
-                  <div className="dev-form-group" style={{ margin: 0 }}>
-                    <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Globe size={12} /> Target Audience
-                    </label>
-                    <select className="dev-form-select" value={config.targetAudience} onChange={e => handleUpdateConfig({ targetAudience: e.target.value })}>
-                      <option value="Developers">Developers</option>
-                      <option value="Engineers & Architects">Engineers & Architects</option>
-                      <option value="Tech Enthusiasts">Tech Enthusiasts</option>
-                      <option value="Startup Founders">Startup Founders</option>
-                      <option value="General Audience">General Audience</option>
-                    </select>
-                  </div>
-
-                  <div className="dev-form-group" style={{ margin: 0 }}>
-                    <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <Terminal size={12} /> Editorial Tone
-                    </label>
-                    <select className="dev-form-select" value={config.tone} onChange={e => handleUpdateConfig({ tone: e.target.value })}>
-                      <option value="Technical & precise">Technical & precise</option>
-                      <option value="Professional & informative">Professional & informative</option>
-                      <option value="Casual & engaging">Casual & engaging</option>
-                      <option value="Educational & step-by-step">Educational & step-by-step</option>
-                      <option value="Opinionated & bold">Opinionated & bold</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="dev-form-group" style={{ margin: 0 }}>
-                  <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Share2 size={12} /> Distribution Channels
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {['discord', 'twitter', 'linkedin', 'reddit', 'facebook', 'instagram'].map(p => {
-                      const isActive = config.enabledSocials.includes(p);
-                      return (
-                        <button
-                          key={p}
-                          className={isActive ? 'dev-btn dev-btn-primary dev-btn-sm' : 'dev-btn dev-btn-ghost dev-btn-sm'}
-                          onClick={() => {
-                            const enabledSocials = isActive
-                              ? config.enabledSocials.filter(s => s !== p)
-                              : [...config.enabledSocials, p];
-                            handleUpdateConfig({ enabledSocials });
-                          }}
-                          style={{ textTransform: 'capitalize' }}
-                        >
-                          {p}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="dev-form-group" style={{ margin: 0 }}>
-                  <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <MessageSquare size={12} /> Discord Webhook URL
-                    </span>
-                    <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 600 }}>CONNECTED</span>
-                  </label>
-                  <input
-                    type="password"
-                    className="dev-form-input"
-                    value={config.discordWebhookUrl || ''}
-                    placeholder="https://discord.com/api/webhooks/..."
-                    onChange={e => setConfig(prev => ({ ...prev, discordWebhookUrl: e.target.value }))}
-                    onBlur={e => handleUpdateConfig({ discordWebhookUrl: e.target.value })}
-                    style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}
-                  />
-                  <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.25rem', display: 'block' }}>
-                    Broadcasts newly generated blog articles and announcements to Discord channel in real time.
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-        </div>
-
-        {/* RIGHT COLUMN */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-          
-          {/* ─── Autonomous Research Review Unit Quality Card ─── */}
-          <section>
-            <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={18} /> RESEARCH REVIEW UNIT (ACADEMIC VERIFICATION)
-            </div>
-            <div className="dev-card" style={{ padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>PEER-REVIEW UNIT</span>
-                <span style={{ fontSize: '0.65rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(16,185,129,0.15)', color: '#10b981', fontWeight: 'bold', border: '1px solid rgba(16,185,129,0.3)' }}>
-                  ACTIVE (MIN 85/100)
-                </span>
-              </div>
-              <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.5', margin: '0 0 0.75rem 0' }}>
-                Every drafted research treatise, thesis deep dive, and journal article undergoes an automated 100-point peer review inspecting architectural rigor, ASCII topologies, benchmark tables, mathematical models, and citation validity before publication.
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.7rem' }}>
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', display: 'block', fontSize: '0.65rem' }}>PASS THRESHOLD</span>
-                  <span style={{ color: '#10b981', fontWeight: 'bold' }}>85 / 100 Points</span>
-                </div>
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', display: 'block', fontSize: '0.65rem' }}>REFINEMENT LOOP</span>
-                  <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>Up to 2 Passes</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ─── Multi-Account Capacity & Throughput Card ─── */}
-          <section>
-            <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BarChart3 size={18} /> MULTI-ACCOUNT & FREE AI CAPACITY
-            </div>
-            <div className="dev-card" style={{ padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)' }}>
-              
-              {/* Active Model Indicator */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <div>
-                  <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>4-Account Key Pool</div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--dev-green)' }}>Up to 6,000 Posts / Day (Free)</div>
-                </div>
-                <span style={{ fontSize: '0.65rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(16,185,129,0.15)', color: '#10b981', fontWeight: 'bold', border: '1px solid rgba(16,185,129,0.3)' }}>
-                  ROTATION READY
-                </span>
-              </div>
-
-              {/* Model Capacity Comparison */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.75rem' }}>
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
-                    <span style={{ color: '#67ff8f' }}>Gemini 2.5 Flash (4 Accounts)</span>
-                    <span>6,000 / day (250/hr)</span>
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
-                    Standard blogs • 60 RPM aggregate • 1500 RPD per account
-                  </div>
-                </div>
-
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
-                    <span style={{ color: '#a78bfa' }}>Gemini 2.5 Pro (4 Accounts)</span>
-                    <span>200 / day (8.3/hr)</span>
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
-                    Thesis & journal treatises • 8 RPM aggregate • 50 RPD per account
-                  </div>
-                </div>
-
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, marginBottom: '0.25rem' }}>
-                    <span style={{ color: '#38bdf8' }}>Free Provider Mesh</span>
-                    <span>500+ Papers / day</span>
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
-                    Groq (14.4k RPD) • Cerebras (Wafer-scale) • SambaNova (DeepSeek R1)
-                  </div>
-                </div>
-
-                {/* Practical Constraints Note */}
-                <div style={{ marginTop: '0.5rem', padding: '0.6rem 0.8rem', background: 'rgba(234,179,8,0.05)', borderRadius: '6px', border: '1px solid rgba(234,179,8,0.2)', color: 'rgba(255,255,255,0.7)', fontSize: '0.68rem', lineHeight: '1.4' }}>
-                  <span style={{ color: '#eab308', fontWeight: 'bold' }}>Optimal Cadence:</span> Set to 1 post/hour for steady, spam-free syndicate flow across GitHub Actions (using ~45% free CI quota).
-                </div>
-              </div>
-
-            </div>
-          </section>
-
-          <section>
-            <div className="dev-stitle" style={{ marginBottom: '1.25rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <RefreshCw size={18} /> AGENT LOGS
-            </div>
-            <div className="dev-card" style={{ padding: '0', border: '1px solid rgba(255,255,255,0.08)' }}>
-               {stats?.categoryDistribution && Object.keys(stats.categoryDistribution).length > 0 ? (
-                 Object.entries(stats.categoryDistribution).map(([cat, count]: [any, any], idx, arr) => (
-                   <div key={cat} style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: idx === arr.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)', background: idx % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{cat}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--dev-green)', fontWeight: 'bold' }}>{count} POSTS</div>
-                   </div>
-                 ))
-               ) : (
-                 <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.4, fontSize: '0.8rem' }}>No activity logged yet.</div>
-               )}
-               <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', textAlign: 'center' }}>
-                 <button style={{ background: 'none', border: 'none', color: 'var(--dev-muted)', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                   VIEW ALL <ArrowUpRight size={14} />
-                 </button>
-               </div>
-            </div>
-          </section>
-
-        </div>
-      </div>
-
-      {isSaving && (
-        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--dev-green)', color: '#000', padding: '10px 20px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 5px 20px rgba(0,0,0,0.3)', zIndex: 10000 }}>
-          <RefreshCw size={14} className="dev-auth-spinner" />
-          SAVING CONFIG...
-        </div>
-      )}
     </div>
   );
 }

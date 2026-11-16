@@ -2,18 +2,28 @@ name: LoLaBo AI Agent
 
 on:
   schedule:
-    # Generate on the 15-minute cadence. Posts publish only if they pass agent/qualityGate.ts; the rest stay private drafts.
-    - cron: '*/15 * * * *'
+    # One review candidate per day. Gate failures remain private drafts.
+    - cron: '17 2 * * *'
   workflow_dispatch:
     inputs:
-      force:
-        description: 'Force run ignoring interval'
-        required: false
-        default: 'false'
+      mode:
+        description: 'Operation to run'
+        type: choice
+        required: true
+        default: scheduled
+        options:
+          - scheduled
+          - force
+          - projects-only
+
+concurrency:
+  group: lolabo-production
+  cancel-in-progress: false
 
 jobs:
   run-agent:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     permissions:
       contents: write
     steps:
@@ -24,14 +34,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: agent/package-lock.json
+
+      - name: Refresh public GitHub project inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/sync-github-projects.mjs
 
       - name: Install Agent Dependencies and Build
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.mode != 'projects-only' }}
         run: |
           cd agent
-          npm install
+          npm ci
           npm run build
 
       - name: Run LoLaBo Agent
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.mode != 'projects-only' }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
@@ -42,24 +61,24 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          INTERVAL_HOURS: '0.25'
+          INTERVAL_HOURS: '24'
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-          FORCE_RUN: ${{ github.event.inputs.force }}
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'force' }}
         run: |
           cd agent
           node index.js
           node exportData.js
 
-      - name: Commit drafts and gate-approved posts
+      - name: Commit inventory, drafts, and gate-approved posts
         run: |
           git config --global user.name "LoLaBo Agent"
           git config --global user.email "agent@lorapok.labs"
-          git add public/blog/archive/ai-posts.json public/blog/posts.json public/blog/rss.xml public/sitemap.xml
+          git add public/data/github-projects.json public/blog/archive/ai-posts.json public/blog/posts.json public/blog/rss.xml public/sitemap.xml
           if git diff --cached --quiet; then
             echo "Nothing new."
           else
             if git diff --cached --quiet -- public/blog/posts.json; then MSG="chore(blog): archive LoLaBo draft (not public)"; else MSG="chore(blog): publish LoLaBo post (quality gate passed)"; fi
             git commit -m "$MSG"
-            git pull --rebase origin main || true
+            git pull --rebase origin main
             git push origin main
           fi
