@@ -28,19 +28,9 @@ const LegacyApp = lazy(() => import("./App"));
 
 function LoadingFallback() {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "60vh",
-        color: "rgba(255,255,255,0.3)",
-        fontFamily: "var(--lp-font-mono)",
-        fontSize: "0.875rem",
-        letterSpacing: "0.1em",
-      }}
-    >
-      LOADING...
+    <div className="route-loader" role="status" aria-live="polite">
+      <span className="route-loader__orb" aria-hidden="true" />
+      <span>Growing the next view</span>
     </div>
   );
 }

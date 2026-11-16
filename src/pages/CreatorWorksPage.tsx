@@ -57,9 +57,9 @@ export default function CreatorWorksPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="py-12 px-4 max-w-7xl mx-auto w-full min-h-screen"
+        className="v4-inner-page py-12 px-4 max-w-7xl mx-auto w-full min-h-screen"
       >
-        <header className="relative mb-14 md:mb-20 overflow-hidden rounded-3xl border border-[#f5d0c5]/20 bg-gradient-to-br from-[#1a1210]/90 via-[#0f0f16] to-[#0a0a0f] p-8 md:p-12">
+        <header className="v4-creator-hero relative mb-14 md:mb-20 overflow-hidden rounded-3xl border border-[#f5d0c5]/20 bg-gradient-to-br from-[#1a1210]/90 via-[#0f0f16] to-[#0a0a0f] p-8 md:p-12">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,208,197,0.12),transparent_55%)] pointer-events-none" />
           <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(90deg,transparent_0%,#f5d0c5_50%,transparent_100%)] pointer-events-none" />
 

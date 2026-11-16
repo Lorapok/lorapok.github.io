@@ -7,6 +7,7 @@ import { Card } from '../components/ui/Card';
 import { SearchBar } from '../components/ui/SearchBar';
 import { CategoryFilter } from '../components/ui/CategoryFilter';
 import { SearchX } from 'lucide-react';
+import PageIntro from '../components/layout/PageIntro';
 
 export default function ProjectsPage() {
   const [searchParams] = useSearchParams();
@@ -57,7 +58,7 @@ export default function ProjectsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="py-12 px-4 max-w-7xl mx-auto w-full min-h-screen"
+      className="v4-inner-page py-12 px-4 max-w-7xl mx-auto w-full min-h-screen"
     >
       <SEOHead
         title="Projects & Products"
@@ -65,9 +66,13 @@ export default function ProjectsPage() {
         path="/projects"
         keywords="Lorapok projects, open source products, developer tools, 3D art and design, browser extensions, AI, GitHub"
       />
-      <div className="mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6">All Products</h1>
-        
+      <PageIntro
+        eyebrow="THE PRODUCT UNIVERSE"
+        title={<>Tools made to <em>feel alive.</em></>}
+        description={<>Browse {projects.length} open-source products, experiments, extensions, and creative tools built across the Lorapok ecosystem.</>}
+      />
+
+      <div className="v4-filter-dock mb-12">
         <div className="flex flex-col gap-6">
           <SearchBar 
             value={searchQuery} 

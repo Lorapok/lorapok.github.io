@@ -18,6 +18,7 @@ import {
 } from "../data/agents";
 import { SearchBar } from "../components/ui/SearchBar";
 import { SEOHead } from "../components/SEOHead";
+import PageIntro from "../components/layout/PageIntro";
 
 export default function AgentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,19 +116,15 @@ export default function AgentsPage() {
         path="/agents"
       />
 
-      <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <div className="v4-inner-page min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#67ff8f]/10 border border-[#67ff8f]/20 text-[#67ff8f] text-xs font-mono uppercase tracking-widest mb-4">
-            <Bot size={14} /> Loragent Intelligence Network
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-            Autonomous <span className="text-[#67ff8f]">Agents & Skills</span>
-          </h1>
-          <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
-            A comprehensive catalog of {agentStats.total}+ modular AI agents, domain specialists, and deterministic skill routines engineered for enterprise multi-agent orchestration.
-          </p>
-        </div>
+        <PageIntro
+          align="center"
+          tone="lavender"
+          eyebrow={<><Bot size={14} /> LORAGENT INTELLIGENCE NETWORK</>}
+          title={<>Autonomous <em>agents & skills.</em></>}
+          description={<>A living catalog of {agentStats.total}+ modular AI agents, domain specialists, and deterministic routines engineered for multi-agent orchestration.</>}
+        />
 
         {/* Quick Stats Banner */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
@@ -228,16 +225,16 @@ export default function AgentsPage() {
         {visibleItems.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {visibleItems.map((item) => {
+              {visibleItems.map((item, itemIndex) => {
                 const badge = getFormationBadge(item.formation, item.type);
                 const isCopied = copiedSlug === item.id;
 
                 return (
                   <motion.div
-                    key={item.id}
+                    key={`${item.type}:${item.id}:${itemIndex}`}
                     onClick={() => setSelectedAgent(item)}
                     whileHover={{ y: -4 }}
-                    className="p-6 rounded-2xl flex flex-col justify-between h-full bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#67ff8f]/40 transition-all cursor-pointer group"
+                    className="agent-card p-6 rounded-2xl flex flex-col justify-between h-full bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#67ff8f]/40 transition-all cursor-pointer group"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">

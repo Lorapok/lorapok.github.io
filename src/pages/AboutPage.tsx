@@ -26,10 +26,10 @@ export default function AboutPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="py-16 px-4 max-w-5xl mx-auto w-full"
+        className="v4-inner-page py-16 px-4 max-w-5xl mx-auto w-full"
       >
         {/* Hero Section */}
-        <section className="flex flex-col md:flex-row gap-12 items-center md:items-start mb-24">
+        <section className="v4-founder-hero flex flex-col md:flex-row gap-12 items-center md:items-start mb-24">
           <div className="w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shrink-0 border border-white/10 bg-white/5 relative">
             <img 
               src="/assets/founder-avatar.jpg" 

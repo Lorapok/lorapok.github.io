@@ -1,106 +1,90 @@
+import { ArrowUpRight, Code2, Globe2, MessageSquare, Terminal } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Globe, Code2, BriefcaseBusiness, MessageSquare, Terminal } from 'lucide-react';
-import LorapokLogo from '../LorapokLogo';
+
+const productLinks = [
+  ['Product universe', '/projects'],
+  ['Creator Works', '/creator-works'],
+  ['Loragent network', '/agents'],
+  ['LoLaBo journal', '/blog'],
+];
+
+const studioLinks = [
+  ['Our collective', '/team'],
+  ['Founder & mission', '/about'],
+  ['Release log', '/changelog'],
+  ['Start a conversation', '/contact'],
+];
+
+const externalLinks = [
+  ['GitHub organization', 'https://github.com/Lorapok'],
+  ['VS Code Marketplace', 'https://marketplace.visualstudio.com/publishers/LorapokLabs'],
+  ['Open VSX Registry', 'https://open-vsx.org/namespace/LorapokLabs'],
+  ['Firefox Add-ons', 'https://addons.mozilla.org/firefox/user/lorapok/'],
+];
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0f] pt-12 pb-8 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          {/* Column 1 */}
-          <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-3">
-              <LorapokLogo className="w-8 h-8 text-[var(--lp-accent,#67ff8f)]" />
-              <span className="font-bold text-white text-lg">Lorapok Labs</span>
+    <footer className="footer">
+      <div className="wrap4">
+        <div className="footer-callout">
+          <div>
+            <span className="footer-kicker">OPEN SOURCE · OPEN CONVERSATION</span>
+            <h2>Have an idea<br /><em>with a pulse?</em></h2>
+          </div>
+          <Link className="button footer-callout__button" to="/contact">
+            Build with us <ArrowUpRight size={18} />
+          </Link>
+        </div>
+
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <Link className="footer-logo" to="/" aria-label="Lorapok Labs home">
+              <span aria-hidden="true" /> lorapok <em>labs.</em>
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Open-source products that feel alive. Biological UI, sensory computing, and high-performance developer tools from Dhaka to the world.
-            </p>
-            <div className="flex items-center gap-4 pt-2">
-              <a href="https://github.com/Lorapok" target="_blank" rel="noreferrer" title="GitHub Org" className="text-gray-400 hover:text-[var(--lp-accent,#67ff8f)] transition-colors">
-                <Code2 className="w-5 h-5" />
-              </a>
-              <a href="https://github.com/Maijied" target="_blank" rel="noreferrer" title="Founder GitHub (@Maijied)" className="text-gray-400 hover:text-[var(--lp-accent,#67ff8f)] transition-colors">
-                <Terminal className="w-5 h-5" />
-              </a>
-              <a href="https://www.linkedin.com/showcase/lorapok/" target="_blank" rel="noreferrer" title="LinkedIn Showcase" className="text-gray-400 hover:text-[var(--lp-accent,#67ff8f)] transition-colors">
-                <BriefcaseBusiness className="w-5 h-5" />
-              </a>
-              <a href="https://x.com/LorapokLabs" target="_blank" rel="noreferrer" title="X / Twitter" className="text-gray-400 hover:text-[var(--lp-accent,#67ff8f)] transition-colors">
-                <MessageSquare className="w-5 h-5" />
-              </a>
-              <a href="https://gravatar.com/lorapok" target="_blank" rel="noreferrer" title="Lorapok Network" className="text-gray-400 hover:text-[var(--lp-accent,#67ff8f)] transition-colors">
-                <Globe className="w-5 h-5" />
-              </a>
+            <p>Open-source products that feel alive — biological interfaces, practical engineering, and curious experiments from Dhaka to the world.</p>
+            <div className="footer-socials" aria-label="Lorapok social links">
+              <a href="https://github.com/Lorapok" target="_blank" rel="noreferrer" aria-label="Lorapok on GitHub"><Code2 /></a>
+              <a href="https://github.com/Maijied" target="_blank" rel="noreferrer" aria-label="Founder on GitHub"><Terminal /></a>
+              <a href="https://www.linkedin.com/showcase/lorapok/" target="_blank" rel="noreferrer" aria-label="Lorapok on LinkedIn"><Globe2 /></a>
+              <a href="https://x.com/LorapokLabs" target="_blank" rel="noreferrer" aria-label="Lorapok on X"><MessageSquare /></a>
             </div>
           </div>
 
-          {/* Column 2 */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Flagship Products</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Lorapok API Atlas</Link></li>
-              <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Cursor Curse Monitor</Link></li>
-              <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Loragent AI Framework</Link></li>
-              <li><a href="https://reportkit.lorapok.tech/" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">ReportKit Stack</a></li>
-              <li><a href="https://maijied.github.io/CLoraMF/" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">CLoraMF Watch AI</a></li>
-              <li><Link to="/projects" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Lorapok Media Player</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 3 */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Organization & Resources</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link to="/creator-works" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Creator Works — 3D Art & Design</Link></li>
-              <li><Link to="/agents" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Agents & Skills Directory</Link></li>
-              <li><Link to="/blog" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">LoLaBo Tech Blog</Link></li>
-              <li><Link to="/team" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Team & Collective</Link></li>
-              <li><Link to="/changelog" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Changelog & Releases</Link></li>
-              <li><Link to="/about" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Founder & Mission</Link></li>
-              <li><Link to="/contact" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Contact Labs</Link></li>
-              <li><Link to="/privacy" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Terms of Use</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 4 */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Marketplaces & Social</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="https://github.com/Lorapok" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">GitHub Org (@Lorapok)</a></li>
-              <li><a href="https://marketplace.visualstudio.com/publishers/LorapokLabs" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">VS Code Marketplace</a></li>
-              <li><a href="https://open-vsx.org/namespace/LorapokLabs" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Open VSX Registry</a></li>
-              <li><a href="https://addons.mozilla.org/firefox/user/lorapok/" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Firefox AMO Add-ons</a></li>
-              <li><a href="https://www.producthunt.com/posts/lorapok-atlas" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Product Hunt</a></li>
-              <li><a href="https://www.npmjs.com/search?q=lorapok" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">npm Packages</a></li>
-              <li><a href="https://www.reddit.com/r/LorapokLabs/" target="_blank" rel="noreferrer" className="hover:text-[var(--lp-accent,#67ff8f)] transition-colors">Reddit /r/LorapokLabs</a></li>
-            </ul>
+          <FooterColumn title="Explore" links={productLinks} />
+          <FooterColumn title="Studio" links={studioLinks} />
+          <div className="footer-column">
+            <h3>Elsewhere</h3>
+            {externalLinks.map(([label, href]) => (
+              <a key={href} href={href} target="_blank" rel="noreferrer">{label} <span>↗</span></a>
+            ))}
           </div>
         </div>
 
-        <div className="border-t border-[rgba(255,255,255,0.06)] pt-8 flex flex-col gap-4 text-sm text-gray-500">
-          <p>
-            <span className="mr-2 rounded border border-white/15 px-1.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-[#67ff8f]">Sponsored</span>
-            Higgsfield is a partner tool, not a Lorapok product.{" "}
-            <a
-              href="https://higgsfield.ai?fpr=lorapoklabs"
-              target="_blank"
-              rel="sponsored noopener noreferrer"
-              className="text-gray-300 hover:text-[var(--lp-accent,#67ff8f)] underline"
-            >
-              Visit Higgsfield
-            </a>
-          </p>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>© 2026 Lorapok Labs. MIT Licensed.</p>
-          <div className="flex items-center gap-6">
-            <Link to="/dev" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Developer Portal</Link>
-            <p>Built with React 19 + Vite</p>
+        <div className="footer-partner">
+          <span>Sponsored partner</span>
+          Higgsfield is a partner tool, not a Lorapok product.
+          <a href="https://higgsfield.ai?fpr=lorapoklabs" target="_blank" rel="sponsored noopener noreferrer">Visit Higgsfield ↗</a>
+        </div>
+
+        <div className="footer-bottom">
+          <span>© 2026 Lorapok Labs · MIT licensed</span>
+          <div>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+            <Link to="/dev">Developer portal</Link>
           </div>
-          </div>
+          <span>Made in Dhaka · Built for everywhere</span>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({ title, links }: { title: string; links: string[][] }) {
+  return (
+    <div className="footer-column">
+      <h3>{title}</h3>
+      {links.map(([label, href]) => <Link key={href} to={href}>{label}</Link>)}
+    </div>
   );
 }
