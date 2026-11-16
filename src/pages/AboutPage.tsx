@@ -20,7 +20,7 @@ export default function AboutPage() {
       <SEOHead
         title="About & Collective"
         description="Learn about the origin of Lorapok Labs, founder Mohammad Maizied Hasan Majumder, and the collective engineering principles."
-        path="/about"
+        path="/about/"
       />
 
       <motion.div
@@ -114,7 +114,7 @@ export default function AboutPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-white">The Collective</h2>
             </div>
             <Link
-              to="/team"
+              to="/team/"
               className="inline-flex items-center gap-1.5 text-xs font-mono text-[#67ff8f] hover:underline"
             >
               View Full Team & CV Directory <ArrowRight size={14} />

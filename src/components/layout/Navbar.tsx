@@ -3,13 +3,14 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 
 const navLinks = [
   { name: 'Home', path: '/' },
-  { name: 'Products', path: '/projects' },
-  { name: 'Creator Works', path: '/creator-works' },
-  { name: 'Agents', path: '/agents' },
-  { name: 'Blog', path: '/blog' },
-  { name: 'Team', path: '/team' },
-  { name: 'About', path: '/about' },
-  { name: 'Contact', path: '/contact' },
+  { name: 'Products', path: '/projects/' },
+  { name: 'Creator Works', path: '/creator-works/' },
+  { name: 'Agents', path: '/agents/' },
+  { name: 'Blog', path: '/blog/' },
+  { name: 'Team', path: '/team/' },
+  { name: 'About', path: '/about/' },
+  { name: 'Contact', path: '/contact/' },
+  { name: 'Studio', path: '/dev' },
 ];
 
 export default function Navbar() {

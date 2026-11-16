@@ -3,6 +3,7 @@
 
 import { useEffect } from "react";
 import type { BlogPost } from "../BlogApp";
+import blogMeta from "../seo.json";
 
 interface SEOHeadProps {
   post?: BlogPost | null;
@@ -14,23 +15,28 @@ export default function SEOHead({ post }: SEOHeadProps) {
     updateFavicon("/assets/lolabo-icon.svg", "image/svg+xml");
 
     if (!post) {
-      document.title = "LoLaBo — Lorapok Labs Blog & Technical Architecture";
-      updateMeta("description", "Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.");
-      updateMeta("keywords", "Lorapok Labs, LoLaBo, AI engineering, biological UI, autonomous agents, open source, tech blog");
-      updateMeta("og:title", "LoLaBo — Lorapok Labs Blog & Technical Architecture", "property");
-      updateMeta("og:description", "Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.", "property");
-      updateMeta("og:image", "https://lorapok.tech/assets/lolabo-logo.png", "property");
-      updateMeta("og:url", "https://lorapok.tech/blog", "property");
-      updateMeta("twitter:title", "LoLaBo — Lorapok Labs Blog & Technical Architecture");
-      updateMeta("twitter:description", "Autonomous AI-curated tech insights, system architecture deep-dives, and engineering research by Lorapok Labs.");
-      updateMeta("twitter:image", "https://lorapok.tech/assets/lolabo-logo.png");
-      updateCanonical("https://lorapok.tech/blog");
+      removeArticleMetadata();
+      document.title = blogMeta.title;
+      updateMeta("description", blogMeta.description);
+      updateMeta("keywords", blogMeta.keywords);
+      updateMeta("og:title", blogMeta.title, "property");
+      updateMeta("og:description", blogMeta.description, "property");
+      updateMeta("og:image", blogMeta.image, "property");
+      updateMeta("og:url", blogMeta.canonical, "property");
+      updateMeta("og:type", "website", "property");
+      updateMeta("og:site_name", "Lorapok Labs", "property");
+      updateMeta("twitter:card", "summary_large_image");
+      updateMeta("twitter:title", blogMeta.title);
+      updateMeta("twitter:description", blogMeta.description);
+      updateMeta("twitter:image", blogMeta.image);
+      updateCanonical(blogMeta.canonical);
       return () => {
         updateFavicon("/assets/lorapok-icon.svg", "image/svg+xml");
+        removeArticleMetadata();
       };
     }
 
-    const canonicalUrl = `https://lorapok.tech/blog/${post.slug}`;
+    const canonicalUrl = `https://lorapok.tech/blog/${post.slug}/`;
     const allTags = Array.from(new Set([...(post.tags || []), "LorapokLabs", "Lorapok"]));
 
     // Standard Tags
@@ -55,12 +61,19 @@ export default function SEOHead({ post }: SEOHeadProps) {
     updateMeta("twitter:image", post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png");
 
     // Published date resolution
-    let pubDateIso = new Date().toISOString();
-    if (post.publishedAt && typeof (post.publishedAt as any).toDate === 'function') {
-      pubDateIso = (post.publishedAt as any).toDate().toISOString();
-    } else if (post.publishedAt) {
-      pubDateIso = new Date(post.publishedAt as any).toISOString();
-    }
+    const toIsoDate = (value: unknown): string | undefined => {
+      if (!value) return undefined;
+      if (typeof value === "object" && value !== null && "toDate" in value) {
+        const toDate = (value as { toDate?: unknown }).toDate;
+        if (typeof toDate === "function") return (toDate.call(value) as Date).toISOString();
+      }
+      const date = new Date(value as string | number | Date);
+      return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+    };
+
+    const pubDateIso = toIsoDate(post.publishedAt);
+    const rawModified = post.updatedAt || post.modifiedAt;
+    const modifiedDateIso = toIsoDate(rawModified) || pubDateIso;
 
     // Schema.org JSON-LD (Graph with Article + Breadcrumbs + Publisher)
     const schema = {
@@ -71,14 +84,14 @@ export default function SEOHead({ post }: SEOHeadProps) {
           "@id": `${canonicalUrl}#article`,
           "isPartOf": {
             "@type": "Blog",
-            "@id": "https://lorapok.tech/blog",
+            "@id": "https://lorapok.tech/blog/",
             "name": "LoLaBo — Lorapok Labs Blog"
           },
           "headline": post.title,
           "description": post.excerpt,
           "image": [post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png"],
-          "datePublished": pubDateIso,
-          "dateModified": pubDateIso,
+          ...(pubDateIso ? { "datePublished": pubDateIso } : {}),
+          ...(modifiedDateIso ? { "dateModified": modifiedDateIso } : {}),
           "author": {
             "@type": "Person",
             "name": post.author?.name || "LoLaBo AI Agent",
@@ -87,7 +100,7 @@ export default function SEOHead({ post }: SEOHeadProps) {
           "publisher": {
             "@type": "Organization",
             "name": "Lorapok Labs",
-            "url": "https://lorapok.tech",
+            "url": "https://lorapok.tech/",
             "logo": {
               "@type": "ImageObject",
               "url": "https://lorapok.tech/assets/lorapok-labs-logo.png"
@@ -104,13 +117,13 @@ export default function SEOHead({ post }: SEOHeadProps) {
               "@type": "ListItem",
               "position": 1,
               "name": "Home",
-              "item": "https://lorapok.tech"
+              "item": "https://lorapok.tech/"
             },
             {
               "@type": "ListItem",
               "position": 2,
               "name": "LoLaBo Blog",
-              "item": "https://lorapok.tech/blog"
+              "item": "https://lorapok.tech/blog/"
             },
             {
               "@type": "ListItem",
@@ -134,10 +147,18 @@ export default function SEOHead({ post }: SEOHeadProps) {
 
     return () => {
       updateFavicon("/assets/lorapok-icon.svg", "image/svg+xml");
+      removeArticleMetadata();
     };
   }, [post]);
 
   return null;
+}
+
+function removeArticleMetadata() {
+  document.getElementById("json-ld-post")?.remove();
+  document.querySelectorAll('meta[property^="article:"]').forEach((node) => node.remove());
+  const ogType = document.querySelector('meta[property="og:type"]');
+  if (ogType?.getAttribute("content") === "article") ogType.setAttribute("content", "website");
 }
 
 function updateFavicon(href: string, type: string = "image/svg+xml") {

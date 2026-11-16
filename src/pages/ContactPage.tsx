@@ -67,7 +67,7 @@ export default function ContactPage() {
     <SEOHead
       title="Contact & Community"
       description="Connect with Lorapok Labs for partnerships, open-source collaboration, or Creator Works inquiries — GitHub, LinkedIn, and secure contact form."
-      path="/contact"
+      path="/contact/"
       keywords="Contact Lorapok Labs, partnership, open source, Discord, GitHub support"
     />
     <motion.div

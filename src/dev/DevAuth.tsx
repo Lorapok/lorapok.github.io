@@ -49,7 +49,9 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
     const saved: Record<string, string> = {};
     AI_PROVIDERS.forEach(p => {
-      saved[p.id] = localStorage.getItem(`lpk_key_${p.id}`) || "";
+      const storageKey = `lpk_key_${p.id}`;
+      localStorage.removeItem(storageKey);
+      saved[p.id] = sessionStorage.getItem(storageKey) || "";
     });
     return saved;
   });
@@ -71,7 +73,8 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     return id;
   });
 
-  // Sync keys from Firestore when user logs in
+  // Sync non-secret preferences from Firestore when a user logs in.
+  // Provider credentials never leave this browser session.
   useEffect(() => {
     if (!isFirebaseConfigured || !user) return;
     const fetchUserData = async () => {
@@ -79,16 +82,6 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          if (data.apiKeys) {
-            setApiKeys(prev => {
-              const newKeys = { ...prev, ...data.apiKeys };
-              // Also sync to localStorage
-              Object.entries(newKeys).forEach(([k, v]) => {
-                if (typeof v === "string") localStorage.setItem(`lpk_key_${k}`, v);
-              });
-              return newKeys;
-            });
-          }
           if (data.activeProvider) {
             setActiveProvider(data.activeProvider as AIProviderId);
             localStorage.setItem("lpk_active_provider", data.activeProvider);
@@ -183,7 +176,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const handleSignOut = async () => {
     if (!isFirebaseConfigured) return;
     
-    // Clear all localStorage keys starting with lpk_
+    // Clear session credentials and persisted non-secret preferences.
     const keysToClear = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -192,6 +185,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       }
     }
     keysToClear.forEach(k => localStorage.removeItem(k));
+    AI_PROVIDERS.forEach((provider) => sessionStorage.removeItem(`lpk_key_${provider.id}`));
 
     // Reset local state to defaults
     const emptyKeys: Record<string, string> = {};
@@ -209,19 +203,11 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateApiKey = (provider: AIProviderId, key: string) => {
-    localStorage.setItem(`lpk_key_${provider}`, key);
+    const storageKey = `lpk_key_${provider}`;
+    if (key) sessionStorage.setItem(storageKey, key);
+    else sessionStorage.removeItem(storageKey);
     setApiKeys(prev => ({ ...prev, [provider]: key }));
     logEvent("config", "key_updated", { provider, hasKey: !!key });
-    
-    // Sync to Firestore: logged-in user or anonymous
-    if (isFirebaseConfigured) {
-      const docId = user ? user.uid : anonId;
-      const docData: any = { apiKeys: { [provider]: key || '' } };
-      if (!user) docData.isAnonymous = true;
-      setDoc(doc(db, "users", docId), docData, { merge: true }).catch(() => {
-        // Silently fail if firestore is blocked or unreachable
-      });
-    }
   };
 
   const updateActiveProvider = (id: AIProviderId) => {

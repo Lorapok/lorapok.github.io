@@ -21,7 +21,7 @@ export default function ChangelogPage() {
     <SEOHead
       title="Changelog & Releases"
       description="Release history, product updates, and ecosystem milestones across Lorapok Labs open-source projects and Creator Works."
-      path="/changelog"
+      path="/changelog/"
       keywords="Lorapok changelog, releases, updates, open source milestones"
     />
     <motion.div

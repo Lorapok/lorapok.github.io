@@ -58,6 +58,33 @@
   border-color: rgba(255, 255, 255, 0.18);
 }
 
+.lp-consent-btn--quiet {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  border-color: transparent;
+}
+
+.lp-consent-preferences {
+  position: fixed;
+  z-index: 9000;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(103, 245, 187, 0.28);
+  border-radius: 999px;
+  background: rgba(6, 28, 23, 0.9);
+  color: rgba(230, 255, 246, 0.78);
+  font: 600 0.7rem/1 system-ui, sans-serif;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+}
+
+.lp-consent-preferences:hover,
+.lp-consent-preferences:focus-visible {
+  color: #effff8;
+  border-color: #67f5bb;
+}
+
 .lp-consent-btn:focus-visible {
   outline: 2px solid #67ff8f;
   outline-offset: 2px;

@@ -62,7 +62,7 @@ export const teamMembers: TeammateProfile[] = [
     department: "Core Engineering",
     avatar: "/assets/founder-avatar.jpg",
     location: "Dhaka, Bangladesh",
-    email: "mdshvo40@gmail.com",
+    email: "founder@lorapok.tech",
     tagline: "Building biological UI, sensory computing, and high-throughput developer platforms.",
     bio: "Full Stack Software Engineer designing digital products with performance, precision, and sensory computing at the core. Maintains the public Lorapok repositories and the Loragent skill catalog.",
     cvSummary:

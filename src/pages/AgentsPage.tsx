@@ -113,7 +113,7 @@ export default function AgentsPage() {
       <SEOHead
         title="Autonomous Agents & Skills"
         description="Browse the 224 agent skill definitions in the Loragent catalog, grouped by formation."
-        path="/agents"
+        path="/agents/"
       />
 
       <div className="v4-inner-page min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">

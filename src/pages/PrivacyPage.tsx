@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       <SEOHead
         title="Privacy Policy"
         description="How lorapok.tech uses cookies, Google AdSense, and the information you send through the contact form."
-        path="/privacy"
+        path="/privacy/"
       />
       <article className="v4-inner-page v4-legal py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
         <PageIntro
@@ -86,7 +86,7 @@ export default function PrivacyPage() {
         <section className="space-y-3">
           <h2 className="text-2xl font-bold text-white">Contact</h2>
           <p>
-            Questions about this policy can go through the <Link className="text-[#67ff8f] hover:underline" to="/contact">contact page</Link> or
+            Questions about this policy can go through the <Link className="text-[#67ff8f] hover:underline" to="/contact/">contact page</Link> or
             to lorapokdev@gmail.com.
           </p>
         </section>

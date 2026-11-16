@@ -13,15 +13,15 @@ export default function TermsPage() {
     <>
       <SEOHead
         title="Terms of Use"
-        description="Terms for using lorapok.tech, including open-source projects, advertising, and the sponsored partner link."
-        path="/terms"
+        description="Terms for using lorapok.tech, including open-source projects, advertising, and the third-party affiliate link."
+        path="/terms/"
       />
       <article className="v4-inner-page v4-legal py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
         <PageIntro
           tone="gold"
           eyebrow="LORAPOK LABS / LEGAL"
           title={<>Clear terms.<br /><em>Open intent.</em></>}
-          description="Effective 14 October 2026. These terms explain how the public catalog, repositories, advertising, and partner links work."
+          description="Effective 14 October 2026. These terms explain how the public catalog, repositories, advertising, and third-party links work."
         />
 
         <section className="space-y-3">
@@ -46,11 +46,11 @@ export default function TermsPage() {
           <h2 className="text-2xl font-bold text-white">Advertising</h2>
           <p>
             Google AdSense may display ads on this site. Ad cookies follow the choice you make in the consent banner.
-            Details are in the <Link className="text-[#67ff8f] hover:underline" to="/privacy">privacy policy</Link>.
+            Details are in the <Link className="text-[#67ff8f] hover:underline" to="/privacy/">privacy policy</Link>.
           </p>
           <p>
-            The footer includes one Sponsored link to Higgsfield (`https://higgsfield.ai?fpr=lorapoklabs`). Higgsfield
-            is a partner product, not a Lorapok repository. Lorapok Labs may receive a referral credit if you use that
+            The footer includes one affiliate link to Higgsfield (`https://higgsfield.ai?fpr=lorapoklabs`). Higgsfield
+            is an independent third-party product, not a Lorapok repository or confirmed partner. Lorapok Labs may receive a referral credit if you use that
             link.
           </p>
         </section>

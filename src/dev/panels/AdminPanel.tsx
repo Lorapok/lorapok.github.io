@@ -35,7 +35,6 @@ interface UserProfile {
   photoURL: string;
   role: string;
   lastLogin: any;
-  apiKeys?: Record<string, string>;
   activeProvider?: string;
   activeModels?: Record<string, string>;
 }
@@ -231,7 +230,6 @@ function AdminContent() {
                 </thead>
                 <tbody>
                   {filteredUsers.map((u, idx) => {
-                    const keysCount = Object.values(u.apiKeys || {}).filter(k => !!k).length;
                     return (
                       <tr 
                         key={u.uid} 
@@ -262,9 +260,9 @@ function AdminContent() {
                         </td>
                         <td style={{ padding: '0.85rem 1.5rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: keysCount > 0 ? '#10b981' : 'rgba(255,255,255,0.1)' }} />
-                            <span style={{ fontSize: '0.75rem', color: keysCount > 0 ? '#10b981' : 'var(--dev-muted)' }}>
-                              {keysCount} Key{keysCount !== 1 ? 's' : ''}
+                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
+                            <span style={{ fontSize: '0.75rem', color: 'var(--dev-muted)' }}>
+                              Session-isolated
                             </span>
                           </div>
                         </td>
@@ -432,7 +430,7 @@ function AdminContent() {
             {/* Modal Tabs */}
             <div style={{ display: 'flex', padding: '0 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)' }}>
               {[
-                { id: 'info', label: 'Credentials', icon: <Key size={14} /> },
+                { id: 'info', label: 'Access', icon: <Key size={14} /> },
                 { id: 'data', label: 'Cloud Vault', icon: <Database size={14} /> },
                 { id: 'chats', label: 'AI Telemetry', icon: <MessageSquare size={14} /> }
               ].map(tab => (
@@ -473,27 +471,9 @@ function AdminContent() {
                   {activeTab === 'info' && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
                       <div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.3, marginBottom: '1.25rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Encrypted Credentials</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                          {Object.entries(selectedUser.apiKeys || {}).map(([p, k]) => (
-                            <div key={p} style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <div>
-                                <div style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '0.8rem', color: '#fff', marginBottom: '0.25rem' }}>{p}</div>
-                                <div style={{ fontSize: '0.75rem', fontFamily: 'var(--dev-font-mono)', opacity: 0.4 }}>
-                                  {k ? '••••••••••••' + k.slice(-4) : 'No key detected'}
-                                </div>
-                              </div>
-                              {k && (
-                                <button 
-                                  onClick={() => { navigator.clipboard.writeText(k); alert("Key copied to clipboard."); }}
-                                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer' }}
-                                >
-                                  COPY
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                          {Object.keys(selectedUser.apiKeys || {}).length === 0 && <div style={{ padding: '2.5rem', textAlign: 'center', opacity: 0.2, border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px', fontSize: '0.8rem' }}>No API vault records.</div>}
+                        <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.3, marginBottom: '1.25rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Credential boundary</div>
+                        <div style={{ padding: '1.5rem', background: 'rgba(16,185,129,0.05)', borderRadius: '16px', border: '1px solid rgba(16,185,129,0.16)', color: 'rgba(255,255,255,0.68)', lineHeight: 1.65, fontSize: '0.8rem' }}>
+                          Provider keys live only in each user's current browser session. Administrators cannot view, copy, or recover them from this console.
                         </div>
                       </div>
                       <div>

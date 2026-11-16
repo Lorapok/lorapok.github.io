@@ -15,8 +15,6 @@ const BASE_DESCRIPTION =
 const BASE_URL = "https://lorapok.tech";
 const BASE_IMAGE = "/assets/lorapok-hero.png";
 
-let hasTrackedInitialPixel = false;
-
 export function SEOHead({
   title,
   description = BASE_DESCRIPTION,
@@ -89,7 +87,6 @@ export function SEOHead({
     if (typeof window !== "undefined") {
       const win = window as unknown as {
         dataLayer?: Record<string, unknown>[];
-        fbq?: (...args: unknown[]) => void;
       };
       win.dataLayer = win.dataLayer || [];
       win.dataLayer.push({
@@ -98,15 +95,6 @@ export function SEOHead({
         page_location: canonicalUrl,
         page_path: path,
       });
-
-      // Track SPA virtual pageview for Meta Pixel (skip initial pageview already tracked by static snippet in index.html)
-      if (typeof win.fbq === "function") {
-        if (hasTrackedInitialPixel) {
-          win.fbq("track", "PageView");
-        } else {
-          hasTrackedInitialPixel = true;
-        }
-      }
     }
   }, [fullTitle, description, canonicalUrl, imageUrl, keywords, jsonLd, path]);
 

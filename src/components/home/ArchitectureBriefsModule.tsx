@@ -207,7 +207,7 @@ export const ArchitectureBriefsModule: React.FC = () => {
                       </p>
                       
                       <Link
-                        to="/blog"
+                        to="/blog/"
                         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#67ff8f] text-black font-bold text-xs hover:bg-[#52cc72] transition-colors shadow-md"
                       >
                         <span>Open the lab notes</span>

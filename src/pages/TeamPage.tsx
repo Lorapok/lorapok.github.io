@@ -56,7 +56,7 @@ export default function TeamPage() {
       <SEOHead
         title="Collective & Core Teammates"
         description="Meet Lorapok Labs engineers, technical advisors, business operations leaders, visual directors, and autonomous AI researchers — including founder Mohammad Maizied Hasan Majumder, Principal Technical Advisor Ishtiak Shovon, Executive Director of Business Operations Taif Ul Islam, and Visual Media Director Ashraf Uddin Ahmed (Joy)."
-        path="/team"
+        path="/team/"
         keywords="Lorapok team, Ishtiak Shovon, technical advisor, systems architect, Taif Ul Islam, business operations, client onboarding, DebugVision, Ashraf Uddin Ahmed, Shamim Ahammed, Borshon Mondol, Lorapok Labs collective"
       />
 
@@ -149,7 +149,7 @@ export default function TeamPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              to="/contact"
+              to="/contact/"
               className="px-6 py-3 rounded-xl bg-[#67ff8f] text-black font-semibold text-sm hover:bg-[#8affab] transition-all shadow-[0_0_25px_rgba(103,255,143,0.3)]"
             >
               Get in Touch & Join

@@ -15,27 +15,38 @@ import ReadmePanel from "./panels/ReadmePanel";
 import CommitsPanel from "./panels/CommitsPanel";
 import LoLaBoPanel from "./panels/LoLaBoPanel";
 import UserProfilePanel from "./panels/UserProfilePanel";
-import { 
-  Home, 
+import StudioOperationsPanel, { type StudioTool } from "./panels/StudioOperationsPanel";
+import {
   Hexagon, 
   FileText, 
   Play, 
-  Globe, 
   Layout, 
   Terminal, 
   FileCode, 
   Zap, 
-  Shield, 
   Bot, 
-  BarChart3
+  BarChart3,
+  Menu,
+  X,
+  Boxes,
+  Users,
+  Orbit,
+  BadgePercent,
+  MessageSquareText,
+  Mail,
+  Video,
+  ListChecks,
+  GalleryHorizontalEnd,
+  Palette,
+  ShieldCheck
 } from "lucide-react";
 import "./DevMode.css";
 
 
-type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo";
+type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo" | StudioTool;
 
 
-const devBadgeImage = "/assets/lorapok-dev-logo.png";
+const devBadgeImage = "/assets/lorapok-badge.png";
 
 interface NavItem {
   id: PanelId;
@@ -46,24 +57,43 @@ interface NavItem {
 }
 
 const WORKSPACE_ITEMS: NavItem[] = [
-  { id: "dashboard", icon: <Home size={18} />, label: "Dashboard" },
-  { id: "ai-labs", icon: <Hexagon size={18} />, label: "AI Labs" },
-  { id: "blog", icon: <FileText size={18} />, label: "Blog System", badge: "NEW" },
-  { id: "playground", icon: <Play size={18} />, label: "Playground" },
-  { id: "projects", icon: <Globe size={18} />, label: "Projects", count: 8 },
+  { id: "dashboard", icon: <Orbit size={18} />, label: "Living Studio", badge: "5.0" },
+  { id: "content", icon: <FileText size={18} />, label: "Content Desk" },
+  { id: "projects", icon: <Boxes size={18} />, label: "Projects" },
+  { id: "team-studio", icon: <Users size={18} />, label: "Team Portfolios" },
+  { id: "offers", icon: <BadgePercent size={18} />, label: "Offers" },
+  { id: "feedback", icon: <MessageSquareText size={18} />, label: "Feedback" },
 ];
 
 const TOOL_ITEMS: NavItem[] = [
-  { id: "compare", icon: <Layout size={18} />, label: "AI Compare", badge: "P" },
-  { id: "prompts", icon: <Terminal size={18} />, label: "Prompt Library" },
-  { id: "readme", icon: <FileCode size={18} />, label: "README Gen" },
-  { id: "commits", icon: <Zap size={18} />, label: "Commit Explain" },
+  { id: "mail", icon: <Mail size={18} />, label: "Mail Drafts" },
+  { id: "chat", icon: <MessageSquareText size={18} />, label: "Team Chat" },
+  { id: "meetings", icon: <Video size={18} />, label: "Meeting Links" },
+  { id: "tasks", icon: <ListChecks size={18} />, label: "Task Board" },
+  { id: "social", icon: <GalleryHorizontalEnd size={18} />, label: "Social Cards" },
+  { id: "brand", icon: <Palette size={18} />, label: "Brand Gallery" },
 ];
 
-const ADMIN_ITEMS: NavItem[] = [
-  { id: "admin", icon: <Shield size={18} />, label: "Admin Panel" },
-  { id: "lolabo", icon: <Bot size={18} />, label: "LoLaBo Agent", badge: "AI" },
+const SYSTEM_ITEMS: NavItem[] = [
+  { id: "ai-labs", icon: <Hexagon size={18} />, label: "AI Laboratory" },
+  { id: "prompts", icon: <Terminal size={18} />, label: "Prompt Library" },
   { id: "analytics", icon: <BarChart3 size={18} />, label: "Analytics" },
+  { id: "admin", icon: <ShieldCheck size={18} />, label: "Access & Admin" },
+  { id: "lolabo", icon: <Bot size={18} />, label: "LoLaBo Agent", badge: "AI" },
+];
+
+const ADVANCED_ITEMS: NavItem[] = [
+  { id: "blog", icon: <FileText size={18} />, label: "Blog System" },
+  { id: "playground", icon: <Play size={18} />, label: "Playground" },
+  { id: "compare", icon: <Layout size={18} />, label: "Model Compare" },
+  { id: "readme", icon: <FileCode size={18} />, label: "README Studio" },
+  { id: "commits", icon: <Zap size={18} />, label: "Commit Stories" },
+];
+
+const PANEL_IDS: PanelId[] = [
+  "dashboard", "profile", "ai-labs", "blog", "playground", "projects", "readme", "commits",
+  "compare", "prompts", "admin", "analytics", "lolabo", "content", "team-studio", "offers",
+  "feedback", "mail", "chat", "meetings", "tasks", "social", "brand",
 ];
 
 function NavItem({ item, active, onClick }: { item: NavItem; active: boolean; onClick: () => void }) {
@@ -82,16 +112,51 @@ function NavItem({ item, active, onClick }: { item: NavItem; active: boolean; on
   );
 }
 
+function NavGroup({ label, items, activePanel, onSelect, primary = false }: {
+  label: string;
+  items: NavItem[];
+  activePanel: PanelId;
+  onSelect: (id: PanelId) => void;
+  primary?: boolean;
+}) {
+  const containsActive = items.some((item) => item.id === activePanel);
+  const [expanded, setExpanded] = useState(() => primary || containsActive || !window.matchMedia("(max-width: 1000px)").matches);
+
+  const isExpanded = expanded || containsActive;
+
+  return (
+    <section className={`dev-sidebar-group${isExpanded ? " expanded" : ""}`}>
+      <button className="dev-sidebar-section" type="button" aria-expanded={isExpanded} onClick={() => setExpanded((value) => !value)}>
+        <span>{label}</span><span aria-hidden="true">{isExpanded ? "−" : "+"}</span>
+      </button>
+      <div className="dev-sidebar-items" hidden={!isExpanded}>
+        {items.map((item) => (
+          <NavItem key={item.id} item={item} active={activePanel === item.id} onClick={() => onSelect(item.id)} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function DevPortalInner({ onClose }: { onClose: () => void }) {
   const [activePanel, setActivePanel] = useState<PanelId>("dashboard");
   const { user, signIn, signOut } = useDevAuth();
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [time, setTime] = useState(new Date());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSidebarOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
   }, []);
 
   const showToast = (msg: string) => {
@@ -102,10 +167,9 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
   void showToast;
 
   const switchPanel = (id: string) => {
-    if (id === "dashboard" || id === "profile" || id === "ai-labs" || id === "blog" || id === "playground" || id === "projects" ||
-      id === "readme" || id === "commits" || id === "compare" || id === "prompts" ||
-      id === "admin" || id === "analytics" || id === "lolabo") {
+    if (PANEL_IDS.includes(id as PanelId)) {
       setActivePanel(id as PanelId);
+      setSidebarOpen(false);
     }
   };
 
@@ -118,36 +182,52 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
       case "playground": return <PlaygroundPanel />;
       case "projects": return <ProjectsPanel />;
       case "compare": return <ComparePanel />;
-      case "prompts": return <PromptLibraryPanel onLoadToPlayground={(_text) => { switchPanel("playground"); }} />;
+      case "prompts": return <PromptLibraryPanel onLoadToPlayground={(text) => {
+        localStorage.setItem("lpk_playground_prompt", text);
+        switchPanel("playground");
+      }} />;
       case "readme": return <ReadmePanel />;
       case "commits": return <CommitsPanel />;
       case "admin": return <AdminPanel />;
       case "lolabo": return <LoLaBoPanel />;
       case "analytics": return <AnalyticsPanel />;
+      case "content":
+      case "team-studio":
+      case "offers":
+      case "feedback":
+      case "mail":
+      case "chat":
+      case "meetings":
+      case "tasks":
+      case "social":
+      case "brand": return <StudioOperationsPanel tool={activePanel} />;
       default: return <DashboardPanel onSwitchPanel={switchPanel} />;
     }
   };
 
   const allProviders = ["claude", "openai", "gemini", "mistral", "groq", "cohere"];
-  const configuredProviders = allProviders.filter(p => localStorage.getItem(`lpk_key_${p}`));
+  const configuredProviders = allProviders.filter(p => sessionStorage.getItem(`lpk_key_${p}`));
 
   return (
     <div className="dev-portal">
       {/* Top Nav */}
       <nav className="dev-nav">
         <div className="dev-nav-inner">
+          <button className="dev-mobile-menu" onClick={() => setSidebarOpen((open) => !open)} aria-label="Toggle Studio navigation" aria-expanded={sidebarOpen}>
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
           <div className="dev-nav-logo">
             <img src={devBadgeImage} alt="Lorapok" className="dev-nav-larva" />
-            <span style={{ fontFamily: "var(--dev-font-head)", fontWeight: 800 }}>Lorapok</span>
-            <span className="dev-badge-pill">DEV MODE</span>
+            <span className="dev-logo-wordmark">Lorapok <small>Studio</small></span>
+            <span className="dev-badge-pill">LU 5.0</span>
           </div>
 
           <div className="dev-breadcrumb">
-            <span className="bc-root">WORKSPACE</span>
+            <span className="bc-root">LIVING UNIVERSE</span>
             <span className="bc-sep">/</span>
             <span className="bc-active">
               {(() => {
-                const item = [...WORKSPACE_ITEMS, ...TOOL_ITEMS, ...ADMIN_ITEMS].find(i => i.id === activePanel);
+                const item = [...WORKSPACE_ITEMS, ...TOOL_ITEMS, ...SYSTEM_ITEMS, ...ADVANCED_ITEMS].find(i => i.id === activePanel);
                 return item ? item.label.toUpperCase() : "DASHBOARD";
               })()}
             </span>
@@ -185,8 +265,8 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
                 Sign Out
               </button>
             )}
-            <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={onClose} title="Back to standard mode" style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.72rem" }}>
-              ← Exit Dev
+            <button className="dev-btn dev-btn-ghost dev-btn-sm dev-exit-button" onClick={onClose} title="Back to public site" style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.72rem" }}>
+              ← Public site
             </button>
           </div>
         </div>
@@ -195,29 +275,21 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
       {/* Layout */}
       <div className="dev-layout">
         {/* Sidebar */}
-        <aside className="dev-sidebar">
-          <span className="dev-sidebar-section">workspace</span>
-          {WORKSPACE_ITEMS.map(item => (
-            <NavItem key={item.id} item={item} active={activePanel === item.id} onClick={() => setActivePanel(item.id)} />
-          ))}
-
-          <span className="dev-sidebar-section">tools</span>
-          {TOOL_ITEMS.map(item => (
-            <NavItem key={item.id} item={item} active={activePanel === item.id} onClick={() => setActivePanel(item.id)} />
-          ))}
-
-          <span className="dev-sidebar-section">admin</span>
-          {ADMIN_ITEMS.map(item => (
-            <NavItem key={item.id} item={item} active={activePanel === item.id} onClick={() => setActivePanel(item.id)} />
-          ))}
+        <button className={`dev-sidebar-backdrop ${sidebarOpen ? "visible" : ""}`} onClick={() => setSidebarOpen(false)} aria-label="Close navigation" />
+        <aside className={`dev-sidebar ${sidebarOpen ? "open" : ""}`}>
+          <div className="dev-sidebar-intro"><span>Studio navigation</span><p>Open source and business operations in one workspace.</p></div>
+          <NavGroup label="Publish" items={WORKSPACE_ITEMS} activePanel={activePanel} onSelect={switchPanel} primary />
+          <NavGroup label="Collaborate & Create" items={TOOL_ITEMS} activePanel={activePanel} onSelect={switchPanel} />
+          <NavGroup label="Signals & System" items={SYSTEM_ITEMS} activePanel={activePanel} onSelect={switchPanel} />
+          <NavGroup label="Advanced tools" items={ADVANCED_ITEMS} activePanel={activePanel} onSelect={switchPanel} />
 
           {/* System Status */}
           <div style={{ marginTop: "auto", paddingTop: "2rem" }}>
             <div className="dev-system-status">
-              <div style={{ color: "var(--dev-green)", marginBottom: "0.3rem" }}>◉ All systems nominal</div>
-              <div>Mail Proxy · active</div>
-              <div>GitHub Pages · deployed</div>
-              <div>{configuredProviders.length} provider{configuredProviders.length !== 1 ? "s" : ""} ready</div>
+              <div className="status-heading"><span /> Workspace status</div>
+              <div>Public catalog · live</div>
+              <div>Studio modules · mixed</div>
+              <div>{configuredProviders.length} AI provider{configuredProviders.length !== 1 ? "s" : ""} configured</div>
             </div>
           </div>
         </aside>
@@ -234,10 +306,10 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
         <div className="dev-footer-left">
           <div className="dev-footer-status">
             <span className="dev-status-pulse"></span>
-            ALL SYSTEMS NOMINAL
+            STUDIO ONLINE
           </div>
           <div className="dev-footer-meta">
-            <span>LORAPOK V1.8.4</span>
+            <span>LIVING UNIVERSE 5.0</span>
             <span>OS: {navigator.platform}</span>
             <span>SESSION: {new Date().toLocaleDateString()}</span>
           </div>

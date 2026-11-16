@@ -1,356 +1,155 @@
-import { useState, useEffect, useRef } from 'react';
-import { Code2, BookOpen, Zap, Activity, Shield, Cpu, Network } from 'lucide-react';
-import { db } from '../../lib/firebase';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowUpRight, BadgePercent, BarChart3, BookOpenText, Boxes, Check, ChevronRight,
+  CircleAlert, Code2, FileText, FlaskConical, GalleryHorizontalEnd, ListChecks,
+  Mail, MessageSquareText, Palette, Radio, ShieldCheck, Sparkles, Users, Video,
+} from "lucide-react";
+import { projects } from "../../data/lorapok";
 
-interface DashboardPanelProps {
-  onSwitchPanel?: (panel: string) => void;
-}
+interface DashboardPanelProps { onSwitchPanel?: (panel: string) => void; }
+type ModuleState = "live" | "connected" | "demo" | "review";
+type StudioModule = { title: string; description: string; state: ModuleState; icon: typeof Boxes; panel?: string; };
 
-interface GitHubStats {
-  repos: number;
-  stars: number;
-  forks: number;
-  languages: string[];
-  latestUpdate: string;
-  loading: boolean;
-}
+const modules: StudioModule[] = [
+  { title: "Project catalog", description: "Publish products, releases and engineering stories.", state: "live", icon: Boxes, panel: "projects" },
+  { title: "Editorial desk", description: "Research notes, changelogs and long-form articles.", state: "demo", icon: BookOpenText, panel: "content" },
+  { title: "Team portfolios", description: "Contributor profiles, roles, work and public links.", state: "connected", icon: Users, panel: "team-studio" },
+  { title: "Offers", description: "Campaigns, discounts and commercial announcements.", state: "demo", icon: BadgePercent, panel: "offers" },
+  { title: "Feedback inbox", description: "Triage public ideas, reports and community signals.", state: "demo", icon: MessageSquareText, panel: "feedback" },
+  { title: "Mail drafts", description: "Prepare customer and partner replies before sending.", state: "demo", icon: Mail, panel: "mail" },
+  { title: "Team chat", description: "A browser-only collaboration simulation for the prototype.", state: "demo", icon: Radio, panel: "chat" },
+  { title: "Meeting links", description: "Draft meeting rooms and copy invitations.", state: "demo", icon: Video, panel: "meetings" },
+  { title: "Task board", description: "Track launch, editorial and product work.", state: "demo", icon: ListChecks, panel: "tasks" },
+  { title: "Social cards", description: "Compose export-ready project and release artwork.", state: "demo", icon: GalleryHorizontalEnd, panel: "social" },
+  { title: "Brand gallery", description: "Ribo poses, emblems and approved visual assets.", state: "connected", icon: Palette, panel: "brand" },
+  { title: "AI laboratory", description: "Compare providers and run prompt experiments.", state: "connected", icon: FlaskConical, panel: "ai-labs" },
+  { title: "Prompt library", description: "Reusable workflows for the Lorapok toolchain.", state: "connected", icon: Sparkles, panel: "prompts" },
+  { title: "Analytics", description: "Review audience and product signals with clear provenance.", state: "connected", icon: BarChart3, panel: "analytics" },
+  { title: "Access control", description: "Review publishing permissions and workspace settings.", state: "review", icon: ShieldCheck, panel: "admin" },
+];
 
-interface LogEntry {
-  id: string;
-  category: string;
-  action: string;
-  email: string;
-  timestamp: any;
-}
-
-interface Maintainer {
-  login: string;
-  avatar_url: string;
-  html_url: string;
-  contributions: number;
-}
+const statusCopy: Record<ModuleState, string> = {
+  live: "Live data", connected: "Connected", demo: "Browser demo", review: "Needs review",
+};
 
 export default function DashboardPanel({ onSwitchPanel }: DashboardPanelProps) {
-  const [github, setGithub] = useState<GitHubStats>({ 
-    repos: 0, 
-    stars: 0, 
-    forks: 0, 
-    languages: [], 
-    latestUpdate: '...', 
-    loading: true 
-  });
-  const [maintainers, setMaintainers] = useState<Maintainer[]>([]);
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const terminalRef = useRef<HTMLDivElement>(null);
+  const [repos, setRepos] = useState<number | null>(null);
+  const [activeUniverse, setActiveUniverse] = useState<"open" | "business">("open");
+  const [completedTasks, setCompletedTasks] = useState<string[]>(["release"]);
 
-  // Fetch GitHub Stats & Contributors
   useEffect(() => {
-    const fetchGithubData = async () => {
-      try {
-        const repoRes = await fetch('https://api.github.com/users/lorapok/repos?sort=updated');
-        const repos = await repoRes.json();
-        
-        if (Array.isArray(repos) && repos.length > 0) {
-          const totalStars = repos.reduce((acc, repo) => acc + (repo.stargazers_count || 0), 0);
-          const totalForks = repos.reduce((acc, repo) => acc + (repo.forks_count || 0), 0);
-          
-          // Get all languages and count them
-          const langMap: Record<string, number> = {};
-          repos.forEach(r => {
-            if (r.language) langMap[r.language] = (langMap[r.language] || 0) + 1;
-          });
-          const sortedLangs = Object.keys(langMap).sort((a, b) => langMap[b] - langMap[a]);
-
-          // Get latest update time
-          const latestRepo = repos[0]; // Already sorted by updated
-          const lastUpdateDate = new Date(latestRepo.pushed_at);
-          const diffMs = new Date().getTime() - lastUpdateDate.getTime();
-          const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-          const timeAgo = diffHrs < 1 ? 'just now' : `${diffHrs}h ago`;
-          
-          setGithub({
-            repos: repos.length,
-            stars: totalStars,
-            forks: totalForks,
-            languages: sortedLangs,
-            latestUpdate: timeAgo,
-            loading: false
-          });
-          
-          try {
-            const topRepo = repos.sort((a, b) => b.stargazers_count - a.stargazers_count)[0];
-            if (topRepo) {
-              const contRes = await fetch(`https://api.github.com/repos/lorapok/${topRepo.name}/contributors`);
-              if (contRes.ok) {
-                const contributors = await contRes.json();
-                if (Array.isArray(contributors)) {
-                  setMaintainers(contributors.slice(0, 3));
-                  setGithub(prev => ({ ...prev, maintainers: contributors.length }));
-                }
-              }
-            }
-          } catch (e) {
-            console.warn("GitHub contributor fetch failed");
-          }
-        } else {
-          setGithub(prev => ({ ...prev, loading: false, latestUpdate: 'No public repos' }));
-        }
-      } catch (e) {
-        console.error('GitHub fetch failed', e);
-        setGithub(prev => ({ ...prev, loading: false }));
-      }
-    };
-    fetchGithubData();
+    const controller = new AbortController();
+    fetch("https://api.github.com/users/lorapok/repos?per_page=100&type=public", { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("GitHub unavailable")))
+      .then((data) => setRepos(Array.isArray(data) ? data.length : null))
+      .catch((error) => { if (error instanceof Error && error.name !== "AbortError") setRepos(null); });
+    return () => controller.abort();
   }, []);
 
-  // Real-time Logs (CMD Board)
-  useEffect(() => {
-    const q = query(collection(db, 'analytics'), orderBy('timestamp', 'desc'), limit(30));
-    const unsub = onSnapshot(q, 
-      (snap) => {
-        const newLogs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
-        setLogs(newLogs.reverse());
-        setTimeout(() => {
-          if (terminalRef.current) terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-        }, 100);
-      },
-      (err) => console.warn("Dashboard analytics access restricted:", err.message)
-    );
-    return () => unsub();
-  }, []);
+  const universe = useMemo(() => activeUniverse === "open" ? {
+    eyebrow: "Open Source Universe", title: "Build in public. Make the work useful.",
+    body: "Projects, research, releases and contributor stories live together as a transparent record of the lab.",
+    action: "Open project catalog", panel: "projects",
+  } : {
+    eyebrow: "Business Universe", title: "Turn capability into clear offers.",
+    body: "Commercial products, cloud services, partnerships and customer inquiries stay distinct from community work.",
+    action: "Open offers", panel: "offers",
+  }, [activeUniverse]);
+
+  const toggleTask = (id: string) => {
+    setCompletedTasks((current) => current.includes(id) ? current.filter((task) => task !== id) : [...current, id]);
+  };
 
   return (
-    <div className="dev-dashboard">
-      {/* ─── Hero Section ─── */}
-      <section className="dev-dash-hero">
-        <div className="hero-technical-bg">
-          <div className="scan-line" />
-          <div className="corner-bracket top-left" />
-          <div className="corner-bracket top-right" />
-          <div className="corner-bracket bottom-left" />
-          <div className="corner-bracket bottom-right" />
-        </div>
-
-        <div className="dev-dash-eyebrow">
-          <span className="eyebrow-node"><Activity size={10} /> NONPROFIT</span>
-          <span className="eyebrow-sep">/</span>
-          <span className="eyebrow-node"><Cpu size={10} /> OPEN-SOURCE</span>
-          <span className="eyebrow-sep">/</span>
-          <span className="eyebrow-node"><Network size={10} /> AI-POWERED</span>
-        </div>
-        
-        <h1 className="mission-title">
-          <span className="title-sub">SYSTEM_INIT_0.84</span><br />
-          Build tools the world can freely <span className="dev-text-outline">own.</span>
-        </h1>
-
-        <p className="dev-dash-subtext">
-          Lorapok Labs is a decentralized collective building public-good software.<br />
-          Zero venture capital. 100% transparency. AI-augmented core.
-        </p>
-        
-        <div className="dev-dash-actions">
-          <button className="dev-btn-primary main-action" onClick={() => window.open('https://github.com/lorapok', '_blank')}>
-            <Code2 size={20} />
-            View on GitHub
-            <div className="btn-glitch" />
-          </button>
-          <button className="dev-btn-outline" onClick={() => onSwitchPanel?.('blog')}>
-            <BookOpen size={18} />
-            Read the Blog
-          </button>
-          <button className="dev-btn-outline" onClick={() => onSwitchPanel?.('ai-labs')}>
-            <Zap size={18} />
-            AI Tools
-          </button>
-        </div>
-
-        {/* ─── Scientific Console (Upgraded) ─── */}
-        <div className="dev-research-board mission-console">
-          <div className="console-header">
-            <span className="console-title">GLOBAL_LORAPOK_NETWORK_STATUS</span>
-            <div className="console-uptime">
-              <div className="pulse-dot green" />
-              SYSTEM_READY // 99.9% UPTIME
-            </div>
+    <div className="studio-home">
+      <section className="studio-hero">
+        <div className="studio-hero-copy">
+          <div className="studio-kicker"><span /> Living Universe 5.0 · Studio</div>
+          <h1>One living system.<br /><em>Two clear universes.</em></h1>
+          <p>The operating surface for Lorapok Labs—bringing open engineering and commercial work into one coherent biological interface without blurring what is public, private or simulated.</p>
+          <div className="studio-hero-actions">
+            <button className="studio-action primary" onClick={() => onSwitchPanel?.("projects")}>Explore projects <ArrowUpRight size={17} /></button>
+            <button className="studio-action secondary" onClick={() => onSwitchPanel?.("content")}>Manage studio <ChevronRight size={17} /></button>
           </div>
-          <div className="research-grid">
-            <div className="research-item">
-              <div className="research-label"><Activity size={12} /> CORE_REPOS</div>
-              <div className="research-value">{github.loading ? '...' : github.repos}</div>
-              <div className="research-bar"><div style={{ width: `${Math.min((github.repos / 10) * 100, 100)}%` }} /></div>
-              <div className="research-meta">LATEST_COMMIT: {github.latestUpdate}</div>
-            </div>
-            <div className="research-item">
-              <div className="research-label"><Shield size={12} /> TRUST_STARS</div>
-              <div className="research-value">{github.loading ? '...' : github.stars}</div>
-              <div className="research-bar"><div style={{ width: `${Math.min((github.stars / 100) * 100, 100)}%` }} /></div>
-              <div className="research-meta">GROWTH: +12.4%</div>
-            </div>
-            <div className="research-item">
-              <div className="research-label"><Cpu size={12} /> FORK_NODES</div>
-              <div className="research-value">{github.loading ? '...' : github.forks}</div>
-              <div className="research-bar"><div style={{ width: `${Math.min((github.forks / 50) * 100, 100)}%` }} /></div>
-              <div className="research-meta">DISTRIBUTION_OK</div>
-            </div>
-            <div className="research-item">
-              <div className="research-label"><Network size={12} /> LANG_STACK</div>
-              <div className="research-value" style={{ fontSize: '0.8rem' }}>{github.loading ? '...' : github.languages.slice(0, 3).join(', ') || 'N/A'}</div>
-              <div className="research-bar"><div style={{ width: '80%' }} /></div>
-              <div className="research-meta">KERNEL: TS_REACT</div>
-            </div>
+          <div className="studio-trust-row" aria-label="Data status legend">
+            <span><i className="live" /> Live data</span><span><i className="connected" /> Connected surface</span><span><i className="demo" /> Browser demo</span>
           </div>
+        </div>
+
+        <div className="studio-ribo-stage" aria-label="Ribo, the Lorapok studio guide">
+          <div className="studio-orbit orbit-one" /><div className="studio-orbit orbit-two" />
+          <div className="studio-ribo">
+            <span className="ribo-antenna left" /><span className="ribo-antenna right" />
+            <span className="ribo-eye left" /><span className="ribo-eye right" /><span className="ribo-smile" />
+          </div>
+          <div className="studio-ribo-note"><Sparkles size={14} /><span><strong>Ribo is awake</strong>Guiding the studio, one honest signal at a time.</span></div>
         </div>
       </section>
 
-      {/* ─── CMD TYPE BOARD (System Logs) ─── */}
-      <section className="dev-dash-section">
-        <div className="dev-section-tag">// SYSTEM_RUNTIME_LOGS</div>
-        <div className="dev-cmd-board">
-          <div className="cmd-header">
-            <div className="cmd-dot red" />
-            <div className="cmd-dot amber" />
-            <div className="cmd-dot green" />
-            <span className="cmd-title">lorapok_sys_monitor.sh — 128.0.0.1</span>
+      <section className="studio-signal-strip" aria-label="Verified Lorapok signals">
+        <div><strong>{projects.length}</strong><span>catalog projects</span></div>
+        <div><strong>{repos ?? "—"}</strong><span>public GitHub repos</span></div>
+        <div><strong>224</strong><span>published agent definitions</span></div>
+        <div><strong>25</strong><span>production subdomains</span></div>
+      </section>
+
+      <section className="studio-universes">
+        <div className="studio-section-heading">
+          <div><span className="studio-overline">Universe switcher</span><h2>Same identity, different intent.</h2></div>
+          <div className="studio-segmented" role="tablist" aria-label="Choose a universe">
+            <button className={activeUniverse === "open" ? "active" : ""} onClick={() => setActiveUniverse("open")} role="tab">Open source</button>
+            <button className={activeUniverse === "business" ? "active" : ""} onClick={() => setActiveUniverse("business")} role="tab">Business</button>
           </div>
-          <div className="cmd-terminal" ref={terminalRef}>
-            <div className="cmd-line system">Initializing Lorapok Labs Kernel v1.8.4...</div>
-            <div className="cmd-line system">Establishing secure Firebase tunnel... OK</div>
-            <div className="cmd-line system">Syncing with GitHub API... OK</div>
-            {logs.map((log) => (
-              <div key={log.id} className="cmd-line">
-                <span className="cmd-time">[{log.timestamp?.toDate().toLocaleTimeString() || 'LIVE'}]</span>
-                <span className="cmd-user"> {log.email.split('@')[0]}</span>
-                <span className="cmd-action">::{log.category.toUpperCase()}::{log.action}</span>
-              </div>
-            ))}
-            <div className="cmd-line cursor">_</div>
-          </div>
+        </div>
+        <article className={`studio-universe-card ${activeUniverse}`}>
+          <div className="universe-number">{activeUniverse === "open" ? "01" : "02"}</div>
+          <div><span className="studio-overline">{universe.eyebrow}</span><h3>{universe.title}</h3><p>{universe.body}</p></div>
+          <button onClick={() => onSwitchPanel?.(universe.panel)}>{universe.action} <ArrowUpRight size={16} /></button>
+        </article>
+      </section>
+
+      <section className="studio-modules-section">
+        <div className="studio-section-heading">
+          <div><span className="studio-overline">Studio modules</span><h2>Fifteen surfaces, one operating rhythm.</h2></div>
+          <p>Every module declares its maturity so a prototype can never be mistaken for production infrastructure.</p>
+        </div>
+        <div className="studio-modules-grid">
+          {modules.map((module, index) => {
+            const Icon = module.icon;
+            return (
+              <button key={module.title} className={`studio-module-card state-${module.state}`} onClick={() => module.panel && onSwitchPanel?.(module.panel)} disabled={!module.panel}>
+                <div className="module-top"><Icon size={20} /><span>{String(index + 1).padStart(2, "0")}</span></div>
+                <h3>{module.title}</h3><p>{module.description}</p>
+                <div className="module-status"><i />{statusCopy[module.state]}{module.panel && <ArrowUpRight size={13} />}</div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
-      {/* ─── Values Section (Preserved) ─── */}
-      <section className="dev-dash-section">
-        <div className="dev-section-tag">// WHY WE EXIST</div>
-        <h2 className="dev-section-title">Software should be<br />a public good</h2>
-        <p className="dev-section-desc">
-          We believe the best tools belong to everyone — not locked<br />
-          behind a subscription or controlled by investors.
-        </p>
-
-        <div className="dev-values-grid">
-          <div className="dev-value-card">
-            <div className="dev-value-icon">🔓</div>
-            <h3>Radically open</h3>
-            <p>Every line of code is public. Fork it, audit it, ship it. No premium tiers, no dark patterns.</p>
-          </div>
-          <div className="dev-value-card">
-            <div className="dev-value-icon">🌍</div>
-            <h3>Built for everyone</h3>
-            <p>We design for developers in Dhaka as much as in Berlin. Bandwidth-aware, dependency-light.</p>
-          </div>
-          <div className="dev-value-card">
-            <div className="dev-value-icon">🤝</div>
-            <h3>Community-owned</h3>
-            <p>No single company controls the roadmap. Decisions happen in the open — PRs, issues, discussions.</p>
-          </div>
-          <div className="dev-value-card">
-            <div className="dev-value-icon">✨</div>
-            <h3>AI-augmented</h3>
-            <p>We use AI to lower the barrier to contribution — docs, onboarding, and tooling, all AI-assisted.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── PR Section (Preserved) ─── */}
-      <section className="dev-dash-section dev-pr-section">
-        <div className="dev-pr-content">
-          <div className="dev-section-tag">// GET INVOLVED</div>
-          <h2 className="dev-section-title">Your first PR is<br />one step away</h2>
-          <p className="dev-section-desc">
-            Whether you're writing code, fixing docs, or filing bugs — every contribution moves us forward.
-          </p>
-          <ul className="dev-pr-steps">
-            <li>
-              <span>01</span> 
-              <div>
-                <strong>Fork any repo</strong>
-                <p>Browse our projects and pick one that interests you.</p>
-              </div>
-            </li>
-            <li>
-              <span>02</span> 
-              <div>
-                <strong>Pick a good-first-issue</strong>
-                <p>Filter by the label on GitHub and find a task you like.</p>
-              </div>
-            </li>
-            <li>
-              <span>03</span> 
-              <div>
-                <strong>Open a PR</strong>
-                <p>We review fast and leave thoughtful technical feedback.</p>
-              </div>
-            </li>
-            <li>
-              <span>04</span> 
-              <div>
-                <strong>Join the community</strong>
-                <p>Hop in our Discord or Discussions and say hi!</p>
-              </div>
-            </li>
-          </ul>
-          <button className="dev-btn-primary dev-pr-btn" onClick={() => window.open('https://github.com/lorapok', '_blank')}>
-            Browse good-first-issues →
-          </button>
-        </div>
-
-        <div className="dev-terminal-mock">
-          <div className="dev-term-header">
-            <span className="term-dot"></span>
-            <span className="term-dot"></span>
-            <span className="term-dot"></span>
-          </div>
-          <div className="dev-term-body">
-            <div className="term-line"><span className="term-prompt">$</span> git clone https://github.com/lorapok/&lt;project&gt;</div>
-            <div className="term-line"><span className="term-prompt">$</span> cd &lt;project&gt; && npm install</div>
-            <div className="term-line term-comment"># find an issue you like</div>
-            <div className="term-line"><span className="term-prompt">$</span> git checkout -b fix/your-idea</div>
-            <div className="term-line term-comment"># make your changes</div>
-            <div className="term-line"><span className="term-prompt">$</span> git push && gh pr create</div>
-            <div className="term-line term-success">✓ Pull request opened — nice work!</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Maintainers Section (Dynamic) ─── */}
-      <section className="dev-dash-section">
-        <div className="dev-section-tag">// THE HUMANS</div>
-        <h2 className="dev-section-title">Maintainers</h2>
-        <p className="dev-section-desc">Real people. Real commits. Building in public.</p>
-        
-        <div className="dev-maintainers-grid">
-          {maintainers.map((m) => (
-            <div key={m.login} className="dev-maintainer-card" onClick={() => window.open(m.html_url, '_blank')} style={{ cursor: 'pointer' }}>
-              <div className="dev-avatar" style={{ overflow: 'hidden' }}>
-                <img src={m.avatar_url} alt={m.login} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <h3>{m.login}</h3>
-              <span className="dev-role">{m.login === 'maizied' ? 'founder • full-stack' : 'active contributor'}</span>
-              <span className="dev-handle">@{m.login}</span>
-            </div>
+      <section className="studio-workbench">
+        <div className="studio-task-card">
+          <div className="studio-card-heading"><div><span className="studio-overline">Today in Studio</span><h2>Launch workbench</h2></div><ListChecks size={22} /></div>
+          {[["release", "Review current release story", "Editorial"], ["pricing", "Reconcile LoraHost pricing references", "Publishing check"], ["founding", "Confirm the official founding year", "Brand check"]].map(([id, label, meta]) => (
+            <button key={id} className={`studio-task ${completedTasks.includes(id) ? "done" : ""}`} onClick={() => toggleTask(id)}>
+              <span className="task-check">{completedTasks.includes(id) && <Check size={13} />}</span><span><strong>{label}</strong><small>{meta}</small></span>
+            </button>
           ))}
-          
-          <div className="dev-maintainer-card dev-card-hollow" onClick={() => window.open('https://github.com/orgs/Lorapok/discussions/4', '_blank')} style={{ cursor: 'pointer' }}>
-            <div className="dev-avatar dev-avatar-placeholder">?</div>
-            <h3>You?</h3>
-            <span className="dev-role">contributor</span>
-            <span className="dev-handle">Join Us With New Ideas →</span>
-          </div>
+          <p className="studio-local-note"><Radio size={13} /> Task changes stay in this browser demo.</p>
         </div>
+        <div className="studio-review-card">
+          <div className="studio-card-heading"><div><span className="studio-overline">Publication confidence</span><h2>Resolve before claiming.</h2></div><CircleAlert size={22} /></div>
+          <div className="review-item warning"><span>Pricing</span><p>LoraHost references contain different price points. Reconcile the source before publishing an offer.</p></div>
+          <div className="review-item warning"><span>Brand history</span><p>The founding year differs across source material. Keep it out of headline claims until confirmed.</p></div>
+          <div className="review-item clear"><span>Partnership language</span><p>Higgsfield and Binance remain integrations or ecosystem references—not confirmed partners.</p></div>
+        </div>
+      </section>
+
+      <section className="studio-open-call">
+        <div><span className="studio-overline">Open source universe</span><h2>The next useful thing can start with you.</h2><p>Explore the work, find an issue and help shape a product people can actually own.</p></div>
+        <a href="https://github.com/lorapok" target="_blank" rel="noreferrer">Visit GitHub <Code2 size={18} /></a>
+        <button onClick={() => onSwitchPanel?.("blog")}>Read engineering stories <FileText size={18} /></button>
       </section>
     </div>
   );
 }
-

@@ -31,7 +31,7 @@ export default function Footer() {
             <span className="footer-kicker">OPEN SOURCE · OPEN CONVERSATION</span>
             <h2>Have an idea<br /><em>with a pulse?</em></h2>
           </div>
-          <Link className="button footer-callout__button" to="/contact">
+          <Link className="button footer-callout__button" to="/contact/">
             Build with us <ArrowUpRight size={18} />
           </Link>
         </div>
@@ -61,16 +61,16 @@ export default function Footer() {
         </div>
 
         <div className="footer-partner">
-          <span>Sponsored partner</span>
-          Higgsfield is a partner tool, not a Lorapok product.
+          <span>Affiliate reference</span>
+          Higgsfield is an independent third-party tool. Lorapok does not claim a formal partnership.
           <a href="https://higgsfield.ai?fpr=lorapoklabs" target="_blank" rel="sponsored noopener noreferrer">Visit Higgsfield ↗</a>
         </div>
 
         <div className="footer-bottom">
           <span>© 2026 Lorapok Labs · MIT licensed</span>
           <div>
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
+            <Link to="/privacy/">Privacy</Link>
+            <Link to="/terms/">Terms</Link>
             <Link to="/dev">Developer portal</Link>
           </div>
           <span>Made in Dhaka · Built for everywhere</span>

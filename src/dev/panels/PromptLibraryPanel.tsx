@@ -1,5 +1,5 @@
 // src/dev/panels/PromptLibraryPanel.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const SAMPLE_PROMPTS = [
   {
@@ -39,12 +39,23 @@ export default function PromptLibraryPanel({ onLoadToPlayground }: PromptLibrary
   const [search, setSearch] = useState("");
   const [filterProvider, setFilterProvider] = useState("All providers");
   const [filterCategory, setFilterCategory] = useState("All categories");
-  const [prompts, setPrompts] = useState(SAMPLE_PROMPTS);
+  const [prompts, setPrompts] = useState(() => {
+    try {
+      const stored = localStorage.getItem("lorapok-prompt-library-v7");
+      return stored ? JSON.parse(stored) : SAMPLE_PROMPTS;
+    } catch {
+      return SAMPLE_PROMPTS;
+    }
+  });
   const [showSubmit, setShowSubmit] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newText, setNewText] = useState("");
   const [newProvider, setNewProvider] = useState("Claude");
   const [newCategory, setNewCategory] = useState("Code");
+
+  useEffect(() => {
+    localStorage.setItem("lorapok-prompt-library-v7", JSON.stringify(prompts));
+  }, [prompts]);
 
   const filtered = prompts.filter(p => {
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.text.toLowerCase().includes(search.toLowerCase());
@@ -75,7 +86,7 @@ export default function PromptLibraryPanel({ onLoadToPlayground }: PromptLibrary
     <div className="dev-panel-content">
       <div className="dev-panel-header">
         <div className="dev-panel-title">Prompt <span>Library</span></div>
-        <div className="dev-panel-sub">Community-shared prompts. Browse, upvote, and load into Playground.</div>
+        <div className="dev-panel-sub">Browser-local prompt library. Browse, upvote, submit, and load a prompt directly into Playground.</div>
       </div>
 
       {/* Filters */}

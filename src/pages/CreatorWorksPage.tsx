@@ -19,7 +19,7 @@ export default function CreatorWorksPage() {
       name: "Creator Works — Lorapok Labs",
       description:
         "Studio sculpture, mixed-media installation, and folk craft by Lorapok collective creators. Selected works from Borshon Mondol, 3D Artist & Designer.",
-      url: "https://lorapok.tech/creator-works",
+      url: "https://lorapok.tech/creator-works/",
       isPartOf: {
         "@type": "WebSite",
         name: "Lorapok Labs",
@@ -35,7 +35,7 @@ export default function CreatorWorksPage() {
           ? {
               "@type": "Person",
               name: borshon.name,
-              url: "https://lorapok.tech/team",
+              url: "https://lorapok.tech/team/",
             }
           : undefined,
       })),
@@ -48,7 +48,7 @@ export default function CreatorWorksPage() {
       <SEOHead
         title="Creator Works — Studio Sculpture & 3D Art"
         description="Selected studio works in 3D art and design from Lorapok collective creators — figurative sculpture, kinetic installations, clay life studies, and Bengali folk craft."
-        path="/creator-works"
+        path="/creator-works/"
         image="/assets/projects/borshon-frozen-liquidity.jpg"
         keywords="Creator Works, 3D art and design, sculpture, Borshon Mondol, Lorapok Labs, mixed media, figurative art, Dhaka"
         jsonLd={jsonLd}
@@ -97,7 +97,7 @@ export default function CreatorWorksPage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Link
-                    to="/team"
+                    to="/team/"
                     className="text-xs font-mono px-4 py-2 rounded-full border border-white/15 text-white hover:border-[#f5d0c5]/50 transition-colors"
                   >
                     Team profile

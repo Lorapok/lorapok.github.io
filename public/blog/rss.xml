@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>LoLaBo — Lorapok Labs Blog</title>
-    <link>https://lorapok.tech/blog</link>
+    <link>https://lorapok.tech/blog/</link>
     <description>Notes on public Lorapok Labs repositories, written from each project's README.</description>
     <language>en-us</language>
     <lastBuildDate>Mon, 16 Nov 2026 12:25:32 GMT</lastBuildDate>

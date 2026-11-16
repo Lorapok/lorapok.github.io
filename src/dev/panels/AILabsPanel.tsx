@@ -253,7 +253,7 @@ export default function AILabsPanel({ onSwitchPanel }: AILabsPanelProps) {
               <span style={{ color: "#4ade80", fontSize: "1rem" }}>✓</span>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: "0.8rem", color: "#4ade80", fontFamily: "var(--dev-font-mono)" }}>{activeP.label} API Key Active</div>
-                <div style={{ fontSize: "0.65rem", color: "var(--dev-muted)" }}>Key: {apiKeys[activeProvider].substring(0, 8)}…{apiKeys[activeProvider].slice(-4)}</div>
+                <div style={{ fontSize: "0.65rem", color: "var(--dev-muted)" }}>Session key configured · value hidden</div>
               </div>
               <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={handleClearKey} style={{ color: "var(--dev-red)", fontSize: "0.75rem" }}>Remove Key</button>
             </div>

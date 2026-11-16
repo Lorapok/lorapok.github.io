@@ -61,7 +61,7 @@ export const founder = {
   handle: "@Maijied",
   role: "Senior Software Engineer @ Shohoz",
   location: "Dhaka, Bangladesh",
-  email: "mdshvo40@gmail.com",
+  email: "founder@lorapok.tech",
   bio: "Full Stack Systems Architect and open-source engineer building biological UI, sensory computing systems, and high-concurrency digital platforms. Senior Software Engineer at Shohoz and maintainer of the public Lorapok repositories.",
   links: {
     portfolio: "https://maizied.lorapok.tech",

@@ -9,9 +9,9 @@ const GLYPH: Record<string, string> = {
 };
 
 const OFFERS = [
-  { name: 'Starter Hosting', badge: 'START HERE', blurb: '1 website · 5 GB NVMe · free SSL', yearly: 466, saving: '6%' },
-  { name: 'Business Hosting', badge: 'POPULAR PLAN', blurb: '3 websites · 15 GB NVMe · staging', yearly: 1397, saving: '6%', featured: true },
-  { name: 'Pro Hosting', badge: 'FOR AGENCIES', blurb: '10 websites · 30 GB NVMe · migrations', yearly: 2793, saving: '2%' },
+  { name: 'Starter Hosting', badge: 'START HERE', blurb: 'Entry-level managed hosting for a focused website.' },
+  { name: 'Business Hosting', badge: 'POPULAR PATH', blurb: 'A larger managed workspace for growing product sites.', featured: true },
+  { name: 'Pro Hosting', badge: 'FOR TEAMS', blurb: 'A broader hosting path for multi-site and agency workflows.' },
 ];
 
 type Post = { slug: string; title: string; excerpt: string; category?: string; source?: string; readTime?: string | number; status?: string };
@@ -42,7 +42,6 @@ function ProductCard({ p }: { p: Project }) {
 }
 
 export default function HomePage() {
-  const [yearly, setYearly] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -68,14 +67,18 @@ export default function HomePage() {
 
       <header className="hero">
         <div className="orbit" /><div className="orb one" /><div className="orb two" /><div className="blob one" />
-        <div className="bio-specimen" aria-hidden="true"><div className="shell" /><div className="satellite" /><div className="signal">● BIOLOGICAL SIGNAL ACTIVE</div></div>
+        <div className="bio-specimen" aria-hidden="true">
+          <div className="shell"><span className="ribo-eye left" /><span className="ribo-eye right" /><span className="ribo-mouth" /></div>
+          <div className="satellite" />
+          <div className="signal">● RIBO SIGNAL · <span className="ribo-signal-mood">CURIOUS</span></div>
+        </div>
         <div className="wrap4">
           <div className="eyebrow reveal">● OPEN SOURCE · DHAKA TO THE WORLD</div>
           <h1><Words text="Make" /><br /><Words text="technology" /><br /><em><Words text="feel alive." /></em></h1>
           <p className="lead reveal">From AI companions to systems software, we build tools with a pulse — useful, expressive and made for curious humans.</p>
           <div className="hero-actions reveal">
-            <Link className="button" to="/projects">Enter our universe</Link>
-            <Link className="button outline" to="/team">Get to know us</Link>
+            <Link className="button" to="/projects/">Enter our universe</Link>
+            <Link className="button outline" to="/team/">Get to know us</Link>
           </div>
         </div>
         <span className="scrolltag">↓ SCROLL TO EXPLORE</span>
@@ -99,7 +102,7 @@ export default function HomePage() {
         <div className="eyebrow reveal">THE ECOSYSTEM</div>
         <h2 className="reveal">Big ideas.<br />Real things.</h2>
         <div className="product-grid">{featured.map((p) => <ProductCard key={p.name} p={p} />)}</div>
-        <div style={{ marginTop: 44 }}><Link className="button" to="/projects">See every product ({projects.length})</Link></div>
+        <div style={{ marginTop: 44 }}><Link className="button" to="/projects/">See every product ({projects.length})</Link></div>
       </div></section>
 
       <section className="section loud"><div className="wrap4">
@@ -117,7 +120,7 @@ export default function HomePage() {
       <section className="statement yellow"><div className="wrap4">
         <div className="eyebrow" style={{ color: '#455716' }}>A SMALL PLANET. INFINITE POSSIBILITIES.</div>
         <h2 className="reveal">Built in Dhaka.<br />Made for everywhere.</h2>
-        <div style={{ marginTop: 40 }}><Link className="button" to="/team">Meet our collective</Link></div>
+        <div style={{ marginTop: 40 }}><Link className="button" to="/team/">Meet our collective</Link></div>
       </div></section>
 
       <section className="v4-new section" id="new-releases"><div className="wrap4">
@@ -140,41 +143,36 @@ export default function HomePage() {
           </div>
           <div className="research-grid" style={{ marginTop: 0 }}>
             {posts.map((p) => (
-              <Link key={p.slug} to={`/blog/${p.slug}`} className="research-card reveal">
+              <Link key={p.slug} to={`/blog/${p.slug}/`} className="research-card reveal">
                 <span className="product-tag">{p.source === 'ai-agent' ? 'LoLaBo · ' : ''}{p.category || 'Notes'}{p.readTime ? ` · ${p.readTime} min` : ''}</span>
                 <h3>{p.title}</h3><p>{p.excerpt}</p><span className="more-link">Read ↗</span>
               </Link>
             ))}
           </div>
-          <div style={{ marginTop: 44 }}><Link className="button" to="/blog">Read the journal</Link></div>
+          <div style={{ marginTop: 44 }}><Link className="button" to="/blog/">Read the journal</Link></div>
         </div></section>
       )}
 
       <section className="v4-offers section" id="offers"><div className="wrap4">
         <div className="v4-heading">
           <div><div className="eyebrow">LORAHOST / PUBLISHED OFFERS</div><h2>More building.<br /><em>Less overhead.</em></h2></div>
-          <p>Real published LoraHost pricing references. Select a package to compare available terms, then open the official service to check checkout availability and the latest price.</p>
-        </div>
-        <div className="v4-billing">
-          <span>Hosting billing</span>
-          <button className={`v4-toggle${!yearly ? ' active' : ''}`} aria-pressed={!yearly} onClick={() => setYearly(false)}>Monthly</button>
-          <button className={`v4-toggle${yearly ? ' active' : ''}`} aria-pressed={yearly} onClick={() => setYearly(true)}>Yearly <small>Published savings</small></button>
+          <p>Provider-linked LoraHost plan paths. Review the intended audience here, then open the official service for current limits, checkout availability, and pricing.</p>
         </div>
         <div className="v4-offer-grid">
           {OFFERS.map((o) => (
             <article key={o.name} className={`v4-offer${o.featured ? ' featured' : ''}`}>
               <div className="v4-badge">{o.badge}</div><h3>{o.name}</h3><p>{o.blurb}</p>
-              <strong className="v4-price">{yearly ? <>৳{o.yearly.toLocaleString('en-BD')}<small>/mo equivalent</small></> : 'See site'}</strong>
-              <div className="v4-price-note">{yearly ? `Published yearly billing rate · save ${o.saving}` : 'Current monthly quote at provider'}</div>
+              <strong className="v4-price">Live quote</strong>
+              <div className="v4-price-note">Pricing and availability are verified on the provider before checkout.</div>
               <a className="button" href="https://lorahost.lorapok.tech/plans" target="_blank" rel="noopener noreferrer">Explore plan ↗</a>
             </article>
           ))}
         </div>
         <div className="v4-offer-secondary">
-          <div><span className="v4-badge">PUBLISHED CREDIT BONUS</span><h3>GPU prepaid credits</h3><p>৳5,000 +5% bonus credit or ৳20,000 +10% bonus credit are displayed on LoraHost. GPU workspaces are marked early access; no payment is taken to join the list.</p></div>
+          <div><span className="v4-badge">EARLY ACCESS</span><h3>GPU workspaces</h3><p>GPU workspaces are presented as early access. Open the official service for the current credit terms, eligibility, and regional availability.</p></div>
           <a href="https://lorahost.lorapok.tech/server" target="_blank" rel="noopener noreferrer" className="button">Check early access ↗</a>
         </div>
-        <p className="v4-disclaimer">Prices and offers are informational snapshots sourced from LoraHost pages checked 2 November 2026, not guaranteed live checkout quotes. Hosting monthly equivalents are shown as published; verify billing totals, VAT and availability on the official checkout. This site does not process orders.</p>
+        <p className="v4-disclaimer">Lorapok Labs does not process these orders. Plan names and capabilities are orientation only; confirm the current billing total, VAT, limits, and availability on the official LoraHost service.</p>
       </div></section>
 
       <section className="v4-showcase" aria-label="Lorapok's creative product universe">
@@ -183,14 +181,14 @@ export default function HomePage() {
           <div className="eyebrow">ENGINEERING MEETS IMAGINATION</div>
           <h2>We don't just<br />ship software.<br /><em>We grow worlds.</em></h2>
           <p>Open infrastructure, sensory interfaces, agents and practical tools in one connected studio ecosystem.</p>
-          <Link to="/projects" className="button">Enter the ecosystem ↗</Link>
+          <Link to="/projects/" className="button">Enter the ecosystem ↗</Link>
         </div>
       </section>
 
       <section className="section"><div className="wrap4"><div className="cta-band reveal">
         <h2>Build something<br />alive with us.</h2>
         <p style={{ fontSize: 21, maxWidth: 640 }}>Contribute to open source, hire the collective, or just say hello. We ship in public.</p>
-        <div className="hero-actions"><Link className="button" style={{ background: '#061c17', color: '#67f5bb', boxShadow: '0 6px 0 #000' }} to="/contact">Start a conversation</Link><Link className="button outline" to="/agents">Explore Loragent skills</Link></div>
+        <div className="hero-actions"><Link className="button" style={{ background: '#061c17', color: '#67f5bb', boxShadow: '0 6px 0 #000' }} to="/contact/">Start a conversation</Link><Link className="button outline" to="/agents/">Explore Loragent skills</Link></div>
       </div></div></section>
     </div>
   );

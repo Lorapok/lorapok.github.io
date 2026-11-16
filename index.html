@@ -1,13 +1,18 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google Tag Manager (First-Party Cloudflare Gateway) -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://lorapok.tech/metrics/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-MK42N9WX');</script>
-    <!-- End Google Tag Manager -->
+    <!-- Consent defaults must exist before GTM, Analytics, or advertising tags load. -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500
+      });
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/svg+xml" href="/assets/lorapok-icon.svg" />
@@ -37,7 +42,7 @@
     <meta property="og:image" content="https://lorapok.tech/assets/lorapok-labs-logo.png" />
     <meta property="og:image:width" content="2400" />
     <meta property="og:image:height" content="640" />
-    <meta property="og:url" content="https://lorapok.tech" />
+    <meta property="og:url" content="https://lorapok.tech/" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -47,12 +52,10 @@
     <meta name="twitter:image" content="https://lorapok.tech/assets/lorapok-labs-logo.png" />
 
     <!-- Canonical -->
-    <link rel="canonical" href="https://lorapok.tech" />
-    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+    <link rel="canonical" href="https://lorapok.tech/" />
     <link rel="stylesheet" href="/consent.css" />
-    <!-- Google AdSense — static head snippet required for site verification (crawler-readable) -->
+    <!-- Crawler-readable verification only; the AdSense script is consent-gated. -->
     <meta name="google-adsense-account" content="ca-pub-3756651399602872" />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3756651399602872" crossorigin="anonymous"></script>
 
     <title>Lorapok Labs — Open-source Products That Feel Alive</title>
 
@@ -63,7 +66,7 @@
       "@type": "Organization",
       "name": "Lorapok Labs",
       "alternateName": "Lorapok",
-      "url": "https://lorapok.tech",
+      "url": "https://lorapok.tech/",
       "logo": "https://lorapok.tech/assets/lorapok-labs-logo.png",
       "image": "https://lorapok.tech/assets/lorapok-icon.png",
       "description": "Open-source product ecosystem blending biological UI, sensory computing, and practical engineering.",
@@ -100,31 +103,8 @@
     </script>
     <!-- End Single Page Apps for GitHub Pages -->
 
-    <!-- Meta Pixel Code -->
-    <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '1121095277097673');
-      fbq('track', 'PageView');
-    </script>
-    <!-- End Meta Pixel Code -->
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MK42N9WX"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <!-- Meta Pixel (noscript) -->
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1121095277097673&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel (noscript) -->
     <div id="root"></div>
     <script src="/consent.js" defer></script>
     <script src="/adsense.js" defer></script>

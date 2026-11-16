@@ -78,6 +78,8 @@ export interface BlogPost {
   sourceArticles?: { title: string; url: string }[];
   status: "draft" | "published" | "scheduled";
   publishedAt: any;
+  updatedAt?: unknown;
+  modifiedAt?: unknown;
   socialShares: { platform: string; url: string; sharedAt: any }[];
   readTime: number;
   views: number;
@@ -1124,7 +1126,7 @@ export default function BlogApp() {
           <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-3 overflow-hidden">
               <button
-                onClick={() => navigate("/blog")}
+                onClick={() => navigate("/blog/")}
                 className="inline-flex items-center gap-2 text-xs font-mono tracking-wider text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
               >
                 <ArrowLeft className="w-4 h-4 text-[var(--lp-accent,#67ff8f)]" />
@@ -1534,7 +1536,7 @@ export default function BlogApp() {
                     .map((p) => (
                       <div
                         key={p.id}
-                        onClick={() => navigate(`/blog/${p.slug}`)}
+                        onClick={() => navigate(`/blog/${p.slug}/`)}
                         className="group cursor-pointer flex gap-3 items-start"
                       >
                         {p.coverImage ? (
@@ -1598,7 +1600,7 @@ export default function BlogApp() {
                 </h2>
               </div>
               <button
-                onClick={() => navigate("/blog")}
+                onClick={() => navigate("/blog/")}
                 className="text-xs font-mono text-gray-400 hover:text-white transition-colors cursor-pointer hidden sm:block"
               >
                 VIEW ALL STORIES →
@@ -1612,7 +1614,7 @@ export default function BlogApp() {
                 .map((post) => (
                   <div
                     key={post.id}
-                    onClick={() => navigate(`/blog/${post.slug}`)}
+                    onClick={() => navigate(`/blog/${post.slug}/`)}
                     className="group cursor-pointer bg-[#0c0e14] border border-white/5 hover:border-[var(--lp-accent,#67ff8f)]/40 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(103,255,143,0.1)] flex flex-col"
                   >
                     <div className="relative aspect-video overflow-hidden bg-black/40">
@@ -1681,7 +1683,7 @@ export default function BlogApp() {
           The requested technical treatise may still be compiling from our autonomous agent squads, or the slug has been updated.
         </p>
         <button
-          onClick={() => navigate("/blog")}
+          onClick={() => navigate("/blog/")}
           className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wider transition-all cursor-pointer border border-white/10 hover:border-white/20"
         >
           ← Return to All Dispatches
@@ -2003,7 +2005,7 @@ export default function BlogApp() {
         {/* Featured Top Story Banner if on unfiltered feed */}
         {featuredPost && !isFiltering && (
           <div
-            onClick={() => navigate(`/blog/${featuredPost.slug}`)}
+            onClick={() => navigate(`/blog/${featuredPost.slug}/`)}
             className="group cursor-pointer mb-12 p-6 sm:p-8 rounded-3xl bg-[#0b0d13] border border-white/10 hover:border-[var(--lp-accent,#67ff8f)]/50 transition-all duration-300 hover:shadow-[0_0_40px_rgba(103,255,143,0.15)] grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
           >
             <div className="lg:col-span-7 relative aspect-[16/9] overflow-hidden rounded-2xl bg-black/40 border border-white/10">
@@ -2069,7 +2071,7 @@ export default function BlogApp() {
             return (
               <div
                 key={post.id}
-                onClick={() => navigate(`/blog/${post.slug}`)}
+                onClick={() => navigate(`/blog/${post.slug}/`)}
                 className="post-card group cursor-pointer bg-[#0e0e16] border border-white/5 hover:border-[var(--lp-accent,#67ff8f)]/40 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_25px_rgba(103,255,143,0.1)] flex flex-col"
               >
                 <div className="post-card-image relative aspect-video overflow-hidden bg-black/40">

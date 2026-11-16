@@ -283,7 +283,7 @@ export function TeammateModal({ member, onClose }: TeammateModalProps) {
                   {member.featuredProjects.map((proj) => (
                     <Link
                       key={proj}
-                      to="/projects"
+                      to="/projects/"
                       onClick={onClose}
                       className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-[#67ff8f]/40 transition-colors flex items-center justify-between group"
                     >

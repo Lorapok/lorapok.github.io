@@ -80,14 +80,14 @@ export default function UserProfilePanel() {
     <div className="dev-panel-content">
       <div className="dev-panel-header">
         <div className="dev-panel-title">User <span>Profile</span></div>
-        <div className="dev-panel-sub">Manage your personal data, API settings, and file uploads.</div>
+        <div className="dev-panel-sub">Manage personal workspace data and session-only provider access.</div>
       </div>
 
       <div className="dev-g2">
         {/* Data Storage Section */}
         <div className="dev-card">
           <div className="dev-stitle"><span className="dev-stitle-dot" />Cloud Storage Data</div>
-          <p className="dev-auth-sub" style={{ marginBottom: "1rem" }}>Save configurations, keys, or JSON payloads.</p>
+          <p className="dev-auth-sub" style={{ marginBottom: "1rem" }}>Save non-sensitive configurations or JSON payloads. Never store credentials here.</p>
           
           <div className="dev-form-group">
             <input className="dev-form-input" placeholder="Key (e.g. settings_theme)" value={dataKey} onChange={e => setDataKey(e.target.value)} />
@@ -123,7 +123,7 @@ export default function UserProfilePanel() {
         {/* API Keys Section */}
         <div className="dev-card" style={{ gridColumn: "1 / -1" }}>
           <div className="dev-stitle"><span className="dev-stitle-dot" />API Key Management</div>
-          <p className="dev-auth-sub" style={{ marginBottom: "1rem" }}>Your keys are synced across your devices via Firebase.</p>
+          <p className="dev-auth-sub" style={{ marginBottom: "1rem" }}>Keys remain only in this browser tab session. They are never synchronized to Firebase, analytics, or another device.</p>
           
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
             {AI_PROVIDERS.map(p => {
@@ -155,7 +155,7 @@ export default function UserProfilePanel() {
                     )}
                   </div>
                   <div style={{ fontSize: "0.6rem", color: "var(--dev-muted)", marginTop: "0.25rem" }}>
-                    Press Enter to save • {p.availableModels.length} models available
+                    Press Enter to use for this session • {p.availableModels.length} models available
                   </div>
                 </div>
               );

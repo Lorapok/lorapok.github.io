@@ -8,13 +8,30 @@ export default function PlaygroundPanel() {
   const [providerId, setProviderId] = useState<AIProviderId>("claude");
   const [maxTokens, setMaxTokens] = useState(1000);
   const [systemPrompt, setSystemPrompt] = useState("You are Lorapok AI, an expert in open-source development.");
-  const [userMessage, setUserMessage] = useState("");
+  const [userMessage, setUserMessage] = useState(() => {
+    const pending = localStorage.getItem("lpk_playground_prompt") || "";
+    localStorage.removeItem("lpk_playground_prompt");
+    return pending;
+  });
   const [rawOutput, setRawOutput] = useState("// Response JSON will appear here…");
   const [formattedOutput, setFormattedOutput] = useState("Run a prompt to see the formatted response.");
   const [latency, setLatency] = useState("");
   const [running, setRunning] = useState(false);
 
   const activeProvider = AI_PROVIDERS.find(p => p.id === providerId)!;
+
+  const copyCurl = () => {
+    const endpoint = providerId === "claude" ? "https://api.anthropic.com/v1/messages" : activeProvider.endpoint;
+    const header = providerId === "claude" ? '-H "x-api-key: $AI_PROVIDER_KEY"' : '-H "Authorization: Bearer $AI_PROVIDER_KEY"';
+    const snippet = `curl ${JSON.stringify(endpoint)} \\\n+  -H "Content-Type: application/json" \\\n+  ${header} \\\n+  -d ${JSON.stringify(JSON.stringify({ model: activeProvider.model, max_tokens: maxTokens, messages: [{ role: "user", content: userMessage || "Your prompt" }] }))}`;
+    navigator.clipboard.writeText(snippet);
+  };
+
+  const copyJavaScript = () => {
+    const endpoint = providerId === "claude" ? "https://api.anthropic.com/v1/messages" : activeProvider.endpoint;
+    const snippet = `const response = await fetch(${JSON.stringify(endpoint)}, {\n  method: "POST",\n  headers: {\n    "Content-Type": "application/json",\n    "Authorization": "Bearer " + process.env.AI_PROVIDER_KEY\n  },\n  body: JSON.stringify(${JSON.stringify({ model: activeProvider.model, max_tokens: maxTokens, messages: [{ role: "user", content: userMessage || "Your prompt" }] }, null, 2)})\n});\nconst data = await response.json();`;
+    navigator.clipboard.writeText(snippet);
+  };
 
   const run = async () => {
     if (!userMessage.trim()) return;
@@ -32,7 +49,7 @@ export default function PlaygroundPanel() {
     try {
       let endpoint = "";
       let body = {};
-      let headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
 
       if (providerId === "claude") {
         endpoint = "https://api.anthropic.com/v1/messages";
@@ -135,6 +152,8 @@ export default function PlaygroundPanel() {
               {running ? "Executing…" : "▶ Run Request"}
             </button>
             <span style={{ fontFamily: "var(--dev-font-mono)", fontSize: "0.75rem", color: "var(--dev-muted)" }}>{latency}</span>
+            <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={copyCurl}>Copy cURL</button>
+            <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={copyJavaScript}>Copy JS</button>
           </div>
         </div>
 

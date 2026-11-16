@@ -63,7 +63,7 @@ export default function ProjectsPage() {
       <SEOHead
         title="Projects & Products"
         description="Browse Lorapok Labs open-source repositories, browser extensions, AI tools, media apps, and Creator Works in 3D art and design — with GitHub links and live demos."
-        path="/projects"
+        path="/projects/"
         keywords="Lorapok projects, open source products, developer tools, 3D art and design, browser extensions, AI, GitHub"
       />
       <PageIntro
