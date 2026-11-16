@@ -105,7 +105,7 @@ function renderSections(sections = []) {
   return sections.map(({ heading, body }) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`).join('\n');
 }
 
-function injectSeo(html, { title, description, keywords, canonical, image, type = 'website', jsonLd, prerenderBody = '' }) {
+function injectSeo(html, { title, description, keywords, canonical, image, type = 'website', robots, jsonLd, prerenderBody = '' }) {
   let modified = html;
   
   if (title) {
@@ -136,6 +136,10 @@ function injectSeo(html, { title, description, keywords, canonical, image, type 
   
   if (type) {
     modified = modified.replace(/(<meta\s+property="og:type"\s+content=")[^"]*(")/i, `$1${escapeHtml(type)}$2`);
+  }
+
+  if (robots) {
+    modified = modified.replace('</head>', `    <meta name="robots" content="${escapeHtml(robots)}" />\n</head>`);
   }
   
   if (jsonLd) {
@@ -215,6 +219,10 @@ const routePrerender = {
     { heading: "Using Lorapok resources", body: "These terms describe the relationship between the public website, linked open-source repositories, third-party services, advertising, and sponsored references." },
     { heading: "Repository licenses", body: "Individual project licenses remain authoritative for copying, modification, redistribution, and contribution terms." },
   ],
+  dev: [
+    { heading: "Developer Studio", body: "Open the authenticated Lorapok workspace for content, provider, project, analytics, and studio operations." },
+    { heading: "Private workspace boundary", body: "Studio credentials remain session-isolated and administrative actions require the configured authentication and access rules." },
+  ],
 };
 
 // 1. Static Core Routes Meta Map
@@ -276,6 +284,13 @@ const routeMeta = {
     description: "Terms for using lorapok.tech, including open-source projects, ads, and the sponsored partner link.",
     keywords: "Lorapok terms, advertising, open source",
     canonical: "https://lorapok.tech/terms/"
+  },
+  dev: {
+    title: "Developer Studio — Lorapok Labs",
+    description: "Authenticated Lorapok developer workspace for content, AI providers, projects, analytics, and studio operations.",
+    keywords: "",
+    canonical: "https://lorapok.tech/dev/",
+    robots: "noindex, nofollow"
   }
 };
 
