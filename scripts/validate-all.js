@@ -252,7 +252,19 @@ try {
   logPass('Vite build and postbuild pre-rendering completed successfully');
 
   const distDir = path.join(rootDir, 'dist');
-  const requiredRoutes = ['projects', 'agents', 'blog', 'team', 'about', 'changelog', 'contact'];
+  const requiredRoutes = [
+    'projects',
+    'creator-works',
+    'agents',
+    'blog',
+    'team',
+    'about',
+    'changelog',
+    'contact',
+    'privacy',
+    'terms',
+    'dev',
+  ];
   let routesOk = true;
   requiredRoutes.forEach(r => {
     if (!fs.existsSync(path.join(distDir, r, 'index.html'))) {
@@ -261,11 +273,11 @@ try {
     }
   });
   if (routesOk) {
-    logPass('All 7 static core routes verified in dist/');
+    logPass(`All ${requiredRoutes.length} static core routes verified in dist/`);
   }
 
   let blogPagesOk = true;
-  posts.slice(0, 5).forEach(p => {
+  posts.filter((p) => (p.status || 'published') === 'published').forEach(p => {
     if (!fs.existsSync(path.join(distDir, 'blog', p.slug, 'index.html'))) {
       logFail(`Missing pre-rendered static blog page: dist/blog/${p.slug}/index.html`);
       blogPagesOk = false;

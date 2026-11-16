@@ -37,8 +37,6 @@ import {
   ShieldCheck,
   BookmarkCheck,
 } from "lucide-react";
-import { blogService } from "../lib/blogService";
-import { isFirebaseConfigured } from "../lib/firebase";
 import SEOHead from "./components/SEOHead";
 import LoLaBoLogo from "./components/LoLaBoLogo";
 import LoLaBoImage, { preloadImages } from "./components/LoLaBoImage";
@@ -780,27 +778,6 @@ export default function BlogApp() {
           preloadImages(formatted.map((p: any) => p.coverImage));
         }
 
-        // Live Firestore synchronization: merge newly published articles into state
-        if (isFirebaseConfigured) {
-          try {
-            const live = await blogService.getPublishedPosts(30);
-            if (live.length > 0) {
-              setPosts((prev) => {
-                const map = new Map<string, any>();
-                prev.forEach((p) => map.set(p.slug || p.id, p));
-                live.filter(isPublicNote).forEach((p) => map.set(p.slug || p.id, p));
-                const sorted = Array.from(map.values()).sort((a: any, b: any) => {
-                  const dateA = a.publishedAt?.toDate ? a.publishedAt.toDate().getTime() : new Date(a.publishedAt).getTime();
-                  const dateB = b.publishedAt?.toDate ? b.publishedAt.toDate().getTime() : new Date(b.publishedAt).getTime();
-                  return dateB - dateA;
-                });
-                return ensureUniqueVisuals(sorted);
-              });
-            }
-          } catch (liveErr) {
-            console.warn("Live Firestore sync skipped:", liveErr);
-          }
-        }
       } catch (e) {
         console.warn("Using demo posts or local cache fallback");
       } finally {
@@ -809,24 +786,6 @@ export default function BlogApp() {
     };
     loadPosts();
   }, []);
-
-  // Direct slug lookup fallback: if URL has an individual article slug not in initial list, load it from Firestore
-  useEffect(() => {
-    if (!slug || loading) return;
-    const exists = posts.some((p) => p.slug === slug);
-    if (!exists && isFirebaseConfigured) {
-      let active = true;
-      blogService.getPostBySlug(slug).then((livePost) => {
-        if (active && livePost && isPublicNote(livePost)) {
-          setPosts((prev) => {
-            if (prev.some((p) => p.slug === slug)) return prev;
-            return [livePost, ...prev];
-          });
-        }
-      }).catch(() => {});
-      return () => { active = false; };
-    }
-  }, [slug, loading, posts.length]);
 
   const currentPost = posts.find((p) => p.slug === slug);
 
