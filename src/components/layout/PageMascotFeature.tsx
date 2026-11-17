@@ -1,3 +1,5 @@
+import LarvaePlanetSystem from './LarvaePlanetSystem';
+
 type PageMascotFeatureProps = {
   image: string;
   alt: string;
@@ -7,6 +9,7 @@ type PageMascotFeatureProps = {
   tone?: 'mint' | 'cyan' | 'lavender' | 'gold';
   referenceImage?: string;
   referenceAlt?: string;
+  planet?: boolean;
 };
 
 export default function PageMascotFeature({
@@ -18,11 +21,19 @@ export default function PageMascotFeature({
   tone = 'mint',
   referenceImage,
   referenceAlt = '',
+  planet = false,
 }: PageMascotFeatureProps) {
   return (
     <aside className={`page-mascot-feature tone-${tone}`} aria-label={title}>
       <div className="page-mascot-feature__visual">
-        <img src={image} alt={alt} loading="lazy" decoding="async" />
+        {planet ? (
+          <LarvaePlanetSystem variant="feature" />
+        ) : (
+          <>
+            <span className="page-mascot-feature__moon" aria-hidden="true" />
+            <img src={image} alt={alt} loading="lazy" decoding="async" />
+          </>
+        )}
       </div>
       <div className="page-mascot-feature__copy">
         <span>{eyebrow}</span>

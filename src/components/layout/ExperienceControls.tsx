@@ -8,6 +8,7 @@ import {
 
 type RiboMood = 'curious' | 'focused' | 'celebrating' | 'thinking' | 'presenting' | 'exploring';
 type PanelView = 'assistant' | 'experience';
+type MotionMode = 'system' | 'active' | 'paused';
 
 const MOODS: Array<{ id: RiboMood; label: string; signal: string }> = [
   { id: 'curious', label: 'Curious', signal: 'Exploring the universe' },
@@ -24,7 +25,7 @@ const QUICK_ROUTES = [
   { label: 'Open Labs Office', href: '/dev/' },
 ];
 
-const MOTION_KEY = 'lorapok-motion-paused';
+const MOTION_KEY = 'lorapok-motion-mode-v2';
 const MOOD_KEY = 'lorapok-ribo-mood';
 
 function readMood(): RiboMood {
@@ -32,12 +33,18 @@ function readMood(): RiboMood {
   return MOODS.some((mood) => mood.id === stored) ? (stored as RiboMood) : 'curious';
 }
 
+function readMotionMode(): MotionMode {
+  const stored = localStorage.getItem(MOTION_KEY);
+  return stored === 'active' || stored === 'paused' || stored === 'system' ? stored : 'system';
+}
+
 export default function ExperienceControls() {
   const configured = isSystemAssistantConfigured();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<PanelView>('assistant');
   const [mood, setMood] = useState<RiboMood>(readMood);
-  const [paused, setPaused] = useState(() => localStorage.getItem(MOTION_KEY) === 'true');
+  const [motionMode, setMotionMode] = useState<MotionMode>(readMotionMode);
+  const [systemReduced, setSystemReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState<AssistantTurn[]>([
@@ -51,6 +58,7 @@ export default function ExperienceControls() {
   const panelRef = useRef<HTMLDivElement>(null);
   const activeMood = MOODS.find((item) => item.id === mood) ?? MOODS[0];
   const lastMessage = useMemo(() => messages[messages.length - 1], [messages]);
+  const paused = motionMode === 'paused' || (motionMode === 'system' && systemReduced);
 
   useEffect(() => {
     document.documentElement.dataset.riboMood = mood;
@@ -58,9 +66,17 @@ export default function ExperienceControls() {
   }, [mood]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('lp-motion-paused', paused);
-    localStorage.setItem(MOTION_KEY, String(paused));
-  }, [paused]);
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setSystemReduced(preference.matches);
+    preference.addEventListener('change', updatePreference);
+    return () => preference.removeEventListener('change', updatePreference);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('lp-motion-paused', motionMode === 'paused');
+    document.documentElement.classList.toggle('lp-motion-force', motionMode === 'active');
+    localStorage.setItem(MOTION_KEY, motionMode);
+  }, [motionMode]);
 
   useEffect(() => {
     if (!open) return;
@@ -122,7 +138,7 @@ export default function ExperienceControls() {
           <img className="ribo-control-avatar" src="/assets/ribo/collections/system-guide.webp" alt="" aria-hidden="true" />
           <i className={configured ? 'connected' : ''} aria-hidden="true" />
         </span>
-        <span><strong>Ask Ribo</strong><small>{configured ? 'AI assistant ready' : 'System guide'}</small></span>
+        <span><strong>Ask Ribo</strong><small>{paused ? 'Motion reduced · open to enable' : (configured ? 'AI assistant ready' : 'System guide')}</small></span>
         <Sparkles size={15} aria-hidden="true" />
       </button>
 
@@ -178,10 +194,18 @@ export default function ExperienceControls() {
                 </button>
               ))}
             </div>
-            <button type="button" className="experience-controls__motion" aria-pressed={paused} onClick={() => setPaused((value) => !value)}>
+            <button type="button" className="experience-controls__motion" aria-pressed={!paused} onClick={() => setMotionMode(paused ? 'active' : 'paused')}>
               {paused ? <Play size={16} /> : <Pause size={16} />}
-              <span><strong>{paused ? 'Resume motion' : 'Pause motion'}</strong><small>Persistent accessibility preference</small></span>
+              <span>
+                <strong>{paused ? 'Enable full animation' : 'Pause animation'}</strong>
+                <small>{motionMode === 'system' && systemReduced ? 'Your device currently requests reduced motion' : motionMode === 'active' && systemReduced ? 'Site override active on this device' : 'Persistent accessibility preference'}</small>
+              </span>
             </button>
+            {motionMode !== 'system' && (
+              <button type="button" className="experience-controls__motion-system" onClick={() => setMotionMode('system')}>
+                Follow device motion setting
+              </button>
+            )}
           </div>
         )}
       </div>

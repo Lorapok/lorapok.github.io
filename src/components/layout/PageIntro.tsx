@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import LarvaePlanetSystem from './LarvaePlanetSystem';
 
 interface PageIntroProps {
   eyebrow: ReactNode;
@@ -19,10 +20,7 @@ export default function PageIntro({
 }: PageIntroProps) {
   return (
     <header className={`page-intro page-intro--${align} page-intro--${tone}`}>
-      <div className="page-intro__orbit" aria-hidden="true">
-        <span />
-        <span />
-      </div>
+      <LarvaePlanetSystem variant="intro" />
       <div className="page-intro__content">
         <div className="page-intro__eyebrow">{eyebrow}</div>
         <h1>{title}</h1>

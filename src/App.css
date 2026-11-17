@@ -1993,9 +1993,9 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not(.lp-motion-force) *,
+  html:not(.lp-motion-force) *::before,
+  html:not(.lp-motion-force) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;

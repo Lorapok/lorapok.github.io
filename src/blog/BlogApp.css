@@ -885,6 +885,8 @@ html {
 }
 
 .lolabo-story-hero__content {
+  position: relative;
+  z-index: 2;
   display: flex;
   min-height: 680px;
   width: min(52%, 690px);
