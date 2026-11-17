@@ -19,6 +19,7 @@ import {
 import { SearchBar } from "../components/ui/SearchBar";
 import { SEOHead } from "../components/SEOHead";
 import PageIntro from "../components/layout/PageIntro";
+import PageMascotFeature from "../components/layout/PageMascotFeature";
 
 export default function AgentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -124,6 +125,15 @@ export default function AgentsPage() {
           eyebrow={<><Bot size={14} /> LORAGENT INTELLIGENCE NETWORK</>}
           title={<>Autonomous <em>agents & skills.</em></>}
           description={<>A living catalog of {agentStats.total}+ modular AI agents, domain specialists, and deterministic routines engineered for multi-agent orchestration.</>}
+        />
+
+        <PageMascotFeature
+          image="/assets/ribo/inner-pages/formation-commander.webp"
+          alt="Formation Commander, Lorapok's 3D multi-agent orchestrator"
+          eyebrow="FORMATION SIGNAL / HUB-AND-SPOKE"
+          title="Orchestration with a visible shape"
+          body="The Formation Commander represents how specialist agents gather around a clear objective, share bounded context and return evidence to one coordinated system."
+          tone="lavender"
         />
 
         {/* Quick Stats Banner */}

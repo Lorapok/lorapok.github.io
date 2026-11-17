@@ -13,7 +13,7 @@ The V7 browser review specifically promised a working product search, Ribo mood 
 ## Experience contract
 
 - Ribo is visible in the first mobile experience and exposes six identity-consistent 3D states: Curious, Focused, Celebrating, Thinking, Presenting, and Exploring. The transparent pose set is shared by the public hero, navigation, footer, experience controls, Studio dashboard, and Brand Gallery.
-- The expanded character system preserves those six Ribo poses while restoring the five-species Larva Sanctuary (Vaultie, Instar-6 Apex, Neon Scout, Deep Diver, and Robo-Worker), adding five operational Ribo roles, and introducing ten authentic full-body mascot roles grounded in the original Lorapok, Automate, and LoraHost references. The production library now contains 26 coordinated characters without replacing earlier artwork.
+- The expanded character system preserves those six Ribo poses while restoring the five-species Larva Sanctuary (Vaultie, Instar-6 Apex, Neon Scout, Deep Diver, and Robo-Worker), adding five operational Ribo roles, introducing ten authentic full-body mascot roles grounded in the original Lorapok, Automate, and LoraHost references, and adding six context-aware inner-page companions. The production library now contains 32 coordinated characters without replacing earlier artwork.
 - The bottom-right surface is the Lorapok system assistant. Navigation and experience controls work without an AI provider; Gemini responses remain explicitly pending until Antigravity supplies and verifies a protected server endpoint.
 - Motion can be paused globally and the preference persists locally.
 - Product search and category filtering work from the public product universe.
@@ -54,7 +54,7 @@ Both universes share the same biological interface language, Ribo mascot, brand 
 | 08 | Meeting links | Browser demo | Generate copyable Jitsi room URLs without creating accounts. |
 | 09 | Task board | Browser demo | Move local tasks through backlog, progress, and completion. |
 | 10 | Social cards | Browser demo | Compose and export branded 1200×630 PNG cards. |
-| 11 | Brand gallery | Connected | Review six Ribo moods, five sanctuary species, five operational characters, ten reference-grounded product roles, and approved color tokens. |
+| 11 | Brand gallery | Connected | Review 32 coordinated characters, approved color tokens, and 11 reusable source assets with family filters, copyable paths, and downloads. |
 | 12 | AI laboratory | Connected | Configure providers and run existing AI experiments. |
 | 13 | Prompt library | Connected | Reuse existing prompt workflows. |
 | 14 | Analytics | Connected | Review available audience and product signals. |

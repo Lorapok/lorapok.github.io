@@ -7,6 +7,7 @@ import { TeammateCard } from '../components/team/TeammateCard';
 import { TeammateModal } from '../components/team/TeammateModal';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/SEOHead';
+import PageMascotFeature from '../components/layout/PageMascotFeature';
 
 export default function AboutPage() {
   const [selectedMember, setSelectedMember] = useState<TeammateProfile | null>(null);
@@ -28,6 +29,14 @@ export default function AboutPage() {
         animate={{ opacity: 1, y: 0 }}
         className="v4-inner-page py-16 px-4 max-w-5xl mx-auto w-full"
       >
+        <PageMascotFeature
+          image="/assets/ribo/inner-pages/collective-facilitator.webp"
+          alt="Collective Facilitator, Lorapok's 3D team companion"
+          eyebrow="COLLECTIVE SIGNAL / PEOPLE FIRST"
+          title="Many disciplines, one living studio"
+          body="The Collective Facilitator represents the researchers, engineers, designers and specialists who shape Lorapok products together without erasing their individual craft."
+        />
+
         {/* Hero Section */}
         <section className="v4-founder-hero flex flex-col md:flex-row gap-12 items-center md:items-start mb-24">
           <div className="w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shrink-0 border border-white/10 bg-white/5 relative">

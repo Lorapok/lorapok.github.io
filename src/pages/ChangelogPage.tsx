@@ -3,6 +3,7 @@ import { ExternalLink, Rocket, Sparkles, Wrench, Flag } from 'lucide-react';
 import { changelog } from '../data/changelog';
 import { SEOHead } from '../components/SEOHead';
 import PageIntro from '../components/layout/PageIntro';
+import PageMascotFeature from '../components/layout/PageMascotFeature';
 
 const typeConfig = {
   launch: { icon: Rocket, color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
@@ -35,6 +36,15 @@ export default function ChangelogPage() {
         eyebrow="SHIP LOG / LORAPOK LABS"
         title={<>Built in public.<br /><em>Recorded with care.</em></>}
         description="Follow product launches, new capabilities, repairs, and ecosystem milestones across the studio."
+      />
+
+      <PageMascotFeature
+        image="/assets/ribo/inner-pages/release-historian.webp"
+        alt="Release Historian, Lorapok's 3D changelog archivist"
+        eyebrow="ARCHIVE SIGNAL / VERIFIED MILESTONES"
+        title="Every meaningful change keeps its trail"
+        body="The Release Historian gives launches, repairs and milestones a consistent place in the living record—celebrated without losing technical context."
+        tone="gold"
       />
 
       <div className="relative border-l border-white/10 ml-4 md:ml-8 space-y-12">

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="LoraHost Official Brand Lockup">
+  <defs>
+    <linearGradient id="neonCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F3FF"/>
+      <stop offset="100%" stop-color="#00A3FF"/>
+    </linearGradient>
+    <linearGradient id="neonGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67ff8f"/>
+      <stop offset="100%" stop-color="#00FF41"/>
+    </linearGradient>
+    <linearGradient id="cyberMesh" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00FF41"/>
+      <stop offset="50%" stop-color="#00F3FF"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="darkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040711"/>
+      <stop offset="50%" stop-color="#020409"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+    <filter id="bloom" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Left Side: Sovereign Cloud Mascot & Server Stack (x: 200, y: 210) -->
+  <g transform="translate(200, 210)">
+    <ellipse cx="0" cy="0" rx="140" ry="110" fill="#00FF41" opacity="0.12" filter="url(#bloom)"/>
+    <ellipse cx="0" cy="15" rx="135" ry="48" fill="none" stroke="url(#cyberMesh)" stroke-width="2" stroke-dasharray="8 6" opacity="0.6" transform="rotate(-15)"/>
+    <circle cx="-110" cy="-20" r="5.5" fill="#00FF41" filter="url(#bloom)"/>
+    <circle cx="125" cy="40" r="6.5" fill="#00F3FF" filter="url(#bloom)"/>
+
+    <!-- 3-Tier Floating Server Nodes -->
+    <polygon points="0,35 100,75 0,115 -100,75" fill="#080d18" stroke="#00F3FF" stroke-width="2" stroke-opacity="0.6"/>
+    <line x1="-100" y1="75" x2="0" y2="115" stroke="#00F3FF" stroke-width="2.5" filter="url(#bloom)"/>
+    <line x1="0" y1="115" x2="100" y2="75" stroke="#00FF41" stroke-width="2.5" filter="url(#bloom)"/>
+
+    <polygon points="0,0 100,40 0,80 -100,40" fill="#080d18" stroke="#00FF41" stroke-width="2" stroke-opacity="0.7"/>
+    <line x1="-100" y1="40" x2="0" y2="80" stroke="#00FF41" stroke-width="2.5" filter="url(#bloom)"/>
+    <line x1="0" y1="80" x2="100" y2="40" stroke="#00F3FF" stroke-width="2.5" filter="url(#bloom)"/>
+
+    <polygon points="0,-35 100,5 0,45 -100,5" fill="#0c1220" stroke="url(#neonGreen)" stroke-width="2.5"/>
+    <line x1="-100" y1="5" x2="0" y2="45" stroke="#67ff8f" stroke-width="3" filter="url(#bloom)"/>
+    <line x1="0" y1="45" x2="100" y2="5" stroke="#00F3FF" stroke-width="3" filter="url(#bloom)"/>
+
+    <!-- Mascot Cyber Visor Pod -->
+    <g transform="translate(0, -68)">
+      <rect x="-38" y="-24" width="76" height="44" rx="20" fill="#020409" stroke="url(#cyberMesh)" stroke-width="3" filter="url(#bloom)"/>
+      <ellipse cx="-16" cy="-2" rx="9" ry="11" fill="#00FF41" filter="url(#bloom)"/>
+      <ellipse cx="16" cy="-2" rx="9" ry="11" fill="#00F3FF" filter="url(#bloom)"/>
+      <circle cx="-14" cy="-4" r="3.5" fill="#ffffff"/>
+      <circle cx="18" cy="-4" r="3.5" fill="#ffffff"/>
+
+      <path d="M -16 -22 Q -30 -44 -38 -56" fill="none" stroke="#00FF41" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="-38" cy="-56" r="6" fill="#00FF41" filter="url(#bloom)"/>
+
+      <path d="M 16 -22 Q 30 -44 38 -56" fill="none" stroke="#00F3FF" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="38" cy="-56" r="6" fill="#00F3FF" filter="url(#bloom)"/>
+    </g>
+  </g>
+
+  <!-- Right Side: Brand Typography & Identity -->
+  <g transform="translate(440, 165)">
+    <rect x="0" y="-85" width="375" height="32" rx="8" fill="rgba(0, 255, 65, 0.12)" stroke="rgba(0, 255, 65, 0.4)" stroke-width="1.2"/>
+    <text x="16" y="-64" font-family="'JetBrains Mono', monospace" font-size="12.5" font-weight="700" fill="#00FF41" letter-spacing="2">
+      ⚡ LORAPOK LABS // SOVEREIGN CLOUD
+    </text>
+
+    <text x="0" y="24" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="94" font-weight="900" fill="#ffffff" letter-spacing="-3">
+      LORA<tspan fill="#00FF41">HOST</tspan>
+    </text>
+
+    <text x="4" y="74" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="500" fill="#94a3b8">
+      Ultra-Fast NVMe Cloud Infrastructure &amp; Wholesale Domains
+    </text>
+
+    <!-- Tech Feature Pills -->
+    <g transform="translate(4, 114)">
+      <rect x="0" y="0" width="138" height="28" rx="6" fill="rgba(0, 255, 65, 0.12)" stroke="#00FF41" stroke-width="1"/>
+      <text x="14" y="18" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#00FF41">LITESPEED 6.2</text>
+
+      <rect x="150" y="0" width="128" height="28" rx="6" fill="rgba(0, 243, 255, 0.12)" stroke="#00F3FF" stroke-width="1"/>
+      <text x="164" y="18" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#00F3FF">GEN4 NVME</text>
+
+      <rect x="290" y="0" width="138" height="28" rx="6" fill="rgba(168, 85, 247, 0.12)" stroke="#a855f7" stroke-width="1"/>
+      <text x="304" y="18" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#c084fc">CLOUDLINUX</text>
+
+      <rect x="440" y="0" width="168" height="28" rx="6" fill="rgba(56, 189, 248, 0.12)" stroke="#38bdf8" stroke-width="1"/>
+      <text x="454" y="18" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#38bdf8">SINGAPORE EDGE</text>
+    </g>
+  </g>
+</svg>

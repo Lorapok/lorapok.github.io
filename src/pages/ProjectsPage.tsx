@@ -10,6 +10,7 @@ import { SearchBar } from '../components/ui/SearchBar';
 import { CategoryFilter } from '../components/ui/CategoryFilter';
 import { SearchX } from 'lucide-react';
 import PageIntro from '../components/layout/PageIntro';
+import PageMascotFeature from '../components/layout/PageMascotFeature';
 
 export default function ProjectsPage() {
   const [searchParams] = useSearchParams();
@@ -121,6 +122,16 @@ export default function ProjectsPage() {
         eyebrow="THE PRODUCT UNIVERSE"
         title={<>Tools made to <em>feel alive.</em></>}
         description={<>Browse {publicProjects.length} curated products and live public repositories across the Lorapok ecosystem.</>}
+      />
+
+      <PageMascotFeature
+        image="/assets/ribo/inner-pages/ecosystem-cartographer.webp"
+        alt="Ecosystem Cartographer, Lorapok's 3D project navigator"
+        eyebrow="ECOSYSTEM SIGNAL / CURATED CONNECTIONS"
+        title="Meet the Ecosystem Cartographer"
+        body="A guide for moving between open-source tools, creative experiments, business products and the public repositories that support them."
+        referenceImage="/assets/brand-library/ecosystem/co-branded-strip.webp"
+        referenceAlt="Approved Lorapok Labs and LoraHost ecosystem strip"
       />
 
       <div className="v4-filter-dock mb-12">

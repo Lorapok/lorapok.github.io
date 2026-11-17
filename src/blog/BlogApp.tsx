@@ -40,6 +40,7 @@ import {
 import SEOHead from "./components/SEOHead";
 import LoLaBoLogo from "./components/LoLaBoLogo";
 import LoLaBoImage, { preloadImages } from "./components/LoLaBoImage";
+import PageMascotFeature from "../components/layout/PageMascotFeature";
 import "./BlogApp.css";
 
 // ─── Types ───
@@ -1738,20 +1739,27 @@ export default function BlogApp() {
                 <span>RSS FEED</span>
               </a>
               <a
-                href="https://discord.com/api/webhooks/1547726176125059122/gR6aBXenu4RosF1IVXIUqzKjz0QuW0iLYqbCvo6-eLKaUiusVV8HrLRDyk2s_aq63t3u"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/contact/"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-[#5865F2] border border-white/10 transition-colors"
-                title="Lorapok Discord Feed"
+                title="Contact the Lorapok community"
               >
                 <Radio className="w-3.5 h-3.5 text-[#5865F2]" />
-                <span>DISCORD</span>
+                <span>COMMUNITY</span>
               </a>
             </div>
           </div>
 
         </div>
       </section>
+
+      <PageMascotFeature
+        image="/assets/ribo/inner-pages/documentation-librarian.webp"
+        alt="Documentation Librarian, Lorapok's 3D research companion"
+        eyebrow="KNOWLEDGE SIGNAL / VERIFIED SOURCES"
+        title="Research should remain traceable"
+        body="The Documentation Librarian represents the source links, citations and technical context that keep LoLaBo dispatches useful beyond the headline."
+        tone="lavender"
+      />
 
       <main className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         

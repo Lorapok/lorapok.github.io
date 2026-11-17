@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Lorapok Automate mark">
+  <defs><linearGradient id="g" x1="64" y1="32" x2="448" y2="480" gradientUnits="userSpaceOnUse"><stop stop-color="#0096BC"/><stop offset="1" stop-color="#006E8C"/></linearGradient></defs><rect width="512" height="512" rx="116" fill="url(#g)"/><path d="M104 282H176L210 214L256 340L300 236L332 282H408" fill="none" stroke="#FFFFFF" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/><circle cx="104" cy="282" r="17" fill="#6FE9D8"/><circle cx="408" cy="282" r="17" fill="#6FE9D8"/>
+</svg>

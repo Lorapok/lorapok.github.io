@@ -5,6 +5,7 @@ import { founder } from '../data/lorapok';
 import { sendContactMail } from '../lib/contactMail';
 import { SEOHead } from '../components/SEOHead';
 import PageIntro from '../components/layout/PageIntro';
+import PageMascotFeature from '../components/layout/PageMascotFeature';
 
 const contactTargets = [
   {
@@ -80,6 +81,15 @@ export default function ContactPage() {
         eyebrow="OPEN CHANNEL / DHAKA"
         title={<>Let’s make something <em>alive.</em></>}
         description="Send a message to Lorapok Labs or directly to the founder. Choose the route and we’ll carry it to the right inbox."
+      />
+
+      <PageMascotFeature
+        image="/assets/ribo/inner-pages/communications-concierge.webp"
+        alt="Communications Concierge, Lorapok's 3D contact guide"
+        eyebrow="ROUTING SIGNAL / THE RIGHT INBOX"
+        title="A clear path for every conversation"
+        body="Choose collaboration, support or a direct founder route. The Communications Concierge keeps the handoff visible without pretending an automated reply has been sent."
+        tone="cyan"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">

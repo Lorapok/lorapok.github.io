@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" fill="none">
+  <defs>
+    <linearGradient id="lplGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67ff8f" />
+      <stop offset="50%" stop-color="#00F3FF" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <linearGradient id="lplTextGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="70%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#67ff8f" />
+    </linearGradient>
+    <radialGradient id="bioGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00F3FF" stop-opacity="0.35"/>
+      <stop offset="70%" stop-color="#67ff8f" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="bloom" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Left Instar Organism Mark -->
+  <g transform="translate(60, 40)">
+    <circle cx="160" cy="160" r="140" fill="url(#bioGlow)" />
+    <!-- Outer Shield Orbit -->
+    <circle cx="160" cy="160" r="135" stroke="url(#lplGrad)" stroke-width="2.5" stroke-dasharray="10 8" opacity="0.65" />
+    <circle cx="160" cy="160" r="120" stroke="#ffffff" stroke-width="1.2" opacity="0.15" />
+
+    <!-- Hex Lattice Tendrils -->
+    <polygon points="160,40 250,95 250,225 160,280 70,225 70,95" stroke="#67ff8f" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="4 6" fill="none" />
+
+    <!-- Biological Connectors -->
+    <line x1="160" y1="95" x2="160" y2="140" stroke="#67ff8f" stroke-width="4" stroke-linecap="round" opacity="0.75" />
+    <line x1="160" y1="180" x2="160" y2="225" stroke="#00F3FF" stroke-width="4" stroke-linecap="round" opacity="0.75" />
+
+    <!-- Core Bioluminescent Segments -->
+    <circle cx="160" cy="95" r="20" fill="url(#lplGrad)" filter="url(#bloom)" />
+    <circle cx="160" cy="95" r="9" fill="#ffffff" />
+
+    <circle cx="160" cy="160" r="32" fill="#060911" stroke="url(#lplGrad)" stroke-width="3.5" filter="url(#bloom)" />
+    <circle cx="160" cy="160" r="20" fill="url(#lplGrad)" opacity="0.95" />
+    <circle cx="160" cy="160" r="10" fill="#ffffff" />
+
+    <circle cx="160" cy="225" r="18" fill="url(#lplGrad)" filter="url(#bloom)" />
+    <circle cx="160" cy="225" r="8" fill="#ffffff" />
+
+    <!-- Sensory Satellites -->
+    <circle cx="115" cy="160" r="5" fill="#67ff8f" filter="url(#bloom)" />
+    <circle cx="205" cy="160" r="5" fill="#00F3FF" filter="url(#bloom)" />
+  </g>
+
+  <!-- Typography Right -->
+  <g transform="translate(420, 90)">
+    <!-- Brand Title -->
+    <text x="0" y="100" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-weight="900" font-size="96" fill="url(#lplTextGrad)" letter-spacing="-3">
+      LORAPOK
+    </text>
+
+    <!-- LABS Accent Badge -->
+    <rect x="520" y="32" width="165" height="66" rx="14" fill="#67ff8f" fill-opacity="0.14" stroke="#67ff8f" stroke-width="2" />
+    <text x="602" y="78" font-family="'JetBrains Mono', monospace" font-weight="900" font-size="36" fill="#67ff8f" text-anchor="middle" letter-spacing="4">
+      LABS
+    </text>
+
+    <!-- Tagline -->
+    <text x="4" y="155" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="19" fill="#00F3FF" letter-spacing="5">
+      BIOLOGICAL COMPUTING // SENSORY INTERFACES
+    </text>
+
+    <!-- Architecture Micro Ticks -->
+    <circle cx="6" cy="190" r="3.5" fill="#67ff8f" />
+    <text x="22" y="195" font-family="'JetBrains Mono', monospace" font-size="13" fill="#94a3b8" letter-spacing="2">
+      AUTONOMOUS MULTI-AGENT COLLECTIVE // lorapok.tech
+    </text>
+  </g>
+</svg>

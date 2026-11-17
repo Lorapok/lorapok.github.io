@@ -286,7 +286,36 @@ function BrandGallery() {
     { id: "system-guide", family: "System", label: "System Guide", description: "Assistant and product navigation" },
     { id: "release-conductor", family: "Labs", label: "Release Conductor", description: "Publishing and launches" },
   ];
+  const innerPageRoles = [
+    { id: "ecosystem-cartographer", family: "Labs", label: "Ecosystem Cartographer", description: "Projects and product discovery" },
+    { id: "formation-commander", family: "Loragent", label: "Formation Commander", description: "Agent orchestration and skills" },
+    { id: "collective-facilitator", family: "Labs", label: "Collective Facilitator", description: "About and team surfaces" },
+    { id: "release-historian", family: "Labs", label: "Release Historian", description: "Changelog and milestones" },
+    { id: "documentation-librarian", family: "LoLaBo", label: "Documentation Librarian", description: "Research and technical documentation" },
+    { id: "communications-concierge", family: "Labs", label: "Communications Concierge", description: "Contact and support routing" },
+  ];
+  const brandAssets = [
+    { id: "labs-lockup", family: "Labs", label: "Master lockup", path: "/assets/brand-library/labs/master-lockup.svg", type: "SVG", use: "Headers and documentation" },
+    { id: "labs-glass", family: "Labs", label: "Sensory glass icon", path: "/assets/brand-library/labs/sensory-glass.webp", type: "WebP", use: "App and product surfaces" },
+    { id: "labs-og", family: "Labs", label: "Open Graph card", path: "/assets/brand-library/labs/opengraph.webp", type: "WebP", use: "Social and link previews" },
+    { id: "host-lockup", family: "LoraHost", label: "Master lockup", path: "/assets/brand-library/lorahost/master-lockup.svg", type: "SVG", use: "Hosting product headers" },
+    { id: "host-glass", family: "LoraHost", label: "Sensory glass icon", path: "/assets/brand-library/lorahost/sensory-glass.webp", type: "WebP", use: "Hosting app surfaces" },
+    { id: "host-launch", family: "LoraHost", label: "Launch campaign card", path: "/assets/brand-library/lorahost/launch-card.webp", type: "WebP", use: "Campaign reference" },
+    { id: "automate-lockup", family: "Automate", label: "Horizontal lockup", path: "/assets/brand-library/automate/lockup.svg", type: "SVG", use: "Automation product headers" },
+    { id: "automate-mark", family: "Automate", label: "Product mark", path: "/assets/brand-library/automate/mark.svg", type: "SVG", use: "Compact automation UI" },
+    { id: "automate-success", family: "Automate", label: "Success state", path: "/assets/brand-library/automate/mascot-success.webp", type: "WebP", use: "Completed workflows" },
+    { id: "automate-recovery", family: "Automate", label: "Recovery state", path: "/assets/brand-library/automate/mascot-recovery.webp", type: "WebP", use: "Recovery workflows" },
+    { id: "ecosystem-strip", family: "Ecosystem", label: "Co-branded strip", path: "/assets/brand-library/ecosystem/co-branded-strip.webp", type: "WebP", use: "Labs and LoraHost bridges" },
+  ];
   const [activeMood, setActiveMood] = useState(() => localStorage.getItem("lorapok-ribo-mood") || "curious");
+  const [assetFamily, setAssetFamily] = useState("All");
+  const [copiedAsset, setCopiedAsset] = useState("");
+  const visibleBrandAssets = brandAssets.filter((asset) => assetFamily === "All" || asset.family === assetFamily);
+  const copyAssetPath = async (path: string) => {
+    await navigator.clipboard.writeText(path);
+    setCopiedAsset(path);
+    window.setTimeout(() => setCopiedAsset(""), 1600);
+  };
   useEffect(() => {
     localStorage.setItem("lorapok-ribo-mood", activeMood);
     document.documentElement.dataset.riboMood = activeMood;
@@ -296,6 +325,11 @@ function BrandGallery() {
     <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Larva sanctuary</span><h2>Five restored species</h2></div><span className="studio-library-count">05 species</span></div><div className="studio-character-gallery">{species.map((item) => <article key={item.id}><span className="studio-character-signal">{item.signal}</span><img className="mini-ribo" src={`/assets/ribo/species/${item.id}.webp`} alt={`${item.label} 3D larva species`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
     <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Operational character set</span><h2>Ribo at work</h2></div><span className="studio-library-count">05 roles</span></div><div className="studio-character-gallery studio-role-gallery">{roles.map((item) => <article key={item.id}><img className="mini-ribo" src={`/assets/ribo/roles/${item.id}.webp`} alt={`${item.label} Ribo character`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
     <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Authentic reference expansion</span><h2>Product worlds, one mascot family</h2></div><span className="studio-library-count">10 new roles</span></div><div className="studio-character-gallery studio-reference-gallery">{referenceCollection.map((item) => <article key={item.id} data-family={item.family}><span className="studio-character-signal">{item.family}</span><img className="mini-ribo" src={`/assets/ribo/collections/${item.id}.webp`} alt={`${item.label} ${item.family} mascot`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
+    <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Inner-page companions</span><h2>Context-aware guides</h2></div><span className="studio-library-count">06 roles</span></div><div className="studio-character-gallery studio-reference-gallery">{innerPageRoles.map((item) => <article key={item.id} data-family={item.family}><span className="studio-character-signal">{item.family}</span><img className="mini-ribo" src={`/assets/ribo/inner-pages/${item.id}.webp`} alt={`${item.label} ${item.family} mascot`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
+    <section className="studio-workspace-card studio-brand-library studio-asset-library"><div className="workspace-card-heading"><div><span className="studio-overline">Approved source library</span><h2>Browse, select and reuse</h2></div><span className="studio-library-count">{brandAssets.length.toString().padStart(2, "0")} originals</span></div>
+      <div className="studio-asset-filters" role="group" aria-label="Filter brand assets">{["All", "Labs", "LoraHost", "Automate", "Ecosystem"].map((family) => <button type="button" key={family} className={assetFamily === family ? "active" : ""} aria-pressed={assetFamily === family} onClick={() => setAssetFamily(family)}>{family}</button>)}</div>
+      <div className="studio-asset-grid">{visibleBrandAssets.map((asset) => <article key={asset.id} data-family={asset.family}><div className="studio-asset-preview"><img src={asset.path} alt={`${asset.family} ${asset.label}`} loading="lazy" /></div><span>{asset.family} · {asset.type}</span><h3>{asset.label}</h3><p>{asset.use}</p><div className="studio-asset-actions"><button type="button" onClick={() => copyAssetPath(asset.path)}>{copiedAsset === asset.path ? <Check size={13} /> : <Copy size={13} />}{copiedAsset === asset.path ? "Copied" : "Copy path"}</button><a href={asset.path} download><Download size={13} /> Download</a></div></article>)}</div>
+    </section>
   </>;
 }
 
