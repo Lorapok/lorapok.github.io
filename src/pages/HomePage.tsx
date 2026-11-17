@@ -22,6 +22,19 @@ const SANCTUARY_SPECIES = [
   { id: 'robo-worker', name: 'Robo-Worker', role: 'Infrastructure / resilient scaler', signal: 'Titanium slate · modular utility claws' },
 ];
 
+const CHARACTER_COLLECTION = [
+  { id: 'labs-research-director', family: 'Labs', name: 'Research Director', role: 'Biology · AI research' },
+  { id: 'labs-open-source-builder', family: 'Labs', name: 'Open Source Builder', role: 'Engineering · modular systems' },
+  { id: 'labs-community-orchestrator', family: 'Labs', name: 'Community Orchestrator', role: 'Collaboration · connected signals' },
+  { id: 'automate-care-coordinator', family: 'Automate', name: 'Care Coordinator', role: 'Safe clinical workflows' },
+  { id: 'automate-recovery-guide', family: 'Automate', name: 'Recovery Guide', role: 'Resilience · responsible recovery' },
+  { id: 'lorahost-cloud-navigator', family: 'LoraHost', name: 'Cloud Navigator', role: 'Hosting · global delivery' },
+  { id: 'lorahost-server-guardian', family: 'LoraHost', name: 'Server Guardian', role: 'Infrastructure · protection' },
+  { id: 'lolabo-research-engine', family: 'LoLaBo', name: 'Research Engine', role: 'Evidence · citation synthesis' },
+  { id: 'system-guide', family: 'System', name: 'System Guide', role: 'AI assistant · product navigation' },
+  { id: 'release-conductor', family: 'Labs', name: 'Release Conductor', role: 'Publishing · launch orchestration' },
+];
+
 type Post = { slug: string; title: string; excerpt: string; category?: string; source?: string; readTime?: string | number; status?: string };
 
 const homeJsonLd = {
@@ -141,6 +154,22 @@ export default function HomePage() {
           ))}
         </div>
         <p className="v4-sanctuary-note">Inspired by the six biological instar stages: Lorapok products evolve instead of standing still.</p>
+      </div></section>
+
+      <section className="section v4-character-collection" aria-labelledby="character-collection-title"><div className="wrap4">
+        <div className="v4-character-heading">
+          <div><div className="eyebrow">AUTHENTIC MASCOT COLLECTION / NEW</div><h2 id="character-collection-title">One identity.<br /><em>Many useful roles.</em></h2></div>
+          <p>Built from Lorapok’s original full-body larva reference—leaf antennae, segmented silhouette, glowing leaf panels and the navy field bag—then adapted carefully for each product world.</p>
+        </div>
+        <div className="v4-character-grid">
+          {CHARACTER_COLLECTION.map((character) => (
+            <article className="v4-character-card reveal" data-family={character.family} key={character.id}>
+              <img src={`/assets/ribo/collections/${character.id}.webp`} alt={`${character.name}, Lorapok ${character.family} 3D mascot`} loading="lazy" />
+              <div><span>{character.family}</span><h3>{character.name}</h3><p>{character.role}</p></div>
+            </article>
+          ))}
+        </div>
+        <p className="v4-character-note">Labs, Automate and LoraHost remain distinct product identities. The shared mascot anatomy connects the family without flattening their individual palettes or product signals.</p>
       </div></section>
 
       <section className="statement yellow"><div className="wrap4">

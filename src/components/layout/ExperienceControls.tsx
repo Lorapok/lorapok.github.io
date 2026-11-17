@@ -1,7 +1,13 @@
-import { Pause, Play, Sparkles, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Bot, Pause, Play, Send, Settings2, Sparkles, X } from 'lucide-react';
+import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  askSystemAssistant,
+  isSystemAssistantConfigured,
+  type AssistantTurn,
+} from '../../lib/systemAssistant';
 
 type RiboMood = 'curious' | 'focused' | 'celebrating' | 'thinking' | 'presenting' | 'exploring';
+type PanelView = 'assistant' | 'experience';
 
 const MOODS: Array<{ id: RiboMood; label: string; signal: string }> = [
   { id: 'curious', label: 'Curious', signal: 'Exploring the universe' },
@@ -10,6 +16,12 @@ const MOODS: Array<{ id: RiboMood; label: string; signal: string }> = [
   { id: 'thinking', label: 'Thinking', signal: 'Research mode active' },
   { id: 'presenting', label: 'Presenting', signal: 'Sharing the next useful thing' },
   { id: 'exploring', label: 'Exploring', signal: 'Following a fresh signal' },
+];
+
+const QUICK_ROUTES = [
+  { label: 'Explore projects', href: '/projects/' },
+  { label: 'Meet the agents', href: '/agents/' },
+  { label: 'Open Labs Office', href: '/dev/' },
 ];
 
 const MOTION_KEY = 'lorapok-motion-paused';
@@ -21,10 +33,24 @@ function readMood(): RiboMood {
 }
 
 export default function ExperienceControls() {
+  const configured = isSystemAssistantConfigured();
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState<PanelView>('assistant');
   const [mood, setMood] = useState<RiboMood>(readMood);
   const [paused, setPaused] = useState(() => localStorage.getItem(MOTION_KEY) === 'true');
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
+  const [messages, setMessages] = useState<AssistantTurn[]>([
+    {
+      role: 'assistant',
+      content: configured
+        ? 'Hello — I’m Ribo, your Lorapok system guide. What would you like to explore?'
+        : 'Hello — I’m Ribo, your Lorapok system guide. Gemini is not connected yet, but the quick routes below are ready.',
+    },
+  ]);
+  const panelRef = useRef<HTMLDivElement>(null);
   const activeMood = MOODS.find((item) => item.id === mood) ?? MOODS[0];
+  const lastMessage = useMemo(() => messages[messages.length - 1], [messages]);
 
   useEffect(() => {
     document.documentElement.dataset.riboMood = mood;
@@ -36,43 +62,128 @@ export default function ExperienceControls() {
     localStorage.setItem(MOTION_KEY, String(paused));
   }, [paused]);
 
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [open]);
+
+  useEffect(() => {
+    panelRef.current?.querySelector('.assistant-message:last-child')?.scrollIntoView({
+      block: 'nearest',
+      behavior: paused ? 'auto' : 'smooth',
+    });
+  }, [lastMessage, paused]);
+
+  const submitMessage = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const message = draft.trim();
+    if (!message || sending) return;
+
+    const userTurn: AssistantTurn = { role: 'user', content: message };
+    setMessages((current) => [...current, userTurn]);
+    setDraft('');
+
+    if (!configured) {
+      setMessages((current) => [...current, {
+        role: 'assistant',
+        content: 'Gemini is awaiting secure server configuration through Antigravity. No API key is stored in this website or browser.',
+      }]);
+      return;
+    }
+
+    setSending(true);
+    try {
+      const result = await askSystemAssistant(message, [...messages, userTurn]);
+      setMessages((current) => [...current, { role: 'assistant', content: result.reply }]);
+    } catch (error) {
+      setMessages((current) => [...current, {
+        role: 'assistant',
+        content: error instanceof Error ? error.message : 'The assistant is currently unavailable.',
+      }]);
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <aside className={`experience-controls${open ? ' open' : ''}`} aria-label="Ribo and motion controls">
+    <aside className={`experience-controls${open ? ' open' : ''}`} aria-label="Lorapok system assistant and experience controls">
       <button
         type="button"
         className="experience-controls__trigger"
         aria-expanded={open}
-        aria-controls="ribo-controls-panel"
+        aria-controls="lorapok-assistant-panel"
         onClick={() => setOpen((value) => !value)}
       >
-        <img className="ribo-control-avatar" src={`/assets/ribo/ribo-${mood}.webp`} alt="" aria-hidden="true" />
-        <span><strong>Ribo</strong><small>{activeMood.label}</small></span>
+        <span className="assistant-trigger-visual">
+          <img className="ribo-control-avatar" src="/assets/ribo/collections/system-guide.webp" alt="" aria-hidden="true" />
+          <i className={configured ? 'connected' : ''} aria-hidden="true" />
+        </span>
+        <span><strong>Ask Ribo</strong><small>{configured ? 'AI assistant ready' : 'System guide'}</small></span>
         <Sparkles size={15} aria-hidden="true" />
       </button>
 
-      <div id="ribo-controls-panel" className="experience-controls__panel" hidden={!open}>
-        <div className="experience-controls__heading">
-          <div><span>Living interface</span><strong>Set Ribo's mood</strong></div>
-          <button type="button" onClick={() => setOpen(false)} aria-label="Close Ribo controls"><X size={17} /></button>
+      <div id="lorapok-assistant-panel" ref={panelRef} className="experience-controls__panel" hidden={!open}>
+        <div className="experience-controls__heading assistant-heading">
+          <div>
+            <span>Lorapok system assistant</span>
+            <strong>Ribo is here</strong>
+          </div>
+          <button type="button" onClick={() => setOpen(false)} aria-label="Close Ribo assistant"><X size={17} /></button>
         </div>
-        <p>{activeMood.signal}. The choice follows you through the site.</p>
-        <div className="experience-controls__moods" role="group" aria-label="Ribo mood">
-          {MOODS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={mood === item.id ? 'active' : ''}
-              aria-pressed={mood === item.id}
-              onClick={() => setMood(item.id)}
-            >
-              {item.label}
+
+        <div className="assistant-view-tabs" role="tablist" aria-label="Ribo panel views">
+          <button type="button" role="tab" aria-selected={view === 'assistant'} className={view === 'assistant' ? 'active' : ''} onClick={() => setView('assistant')}><Bot size={14} /> Assistant</button>
+          <button type="button" role="tab" aria-selected={view === 'experience'} className={view === 'experience' ? 'active' : ''} onClick={() => setView('experience')}><Settings2 size={14} /> Experience</button>
+        </div>
+
+        {view === 'assistant' ? (
+          <div className="assistant-conversation" role="tabpanel">
+            <div className={`assistant-runtime-status ${configured ? 'connected' : 'pending'}`}>
+              <i aria-hidden="true" />
+              <span><strong>{configured ? 'Secure assistant connected' : 'Gemini setup pending'}</strong><small>{configured ? 'Requests use the protected server endpoint.' : 'Navigation works now. AI answers activate after Antigravity configures the protected endpoint.'}</small></span>
+            </div>
+            <div className="assistant-messages" aria-live="polite">
+              {messages.map((message, index) => (
+                <p key={`${message.role}-${index}`} className={`assistant-message ${message.role}`}>{message.content}</p>
+              ))}
+              {sending && <p className="assistant-message assistant thinking">Ribo is thinking…</p>}
+            </div>
+            <div className="assistant-quick-routes" aria-label="Quick routes">
+              {QUICK_ROUTES.map((route) => <a key={route.href} href={route.href}>{route.label}</a>)}
+            </div>
+            <form className="assistant-compose" onSubmit={submitMessage}>
+              <label htmlFor="ribo-assistant-input" className="sr-only">Ask Ribo</label>
+              <input id="ribo-assistant-input" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={configured ? 'Ask about Lorapok…' : 'Test the assistant boundary…'} maxLength={4000} />
+              <button type="submit" aria-label="Send message" disabled={!draft.trim() || sending}><Send size={16} /></button>
+            </form>
+            <p className="assistant-privacy-note">Secrets stay server-side. This interface never requests or stores a Gemini key.</p>
+          </div>
+        ) : (
+          <div className="assistant-experience" role="tabpanel">
+            <p>{activeMood.signal}. The choice follows you through the site.</p>
+            <div className="experience-controls__moods" role="group" aria-label="Ribo mood">
+              {MOODS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={mood === item.id ? 'active' : ''}
+                  aria-pressed={mood === item.id}
+                  onClick={() => setMood(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <button type="button" className="experience-controls__motion" aria-pressed={paused} onClick={() => setPaused((value) => !value)}>
+              {paused ? <Play size={16} /> : <Pause size={16} />}
+              <span><strong>{paused ? 'Resume motion' : 'Pause motion'}</strong><small>Persistent accessibility preference</small></span>
             </button>
-          ))}
-        </div>
-        <button type="button" className="experience-controls__motion" aria-pressed={paused} onClick={() => setPaused((value) => !value)}>
-          {paused ? <Play size={16} /> : <Pause size={16} />}
-          <span><strong>{paused ? 'Resume motion' : 'Pause motion'}</strong><small>Persistent accessibility preference</small></span>
-        </button>
+          </div>
+        )}
       </div>
     </aside>
   );
