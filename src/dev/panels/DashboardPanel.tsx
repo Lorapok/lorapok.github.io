@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowUpRight, BadgePercent, BarChart3, BookOpenText, Boxes, Check, ChevronRight,
+  ArrowUpRight, BadgePercent, BarChart3, BookOpenText, Boxes, ChevronRight,
   CircleAlert, Code2, FileText, FlaskConical, GalleryHorizontalEnd, ListChecks,
   Mail, MessageSquareText, Palette, Radio, ShieldCheck, Sparkles, Users, Video,
 } from "lucide-react";
@@ -12,15 +12,15 @@ type StudioModule = { title: string; description: string; state: ModuleState; ic
 
 const modules: StudioModule[] = [
   { title: "Project catalog", description: "Publish products, releases and engineering stories.", state: "live", icon: Boxes, panel: "projects" },
-  { title: "Editorial desk", description: "Research notes, changelogs and long-form articles.", state: "demo", icon: BookOpenText, panel: "content" },
+  { title: "Editorial desk", description: "Shared research notes, changelogs and long-form article planning.", state: "connected", icon: BookOpenText, panel: "content" },
   { title: "Team portfolios", description: "Contributor profiles, roles, work and public links.", state: "connected", icon: Users, panel: "team-studio" },
-  { title: "Offers", description: "Campaigns, discounts and commercial announcements.", state: "demo", icon: BadgePercent, panel: "offers" },
-  { title: "Feedback inbox", description: "Triage public ideas, reports and community signals.", state: "demo", icon: MessageSquareText, panel: "feedback" },
-  { title: "Mail drafts", description: "Prepare customer and partner replies before sending.", state: "demo", icon: Mail, panel: "mail" },
-  { title: "Team chat", description: "A browser-only collaboration simulation for the prototype.", state: "demo", icon: Radio, panel: "chat" },
-  { title: "Meeting links", description: "Draft meeting rooms and copy invitations.", state: "demo", icon: Video, panel: "meetings" },
-  { title: "Task board", description: "Track launch, editorial and product work.", state: "demo", icon: ListChecks, panel: "tasks" },
-  { title: "Social cards", description: "Compose export-ready project and release artwork.", state: "demo", icon: GalleryHorizontalEnd, panel: "social" },
+  { title: "Offers", description: "Shared campaigns, discounts and commercial announcements.", state: "connected", icon: BadgePercent, panel: "offers" },
+  { title: "Feedback inbox", description: "Capture and triage ideas, reports and community signals.", state: "connected", icon: MessageSquareText, panel: "feedback" },
+  { title: "Mail drafts", description: "Prepare shared customer and partner replies before sending.", state: "connected", icon: Mail, panel: "mail" },
+  { title: "Team chat", description: "Coordinate product, research and editorial work in real time.", state: "connected", icon: Radio, panel: "chat" },
+  { title: "Meeting links", description: "Create shared Jitsi rooms and copy invitations.", state: "connected", icon: Video, panel: "meetings" },
+  { title: "Task board", description: "Track launch, editorial and product work across the Office.", state: "connected", icon: ListChecks, panel: "tasks" },
+  { title: "Social cards", description: "Compose and export production-size project artwork.", state: "connected", icon: GalleryHorizontalEnd, panel: "social" },
   { title: "Brand gallery", description: "Ribo poses, emblems and approved visual assets.", state: "connected", icon: Palette, panel: "brand" },
   { title: "AI laboratory", description: "Compare providers and run prompt experiments.", state: "connected", icon: FlaskConical, panel: "ai-labs" },
   { title: "Prompt library", description: "Reusable workflows for the Lorapok toolchain.", state: "connected", icon: Sparkles, panel: "prompts" },
@@ -35,7 +35,6 @@ const statusCopy: Record<ModuleState, string> = {
 export default function DashboardPanel({ onSwitchPanel }: DashboardPanelProps) {
   const [repos, setRepos] = useState<number | null>(null);
   const [activeUniverse, setActiveUniverse] = useState<"open" | "business">("open");
-  const [completedTasks, setCompletedTasks] = useState<string[]>(["release"]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -56,23 +55,19 @@ export default function DashboardPanel({ onSwitchPanel }: DashboardPanelProps) {
     action: "Open offers", panel: "offers",
   }, [activeUniverse]);
 
-  const toggleTask = (id: string) => {
-    setCompletedTasks((current) => current.includes(id) ? current.filter((task) => task !== id) : [...current, id]);
-  };
-
   return (
     <div className="studio-home">
       <section className="studio-hero">
         <div className="studio-hero-copy">
           <div className="studio-kicker"><span /> Living Universe 5.0 · Studio</div>
           <h1>One living system.<br /><em>Two clear universes.</em></h1>
-          <p>The operating surface for Lorapok Labs—bringing open engineering and commercial work into one coherent biological interface without blurring what is public, private or simulated.</p>
+          <p>The operating surface for Lorapok Labs—bringing open engineering and commercial work into one role-controlled, synchronized biological interface.</p>
           <div className="studio-hero-actions">
             <button className="studio-action primary" onClick={() => onSwitchPanel?.("projects")}>Explore projects <ArrowUpRight size={17} /></button>
             <button className="studio-action secondary" onClick={() => onSwitchPanel?.("content")}>Manage studio <ChevronRight size={17} /></button>
           </div>
           <div className="studio-trust-row" aria-label="Data status legend">
-            <span><i className="live" /> Live data</span><span><i className="connected" /> Connected surface</span><span><i className="demo" /> Browser demo</span>
+            <span><i className="live" /> Live data</span><span><i className="connected" /> Connected surface</span><span><i className="demo" /> Local export</span>
           </div>
         </div>
 
@@ -130,13 +125,11 @@ export default function DashboardPanel({ onSwitchPanel }: DashboardPanelProps) {
 
       <section className="studio-workbench">
         <div className="studio-task-card">
-          <div className="studio-card-heading"><div><span className="studio-overline">Today in Studio</span><h2>Launch workbench</h2></div><ListChecks size={22} /></div>
-          {[["release", "Review current release story", "Editorial"], ["pricing", "Reconcile LoraHost pricing references", "Publishing check"], ["founding", "Confirm the official founding year", "Brand check"]].map(([id, label, meta]) => (
-            <button key={id} className={`studio-task ${completedTasks.includes(id) ? "done" : ""}`} onClick={() => toggleTask(id)}>
-              <span className="task-check">{completedTasks.includes(id) && <Check size={13} />}</span><span><strong>{label}</strong><small>{meta}</small></span>
-            </button>
+          <div className="studio-card-heading"><div><span className="studio-overline">Today in Studio</span><h2>Shared launch workbench</h2></div><ListChecks size={22} /></div>
+          {[['Editorial', 'Coordinate the next release story'], ['Publishing', 'Resolve product and pricing evidence'], ['Operations', 'Assign and complete launch work']].map(([meta, label]) => (
+            <div key={meta} className="studio-task"><span className="task-check"><ListChecks size={12} /></span><span><strong>{label}</strong><small>{meta}</small></span></div>
           ))}
-          <p className="studio-local-note"><Radio size={13} /> Task changes stay in this browser demo.</p>
+          <button className="studio-action primary" onClick={() => onSwitchPanel?.("tasks")}>Open shared task board <ArrowUpRight size={16} /></button>
         </div>
         <div className="studio-review-card">
           <div className="studio-card-heading"><div><span className="studio-overline">Publication confidence</span><h2>Resolve before claiming.</h2></div><CircleAlert size={22} /></div>

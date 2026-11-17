@@ -135,7 +135,7 @@ export default function AnalyticsPanel() {
           { icon: Activity, value: overview ? formatCompact(overview.totals.requests) : "—", label: `${overview?.periodHours ?? 24}h requests` },
           { icon: HardDrive, value: overview ? formatBytes(overview.totals.bandwidth) : "—", label: "edge bandwidth" },
           { icon: Database, value: overview ? `${cacheRate}%` : "—", label: "cache hit rate" },
-          { icon: ShieldCheck, value: overview ? formatCompact(overview.totals.threats) : "—", label: "security events" },
+          { icon: ShieldCheck, value: overview?.totals.threats == null ? "Plan N/A" : formatCompact(overview.totals.threats), label: "security events" },
           { icon: AlertTriangle, value: overview ? formatCompact(overview.totals.originErrors) : "—", label: "origin 5xx" },
           { icon: Globe2, value: overview?.zone.status ?? "—", label: "zone status" },
         ].map(({ icon: Icon, value, label }) => (

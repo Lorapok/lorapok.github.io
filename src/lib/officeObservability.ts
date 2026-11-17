@@ -37,7 +37,7 @@ export interface CloudflareOverview {
     bandwidth: number;
     visits: number;
     cachedRequests: number;
-    threats: number;
+    threats: number | null;
     originErrors: number;
   };
   traffic: TrafficPoint[];

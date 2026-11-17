@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import {
   ArrowRight, BadgePercent, CalendarDays, Check, Circle, Clipboard, Copy,
   Download, FileText, GalleryHorizontalEnd, ListChecks, Mail, MessageSquareText,
-  Palette, Plus, Search, Send, Users, Video,
+  Palette, Plus, Search, Send, Trash2, Users, Video,
 } from "lucide-react";
 import { teamMembers } from "../../data/team";
 import { generatedVisuals } from "../../data/generatedVisuals";
 import { archiveArtwork } from "../../data/mascotGallery";
+import { db } from "../../lib/firebase";
+import { useDevAuth } from "../DevAuth";
 
 export type StudioTool =
   | "content" | "team-studio" | "offers" | "feedback" | "mail"
@@ -16,7 +19,7 @@ export type StudioTool =
 type ContentItem = { id: string; title: string; universe: "Open Source" | "Business"; status: "Draft" | "Review" | "Ready" };
 type Offer = { id: string; title: string; detail: string; active: boolean };
 type FeedbackItem = { id: string; author: string; message: string; status: "New" | "Reviewed" | "Archived" };
-type Draft = { id: string; subject: string; body: string };
+type Draft = { id: string; recipient: string; subject: string; body: string };
 type ChatMessage = { id: string; author: string; body: string; time: string };
 type Meeting = { id: string; title: string; date: string; url: string };
 type Task = { id: string; title: string; status: "Backlog" | "In progress" | "Done" };
@@ -48,7 +51,7 @@ const initialState: StudioState = {
     { id: "f3", author: "Potential client", message: "Interested in a technical discovery session.", status: "New" },
   ],
   drafts: [
-    { id: "d1", subject: "Partnership inquiry — response draft", body: "Thank you for reaching out to Lorapok Labs…" },
+    { id: "d1", recipient: "", subject: "Partnership inquiry — response draft", body: "Thank you for reaching out to Lorapok Labs…" },
   ],
   chat: [
     { id: "c1", author: "Ribo", body: "Studio is ready. Remember: evidence before assertion.", time: "09:12" },
@@ -63,17 +66,22 @@ const initialState: StudioState = {
   ],
 };
 
-const toolMeta: Record<StudioTool, { label: string; eyebrow: string; description: string; icon: typeof FileText; mode: "Connected" | "Browser demo" }> = {
-  content: { label: "Content desk", eyebrow: "Publishing", description: "Plan public stories and business updates without mixing their audiences.", icon: FileText, mode: "Browser demo" },
+const toolMeta: Record<StudioTool, { label: string; eyebrow: string; description: string; icon: typeof FileText; mode: "Connected" | "Local export" }> = {
+  content: { label: "Content desk", eyebrow: "Publishing", description: "Plan public stories and business updates in a shared, role-controlled editorial queue.", icon: FileText, mode: "Connected" },
   "team-studio": { label: "Team portfolios", eyebrow: "People", description: "Review the real team directory, specialties and public portfolio paths.", icon: Users, mode: "Connected" },
-  offers: { label: "Offers", eyebrow: "Business universe", description: "Draft commercial offers while unresolved pricing stays visibly unpublished.", icon: BadgePercent, mode: "Browser demo" },
-  feedback: { label: "Feedback inbox", eyebrow: "Community signals", description: "Moderate ideas, questions and public product feedback.", icon: MessageSquareText, mode: "Browser demo" },
-  mail: { label: "Mail drafts", eyebrow: "Communications", description: "Prepare responses locally. This module never sends email.", icon: Mail, mode: "Browser demo" },
-  chat: { label: "Team chat", eyebrow: "Collaboration", description: "A local simulation for planning product and editorial work.", icon: MessageSquareText, mode: "Browser demo" },
-  meetings: { label: "Meeting links", eyebrow: "Collaboration", description: "Generate shareable room links without creating accounts or invitations.", icon: Video, mode: "Browser demo" },
-  tasks: { label: "Task board", eyebrow: "Operations", description: "Move launch tasks through a lightweight local workflow.", icon: ListChecks, mode: "Browser demo" },
-  social: { label: "Social cards", eyebrow: "Publishing", description: "Compose and export 1200×630 release artwork in the browser.", icon: GalleryHorizontalEnd, mode: "Browser demo" },
+  offers: { label: "Offers", eyebrow: "Business universe", description: "Draft commercial offers while unresolved pricing stays visibly unpublished.", icon: BadgePercent, mode: "Connected" },
+  feedback: { label: "Feedback inbox", eyebrow: "Community signals", description: "Capture and moderate ideas, questions and public product feedback.", icon: MessageSquareText, mode: "Connected" },
+  mail: { label: "Mail drafts", eyebrow: "Communications", description: "Prepare shared drafts, then open them in the operator's mail client for final review and sending.", icon: Mail, mode: "Connected" },
+  chat: { label: "Team chat", eyebrow: "Collaboration", description: "A live Office room for product, research and editorial coordination.", icon: MessageSquareText, mode: "Connected" },
+  meetings: { label: "Meeting links", eyebrow: "Collaboration", description: "Create shared Jitsi rooms that teammates can copy or open directly.", icon: Video, mode: "Connected" },
+  tasks: { label: "Task board", eyebrow: "Operations", description: "Move shared launch tasks through a lightweight team workflow.", icon: ListChecks, mode: "Connected" },
+  social: { label: "Social cards", eyebrow: "Publishing", description: "Compose and export 1200×630 release artwork securely in the browser.", icon: GalleryHorizontalEnd, mode: "Local export" },
   brand: { label: "Brand gallery", eyebrow: "Identity system", description: "Explore Ribo moods, sanctuary species, operational characters, authentic mascot references and the approved color language.", icon: Palette, mode: "Connected" },
+};
+
+const CLOUD_FIELDS: Partial<Record<StudioTool, keyof StudioState>> = {
+  content: "content", offers: "offers", feedback: "feedback", mail: "drafts",
+  chat: "chat", meetings: "meetings", tasks: "tasks",
 };
 
 function createId(prefix: string) {
@@ -86,6 +94,7 @@ function readState(): StudioState {
     if (!stored) return initialState;
     const parsed = { ...initialState, ...JSON.parse(stored) } as StudioState;
     parsed.content = parsed.content.map((item) => ({ ...item, status: (item.status as string) === "Published" ? "Ready" : item.status }));
+    parsed.drafts = parsed.drafts.map((item) => ({ ...item, recipient: item.recipient || "" }));
     return parsed;
   } catch {
     return initialState;
@@ -94,12 +103,45 @@ function readState(): StudioState {
 
 export default function StudioOperationsPanel({ tool }: { tool: StudioTool }) {
   const [state, setState] = useState<StudioState>(readState);
+  const [syncState, setSyncState] = useState<"loading" | "synced" | "saving" | "error">(CLOUD_FIELDS[tool] ? "loading" : "synced");
+  const [syncMessage, setSyncMessage] = useState("");
+  const { user } = useDevAuth();
   const meta = toolMeta[tool];
   const Icon = meta.icon;
+  const field = CLOUD_FIELDS[tool];
+
+  useEffect(() => {
+    if (!field) return;
+    const reference = doc(db, "office_modules", tool);
+    return onSnapshot(reference, (snapshot) => {
+      if (snapshot.exists()) {
+        const items = snapshot.data().items;
+        if (Array.isArray(items)) setState((current) => ({ ...current, [field]: items }));
+      }
+      setSyncState("synced");
+      setSyncMessage("");
+    }, (reason) => {
+      setSyncState("error");
+      setSyncMessage(reason.message || "The shared workspace could not be synchronized.");
+    });
+  }, [field, tool]);
 
   const update = (next: StudioState) => {
+    const previous = state;
     setState(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    if (!field) return;
+    setSyncState("saving");
+    setSyncMessage("");
+    void setDoc(doc(db, "office_modules", tool), {
+      items: next[field],
+      updatedAt: serverTimestamp(),
+      updatedBy: user?.uid || "unknown",
+      updatedByEmail: user?.email || "unknown",
+    }, { merge: true }).then(() => setSyncState("synced")).catch((reason: unknown) => {
+      setState(previous);
+      setSyncState("error");
+      setSyncMessage(reason instanceof Error ? reason.message : "The change could not be saved.");
+    });
   };
 
   return (
@@ -113,13 +155,21 @@ export default function StudioOperationsPanel({ tool }: { tool: StudioTool }) {
         </div>
         <span className={`studio-mode-badge ${meta.mode === "Connected" ? "connected" : "demo"}`}>{meta.mode}</span>
       </header>
-      <div className="studio-tool-notice"><Circle size={8} fill="currentColor" /> Changes in demo modules are stored only in this browser. No message, meeting or publication is sent externally.</div>
+      <div className={`studio-tool-notice${syncState === "error" ? " is-error" : ""}`} role="status"><Circle size={8} fill="currentColor" />{
+        field
+          ? syncState === "loading" ? "Connecting to the shared Office workspace…"
+            : syncState === "saving" ? "Saving this change for every authorized teammate…"
+              : syncState === "error" ? syncMessage
+                : "Live sync is active. Changes are stored in the role-controlled Office workspace."
+          : tool === "social" ? "Artwork is rendered locally and downloaded directly; no unpublished copy leaves this browser."
+            : "This connected library uses the approved assets shipped with the live Lorapok site."
+      }</div>
       {tool === "content" && <ContentDesk state={state} update={update} />}
       {tool === "team-studio" && <TeamStudio />}
       {tool === "offers" && <OffersDesk state={state} update={update} />}
       {tool === "feedback" && <FeedbackDesk state={state} update={update} />}
       {tool === "mail" && <MailDesk state={state} update={update} />}
-      {tool === "chat" && <ChatDesk state={state} update={update} />}
+      {tool === "chat" && <ChatDesk state={state} update={update} author={user?.displayName || user?.email?.split("@")[0] || "Teammate"} />}
       {tool === "meetings" && <MeetingDesk state={state} update={update} />}
       {tool === "tasks" && <TaskDesk state={state} update={update} />}
       {tool === "social" && <SocialCardStudio />}
@@ -147,7 +197,7 @@ function ContentDesk({ state, update }: { state: StudioState; update: (next: Stu
       <div className="workspace-card-heading"><div><span className="studio-overline">Queue</span><h2>Editorial pipeline</h2></div><strong>{state.content.length}</strong></div>
       {state.content.map((item) => <article className="studio-row" key={item.id}>
         <div><span className="studio-row-tag">{item.universe}</span><h3>{item.title}</h3></div>
-        <select className={`studio-status-button ${item.status.toLowerCase()}`} aria-label={`Status for ${item.title}`} value={item.status} onChange={(event) => update({ ...state, content: state.content.map((entry) => entry.id === item.id ? { ...entry, status: event.target.value as ContentItem["status"] } : entry) })}><option>Draft</option><option>Review</option><option>Ready</option></select>
+        <div className="studio-row-actions"><select className={`studio-status-button ${item.status.toLowerCase()}`} aria-label={`Status for ${item.title}`} value={item.status} onChange={(event) => update({ ...state, content: state.content.map((entry) => entry.id === item.id ? { ...entry, status: event.target.value as ContentItem["status"] } : entry) })}><option>Draft</option><option>Review</option><option>Ready</option></select><button type="button" className="studio-icon-button" onClick={() => update({ ...state, content: state.content.filter((entry) => entry.id !== item.id) })} aria-label={`Delete ${item.title}`}><Trash2 size={14} /></button></div>
       </article>)}
     </section>
   </div>;
@@ -180,7 +230,7 @@ function OffersDesk({ state, update }: { state: StudioState; update: (next: Stud
       <button className="studio-primary-button" onClick={add}><Plus size={16} /> Save offer</button>
     </section>
     <section className="studio-workspace-card studio-list-card"><span className="studio-overline">Business universe</span><h2>Offer status</h2>
-      {state.offers.map((offer) => <article className="studio-offer-card" key={offer.id}><div><span>{offer.active ? "Ready for review" : "Private draft"}</span><h3>{offer.title}</h3><p>{offer.detail}</p></div><button onClick={() => update({ ...state, offers: state.offers.map((item) => item.id === offer.id ? { ...item, active: !item.active } : item) })}>{offer.active ? "Return to draft" : "Mark reviewed"}</button></article>)}
+      {state.offers.map((offer) => <article className="studio-offer-card" key={offer.id}><div><span>{offer.active ? "Ready for review" : "Private draft"}</span><h3>{offer.title}</h3><p>{offer.detail}</p></div><div className="studio-row-actions"><button onClick={() => update({ ...state, offers: state.offers.map((item) => item.id === offer.id ? { ...item, active: !item.active } : item) })}>{offer.active ? "Return to draft" : "Mark reviewed"}</button><button type="button" className="studio-icon-button" onClick={() => update({ ...state, offers: state.offers.filter((entry) => entry.id !== offer.id) })} aria-label={`Delete ${offer.title}`}><Trash2 size={14} /></button></div></article>)}
     </section>
   </div>;
 }
@@ -193,25 +243,29 @@ function FeedbackDesk({ state, update }: { state: StudioState; update: (next: St
     update({ ...state, feedback: [{ id: createId("feedback"), author: author.trim() || "Local tester", message: message.trim(), status: "New" }, ...state.feedback] });
     setAuthor(""); setMessage("");
   };
-  return <div className="studio-workspace-grid"><section className="studio-workspace-card studio-form-card"><span className="studio-overline">Local intake test</span><h2>Add feedback</h2><label>Name<input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="Optional" /></label><label>Feedback<textarea value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Test the moderation workflow" /></label><button className="studio-primary-button" onClick={add}><Plus size={16} /> Add to inbox</button></section><section className="studio-workspace-card"><div className="workspace-card-heading"><div><span className="studio-overline">Moderation queue</span><h2>Community feedback</h2></div><strong>{state.feedback.filter((item) => item.status === "New").length} new</strong></div>
-    <div className="studio-feedback-list">{state.feedback.map((item) => <article key={item.id}><div className="feedback-avatar">{item.author[0]}</div><div><span>{item.author}</span><p>{item.message}</p></div><select value={item.status} onChange={(event) => update({ ...state, feedback: state.feedback.map((entry) => entry.id === item.id ? { ...entry, status: event.target.value as FeedbackItem["status"] } : entry) })}><option>New</option><option>Reviewed</option><option>Archived</option></select></article>)}</div>
+  return <div className="studio-workspace-grid"><section className="studio-workspace-card studio-form-card"><span className="studio-overline">Office intake</span><h2>Add feedback</h2><label>Name<input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="Optional" /></label><label>Feedback<textarea value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Capture a product or community signal" /></label><button className="studio-primary-button" onClick={add}><Plus size={16} /> Add to inbox</button></section><section className="studio-workspace-card"><div className="workspace-card-heading"><div><span className="studio-overline">Moderation queue</span><h2>Community feedback</h2></div><strong>{state.feedback.filter((item) => item.status === "New").length} new</strong></div>
+    <div className="studio-feedback-list">{state.feedback.map((item) => <article key={item.id}><div className="feedback-avatar">{item.author[0]}</div><div><span>{item.author}</span><p>{item.message}</p></div><div className="studio-row-actions"><select value={item.status} onChange={(event) => update({ ...state, feedback: state.feedback.map((entry) => entry.id === item.id ? { ...entry, status: event.target.value as FeedbackItem["status"] } : entry) })}><option>New</option><option>Reviewed</option><option>Archived</option></select><button type="button" className="studio-icon-button" onClick={() => update({ ...state, feedback: state.feedback.filter((entry) => entry.id !== item.id) })} aria-label={`Delete feedback from ${item.author}`}><Trash2 size={14} /></button></div></article>)}</div>
   </section></div>;
 }
 
 function MailDesk({ state, update }: { state: StudioState; update: (next: StudioState) => void }) {
-  const [subject, setSubject] = useState(""); const [body, setBody] = useState("");
-  const save = () => { if (!subject.trim()) return; update({ ...state, drafts: [{ id: createId("draft"), subject: subject.trim(), body: body.trim() }, ...state.drafts] }); setSubject(""); setBody(""); };
-  return <div className="studio-workspace-grid"><section className="studio-workspace-card studio-form-card"><span className="studio-overline">Local composer</span><h2>Prepare a response</h2>
-    <label>Subject<input value={subject} onChange={(event) => setSubject(event.target.value)} /></label><label>Message<textarea rows={8} value={body} onChange={(event) => setBody(event.target.value)} /></label><button className="studio-primary-button" onClick={save}><Clipboard size={16} /> Save draft</button><small className="studio-safety-copy">Sending is intentionally unavailable in this prototype.</small>
-  </section><section className="studio-workspace-card studio-list-card"><span className="studio-overline">Saved locally</span><h2>Drafts</h2>{state.drafts.map((draft) => <article className="studio-draft" key={draft.id}><Mail size={17} /><div><h3>{draft.subject}</h3><p>{draft.body || "Empty draft"}</p></div></article>)}</section></div>;
+  const [recipient, setRecipient] = useState(""); const [subject, setSubject] = useState(""); const [body, setBody] = useState("");
+  const save = () => { if (!subject.trim()) return; update({ ...state, drafts: [{ id: createId("draft"), recipient: recipient.trim(), subject: subject.trim(), body: body.trim() }, ...state.drafts] }); setRecipient(""); setSubject(""); setBody(""); };
+  const openDraft = (draft: Draft) => {
+    const href = `mailto:${encodeURIComponent(draft.recipient || "")}?subject=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.body)}`;
+    window.open(href, "_self", "noopener,noreferrer");
+  };
+  return <div className="studio-workspace-grid"><section className="studio-workspace-card studio-form-card"><span className="studio-overline">Shared composer</span><h2>Prepare a response</h2>
+    <label>Recipient<input type="email" value={recipient} onChange={(event) => setRecipient(event.target.value)} placeholder="Optional until final review" /></label><label>Subject<input value={subject} onChange={(event) => setSubject(event.target.value)} /></label><label>Message<textarea rows={8} value={body} onChange={(event) => setBody(event.target.value)} /></label><button className="studio-primary-button" onClick={save}><Clipboard size={16} /> Save shared draft</button><small className="studio-safety-copy">Final sending happens in your mail client so no message is sent without operator review.</small>
+  </section><section className="studio-workspace-card studio-list-card"><span className="studio-overline">Shared Office drafts</span><h2>Drafts</h2>{state.drafts.map((draft) => <article className="studio-draft" key={draft.id}><Mail size={17} /><div><h3>{draft.subject}</h3><span>{draft.recipient || "Recipient not assigned"}</span><p>{draft.body || "Empty draft"}</p></div><div className="studio-row-actions"><button type="button" onClick={() => openDraft(draft)}>Open mail client</button><button type="button" className="studio-icon-button" onClick={() => update({ ...state, drafts: state.drafts.filter((entry) => entry.id !== draft.id) })} aria-label={`Delete ${draft.subject}`}><Trash2 size={14} /></button></div></article>)}</section></div>;
 }
 
-function ChatDesk({ state, update }: { state: StudioState; update: (next: StudioState) => void }) {
+function ChatDesk({ state, update, author }: { state: StudioState; update: (next: StudioState) => void; author: string }) {
   const [message, setMessage] = useState("");
-  const send = () => { if (!message.trim()) return; const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); update({ ...state, chat: [...state.chat, { id: createId("chat"), author: "You", body: message.trim(), time }] }); setMessage(""); };
-  return <section className="studio-workspace-card studio-chat-shell"><div className="workspace-card-heading"><div><span className="studio-overline">Studio room</span><h2># living-universe</h2></div><span className="studio-online"><i /> 3 simulated members</span></div>
+  const send = () => { if (!message.trim()) return; const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); update({ ...state, chat: [...state.chat, { id: createId("chat"), author, body: message.trim(), time }] }); setMessage(""); };
+  return <section className="studio-workspace-card studio-chat-shell"><div className="workspace-card-heading"><div><span className="studio-overline">Studio room</span><h2># living-universe</h2></div><span className="studio-online"><i /> Live Office room</span></div>
     <div className="studio-chat-log">{state.chat.map((item) => <article key={item.id}><div className="feedback-avatar">{item.author[0]}</div><div><span>{item.author}<small>{item.time}</small></span><p>{item.body}</p></div></article>)}</div>
-    <div className="studio-compose-row"><input value={message} onChange={(event) => setMessage(event.target.value)} onKeyDown={(event) => event.key === "Enter" && send()} placeholder="Write a local message" /><button onClick={send} aria-label="Add message"><Send size={17} /></button></div>
+    <div className="studio-compose-row"><input value={message} onChange={(event) => setMessage(event.target.value)} onKeyDown={(event) => event.key === "Enter" && send()} placeholder="Write to the Office room" /><button onClick={send} aria-label="Send message"><Send size={17} /></button></div>
   </section>;
 }
 
@@ -219,7 +273,7 @@ function MeetingDesk({ state, update }: { state: StudioState; update: (next: Stu
   const [title, setTitle] = useState(""); const [date, setDate] = useState("");
   const create = () => { if (!title.trim()) return; const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); const url = `https://meet.jit.si/lorapok-${slug}-${Date.now().toString(36)}`; update({ ...state, meetings: [{ id: createId("meeting"), title: title.trim(), date: date || "Unscheduled", url }, ...state.meetings] }); setTitle(""); setDate(""); };
   return <div className="studio-workspace-grid"><section className="studio-workspace-card studio-form-card"><span className="studio-overline">Room generator</span><h2>Plan a meeting</h2><label>Meeting title<input value={title} onChange={(event) => setTitle(event.target.value)} /></label><label>Date and time<input type="datetime-local" value={date} onChange={(event) => setDate(event.target.value)} /></label><button className="studio-primary-button" onClick={create}><Video size={16} /> Generate link</button></section>
-    <section className="studio-workspace-card studio-list-card"><span className="studio-overline">Generated rooms</span><h2>Meeting links</h2>{state.meetings.length === 0 && <EmptyState text="No meeting links generated yet." />}{state.meetings.map((meeting) => <article className="studio-meeting" key={meeting.id}><CalendarDays size={18} /><div><h3>{meeting.title}</h3><p>{meeting.date}</p></div><button onClick={() => navigator.clipboard.writeText(meeting.url)}><Copy size={15} /> Copy</button></article>)}</section></div>;
+    <section className="studio-workspace-card studio-list-card"><span className="studio-overline">Shared rooms</span><h2>Meeting links</h2>{state.meetings.length === 0 && <EmptyState text="No meeting links generated yet." />}{state.meetings.map((meeting) => <article className="studio-meeting" key={meeting.id}><CalendarDays size={18} /><div><h3>{meeting.title}</h3><p>{meeting.date}</p></div><div className="studio-row-actions"><a href={meeting.url} target="_blank" rel="noreferrer">Open room</a><button onClick={() => navigator.clipboard.writeText(meeting.url)}><Copy size={15} /> Copy</button><button type="button" className="studio-icon-button" onClick={() => update({ ...state, meetings: state.meetings.filter((entry) => entry.id !== meeting.id) })} aria-label={`Delete ${meeting.title}`}><Trash2 size={14} /></button></div></article>)}</section></div>;
 }
 
 function TaskDesk({ state, update }: { state: StudioState; update: (next: StudioState) => void }) {
@@ -227,7 +281,7 @@ function TaskDesk({ state, update }: { state: StudioState; update: (next: Studio
   const add = () => { if (!title.trim()) return; update({ ...state, tasks: [...state.tasks, { id: createId("task"), title: title.trim(), status: "Backlog" }] }); setTitle(""); };
   const next: Record<Task["status"], Task["status"]> = { Backlog: "In progress", "In progress": "Done", Done: "Backlog" };
   return <section className="studio-workspace-card"><div className="studio-compose-row task-compose"><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Add an operational task" /><button onClick={add}><Plus size={17} /></button></div>
-    <div className="studio-task-columns">{(["Backlog", "In progress", "Done"] as Task["status"][]).map((status) => <div key={status}><div className="task-column-title"><span>{status}</span><strong>{state.tasks.filter((item) => item.status === status).length}</strong></div>{state.tasks.filter((item) => item.status === status).map((task) => <button key={task.id} onClick={() => update({ ...state, tasks: state.tasks.map((item) => item.id === task.id ? { ...item, status: next[item.status] } : item) })}><span className="task-check">{status === "Done" && <Check size={12} />}</span>{task.title}<ArrowRight size={13} /></button>)}</div>)}</div>
+    <div className="studio-task-columns">{(["Backlog", "In progress", "Done"] as Task["status"][]).map((status) => <div key={status}><div className="task-column-title"><span>{status}</span><strong>{state.tasks.filter((item) => item.status === status).length}</strong></div>{state.tasks.filter((item) => item.status === status).map((task) => <div className="studio-task-item" key={task.id}><button onClick={() => update({ ...state, tasks: state.tasks.map((item) => item.id === task.id ? { ...item, status: next[item.status] } : item) })}><span className="task-check">{status === "Done" && <Check size={12} />}</span>{task.title}<ArrowRight size={13} /></button><button type="button" className="studio-icon-button" onClick={() => update({ ...state, tasks: state.tasks.filter((entry) => entry.id !== task.id) })} aria-label={`Delete ${task.title}`}><Trash2 size={13} /></button></div>)}</div>)}</div>
   </section>;
 }
 
