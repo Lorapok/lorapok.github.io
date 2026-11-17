@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'public/blog/archive/**'
-      - '.github/workflows/lolabo-agent.yml'
+      - "public/blog/archive/**"
+      - ".github/workflows/lolabo-agent.yml"
   workflow_dispatch:
 
 permissions:
@@ -57,6 +57,8 @@ jobs:
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: dist
+          # Required for RFC 9116: the action excludes dot-directories by default.
+          include-hidden-files: true
 
   deploy:
     environment:
