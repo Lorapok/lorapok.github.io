@@ -26,16 +26,31 @@ jobs:
     timeout-minutes: 25
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: agent/package-lock.json
+
+      - name: Prepare the persistent automation branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config --global user.name "LoLaBo Agent"
+          git config --global user.email "agent@lorapok.labs"
+          if git ls-remote --exit-code --heads origin automation/lolabo >/dev/null 2>&1; then
+            git fetch origin automation/lolabo
+            git switch -C automation/lolabo origin/automation/lolabo
+            git rebase origin/main
+          else
+            git switch -c automation/lolabo
+          fi
 
       - name: Refresh public GitHub project inventory
         env:
@@ -70,25 +85,22 @@ jobs:
           node index.js
           node exportData.js
 
-      - name: Commit inventory, drafts, and gate-approved posts
+      - name: Commit inventory, drafts, and gate-approved posts to a review branch
         id: git-push
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git config --global user.name "LoLaBo Agent"
-          git config --global user.email "agent@lorapok.labs"
           git add public/data/github-projects.json public/blog/archive/ai-posts.json public/blog/posts.json public/blog/rss.xml public/sitemap.xml
+          if [ -f agent/.pending-broadcast.json ]; then git add -f agent/.pending-broadcast.json; fi
           if git diff --cached --quiet; then
             echo "Nothing new."
             echo "pushed=false" >> "$GITHUB_OUTPUT"
           else
             if git diff --cached --quiet -- public/blog/posts.json; then MSG="chore(blog): archive LoLaBo draft (not public)"; else MSG="chore(blog): publish LoLaBo post (quality gate passed)"; fi
             git commit -m "$MSG"
-            git pull --rebase origin main
-            git push origin main
+            git push origin automation/lolabo
+            if ! gh pr list --head automation/lolabo --base main --state open --json number --jq 'length > 0' | grep -q true; then
+              gh pr create --base main --head automation/lolabo --title "chore(blog): review LoLaBo research dispatch" --body "Automated LoLaBo research update. Public posts remain quality-gated; drafts remain private until approved. Merge publishes the reviewed update and triggers the post-deployment broadcaster."
+            fi
             echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Verify live publication and distribute approved research
-        if: ${{ steps.git-push.outputs.pushed == 'true' && (github.event_name != 'workflow_dispatch' || inputs.mode != 'projects-only') }}
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: node agent/broadcastLivePost.js

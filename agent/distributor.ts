@@ -4,6 +4,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { parseAllowedDiscordWebhook } from './security';
 
 // ─── Environment Auto-loading ───
 try {
@@ -180,13 +181,19 @@ export async function postToDiscord(post: any, customWebhook?: string): Promise<
     };
   }
 
+  const parsedWebhook = parseAllowedDiscordWebhook(webhookUrl);
+  if (!parsedWebhook) {
+    return { platform: 'discord', status: 'error', error: 'Discord webhook destination is not allowed.' };
+  }
+
   console.log("📢 [Discord Broadcast] Broadcasting through the protected deployment webhook...");
 
   const payload = buildDiscordPayload(post);
 
   try {
-    const res = await fetch(webhookUrl.trim(), {
+    const res = await fetch(parsedWebhook.toString(), {
       method: 'POST',
+      redirect: 'error',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });

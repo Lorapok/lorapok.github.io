@@ -41,13 +41,15 @@ exports.startServer = startServer;
 const http = __importStar(require("http"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const admin = __importStar(require("firebase-admin"));
+const app_1 = require("firebase-admin/app");
+const firestore_1 = require("firebase-admin/firestore");
 const collector_1 = require("./collector");
 const writer_1 = require("./writer");
 const imageGen_1 = require("./imageGen");
 const distributor_1 = require("./distributor");
 const validator_1 = require("./validator");
 const catalogPolicy_1 = require("./catalogPolicy");
+const security_1 = require("./security");
 // ─── Environment Auto-loading ───
 try {
     const rootEnv = path.resolve(__dirname, '../.env');
@@ -66,6 +68,7 @@ catch (e) { }
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 const SERVICE_TOKEN = process.env.LOLABO_API_KEY || process.env.SERVICE_TOKEN || '';
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'https://lorapok.tech';
 const POSTS_JSON_PATH = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
 // ─── Firebase Initialization ───
 function loadServiceAccount() {
@@ -133,12 +136,12 @@ const serviceAccount = loadServiceAccount();
 let db = null;
 if (serviceAccount && serviceAccount.project_id) {
     try {
-        if (!admin.apps.length) {
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
+        if (!(0, app_1.getApps)().length) {
+            (0, app_1.initializeApp)({
+                credential: (0, app_1.cert)(serviceAccount)
             });
         }
-        db = admin.firestore();
+        db = (0, firestore_1.getFirestore)();
         console.log(`🔥 Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
     }
     catch (err) {
@@ -148,10 +151,10 @@ if (serviceAccount && serviceAccount.project_id) {
 else {
     // Try Application Default Credentials fallback
     try {
-        if (!admin.apps.length) {
-            admin.initializeApp();
+        if (!(0, app_1.getApps)().length) {
+            (0, app_1.initializeApp)();
         }
-        db = admin.firestore();
+        db = (0, firestore_1.getFirestore)();
         console.log("🔥 Connected to Cloud Firestore via Application Default Credentials.");
     }
     catch {
@@ -207,9 +210,14 @@ function sendJson(res, statusCode, data) {
     const body = JSON.stringify(data, null, 2);
     res.writeHead(statusCode, {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': CORS_ORIGIN,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Api-Key',
+        'Cache-Control': 'no-store',
+        'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+        'Referrer-Policy': 'no-referrer',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
         'Content-Length': Buffer.byteLength(body),
         'X-Service': 'LoLaBo-Microservice/2.0'
     });
@@ -218,13 +226,19 @@ function sendJson(res, statusCode, data) {
 function parseJsonBody(req) {
     return new Promise((resolve, reject) => {
         let raw = '';
+        let tooLarge = false;
         req.on('data', chunk => {
+            if (tooLarge)
+                return;
             raw += chunk;
             if (raw.length > 5 * 1024 * 1024) {
-                reject(new Error('Payload too large'));
+                tooLarge = true;
+                raw = '';
             }
         });
         req.on('end', () => {
+            if (tooLarge)
+                return reject(new Error('Payload too large'));
             if (!raw)
                 return resolve({});
             try {
@@ -237,13 +251,11 @@ function parseJsonBody(req) {
         req.on('error', reject);
     });
 }
-function checkAuth(req, reqUrl) {
-    if (!SERVICE_TOKEN)
-        return true; // Open if no token configured
+function checkAuth(req) {
     const authHeader = req.headers['authorization'] || '';
     const bearerToken = authHeader.replace(/^Bearer\s+/i, '').trim();
-    const apiKey = req.headers['x-api-key'] || reqUrl.searchParams.get('token') || '';
-    return bearerToken === SERVICE_TOKEN || apiKey === SERVICE_TOKEN;
+    const apiKey = req.headers['x-api-key'] || '';
+    return (0, security_1.hasValidServiceToken)(SERVICE_TOKEN, bearerToken, apiKey);
 }
 function getCachedPosts() {
     return (0, catalogPolicy_1.loadAllForDedup)();
@@ -452,7 +464,7 @@ async function executeDispatch(options = {}) {
                     publishedAt: newPostEntry.publishedAt
                 }, { merge: true });
                 await db.collection('agent_config').doc('lolabo_settings').set({
-                    lastRunAt: admin.firestore.Timestamp.now(),
+                    lastRunAt: firestore_1.Timestamp.now(),
                     triggerRequested: false
                 }, { merge: true }).catch(() => { });
                 console.log(`✅ [Cloud Firestore] Document '${postId}' committed successfully.`);
@@ -555,7 +567,7 @@ const server = http.createServer(async (req, res) => {
     // CORS Preflight
     if (req.method === 'OPTIONS') {
         res.writeHead(204, {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': CORS_ORIGIN,
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Api-Key',
         });
@@ -566,23 +578,18 @@ const server = http.createServer(async (req, res) => {
     const method = req.method || 'GET';
     // 1. Healthcheck (GET / or GET /health)
     if (pathname === '/' || pathname === '/health') {
-        const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
         return sendJson(res, 200, {
             status: "ok",
             service: telemetry.service,
             version: telemetry.version,
-            uptimeSeconds: Math.round(process.uptime()),
-            databaseConnected: Boolean(db),
-            databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
-            aiConfigured: hasAiKey,
-            aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
-            aiModel: hasAiKey ? 'gemini-3.8-flash' : 'none',
             timestamp: new Date().toISOString(),
-            nodeVersion: process.version
         });
     }
     // 2. Microservice Telemetry & Status (GET /api/status)
     if (pathname === '/api/status' && method === 'GET') {
+        if (!checkAuth(req)) {
+            return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+        }
         const posts = getCachedPosts();
         const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
         return sendJson(res, 200, {
@@ -627,15 +634,16 @@ const server = http.createServer(async (req, res) => {
         }
         const tag = reqUrl.searchParams.get('tag') || undefined;
         const category = reqUrl.searchParams.get('category') || undefined;
-        const limit = parseInt(reqUrl.searchParams.get('limit') || '50', 10);
-        let filtered = posts;
+        const requestedLimit = parseInt(reqUrl.searchParams.get('limit') || '50', 10);
+        const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 100) : 50;
+        let filtered = posts.filter(catalogPolicy_1.isPublicPost);
         if (tag)
             filtered = filtered.filter(p => p.tags && p.tags.includes(tag));
         if (category)
             filtered = filtered.filter(p => p.category === category);
         filtered = filtered.slice(0, limit);
         return sendJson(res, 200, {
-            total: posts.length,
+            total: posts.filter(catalogPolicy_1.isPublicPost).length,
             count: filtered.length,
             posts: filtered
         });
@@ -643,7 +651,7 @@ const server = http.createServer(async (req, res) => {
     // 4. Single Post by Slug (GET /api/posts/:slug)
     if (pathname.startsWith('/api/posts/') && method === 'GET') {
         const slug = pathname.replace('/api/posts/', '').trim();
-        const posts = getCachedPosts();
+        const posts = getCachedPosts().filter(catalogPolicy_1.isPublicPost);
         const post = posts.find(p => p.slug === slug || p.id === slug);
         if (!post) {
             return sendJson(res, 404, { error: `Post not found with slug: ${slug}` });
@@ -652,7 +660,7 @@ const server = http.createServer(async (req, res) => {
     }
     // 5. Trigger Autonomous Dispatch (POST /api/dispatch)
     if (pathname === '/api/dispatch' && method === 'POST') {
-        if (!checkAuth(req, reqUrl)) {
+        if (!checkAuth(req)) {
             return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
         }
         try {
@@ -667,7 +675,7 @@ const server = http.createServer(async (req, res) => {
     }
     // 6. Generate Custom Article On Demand (POST /api/generate)
     if (pathname === '/api/generate' && method === 'POST') {
-        if (!checkAuth(req, reqUrl)) {
+        if (!checkAuth(req)) {
             return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
         }
         try {
@@ -685,13 +693,15 @@ const server = http.createServer(async (req, res) => {
     }
     // 7. Test Discord Webhook Notification & Rich Embed Template (POST /api/test-discord)
     if (pathname === '/api/test-discord' && method === 'POST') {
+        if (!checkAuth(req)) {
+            return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+        }
         try {
             const body = await parseJsonBody(req);
-            const targetWebhook = body.webhookUrl || process.env.DISCORD_WEBHOOK_URL;
+            const targetWebhook = process.env.DISCORD_WEBHOOK_URL;
             if (!targetWebhook || !String(targetWebhook).trim()) {
                 return sendJson(res, 400, {
-                    error: 'No Discord webhook URL provided in payload {"webhookUrl": "https://..."} or DISCORD_WEBHOOK_URL environment variable.',
-                    tip: 'Configure DISCORD_WEBHOOK_URL in .env or pass {"webhookUrl": "https://discord.com/api/webhooks/..."} in the JSON body.'
+                    error: 'DISCORD_WEBHOOK_URL is not configured for this service.'
                 });
             }
             const samplePost = {
@@ -729,6 +739,9 @@ const server = http.createServer(async (req, res) => {
     }
     // 8. Validate Candidate Post Duplication (POST /api/validate-post)
     if (pathname === '/api/validate-post' && method === 'POST') {
+        if (!checkAuth(req)) {
+            return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+        }
         try {
             const body = await parseJsonBody(req);
             if (!body.title) {
@@ -751,7 +764,7 @@ const server = http.createServer(async (req, res) => {
     }
     // 9. Refresh Static Data & Sitemaps (POST /api/export)
     if (pathname === '/api/export' && method === 'POST') {
-        if (!checkAuth(req, reqUrl)) {
+        if (!checkAuth(req)) {
             return sendJson(res, 401, { error: 'Unauthorized' });
         }
         try {
@@ -764,6 +777,9 @@ const server = http.createServer(async (req, res) => {
     }
     // 10. Prometheus / OpenTelemetry Metrics (GET /metrics)
     if (pathname === '/metrics' && method === 'GET') {
+        if (!checkAuth(req)) {
+            return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+        }
         const mem = process.memoryUsage();
         const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
         const metrics = [
@@ -808,6 +824,9 @@ const server = http.createServer(async (req, res) => {
 });
 // ─── Startup Handler ───
 function startServer(port = PORT, host = HOST) {
+    if (!SERVICE_TOKEN || SERVICE_TOKEN.length < 32) {
+        throw new Error('LOLAbO service startup refused: LOLABO_API_KEY or SERVICE_TOKEN must contain at least 32 characters.');
+    }
     // Run startup database synchronization in background
     syncDatabaseOnStartup();
     server.listen(port, host, () => {

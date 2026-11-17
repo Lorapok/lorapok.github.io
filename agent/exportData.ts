@@ -3,7 +3,8 @@
 // Fetches published posts from Firestore, merges with existing catalog, and writes to public/blog/posts.json
 // This improves SEO, guarantees zero data-loss, and speeds up initial blog loads.
 
-import * as admin from 'firebase-admin';
+import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { Firestore, getFirestore } from 'firebase-admin/firestore';
 import * as fs from 'fs';
 import * as path from 'path';
 import { isPublicPost } from './catalogPolicy';
@@ -77,26 +78,26 @@ function loadServiceAccount(): any {
 }
 
 const serviceAccount = loadServiceAccount();
-let db: FirebaseFirestore.Firestore | null = null;
+let db: Firestore | null = null;
 
 if (serviceAccount && serviceAccount.project_id) {
   try {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+    if (!getApps().length) {
+      initializeApp({
+        credential: cert(serviceAccount)
       });
     }
-    db = admin.firestore();
+    db = getFirestore();
     console.log(`🔥 [Export] Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
   } catch (err) {
     console.error("❌ [Export] Failed to initialize Firebase Admin with service account:", err);
   }
 } else {
   try {
-    if (!admin.apps.length) {
-      admin.initializeApp();
+    if (!getApps().length) {
+      initializeApp();
     }
-    db = admin.firestore();
+    db = getFirestore();
     console.log("🔥 [Export] Connected to Cloud Firestore via Application Default Credentials.");
   } catch {
     console.log("⚡ [Export] Standalone / Local mode active (Cloud Firestore not configured).");

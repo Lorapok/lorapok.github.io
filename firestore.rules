@@ -14,6 +14,16 @@ service cloud.firestore {
       ];
     }
 
+    function hasVerifiedEmail() {
+      return signedIn()
+        && request.auth.token.email is string
+        && request.auth.token.email_verified == true;
+    }
+
+    function isVerifiedBootstrapOwner() {
+      return hasVerifiedEmail() && isBootstrapOwnerEmail(request.auth.token.email);
+    }
+
     function hasUserRecord() {
       return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
     }
@@ -24,7 +34,7 @@ service cloud.firestore {
 
     function isOwner() {
       return signedIn() && (
-        isBootstrapOwnerEmail(request.auth.token.email)
+        isVerifiedBootstrapOwner()
         || (hasUserRecord() && currentUser().status == "active" && currentUser().role == "owner")
       );
     }
@@ -92,15 +102,70 @@ service cloud.firestore {
     }
 
     function validInvitation() {
-      return signedIn()
+      return hasVerifiedEmail()
         && exists(/databases/$(database)/documents/office_invites/$(request.auth.token.email))
         && get(/databases/$(database)/documents/office_invites/$(request.auth.token.email)).data.status == "invited";
+    }
+
+    function validAccessStatus(status) {
+      return status in ["pending", "active", "suspended"];
+    }
+
+    function validShortString(value, maxLength) {
+      return value is string && value.size() <= maxLength;
+    }
+
+    function validUserCreate(userId) {
+      return request.resource.data.keys().hasOnly([
+          "uid", "email", "displayName", "photoURL", "role", "status", "lastLogin",
+          "department", "title", "activeProvider", "activeModels"
+        ])
+        && request.resource.data.keys().hasAll([
+          "uid", "email", "displayName", "photoURL", "role", "status", "lastLogin"
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.email == request.auth.token.email
+        && validShortString(request.resource.data.email, 254)
+        && validShortString(request.resource.data.displayName, 120)
+        && validShortString(request.resource.data.photoURL, 2048)
+        && validAccessStatus(request.resource.data.status)
+        && request.resource.data.lastLogin == request.time
+        && (!request.resource.data.keys().hasAny(["department"]) || validShortString(request.resource.data.department, 120))
+        && (!request.resource.data.keys().hasAny(["title"]) || validShortString(request.resource.data.title, 120))
+        && (!request.resource.data.keys().hasAny(["activeProvider"]) || validShortString(request.resource.data.activeProvider, 40))
+        && (!request.resource.data.keys().hasAny(["activeModels"]) || (
+          request.resource.data.activeModels is map
+          && request.resource.data.activeModels.size() <= 20
+        ));
     }
 
     function ownSafeProfileUpdate() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         "displayName", "photoURL", "lastLogin", "activeProvider", "activeModels"
-      ]);
+      ])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.status == resource.data.status
+        && validShortString(request.resource.data.displayName, 120)
+        && validShortString(request.resource.data.photoURL, 2048)
+        && (!request.resource.data.keys().hasAny(["activeProvider"]) || validShortString(request.resource.data.activeProvider, 40))
+        && (!request.resource.data.keys().hasAny(["activeModels"]) || (
+          request.resource.data.activeModels is map
+          && request.resource.data.activeModels.size() <= 20
+        ));
+    }
+
+    function adminManagedUserUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "role", "status", "department", "title", "accessUpdatedAt", "accessUpdatedBy"
+        ])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && validAccessStatus(request.resource.data.status)
+        && (!request.resource.data.keys().hasAny(["department"]) || validShortString(request.resource.data.department, 120))
+        && (!request.resource.data.keys().hasAny(["title"]) || validShortString(request.resource.data.title, 120))
+        && validShortString(request.resource.data.accessUpdatedBy, 254);
     }
 
     function adminCanManageTarget() {
@@ -133,14 +198,22 @@ service cloud.firestore {
 
     match /newsletter_subscribers/{subscriptionId} {
       allow create: if request.resource.data.keys().hasOnly([
-          "email", "source", "consentVersion", "createdAt"
+          "email", "source", "consentVersion", "createdAt", "topics", "userAgent"
         ])
         && request.resource.data.email is string
         && request.resource.data.email.size() >= 6
         && request.resource.data.email.size() <= 254
+        && subscriptionId == request.resource.data.email
+        && !request.resource.data.email.matches(".*[/].*")
         && request.resource.data.email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
-        && request.resource.data.source == "home_newsletter"
+        && request.resource.data.source in ["home_newsletter", "homepage_hero_cro"]
         && request.resource.data.consentVersion == "2026-11"
+        && (!request.resource.data.keys().hasAny(["topics"]) || (
+          request.resource.data.topics is list
+          && request.resource.data.topics.size() >= 1
+          && request.resource.data.topics.size() <= 4
+        ))
+        && (!request.resource.data.keys().hasAny(["userAgent"]) || validShortString(request.resource.data.userAgent, 512))
         && request.resource.data.createdAt == request.time;
       allow read, update, delete: if false;
     }
@@ -162,8 +235,17 @@ service cloud.firestore {
     match /office_invites/{inviteId} {
       allow read: if isAccessAdmin() || (signedIn() && inviteId == request.auth.token.email);
       allow create: if request.resource.data.email == inviteId
+        && request.resource.data.keys().hasOnly([
+          "email", "displayName", "role", "status", "department", "title", "invitedBy", "invitedAt"
+        ])
         && request.resource.data.status == "invited"
         && validManagedRole(request.resource.data.role)
+        && validShortString(request.resource.data.email, 254)
+        && validShortString(request.resource.data.displayName, 120)
+        && validShortString(request.resource.data.department, 120)
+        && validShortString(request.resource.data.title, 120)
+        && validShortString(request.resource.data.invitedBy, 254)
+        && request.resource.data.invitedAt == request.time
         && (
           isOwner()
           || (isAccessAdmin() && request.resource.data.role != "admin")
@@ -172,6 +254,8 @@ service cloud.firestore {
         request.resource.data.email == resource.data.email
         && request.resource.data.status in ["invited", "revoked"]
         && validManagedRole(request.resource.data.role)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "updatedAt", "updatedBy"])
+        && validShortString(request.resource.data.updatedBy, 254)
         && (
           isOwner()
           || (
@@ -195,11 +279,10 @@ service cloud.firestore {
       allow read: if signedIn() && (request.auth.uid == userId || isAccessAdmin());
       allow create: if signedIn()
         && request.auth.uid == userId
-        && request.resource.data.uid == userId
-        && request.resource.data.email == request.auth.token.email
+        && validUserCreate(userId)
         && (
           (
-            isBootstrapOwnerEmail(request.auth.token.email)
+            isVerifiedBootstrapOwner()
             && request.resource.data.role == "owner"
             && request.resource.data.status == "active"
           )
@@ -216,9 +299,9 @@ service cloud.firestore {
       allow update: if signedIn() && (
         (
           request.auth.uid == userId
-          && (ownSafeProfileUpdate() || isBootstrapOwnerEmail(request.auth.token.email))
+          && ownSafeProfileUpdate()
         )
-        || adminCanManageTarget()
+        || (adminCanManageTarget() && adminManagedUserUpdate())
       );
       allow delete: if false;
 
@@ -233,14 +316,49 @@ service cloud.firestore {
 
     match /rbac_audit/{eventId} {
       allow create: if isAccessAdmin()
+        && request.resource.data.keys().hasOnly([
+          "action", "target", "changes", "actorUid", "actorEmail", "createdAt"
+        ])
         && request.resource.data.actorUid == request.auth.uid
-        && request.resource.data.actorEmail == request.auth.token.email;
+        && request.resource.data.actorEmail == request.auth.token.email
+        && validShortString(request.resource.data.action, 80)
+        && validShortString(request.resource.data.target, 254)
+        && request.resource.data.changes is map
+        && request.resource.data.changes.size() <= 10
+        && request.resource.data.createdAt == request.time;
       allow read: if isAccessAdmin();
       allow update, delete: if false;
     }
 
     match /analytics/{eventId} {
-      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow create: if hasUserRecord()
+        && currentUser().status == "active"
+        && request.resource.data.keys().hasOnly([
+          "category", "action", "metadata", "uid", "email", "isAnonymous", "timestamp", "platform", "userAgent"
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.isAnonymous == false
+        && request.resource.data.category in ["auth", "ai", "nav", "config", "system", "profile"]
+        && validShortString(request.resource.data.action, 100)
+        && request.resource.data.metadata is map
+        && request.resource.data.metadata.keys().hasOnly([
+          "provider", "success", "model", "error", "tool", "hasKey", "providers"
+        ])
+        && request.resource.data.metadata.size() <= 8
+        && (!request.resource.data.metadata.keys().hasAny(["provider"]) || validShortString(request.resource.data.metadata.provider, 80))
+        && (!request.resource.data.metadata.keys().hasAny(["model"]) || validShortString(request.resource.data.metadata.model, 160))
+        && (!request.resource.data.metadata.keys().hasAny(["error"]) || validShortString(request.resource.data.metadata.error, 1000))
+        && (!request.resource.data.metadata.keys().hasAny(["tool"]) || validShortString(request.resource.data.metadata.tool, 160))
+        && (!request.resource.data.metadata.keys().hasAny(["success"]) || request.resource.data.metadata.success is bool)
+        && (!request.resource.data.metadata.keys().hasAny(["hasKey"]) || request.resource.data.metadata.hasKey is bool)
+        && (!request.resource.data.metadata.keys().hasAny(["providers"]) || (
+          request.resource.data.metadata.providers is list
+          && request.resource.data.metadata.providers.size() <= 20
+        ))
+        && request.resource.data.timestamp == request.time
+        && validShortString(request.resource.data.platform, 120)
+        && validShortString(request.resource.data.userAgent, 512);
       allow read: if canViewAnalytics();
       allow update, delete: if false;
     }

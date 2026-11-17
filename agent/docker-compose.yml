@@ -15,6 +15,8 @@ services:
     environment:
       - PORT=8080
       - HOST=0.0.0.0
+      - LOLABO_API_KEY=${LOLABO_API_KEY:?LOLABO_API_KEY must be at least 32 characters}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://lorapok.tech}
       - DAEMON=true
       - INTERVAL_HOURS=0.25
       - POSTS_JSON_PATH=/app/public/blog/posts.json

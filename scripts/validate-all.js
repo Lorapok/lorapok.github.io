@@ -266,6 +266,7 @@ try {
     'contact',
     'privacy',
     'terms',
+    'security',
     'dev',
   ];
   let routesOk = true;
