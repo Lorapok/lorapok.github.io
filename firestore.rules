@@ -69,6 +69,24 @@ service cloud.firestore {
       );
     }
 
+    function canUseOfficeModule(moduleId) {
+      return isAccessAdmin()
+        || (
+          hasUserRecord()
+          && currentUser().status == "active"
+          && (
+            (
+              currentUser().role == "editor"
+              && moduleId in ["content", "offers", "feedback", "mail", "chat", "meetings", "tasks"]
+            )
+            || (
+              currentUser().role == "teammate"
+              && moduleId in ["content", "feedback", "mail", "chat", "meetings", "tasks"]
+            )
+          )
+        );
+    }
+
     function validManagedRole(role) {
       return role in ["admin", "editor", "researcher", "teammate", "viewer"];
     }
@@ -115,6 +133,11 @@ service cloud.firestore {
 
     match /agent_config/{documentId} {
       allow read, write: if canRunResearch();
+    }
+
+    match /office_modules/{moduleId} {
+      allow read, create, update: if canUseOfficeModule(moduleId);
+      allow delete: if false;
     }
 
     match /blog_posts/{postId} {

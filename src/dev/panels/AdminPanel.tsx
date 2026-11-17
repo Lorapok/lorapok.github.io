@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
-import { Check, Clock3, MailPlus, RefreshCw, Search, ShieldCheck, UserCheck, UserCog, UserX, Users } from "lucide-react";
+import { addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
+import { Check, Clock3, History, MailPlus, RefreshCw, Search, ShieldCheck, UserCheck, UserCog, UserX, Users } from "lucide-react";
 import { db } from "../../lib/firebase";
 import { AdminGate, useDevAuth } from "../DevAuth";
 import {
@@ -29,6 +29,15 @@ interface OfficeInvitation {
   department?: string;
   title?: string;
   invitedAt?: { toDate?: () => Date };
+}
+
+interface AccessAuditEvent {
+  id: string;
+  action: string;
+  target: string;
+  actorEmail: string;
+  changes?: Record<string, unknown>;
+  createdAt?: { toDate?: () => Date };
 }
 
 const ASSIGNABLE_BY_ADMIN: OfficeRole[] = ["editor", "researcher", "teammate", "viewer"];
@@ -96,6 +105,7 @@ function AdminContent() {
   const { user, role: actorRole } = useDevAuth();
   const [members, setMembers] = useState<OfficeMember[]>([]);
   const [invitations, setInvitations] = useState<OfficeInvitation[]>([]);
+  const [auditEvents, setAuditEvents] = useState<AccessAuditEvent[]>([]);
   const [search, setSearch] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
@@ -138,7 +148,20 @@ function AdminContent() {
         };
       }));
     }, (reason) => setError(reason.message));
-    return () => { unsubscribeMembers(); unsubscribeInvites(); };
+    const unsubscribeAudit = onSnapshot(query(collection(db, "rbac_audit"), orderBy("createdAt", "desc"), limit(20)), (snapshot) => {
+      setAuditEvents(snapshot.docs.map((entry) => {
+        const data = entry.data();
+        return {
+          id: entry.id,
+          action: String(data.action || "access_updated"),
+          target: String(data.target || "Unknown target"),
+          actorEmail: String(data.actorEmail || "Unknown actor"),
+          changes: data.changes,
+          createdAt: data.createdAt,
+        };
+      }));
+    }, (reason) => setError(reason.message));
+    return () => { unsubscribeMembers(); unsubscribeInvites(); unsubscribeAudit(); };
   }, []);
 
   const stats = useMemo(() => ({
@@ -272,6 +295,18 @@ function AdminContent() {
             )}
           </div>)}
           {invitations.length === 0 && <div className="rbac-empty">No teammate invitations have been created.</div>}
+        </div>
+      </section>
+
+      <section className="dev-card rbac-audit">
+        <div className="rbac-section-heading"><History size={18} /><div><strong>Access audit trail</strong><span>The latest immutable role, invitation, and access changes recorded by the Office.</span></div></div>
+        <div className="rbac-audit-list">
+          {auditEvents.map((event) => <article key={event.id}>
+            <span className="rbac-audit-icon"><History size={14} /></span>
+            <p><strong>{event.action.replaceAll("_", " ")}</strong><small>{event.target} · by {event.actorEmail}</small></p>
+            <time>{timestampLabel(event.createdAt)}</time>
+          </article>)}
+          {auditEvents.length === 0 && <div className="rbac-empty">No access changes have been recorded yet.</div>}
         </div>
       </section>
     </div>

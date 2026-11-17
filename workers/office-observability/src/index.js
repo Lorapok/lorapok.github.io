@@ -139,7 +139,7 @@ function summarizeAnalytics(result) {
   }), { requests: 0, bandwidth: 0, visits: 0 });
   const cachedRequests = (result.cache || []).filter((item) => ["hit", "stale", "revalidated", "updating"].includes(String(item.dimensions?.cacheStatus || "").toLowerCase())).reduce((sum, item) => sum + Number(item.count || 0), 0);
   const originErrors = (result.status || []).filter((item) => Number(item.dimensions?.edgeResponseStatus || 0) >= 500).reduce((sum, item) => sum + Number(item.count || 0), 0);
-  return { traffic, totals: { ...totals, cachedRequests, originErrors, threats: 0 } };
+  return { traffic, totals: { ...totals, cachedRequests, originErrors, threats: null } };
 }
 
 async function getOverview(env) {
@@ -166,7 +166,7 @@ async function getOverview(env) {
   const zone = zoneResult.value;
   const summary = analyticsResult.status === "fulfilled"
     ? summarizeAnalytics(analyticsResult.value)
-    : { traffic: [], totals: { requests: 0, bandwidth: 0, visits: 0, cachedRequests: 0, threats: 0, originErrors: 0 } };
+    : { traffic: [], totals: { requests: 0, bandwidth: 0, visits: 0, cachedRequests: 0, threats: null, originErrors: 0 } };
   if (securityResult.status === "fulfilled") {
     summary.totals.threats = securityResult.value.reduce((sum, item) => sum + Number(item.count || 0), 0);
   }
@@ -201,7 +201,7 @@ export default {
     try {
       const access = await authorize(request, env);
       if (!access.ok) return json({ error: access.message }, access.status, origin, env, { "cache-control": "no-store" });
-      const cacheKey = new Request(`${url.origin}/_cache/overview-v2`, { method: "GET" });
+      const cacheKey = new Request(`${url.origin}/_cache/overview-v3`, { method: "GET" });
       const cache = caches.default;
       const cached = await cache.match(cacheKey);
       if (cached) return new Response(cached.body, { status: cached.status, headers: { ...Object.fromEntries(cached.headers), ...corsHeaders(origin, env) } });

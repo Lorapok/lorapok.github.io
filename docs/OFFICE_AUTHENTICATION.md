@@ -35,3 +35,15 @@ Production values remain GitHub deployment secrets. Local values remain in ignor
 6. Only active identities with the required permission enter the Office; pending and suspended identities receive explicit status screens.
 
 The client translates common Firebase failures into safe, actionable messages and does not display raw provider error payloads.
+
+## Shared Office operations
+
+Editorial planning, offers, feedback, mail drafts, team chat, meeting links, and tasks are stored in `office_modules`. Every panel uses a live Firestore subscription so authorized teammates see updates without refreshing.
+
+- Owners and administrators can manage every Office module.
+- Editors can manage publishing and collaboration modules.
+- Teammates can manage content, feedback, drafts, chat, meetings, and tasks, but cannot access commercial offers.
+- Researchers and viewers cannot read or write collaboration records unless their role is expanded.
+- Pending and suspended identities are rejected by Firestore rules.
+
+Role and invitation changes are written to the immutable `rbac_audit` collection and displayed in the Access & Admin panel.

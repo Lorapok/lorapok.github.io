@@ -35,6 +35,9 @@ try {
       setDoc(doc(db, "office_partners", "private-partner"), { id: "private-partner", visibility: "draft", status: "paused" }),
       setDoc(doc(db, "blog_posts", "public-post"), { id: "public-post", status: "published" }),
       setDoc(doc(db, "blog_posts", "draft-post"), { id: "draft-post", status: "draft" }),
+      setDoc(doc(db, "office_modules", "content"), { items: [] }),
+      setDoc(doc(db, "office_modules", "offers"), { items: [] }),
+      setDoc(doc(db, "office_modules", "chat"), { items: [] }),
     ]);
   });
 
@@ -65,18 +68,29 @@ try {
   await assertSucceeds(setDoc(doc(editor, "published_partners", "editor-public-partner"), { id: "editor-public-partner", visibility: "published", status: "active" }));
   await assertSucceeds(setDoc(doc(editor, "blog_posts", "editor-draft"), { id: "editor-draft", status: "draft" }));
   await assertFails(setDoc(doc(editor, "agent_config", "lolabo_settings"), { isEnabled: true }));
+  await assertSucceeds(setDoc(doc(editor, "office_modules", "content"), { items: [{ id: "story" }] }));
+  await assertSucceeds(setDoc(doc(editor, "office_modules", "offers"), { items: [{ id: "offer" }] }));
+  await assertSucceeds(setDoc(doc(editor, "office_modules", "tasks"), { items: [{ id: "task" }] }));
 
   await assertSucceeds(setDoc(doc(researcher, "agent_config", "lolabo_settings"), { isEnabled: true }));
   await assertSucceeds(setDoc(doc(researcher, "blog_posts", "research-draft"), { id: "research-draft", status: "draft" }));
   await assertFails(setDoc(doc(researcher, "office_projects", "research-project"), { id: "research-project" }));
   await assertFails(setDoc(doc(researcher, "office_partners", "research-partner"), { id: "research-partner" }));
+  await assertFails(getDoc(doc(researcher, "office_modules", "chat")));
 
   await assertSucceeds(getDoc(doc(teammate, "users", "team-uid")));
   await assertFails(getDoc(doc(teammate, "office_projects", "private-project")));
   await assertFails(getDoc(doc(teammate, "office_partners", "private-partner")));
+  await assertSucceeds(getDoc(doc(teammate, "office_modules", "content")));
+  await assertSucceeds(setDoc(doc(teammate, "office_modules", "chat"), { items: [{ id: "message" }] }));
+  await assertFails(getDoc(doc(teammate, "office_modules", "offers")));
+  await assertFails(setDoc(doc(teammate, "office_modules", "offers"), { items: [] }));
   await assertFails(getDoc(doc(viewer, "agent_config", "lolabo_settings")));
+  await assertFails(getDoc(doc(viewer, "office_modules", "content")));
   await assertFails(getDoc(doc(pending, "office_projects", "private-project")));
+  await assertFails(getDoc(doc(pending, "office_modules", "content")));
   await assertFails(getDoc(doc(suspended, "office_projects", "private-project")));
+  await assertFails(getDoc(doc(suspended, "office_modules", "content")));
   await assertFails(updateDoc(doc(teammate, "users", "team-uid"), { role: "admin" }));
 
   await assertSucceeds(updateDoc(doc(admin, "users", "team-uid"), { role: "editor", status: "active" }));
