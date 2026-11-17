@@ -4,14 +4,19 @@
  */
 (function () {
   const STORAGE_KEY = "lp-process-consent";
-  const VERSION = "2026-09-22";
+  const VERSION = "2026-11-18";
   const BANNER_ID = "lp-consent-banner";
   const PREFERENCES_ID = "lp-consent-preferences";
   const GTM_ID = "GTM-MK42N9WX";
   const GTM_LOADED_KEY = "__lpGoogleTagManagerLoaded";
   const ADSENSE_CLIENT = "ca-pub-3756651399602872";
   const ADSENSE_LOADED_KEY = "__lpAdsenseScriptLoaded";
+  const MARKETING_HOSTS = new Set(["lorapok.tech", "www.lorapok.tech"]);
   let previousFocus = null;
+
+  function isProductionMarketingHost() {
+    return MARKETING_HOSTS.has(String(window.location.hostname || "").toLowerCase());
+  }
 
   function readStored() {
     try {
@@ -41,6 +46,7 @@
   }
 
   function loadGoogleTagManager() {
+    if (!isProductionMarketingHost()) return;
     if (window[GTM_LOADED_KEY]) return;
     window[GTM_LOADED_KEY] = true;
     window.dataLayer = window.dataLayer || [];
@@ -52,6 +58,7 @@
   }
 
   function loadAdsense() {
+    if (!isProductionMarketingHost()) return;
     if (window[ADSENSE_LOADED_KEY]) return;
     window[ADSENSE_LOADED_KEY] = true;
     const script = document.createElement("script");
@@ -62,6 +69,14 @@
   }
 
   function allowMarketing() {
+    if (!isProductionMarketingHost()) {
+      document.dispatchEvent(
+        new CustomEvent("lp:consent-marketing-skipped", {
+          detail: { version: VERSION, reason: "non-production-host" },
+        }),
+      );
+      return;
+    }
     loadGoogleTagManager();
     loadAdsense();
     document.dispatchEvent(new CustomEvent("lp:consent-marketing", { detail: { version: VERSION } }));
@@ -158,6 +173,7 @@
   window.LP_PROCESS_CONSENT = {
     version: VERSION,
     get: readStored,
+    isProductionMarketingHost,
     allowMarketing,
     showChoices: renderBanner,
     withdraw: () => decide(false),
