@@ -191,6 +191,10 @@ const routePrerender = {
     { heading: "Loragent catalog", body: "Explore published agent definitions, specialist roles, skills, formations, and commands designed for multi-agent engineering workflows." },
     { heading: "Readable orchestration", body: "The catalog explains what each agent is for and how it participates in a wider formation instead of presenting an inflated capability count without context." },
   ],
+  mascots: [
+    { heading: "A living character archive", body: "Explore restored cyber-biological larvae species, useful Ribo roles, original character studies, and the visual experiments preserved across the Lorapok asset drive." },
+    { heading: "One identity across many worlds", body: "The gallery documents how shared anatomy, leaf antennae, segmented forms, and sensory signals evolve across Labs, LoLaBo, Automate, LoraHost, and Instar without flattening each product identity." },
+  ],
   blog: [
     { heading: "Engineering stories and research", body: "LoLaBo publishes architecture notes, project explainers, research briefs, performance analysis, and source-backed dispatches from the Lorapok ecosystem." },
     { heading: "Public source trail", body: "Articles identify their authorship, publication status, related repositories, citations, and available technical diagrams." },
@@ -245,6 +249,13 @@ const routeMeta = {
     description: "224 agent skill definitions in the Loragent catalog, grouped by formation.",
     keywords: "Loragent, AI agents, multi-agent systems, autonomous coding, LoLaBo agent, Lorapok Labs",
     canonical: "https://lorapok.tech/agents/"
+  },
+  mascots: {
+    title: "Larvae Planetarium & Mascot Archive — Lorapok Labs",
+    description: "Explore Lorapok's living mascot universe: cyber-biological larvae species, operational Ribo roles, and original artwork from the permanent drive archive.",
+    keywords: "Lorapok mascot, Ribo, larvae characters, cyber biological design, mascot gallery, Instar",
+    canonical: "https://lorapok.tech/mascots/",
+    image: "https://lorapok.tech/assets/ribo/archive/metamorphosis-stages.webp"
   },
   blog: {
     ...blogMeta

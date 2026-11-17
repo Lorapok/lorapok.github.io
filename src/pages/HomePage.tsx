@@ -14,27 +14,6 @@ const OFFERS = [
   { name: 'Pro Hosting', badge: 'FOR TEAMS', blurb: 'A broader hosting path for multi-site and agency workflows.' },
 ];
 
-const SANCTUARY_SPECIES = [
-  { id: 'vaultie', name: 'Vaultie', role: 'Scavenger / code keeper', signal: 'Charcoal armor · cyan bio-streams' },
-  { id: 'apex-sovereign', name: 'Instar-6 Apex', role: 'Sovereign / release guardian', signal: 'Golden shell · amber crown energy' },
-  { id: 'neon-scout', name: 'Neon Scout', role: 'Explorer / low-latency runner', signal: 'Lime armor · cyan speed channels' },
-  { id: 'deep-diver', name: 'Deep Diver', role: 'Research wizard / AI navigator', signal: 'Cyber purple · orbiting MCP nodes' },
-  { id: 'robo-worker', name: 'Robo-Worker', role: 'Infrastructure / resilient scaler', signal: 'Titanium slate · modular utility claws' },
-];
-
-const CHARACTER_COLLECTION = [
-  { id: 'labs-research-director', family: 'Labs', name: 'Research Director', role: 'Biology · AI research' },
-  { id: 'labs-open-source-builder', family: 'Labs', name: 'Open Source Builder', role: 'Engineering · modular systems' },
-  { id: 'labs-community-orchestrator', family: 'Labs', name: 'Community Orchestrator', role: 'Collaboration · connected signals' },
-  { id: 'automate-care-coordinator', family: 'Automate', name: 'Care Coordinator', role: 'Safe clinical workflows' },
-  { id: 'automate-recovery-guide', family: 'Automate', name: 'Recovery Guide', role: 'Resilience · responsible recovery' },
-  { id: 'lorahost-cloud-navigator', family: 'LoraHost', name: 'Cloud Navigator', role: 'Hosting · global delivery' },
-  { id: 'lorahost-server-guardian', family: 'LoraHost', name: 'Server Guardian', role: 'Infrastructure · protection' },
-  { id: 'lolabo-research-engine', family: 'LoLaBo', name: 'Research Engine', role: 'Evidence · citation synthesis' },
-  { id: 'system-guide', family: 'System', name: 'System Guide', role: 'AI assistant · product navigation' },
-  { id: 'release-conductor', family: 'Labs', name: 'Release Conductor', role: 'Publishing · launch orchestration' },
-];
-
 type Post = { slug: string; title: string; excerpt: string; category?: string; source?: string; readTime?: string | number; status?: string };
 
 const homeJsonLd = {
@@ -139,37 +118,19 @@ export default function HomePage() {
         </div>
       </div></section>
 
-      <section className="section v4-sanctuary" aria-labelledby="sanctuary-title"><div className="wrap4">
-        <div className="v4-sanctuary-heading">
-          <div><div className="eyebrow">LARVA SANCTUARY / ARCHIVE RESTORED</div><h2 id="sanctuary-title">One family.<br /><em>Five species.</em></h2></div>
-          <p>Ribo remains the studio guide. The wider sanctuary restores Lorapok’s original cyber-biological character system—each species carrying a different operational signal.</p>
+      <section className="section home-mascot-doorway"><div className="wrap4 home-mascot-doorway__grid">
+        <div className="home-mascot-doorway__copy reveal">
+          <div className="eyebrow">THE LIVING CHARACTER ARCHIVE</div>
+          <h2>A universe of<br /><em>useful companions.</em></h2>
+          <p>Explore the original Larry studies, restored cyber-biological species, production Ribo roles and the evolving visual experiments preserved across the Lorapok drive.</p>
+          <Link className="button" to="/mascots/">Enter the mascot gallery ↗</Link>
         </div>
-        <div className="v4-sanctuary-grid">
-          {SANCTUARY_SPECIES.map((species, index) => (
-            <article className={`v4-species-card species-${index + 1} reveal`} key={species.id}>
-              <span className="v4-species-index">0{index + 1}</span>
-              <img src={`/assets/ribo/species/${species.id}.webp`} alt={`${species.name}, a Lorapok 3D larva species`} loading="lazy" />
-              <div><span>{species.role}</span><h3>{species.name}</h3><p>{species.signal}</p></div>
-            </article>
-          ))}
+        <div className="home-mascot-doorway__visual" aria-hidden="true">
+          <span className="doorway-orbit" />
+          <img className="doorway-mascot doorway-mascot-main" src="/assets/ribo/archive/leaf-panel-mascot.webp" alt="" />
+          <img className="doorway-mascot doorway-mascot-one" src="/assets/ribo/species/neon-scout.webp" alt="" />
+          <img className="doorway-mascot doorway-mascot-two" src="/assets/ribo/species/deep-diver.webp" alt="" />
         </div>
-        <p className="v4-sanctuary-note">Inspired by the six biological instar stages: Lorapok products evolve instead of standing still.</p>
-      </div></section>
-
-      <section className="section v4-character-collection" aria-labelledby="character-collection-title"><div className="wrap4">
-        <div className="v4-character-heading">
-          <div><div className="eyebrow">AUTHENTIC MASCOT COLLECTION / NEW</div><h2 id="character-collection-title">One identity.<br /><em>Many useful roles.</em></h2></div>
-          <p>Built from Lorapok’s original full-body larva reference—leaf antennae, segmented silhouette, glowing leaf panels and the navy field bag—then adapted carefully for each product world.</p>
-        </div>
-        <div className="v4-character-grid">
-          {CHARACTER_COLLECTION.map((character) => (
-            <article className="v4-character-card reveal" data-family={character.family} key={character.id}>
-              <img src={`/assets/ribo/collections/${character.id}.webp`} alt={`${character.name}, Lorapok ${character.family} 3D mascot`} loading="lazy" />
-              <div><span>{character.family}</span><h3>{character.name}</h3><p>{character.role}</p></div>
-            </article>
-          ))}
-        </div>
-        <p className="v4-character-note">Labs, Automate and LoraHost remain distinct product identities. The shared mascot anatomy connects the family without flattening their individual palettes or product signals.</p>
       </div></section>
 
       <section className="statement yellow"><div className="wrap4">

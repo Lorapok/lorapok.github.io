@@ -14,6 +14,7 @@ import HomePage from "./pages/HomePage";
 const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
 const CreatorWorksPage = lazy(() => import("./pages/CreatorWorksPage"));
 const AgentsPage = lazy(() => import("./pages/AgentsPage"));
+const MascotGalleryPage = lazy(() => import("./pages/MascotGalleryPage"));
 const TeamPage = lazy(() => import("./pages/TeamPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ChangelogPage = lazy(() => import("./pages/ChangelogPage"));
@@ -45,6 +46,7 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<Layout><ProjectsPage /></Layout>} path="/projects" />
           <Route element={<Layout><CreatorWorksPage /></Layout>} path="/creator-works" />
           <Route element={<Layout><AgentsPage /></Layout>} path="/agents" />
+          <Route element={<Layout><MascotGalleryPage /></Layout>} path="/mascots" />
           <Route element={<Layout><BlogApp /></Layout>} path="/blog" />
           <Route element={<Layout><BlogApp /></Layout>} path="/blog/:slug" />
           <Route element={<Layout><TeamPage /></Layout>} path="/team" />

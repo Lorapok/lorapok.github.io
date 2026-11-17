@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 const productLinks = [
   ['Product universe', '/projects'],
   ['Creator Works', '/creator-works'],
+  ['Living mascots', '/mascots'],
   ['Loragent network', '/agents'],
   ['LoLaBo journal', '/blog'],
 ];

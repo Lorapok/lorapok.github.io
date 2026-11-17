@@ -50,6 +50,23 @@ The optimized site copies live under `public/assets/generated/scenes/` and are r
 
 Every future generated image must follow the same sequence: save the full-resolution source in the shared drive archive, create an optimized web copy in the project, register its path and accessible description, use it on a specific page, and expose it in the Office library when it is reusable.
 
+## Public mascot archive
+
+The public `/mascots` gallery is the canonical home for the Sanctuary species, operational character collection, and selected historical styles. These full collections no longer appear directly on the homepage; the homepage contains only a compact doorway into the gallery.
+
+Six approved originals from `/mnt/NewVolume/Personal_Projects/Lorapok Labs Asset/` are represented by optimized WebP derivatives in `public/assets/ribo/archive/`:
+
+- original Larry character study;
+- Larry turnaround and mood sheet;
+- production leaf-panel mascot;
+- Instar cyber-biological poster;
+- biological metamorphosis storyboard;
+- Electric Lorapok experimental mascot.
+
+Source paths, public paths, accessible descriptions, and historical context are registered together in `src/data/mascotGallery.ts`. Source masters remain untouched on the drive. The optimized derivatives also appear under the Office Brand Gallery’s `Archive` filter.
+
+The route-aware larvae planetarium is mounted by the public layout and uses a relevant companion on every public page. Its motion uses transform-only continuous orbits, remains non-interactive, stays clear of page navigation, and becomes static when `prefers-reduced-motion` is enabled.
+
 ## Usage rules
 
 - Use the master lockups when a full product name must remain legible.
