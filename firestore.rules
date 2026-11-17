@@ -104,6 +104,15 @@ service cloud.firestore {
       allow write: if canEditPublishing();
     }
 
+    match /office_partners/{partnerId} {
+      allow read, write: if canEditPublishing();
+    }
+
+    match /published_partners/{partnerId} {
+      allow read: if true;
+      allow write: if canEditPublishing();
+    }
+
     match /agent_config/{documentId} {
       allow read, write: if canRunResearch();
     }

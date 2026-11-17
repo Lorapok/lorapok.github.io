@@ -13,7 +13,7 @@ export default function PrivacyPage() {
     <>
       <SEOHead
         title="Privacy Policy"
-        description="How lorapok.tech uses cookies, Google AdSense, and the information you send through the contact form."
+        description="How lorapok.tech uses cookies, Google AdSense, partner links, and the information you send through the contact form."
         path="/privacy/"
       />
       <article className="v4-inner-page v4-legal py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
@@ -76,10 +76,12 @@ export default function PrivacyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-2xl font-bold text-white">Affiliate link</h2>
+          <h2 className="text-2xl font-bold text-white">Partner and affiliate links</h2>
           <p>
-            The footer contains one link labeled Sponsored. It goes to Higgsfield with a Lorapok Labs partner code.
-            That link is advertising. It is separate from the project catalog.
+            The <Link className="text-[#67ff8f] hover:underline" to="/partners/">partner directory</Link> may contain
+            tracked links and referral codes. A provider may tell Lorapok that a qualifying visit, signup, or purchase
+            occurred so it can attribute a commission or account credit. Providers handle their own sites under their
+            own privacy policies. The public project catalog remains separate from these commercial references.
           </p>
         </section>
 

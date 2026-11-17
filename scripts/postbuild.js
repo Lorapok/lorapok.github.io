@@ -195,6 +195,10 @@ const routePrerender = {
     { heading: "A living character archive", body: "Explore restored cyber-biological larvae species, useful Ribo roles, original character studies, and the visual experiments preserved across the Lorapok asset drive." },
     { heading: "One identity across many worlds", body: "The gallery documents how shared anatomy, leaf antennae, segmented forms, and sensory signals evolve across Labs, LoLaBo, Automate, LoraHost, and Instar without flattening each product identity." },
   ],
+  partners: [
+    { heading: "Verified relationships and benefits", body: "Explore approved affiliate relationships and independent references with exact visitor benefits, relationship labels, and the date each offer was last checked." },
+    { heading: "Transparent commercial disclosure", body: "Tracked links may support Lorapok Labs. Provider-controlled pricing, eligibility, fulfillment, privacy, and offer terms remain authoritative." },
+  ],
   blog: [
     { heading: "Engineering stories and research", body: "LoLaBo publishes architecture notes, project explainers, research briefs, performance analysis, and source-backed dispatches from the Lorapok ecosystem." },
     { heading: "Public source trail", body: "Articles identify their authorship, publication status, related repositories, citations, and available technical diagrams." },
@@ -256,6 +260,13 @@ const routeMeta = {
     keywords: "Lorapok mascot, Ribo, larvae characters, cyber biological design, mascot gallery, Instar",
     canonical: "https://lorapok.tech/mascots/",
     image: "https://lorapok.tech/assets/ribo/archive/metamorphosis-stages.webp"
+  },
+  partners: {
+    title: "Partners & Verified Benefits — Lorapok Labs",
+    description: "Transparent Lorapok Labs partner and affiliate references, including verified customer benefits, relationship labels, and provider terms.",
+    keywords: "Lorapok partners, verified benefits, affiliate disclosure, Dynadot referral credit",
+    canonical: "https://lorapok.tech/partners/",
+    image: "https://lorapok.tech/assets/ribo/generated/20261117/founder-navigator.webp"
   },
   blog: {
     ...blogMeta

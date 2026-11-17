@@ -5,6 +5,7 @@ const productLinks = [
   ['Product universe', '/projects'],
   ['Creator Works', '/creator-works'],
   ['Living mascots', '/mascots'],
+  ['Partners & benefits', '/partners'],
   ['Loragent network', '/agents'],
   ['LoLaBo journal', '/blog'],
 ];
@@ -62,9 +63,9 @@ export default function Footer() {
         </div>
 
         <div className="footer-partner">
-          <span>Affiliate reference</span>
-          Higgsfield is an independent third-party tool. Lorapok does not claim a formal partnership.
-          <a href="https://higgsfield.ai?fpr=lorapoklabs" target="_blank" rel="sponsored noopener noreferrer">Visit Higgsfield ↗</a>
+          <span>Transparent partner directory</span>
+          Verified benefits, approved affiliates, and independent references are labeled separately.
+          <Link to="/partners/">Explore partners & benefits ↗</Link>
         </div>
 
         <div className="footer-bottom">

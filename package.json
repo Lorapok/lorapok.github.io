@@ -14,6 +14,7 @@
     "agent:build": "npm --prefix agent run build",
     "sync:projects": "node scripts/sync-github-projects.mjs",
     "sync:local-projects": "node scripts/sync-local-project-ideas.mjs",
+    "seed:partners": "node scripts/seed-office-partners.mjs",
     "migrate:office-rbac": "node scripts/migrate-office-rbac.mjs",
     "test:rbac": "node scripts/test-office-rbac.mjs",
     "validate": "node scripts/validate-all.js"

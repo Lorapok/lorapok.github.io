@@ -6,6 +6,7 @@ import AILabsPanel from "./panels/AILabsPanel";
 import BlogPanel from "./panels/BlogPanel";
 import PlaygroundPanel from "./panels/PlaygroundPanel";
 import ProjectsPanel from "./panels/ProjectsPanel";
+import PartnersPanel from "./panels/PartnersPanel";
 import AdminPanel from "./panels/AdminPanel";
 import AnalyticsPanel from "./panels/AnalyticsPanel";
 import PromptLibraryPanel from "./panels/PromptLibraryPanel";
@@ -39,12 +40,13 @@ import {
   ListChecks,
   GalleryHorizontalEnd,
   Palette,
-  ShieldCheck
+  ShieldCheck,
+  Handshake
 } from "lucide-react";
 import "./DevMode.css";
 
 
-type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo" | StudioTool;
+type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "partners" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo" | StudioTool;
 
 
 const devBadgeImage = "/assets/ribo/ribo-focused.webp";
@@ -61,6 +63,7 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { id: "dashboard", icon: <Orbit size={18} />, label: "Living Studio", badge: "5.0" },
   { id: "content", icon: <FileText size={18} />, label: "Content Desk" },
   { id: "projects", icon: <Boxes size={18} />, label: "Projects" },
+  { id: "partners", icon: <Handshake size={18} />, label: "Partners & Benefits" },
   { id: "team-studio", icon: <Users size={18} />, label: "Team Portfolios" },
   { id: "offers", icon: <BadgePercent size={18} />, label: "Offers" },
   { id: "feedback", icon: <MessageSquareText size={18} />, label: "Feedback" },
@@ -93,7 +96,7 @@ const ADVANCED_ITEMS: NavItem[] = [
 
 const PANEL_IDS: PanelId[] = [
   "dashboard", "profile", "ai-labs", "blog", "playground", "projects", "readme", "commits",
-  "compare", "prompts", "admin", "analytics", "lolabo", "content", "team-studio", "offers",
+  "compare", "prompts", "admin", "analytics", "lolabo", "content", "partners", "team-studio", "offers",
   "feedback", "mail", "chat", "meetings", "tasks", "social", "brand",
 ];
 
@@ -188,6 +191,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
       case "blog": return <BlogPanel />;
       case "playground": return <PlaygroundPanel />;
       case "projects": return <ProjectsPanel />;
+      case "partners": return <PartnersPanel />;
       case "compare": return <ComparePanel />;
       case "prompts": return <PromptLibraryPanel onLoadToPlayground={(text) => {
         localStorage.setItem("lpk_playground_prompt", text);
