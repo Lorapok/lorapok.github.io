@@ -154,12 +154,12 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .lp-animate-fade-in,
-  .lp-animate-fade-in-up,
-  .lp-animate-scale-in,
-  .lp-animate-pulse-glow,
-  .lp-animate-float,
-  .lp-animate-shimmer {
+  html:not(.lp-motion-force) .lp-animate-fade-in,
+  html:not(.lp-motion-force) .lp-animate-fade-in-up,
+  html:not(.lp-motion-force) .lp-animate-scale-in,
+  html:not(.lp-motion-force) .lp-animate-pulse-glow,
+  html:not(.lp-motion-force) .lp-animate-float,
+  html:not(.lp-motion-force) .lp-animate-shimmer {
     animation: none !important;
   }
 }

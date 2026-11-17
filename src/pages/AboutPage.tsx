@@ -35,6 +35,7 @@ export default function AboutPage() {
           eyebrow="COLLECTIVE SIGNAL / PEOPLE FIRST"
           title="Many disciplines, one living studio"
           body="The Collective Facilitator represents the researchers, engineers, designers and specialists who shape Lorapok products together without erasing their individual craft."
+          planet
         />
 
         {/* Hero Section */}

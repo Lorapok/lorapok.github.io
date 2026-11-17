@@ -41,6 +41,7 @@ import SEOHead from "./components/SEOHead";
 import LoLaBoLogo from "./components/LoLaBoLogo";
 import LoLaBoImage, { preloadImages } from "./components/LoLaBoImage";
 import { generatedVisuals } from "../data/generatedVisuals";
+import LarvaePlanetSystem from "../components/layout/LarvaePlanetSystem";
 import "./BlogApp.css";
 
 // ─── Types ───
@@ -1664,6 +1665,7 @@ export default function BlogApp() {
       <SEOHead />
 
       <section className="lolabo-story-hero">
+        <LarvaePlanetSystem variant="editorial" />
         <img
           className="lolabo-story-hero__image"
           src={generatedVisuals.lolaboLivingArchive.path}
