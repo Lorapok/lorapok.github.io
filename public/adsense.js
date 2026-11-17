@@ -23,6 +23,7 @@
   }
 
   function grantConsentMode() {
+    if (window.LP_PROCESS_CONSENT?.isProductionMarketingHost?.() !== true) return;
     if (window[LOADED_KEY]) return;
     window[LOADED_KEY] = true;
     gtag("consent", "update", {
@@ -34,6 +35,7 @@
   }
 
   function maybeGrant() {
+    if (window.LP_PROCESS_CONSENT?.isProductionMarketingHost?.() !== true) return;
     const stored = window.__LP_PROCESS_CONSENT__ || window.LP_PROCESS_CONSENT?.get?.();
     if (stored?.marketing === true) {
       grantConsentMode();
