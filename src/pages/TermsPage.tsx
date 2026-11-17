@@ -1,14 +1,8 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { brand } from "../data/lorapok";
 import { SEOHead } from "../components/SEOHead";
 import PageIntro from "../components/layout/PageIntro";
 
 export default function TermsPage() {
-  useEffect(() => {
-    document.title = `Terms of Use | ${brand.name}`;
-  }, []);
-
   return (
     <>
       <SEOHead

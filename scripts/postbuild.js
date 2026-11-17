@@ -105,7 +105,7 @@ function renderSections(sections = []) {
   return sections.map(({ heading, body }) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`).join('\n');
 }
 
-function injectSeo(html, { title, description, keywords, canonical, image, type = 'website', robots, jsonLd, prerenderBody = '' }) {
+function injectSeo(html, { title, description, keywords, canonical, image, imageAlt, type = 'website', robots, jsonLd, prerenderBody = '' }) {
   let modified = html;
   
   if (title) {
@@ -127,19 +127,29 @@ function injectSeo(html, { title, description, keywords, canonical, image, type 
   if (canonical) {
     modified = modified.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${escapeHtml(canonical)}$2`);
     modified = modified.replace(/(<meta\s+property="og:url"\s+content=")[^"]*(")/i, `$1${escapeHtml(canonical)}$2`);
+    modified = modified.replace(/(<meta\s+name="twitter:url"\s+content=")[^"]*(")/i, `$1${escapeHtml(canonical)}$2`);
   }
   
   if (image) {
     modified = modified.replace(/(<meta\s+property="og:image"\s+content=")[^"]*(")/i, `$1${escapeHtml(image)}$2`);
+    modified = modified.replace(/(<meta\s+property="og:image:secure_url"\s+content=")[^"]*(")/i, `$1${escapeHtml(image)}$2`);
     modified = modified.replace(/(<meta\s+name="twitter:image"\s+content=")[^"]*(")/i, `$1${escapeHtml(image)}$2`);
+    if (!image.endsWith('/assets/lorapok-labs-logo.png')) {
+      modified = modified.replace(/\s*<meta\s+property="og:image:(?:width|height)"\s+content="[^"]*"\s*\/?>/gi, '');
+    }
   }
+
+  const resolvedImageAlt = imageAlt || (title ? `${title} social preview` : 'Lorapok Labs social preview');
+  modified = modified.replace(/(<meta\s+property="og:image:alt"\s+content=")[^"]*(")/i, `$1${escapeHtml(resolvedImageAlt)}$2`);
+  modified = modified.replace(/(<meta\s+name="twitter:image:alt"\s+content=")[^"]*(")/i, `$1${escapeHtml(resolvedImageAlt)}$2`);
   
   if (type) {
     modified = modified.replace(/(<meta\s+property="og:type"\s+content=")[^"]*(")/i, `$1${escapeHtml(type)}$2`);
   }
 
   if (robots) {
-    modified = modified.replace('</head>', `    <meta name="robots" content="${escapeHtml(robots)}" />\n</head>`);
+    modified = modified.replace(/(<meta\s+name="robots"\s+content=")[^"]*(")/i, `$1${escapeHtml(robots)}$2`);
+    modified = modified.replace(/(<meta\s+name="googlebot"\s+content=")[^"]*(")/i, `$1${escapeHtml(robots)}$2`);
   }
   
   if (jsonLd) {

@@ -22,22 +22,40 @@ export default function PartnersPage() {
     window.setTimeout(() => setCopied(""), 1800);
   };
 
-  const partnerJsonLd = {
+  const partnerJsonLd = useMemo(() => ({
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: "Lorapok Labs Partner & Benefit Directory",
-    url: "https://lorapok.tech/partners/",
-    description: "Verified partner, affiliate, and community benefit references from Lorapok Labs.",
-  };
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": "https://lorapok.tech/partners/#page",
+        name: "Lorapok Labs Partner & Benefit Directory",
+        url: "https://lorapok.tech/partners/",
+        description: "Verified partner, affiliate, invitation, and community benefit references from Lorapok Labs.",
+        isPartOf: { "@id": "https://lorapok.tech/#website" },
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://lorapok.tech/partners/#directory",
+        name: "Published Lorapok partner and referral directory",
+        numberOfItems: partners.length,
+        itemListElement: partners.map((partner, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: partner.name,
+          url: partner.offerUrl || partner.websiteUrl,
+        })),
+      },
+    ],
+  }), [partners]);
 
   return (
     <div className="v4-inner-page partners-page">
       <SEOHead
         title="Partners & Verified Benefits"
-        description="Explore transparent Lorapok Labs partner and affiliate references, including verified customer benefits and clear relationship disclosures."
+        description="Explore transparent Lorapok Labs partner, affiliate, and invitation references—including Higgsfield AI and Airtm—with verified links and clear relationship disclosures."
         path="/partners/"
         image="/assets/ribo/generated/20261117/founder-navigator.webp"
-        keywords="Lorapok partners, Dynadot referral credit, Lorapok affiliates, verified partner benefits"
+        keywords="Lorapok partners, Dynadot referral credit, Higgsfield referral code, Airtm invitation link, Lorapok affiliates, verified partner benefits"
         jsonLd={partnerJsonLd}
       />
 

@@ -22,6 +22,11 @@ html {
   min-height: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  scroll-padding-top: 118px;
+}
+
+[id] {
+  scroll-margin-top: 118px;
 }
 
 body {

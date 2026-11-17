@@ -65,17 +65,40 @@ export const defaultPartnerRecords: PartnerRecord[] = [
     visibility: "published",
     websiteUrl: "https://higgsfield.ai/",
     offerUrl: "https://higgsfield.ai?fpr=lorapoklabs",
-    offerLabel: "Affiliate reference",
-    offerDetail: "Visit Higgsfield through Lorapok's tracked reference link. No guaranteed customer discount is claimed.",
-    discountCode: "",
+    offerLabel: "Lorapok referral access",
+    offerDetail: "Use Lorapok's tracked Higgsfield reference link or referral code. Higgsfield controls eligibility, credits, pricing, and current terms; no guaranteed customer discount is claimed.",
+    discountCode: "lorapoklabs",
     termsUrl: "",
     adminUrl: "",
     logoUrl: "",
     accent: "#ffdf70",
     featured: false,
-    verifiedAt: "2026-11-17",
-    sourceNote: "Existing Lorapok affiliate reference; no formal partner approval or visitor discount was verified.",
+    verifiedAt: "2026-11-18",
+    sourceNote: "Tracked referral parameter and code are lorapoklabs. No formal partner approval or visitor discount was verified.",
     sortOrder: 30,
+  },
+  {
+    id: "airtm",
+    name: "Airtm",
+    slug: "airtm",
+    tagline: "A digital-dollar account reference for globally connected builders.",
+    description: "This is a user-provided invitation reference, not a claim of a formal Lorapok partnership. Airtm controls account eligibility, regional availability, fees, rewards, and terms.",
+    relationship: "affiliate-reference",
+    status: "active",
+    visibility: "published",
+    websiteUrl: "https://www.airtm.com/",
+    offerUrl: "https://app.airtm.com/ivt/new7qpzo8gu",
+    offerLabel: "Invitation access",
+    offerDetail: "Open Airtm through Lorapok's invitation link. No fixed bonus, discount, or guaranteed reward is claimed; check the provider's current onboarding terms before registering.",
+    discountCode: "new7qpzo8gu",
+    termsUrl: "https://www.airtm.com/terms-and-conditions/",
+    adminUrl: "https://app.airtm.com/",
+    logoUrl: "",
+    accent: "#58c9ff",
+    featured: false,
+    verifiedAt: "2026-11-18",
+    sourceNote: "Invitation URL supplied directly by the Lorapok owner on 2026-11-18; no specific visitor reward was claimed.",
+    sortOrder: 35,
   },
   {
     id: "rezi",
@@ -149,8 +172,9 @@ export const defaultPartnerRecords: PartnerRecord[] = [
 ];
 
 export function toPublicPartner(record: PartnerRecord): PublicPartnerRecord {
-  const { adminUrl: _adminUrl, sourceNote: _sourceNote, ...publicRecord } = record;
-  return publicRecord;
+  return Object.fromEntries(
+    Object.entries(record).filter(([key]) => key !== "adminUrl" && key !== "sourceNote"),
+  ) as unknown as PublicPartnerRecord;
 }
 
 export const defaultPublishedPartners = defaultPartnerRecords
