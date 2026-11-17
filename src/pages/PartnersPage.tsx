@@ -120,9 +120,26 @@ export default function PartnersPage() {
             <article className="partner-card reveal" key={partner.id} style={{ "--partner-accent": partner.accent } as React.CSSProperties}>
               <div className="partner-card__top"><span className="partner-monogram small" aria-hidden="true">{partner.name.slice(0, 2).toUpperCase()}</span><span>{partnerRelationshipLabels[partner.relationship]}</span></div>
               <h3>{partner.name}</h3><p className="partner-tagline">{partner.tagline}</p><p>{partner.description}</p>
-              <div className="partner-card__offer"><strong>{partner.offerLabel}</strong><span>{partner.discountCode ? `Code: ${partner.discountCode}` : "No discount code claimed"}</span></div>
+              <div className={`partner-card__offer${partner.discountCode ? " has-code" : ""}`}>
+                <span className="partner-card__offer-label"><Gift size={14} aria-hidden="true" /> {partner.discountCode ? "Benefit + referral code" : "Verified access"}</span>
+                <strong>{partner.offerLabel}</strong>
+                <p>{partner.offerDetail}</p>
+                {partner.discountCode ? (
+                  <button
+                    type="button"
+                    className="partner-card__code"
+                    onClick={() => copyCode(partner)}
+                    aria-label={`Copy ${partner.name} referral code ${partner.discountCode}`}
+                  >
+                    <span><small>REFERRAL CODE</small><code>{partner.discountCode}</code></span>
+                    <span className="partner-card__copy-state"><Copy size={15} aria-hidden="true" /> {copied === partner.id ? "Copied" : "Copy"}</span>
+                  </button>
+                ) : (
+                  <span className="partner-card__no-code">No verified discount code — use the provider link for current terms.</span>
+                )}
+              </div>
               <div className="partner-card__meta"><span>Checked {new Date(`${partner.verifiedAt}T00:00:00`).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>{partner.termsUrl && <a href={partner.termsUrl} target="_blank" rel="noopener noreferrer">Provider terms ↗</a>}</div>
-              <a className="button outline" href={partner.offerUrl || partner.websiteUrl} target="_blank" rel="sponsored noopener noreferrer">Visit {partner.name} <ArrowUpRight size={16} /></a>
+              <a className="button partner-card__cta" href={partner.offerUrl || partner.websiteUrl} target="_blank" rel="sponsored noopener noreferrer">Open {partner.offerLabel} <ArrowUpRight size={16} /></a>
             </article>
           ))}
         </div>
