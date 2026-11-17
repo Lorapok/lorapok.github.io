@@ -280,6 +280,21 @@ try {
     logPass(`All ${requiredRoutes.length} static core routes verified in dist/`);
   }
 
+  const requiredDiscoveryFiles = [
+    'security.txt',
+    path.join('.well-known', 'security.txt'),
+  ];
+  let discoveryFilesOk = true;
+  requiredDiscoveryFiles.forEach((file) => {
+    if (!fs.existsSync(path.join(distDir, file))) {
+      logFail(`Missing production discovery file: dist/${file}`);
+      discoveryFilesOk = false;
+    }
+  });
+  if (discoveryFilesOk) {
+    logPass('Both security.txt discovery routes verified in dist/');
+  }
+
   let blogPagesOk = true;
   posts.filter((p) => (p.status || 'published') === 'published').forEach(p => {
     if (!fs.existsSync(path.join(distDir, 'blog', p.slug, 'index.html'))) {

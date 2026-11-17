@@ -461,7 +461,8 @@ for (const post of posts) {
 
 console.log(`✓ Postbuild: generated ${blogPagesCount} static pre-rendered blog SEO pages under dist/blog/:slug/index.html.`);
 
-// 3. Ensure sitemaps, favicons, manifests, and RSS are copied to dist
+// 3. Ensure static discovery files are copied to dist. Vite does not copy
+// dot-prefixed public directories, so publish the RFC 9116 path explicitly.
 const copyFiles = [
   { src: 'public/favicon.ico', dest: 'dist/favicon.ico' },
   { src: 'public/favicon.svg', dest: 'dist/favicon.svg' },
@@ -471,7 +472,9 @@ const copyFiles = [
   { src: 'public/blog/sitemap.xml', dest: 'dist/blog/sitemap.xml' },
   { src: 'public/blog/rss.xml', dest: 'dist/blog/rss.xml' },
   { src: 'public/blog/posts.json', dest: 'dist/blog/posts.json' },
-  { src: 'public/robots.txt', dest: 'dist/robots.txt' }
+  { src: 'public/robots.txt', dest: 'dist/robots.txt' },
+  { src: 'public/security.txt', dest: 'dist/security.txt' },
+  { src: 'public/.well-known/security.txt', dest: 'dist/.well-known/security.txt' }
 ];
 
 for (const { src, dest } of copyFiles) {
@@ -481,4 +484,4 @@ for (const { src, dest } of copyFiles) {
     fs.copyFileSync(src, dest);
   }
 }
-console.log(`✓ Postbuild: verified XML sitemaps, RSS feed, and robots.txt in dist/.`);
+console.log(`✓ Postbuild: verified discovery files, including both security.txt routes, in dist/.`);
