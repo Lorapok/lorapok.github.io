@@ -21,6 +21,7 @@ export default function LarvaePlanetSystem() {
   const { pathname } = useLocation();
   const centerImage = useMemo(() => {
     if (pathname.startsWith('/mascots')) return '/assets/ribo/species/apex-sovereign.webp';
+    if (pathname.startsWith('/partners')) return '/assets/ribo/generated/20261117/founder-navigator.webp';
     const match = Object.entries(routeCompanions).find(([route]) => pathname.startsWith(route));
     return match
       ? `/assets/ribo/inner-pages/${match[1]}.webp`

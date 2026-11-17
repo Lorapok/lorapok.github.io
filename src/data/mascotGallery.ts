@@ -76,4 +76,13 @@ export const archiveArtwork = [
   },
 ] as const;
 
+export const projectConstellation = [
+  { id: 'ai-orchestrator', name: 'AI Orchestrator', project: 'Loragent · LoLaBo', note: 'Coordinates useful agent signals and research paths.' },
+  { id: 'signal-cartographer', name: 'Signal Cartographer', project: 'FreqGhost · sensory hardware', note: 'Maps invisible wireless environments into understandable signals.' },
+  { id: 'media-composer', name: 'Media Composer', project: 'Lorapok Media Player', note: 'Shapes audio, video and playback into an expressive flow.' },
+  { id: 'language-gardener', name: 'Language Gardener', project: 'Lorapok Keyboard', note: 'Cultivates clearer multilingual input experiences.' },
+  { id: 'vault-guardian', name: 'Vault Guardian', project: 'PassVault · security', note: 'Protects credentials and close-range identity signals.' },
+  { id: 'founder-navigator', name: 'Founder Navigator', project: 'Lorapok Labs Office', note: 'Connects Dhaka-born ideas with useful global collaborations.' },
+] as const;
+
 export type ArchiveArtwork = (typeof archiveArtwork)[number];

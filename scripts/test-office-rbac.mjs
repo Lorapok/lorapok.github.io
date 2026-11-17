@@ -31,6 +31,8 @@ try {
       setDoc(doc(db, "users", "suspended-uid"), profile("suspended-uid", "suspended@example.com", "editor", "suspended")),
       setDoc(doc(db, "published_projects", "public-project"), { id: "public-project", visibility: "published" }),
       setDoc(doc(db, "office_projects", "private-project"), { id: "private-project", visibility: "draft" }),
+      setDoc(doc(db, "published_partners", "public-partner"), { id: "public-partner", visibility: "published", status: "active" }),
+      setDoc(doc(db, "office_partners", "private-partner"), { id: "private-partner", visibility: "draft", status: "paused" }),
       setDoc(doc(db, "blog_posts", "public-post"), { id: "public-post", status: "published" }),
       setDoc(doc(db, "blog_posts", "draft-post"), { id: "draft-post", status: "draft" }),
     ]);
@@ -48,8 +50,10 @@ try {
   const suspended = dbFor("suspended-uid", "suspended@example.com");
 
   await assertSucceeds(getDoc(doc(anonymous, "published_projects", "public-project")));
+  await assertSucceeds(getDoc(doc(anonymous, "published_partners", "public-partner")));
   await assertSucceeds(getDoc(doc(anonymous, "blog_posts", "public-post")));
   await assertFails(getDoc(doc(anonymous, "office_projects", "private-project")));
+  await assertFails(getDoc(doc(anonymous, "office_partners", "private-partner")));
   await assertFails(getDoc(doc(anonymous, "blog_posts", "draft-post")));
 
   await assertSucceeds(setDoc(doc(owner, "office_invites", "new-admin@example.com"), { email: "new-admin@example.com", role: "admin", status: "invited" }));
@@ -57,15 +61,19 @@ try {
   await assertFails(setDoc(doc(admin, "office_invites", "second-admin@example.com"), { email: "second-admin@example.com", role: "admin", status: "invited" }));
 
   await assertSucceeds(setDoc(doc(editor, "office_projects", "editor-project"), { id: "editor-project", visibility: "draft" }));
+  await assertSucceeds(setDoc(doc(editor, "office_partners", "editor-partner"), { id: "editor-partner", visibility: "draft", status: "pending" }));
+  await assertSucceeds(setDoc(doc(editor, "published_partners", "editor-public-partner"), { id: "editor-public-partner", visibility: "published", status: "active" }));
   await assertSucceeds(setDoc(doc(editor, "blog_posts", "editor-draft"), { id: "editor-draft", status: "draft" }));
   await assertFails(setDoc(doc(editor, "agent_config", "lolabo_settings"), { isEnabled: true }));
 
   await assertSucceeds(setDoc(doc(researcher, "agent_config", "lolabo_settings"), { isEnabled: true }));
   await assertSucceeds(setDoc(doc(researcher, "blog_posts", "research-draft"), { id: "research-draft", status: "draft" }));
   await assertFails(setDoc(doc(researcher, "office_projects", "research-project"), { id: "research-project" }));
+  await assertFails(setDoc(doc(researcher, "office_partners", "research-partner"), { id: "research-partner" }));
 
   await assertSucceeds(getDoc(doc(teammate, "users", "team-uid")));
   await assertFails(getDoc(doc(teammate, "office_projects", "private-project")));
+  await assertFails(getDoc(doc(teammate, "office_partners", "private-partner")));
   await assertFails(getDoc(doc(viewer, "agent_config", "lolabo_settings")));
   await assertFails(getDoc(doc(pending, "office_projects", "private-project")));
   await assertFails(getDoc(doc(suspended, "office_projects", "private-project")));

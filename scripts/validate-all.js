@@ -257,6 +257,7 @@ try {
     'creator-works',
     'agents',
     'mascots',
+    'partners',
     'blog',
     'team',
     'about',

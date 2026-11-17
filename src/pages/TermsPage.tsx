@@ -13,7 +13,7 @@ export default function TermsPage() {
     <>
       <SEOHead
         title="Terms of Use"
-        description="Terms for using lorapok.tech, including open-source projects, advertising, and the third-party affiliate link."
+        description="Terms for using lorapok.tech, including open-source projects, advertising, and transparent partner and affiliate references."
         path="/terms/"
       />
       <article className="v4-inner-page v4-legal py-16 px-4 max-w-3xl mx-auto w-full text-gray-300 space-y-8">
@@ -49,10 +49,12 @@ export default function TermsPage() {
             Details are in the <Link className="text-[#67ff8f] hover:underline" to="/privacy/">privacy policy</Link>.
           </p>
           <p>
-            The footer includes one affiliate link to Higgsfield (`https://higgsfield.ai?fpr=lorapoklabs`). Higgsfield
-            is an independent third-party product, not a Lorapok repository or confirmed partner. Lorapok Labs may receive a referral credit if you use that
-            link.
+            The <Link className="text-[#67ff8f] hover:underline" to="/partners/">partner directory</Link> contains
+            approved affiliate relationships and independent affiliate references. Lorapok Labs may receive a commission
+            or account credit after a qualifying action through a tracked link. Each listing identifies the relationship
+            and states a customer benefit only when the exact benefit has been verified.
           </p>
+          <p>Third-party providers control their own prices, eligibility, fulfillment, privacy practices, and offer terms. Their current terms remain authoritative.</p>
         </section>
 
         <section className="space-y-3">

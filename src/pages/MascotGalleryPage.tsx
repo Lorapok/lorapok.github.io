@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/SEOHead';
-import { archiveArtwork, characterCollection, sanctuarySpecies } from '../data/mascotGallery';
+import { archiveArtwork, characterCollection, projectConstellation, sanctuarySpecies } from '../data/mascotGallery';
 
 export default function MascotGalleryPage() {
   return (
@@ -27,7 +27,7 @@ export default function MascotGalleryPage() {
           <div className="mascot-gallery-hero__planet" aria-hidden="true">
             <span className="planet-arc arc-one" />
             <span className="planet-arc arc-two" />
-            <img className="planet-core-mascot" src="/assets/ribo/archive/leaf-panel-mascot.webp" alt="" />
+            <img className="planet-core-mascot" src="/assets/ribo/generated/20261117/ai-orchestrator.webp" alt="" />
             {sanctuarySpecies.slice(0, 3).map((species, index) => (
               <img className={`planet-mascot planet-mascot-${index + 1}`} key={species.id} src={`/assets/ribo/species/${species.id}.webp`} alt="" />
             ))}
@@ -62,6 +62,21 @@ export default function MascotGalleryPage() {
             <article className="v4-character-card reveal" data-family={character.family} key={character.id}>
               <img src={`/assets/ribo/collections/${character.id}.webp`} alt={`${character.name}, Lorapok ${character.family} 3D mascot`} loading="lazy" />
               <div><span>{character.family}</span><h3>{character.name}</h3><p>{character.role}</p></div>
+            </article>
+          ))}
+        </div>
+      </div></section>
+
+      <section className="section mascot-constellation" aria-labelledby="mascot-constellation-title"><div className="wrap4">
+        <div className="mascot-archive__heading">
+          <div><div className="eyebrow">PROJECT CONSTELLATION · NEW 3D CHARACTERS</div><h2 id="mascot-constellation-title">Six new guides.<br /><em>Six product worlds.</em></h2></div>
+          <p>Generated from Lorapok's established anatomy, brand packs, and private project inventory—without exposing identity documents or confidential project data.</p>
+        </div>
+        <div className="mascot-constellation__grid">
+          {projectConstellation.map((character) => (
+            <article className="mascot-constellation-card reveal" key={character.id}>
+              <div className="mascot-constellation-card__visual"><img src={`/assets/ribo/generated/20261117/${character.id}.webp`} alt={`${character.name}, a new Lorapok 3D project mascot`} loading="lazy" /></div>
+              <div><span>{character.project}</span><h3>{character.name}</h3><p>{character.note}</p></div>
             </article>
           ))}
         </div>

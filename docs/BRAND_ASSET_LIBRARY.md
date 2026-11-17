@@ -67,6 +67,23 @@ Source paths, public paths, accessible descriptions, and historical context are 
 
 The route-aware larvae planetarium is mounted by the public layout and uses a relevant companion on every public page. Its motion uses transform-only continuous orbits, remains non-interactive, stays clear of page navigation, and becomes static when `prefers-reduced-motion` is enabled.
 
+## Project constellation · 17 November 2026
+
+Six new transparent 3D character masters are archived in the shared Drive asset folder and represented by optimized WebP files in `public/assets/ribo/generated/20261117/`:
+
+| Character | Product signal | Public use |
+|---|---|---|
+| AI Orchestrator | Loragent and LoLaBo | Partner doorway and mascot gallery |
+| Signal Cartographer | FreqGhost and sensory hardware | Mascot gallery |
+| Media Composer | Lorapok Media Player | Mascot gallery |
+| Language Gardener | Lorapok Keyboard and language tools | Mascot gallery |
+| Vault Guardian | PassVault, NFC, and security | Mascot gallery |
+| Founder Navigator | Lorapok Labs Office and global collaboration | Partner page, homepage, and route-aware planetarium |
+
+Prompt direction: premium isolated 3D larvae using the approved segmented anatomy, paired leaf antennae, expressive eyes, pearl biological shells, translucent sensory panels, and cyan bioluminescent seams. Each character receives role-specific tools and a distinct palette. Prompts explicitly exclude text, logos, watermarks, human likenesses, passport content, and identity-document details.
+
+The production leaf-panel mascot requested for removal from featured placement now appears only in the historical archive section. It is not used as the homepage doorway or gallery hero.
+
 ## Usage rules
 
 - Use the master lockups when a full product name must remain legible.

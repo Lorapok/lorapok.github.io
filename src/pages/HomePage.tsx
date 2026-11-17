@@ -127,9 +127,20 @@ export default function HomePage() {
         </div>
         <div className="home-mascot-doorway__visual" aria-hidden="true">
           <span className="doorway-orbit" />
-          <img className="doorway-mascot doorway-mascot-main" src="/assets/ribo/archive/leaf-panel-mascot.webp" alt="" />
+          <img className="doorway-mascot doorway-mascot-main" src="/assets/ribo/generated/20261117/founder-navigator.webp" alt="" />
           <img className="doorway-mascot doorway-mascot-one" src="/assets/ribo/species/neon-scout.webp" alt="" />
           <img className="doorway-mascot doorway-mascot-two" src="/assets/ribo/species/deep-diver.webp" alt="" />
+        </div>
+      </div></section>
+
+      <section className="section home-partner-doorway"><div className="wrap4 home-partner-doorway__grid">
+        <div className="home-partner-doorway__visual reveal" aria-hidden="true"><img src="/assets/ribo/generated/20261117/ai-orchestrator.webp" alt="" /></div>
+        <div className="home-partner-doorway__copy reveal">
+          <div className="eyebrow">PARTNER CONSTELLATION / VERIFIED BENEFITS</div>
+          <h2>Useful connections.<br /><em>Honest labels.</em></h2>
+          <p>Explore approved affiliates, independent references, and exact customer benefits—each with a relationship label, verification date, and provider-controlled terms.</p>
+          <div className="partner-proof-row"><span>Verified offers</span><span>Clear disclosures</span><span>Office-managed</span></div>
+          <Link className="button" to="/partners/">Explore partners & benefits ↗</Link>
         </div>
       </div></section>
 
