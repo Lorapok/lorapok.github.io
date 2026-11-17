@@ -1,0 +1,39 @@
+name: Broadcast reviewed LoLaBo publication
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lolabo-broadcast
+  cancel-in-progress: false
+
+jobs:
+  broadcast:
+    if: ${{ github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'automation/lolabo' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the deployed merge
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: agent/package-lock.json
+
+      - name: Build the protected broadcaster
+        run: npm --prefix agent ci && npm --prefix agent run build
+
+      - name: Verify live publication and broadcast
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: node agent/broadcastLivePost.js

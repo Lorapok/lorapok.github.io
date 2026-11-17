@@ -17,7 +17,15 @@ function corsHeaders(origin, env) {
 }
 
 function json(body, status, origin, env, extra = {}) {
-  return new Response(JSON.stringify(body), { status, headers: { ...JSON_HEADERS, ...corsHeaders(origin, env), ...extra } });
+  return new Response(JSON.stringify(body), { status, headers: {
+    ...JSON_HEADERS,
+    ...corsHeaders(origin, env),
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "referrer-policy": "no-referrer",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "DENY",
+    ...extra,
+  } });
 }
 
 function decodeTokenPayload(token) {
@@ -204,9 +212,15 @@ export default {
       const cacheKey = new Request(`${url.origin}/_cache/overview-v3`, { method: "GET" });
       const cache = caches.default;
       const cached = await cache.match(cacheKey);
-      if (cached) return new Response(cached.body, { status: cached.status, headers: { ...Object.fromEntries(cached.headers), ...corsHeaders(origin, env) } });
+      if (cached) return new Response(cached.body, { status: cached.status, headers: {
+        ...Object.fromEntries(cached.headers),
+        ...corsHeaders(origin, env),
+        "cache-control": "private, no-store",
+        "vary": "Origin, Authorization",
+        "x-content-type-options": "nosniff",
+      } });
       const overview = await getOverview(env);
-      const response = json(overview, 200, origin, env, { "cache-control": "private, max-age=0", "x-content-type-options": "nosniff" });
+      const response = json(overview, 200, origin, env, { "cache-control": "private, no-store", "vary": "Origin, Authorization" });
       const cacheResponse = new Response(JSON.stringify(overview), { headers: { ...JSON_HEADERS, "cache-control": "public, max-age=60" } });
       await cache.put(cacheKey, cacheResponse);
       return response;

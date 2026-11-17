@@ -37,7 +37,8 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-const admin = __importStar(require("firebase-admin"));
+const app_1 = require("firebase-admin/app");
+const firestore_1 = require("firebase-admin/firestore");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const catalogPolicy_1 = require("./catalogPolicy");
@@ -121,12 +122,12 @@ const serviceAccount = loadServiceAccount();
 let db = null;
 if (serviceAccount && serviceAccount.project_id) {
     try {
-        if (!admin.apps.length) {
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
+        if (!(0, app_1.getApps)().length) {
+            (0, app_1.initializeApp)({
+                credential: (0, app_1.cert)(serviceAccount)
             });
         }
-        db = admin.firestore();
+        db = (0, firestore_1.getFirestore)();
         console.log(`🔥 [Export] Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
     }
     catch (err) {
@@ -135,10 +136,10 @@ if (serviceAccount && serviceAccount.project_id) {
 }
 else {
     try {
-        if (!admin.apps.length) {
-            admin.initializeApp();
+        if (!(0, app_1.getApps)().length) {
+            (0, app_1.initializeApp)();
         }
-        db = admin.firestore();
+        db = (0, firestore_1.getFirestore)();
         console.log("🔥 [Export] Connected to Cloud Firestore via Application Default Credentials.");
     }
     catch {

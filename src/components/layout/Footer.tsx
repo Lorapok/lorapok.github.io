@@ -74,6 +74,7 @@ export default function Footer() {
           <div>
             <Link to="/privacy/">Privacy</Link>
             <Link to="/terms/">Terms</Link>
+            <Link to="/security/">Security</Link>
             <Link to="/dev">Developer portal</Link>
           </div>
           <span>Made in Dhaka · Built for everywhere</span>

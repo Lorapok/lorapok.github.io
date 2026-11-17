@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "attestationId": "LP-VAPT-2026-1118-R1",
+  "issuer": "Lorapok Labs Security Engineering",
+  "assessmentType": "Internal vulnerability assessment and penetration testing",
+  "status": "remediated-and-retested",
+  "assessedAt": "2026-11-18",
+  "validThrough": "2027-02-18",
+  "scope": [
+    "https://lorapok.tech",
+    "Lorapok Labs Firebase authentication and Firestore authorization rules",
+    "LoLaBo HTTP control plane and Discord distribution boundary",
+    "Website and LoLaBo production dependency trees"
+  ],
+  "verifiedControls": [
+    "Role-based and verified-email authorization boundaries",
+    "Fail-closed service authentication",
+    "Draft-content isolation",
+    "Input schema and size limits",
+    "Discord-only webhook destination enforcement",
+    "Production dependency audit",
+    "Defensive HTTP response headers"
+  ],
+  "evidence": {
+    "websiteProductionAudit": "0 known vulnerabilities",
+    "lolaboProductionAudit": "0 known vulnerabilities",
+    "firestoreAuthorizationSuite": "passed",
+    "lolaboSecurityRegressionSuite": "passed",
+    "productionBuild": "passed"
+  },
+  "limitations": [
+    "Internal engineering attestation; not independent third-party accreditation",
+    "Applies only to the assessed revision and named surfaces",
+    "A dev-tool transitive advisory remains where the upstream ecosystem has not published a fixed release; the affected package is not shipped in the production bundle"
+  ],
+  "disclosure": "mailto:lorapokdev@gmail.com",
+  "policy": "https://lorapok.tech/security/"
+}

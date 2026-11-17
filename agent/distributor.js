@@ -42,6 +42,7 @@ exports.postToDiscord = postToDiscord;
 exports.distributeSocially = distributeSocially;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const security_1 = require("./security");
 // ─── Environment Auto-loading ───
 try {
     const rootEnv = path.resolve(__dirname, '../.env');
@@ -200,11 +201,16 @@ async function postToDiscord(post, customWebhook) {
             reason: 'No DISCORD_WEBHOOK_URL provided in .env or Firestore configuration.'
         };
     }
+    const parsedWebhook = (0, security_1.parseAllowedDiscordWebhook)(webhookUrl);
+    if (!parsedWebhook) {
+        return { platform: 'discord', status: 'error', error: 'Discord webhook destination is not allowed.' };
+    }
     console.log("📢 [Discord Broadcast] Broadcasting through the protected deployment webhook...");
     const payload = buildDiscordPayload(post);
     try {
-        const res = await fetch(webhookUrl.trim(), {
+        const res = await fetch(parsedWebhook.toString(), {
             method: 'POST',
+            redirect: 'error',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });

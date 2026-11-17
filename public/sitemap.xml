@@ -85,6 +85,12 @@
     <priority>0.4</priority>
   </url>
   <url>
+    <loc>https://lorapok.tech/security/</loc>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://lorapok.tech/blog/deep-dive-architecting-lock-free-lsm-b-tree-engines-simd-vector-clocks-page-recirculation-and-bounded-wal-shadowing/</loc>
     <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>

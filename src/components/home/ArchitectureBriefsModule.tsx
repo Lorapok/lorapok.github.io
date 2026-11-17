@@ -14,7 +14,7 @@ import {
   Check
 } from 'lucide-react';
 import { db, isFirebaseConfigured } from '../../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 const TOPIC_OPTIONS = [
   { id: 'distributed', label: 'Distributed Systems & eBPF' },
@@ -60,7 +60,7 @@ export const ArchitectureBriefsModule: React.FC = () => {
     setErrorMessage('');
 
     const cleanEmail = email.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/;
     if (!cleanEmail || !emailRegex.test(cleanEmail)) {
       setErrorMessage('Please enter a valid developer email address.');
       return;
@@ -71,10 +71,11 @@ export const ArchitectureBriefsModule: React.FC = () => {
     try {
       // 1. Sync to Cloud Firestore if configured
       if (isFirebaseConfigured) {
-        await addDoc(collection(db, 'newsletter_subscribers'), {
+        await setDoc(doc(db, 'newsletter_subscribers', cleanEmail), {
           email: cleanEmail,
           topics: selectedTopics,
           source: 'homepage_hero_cro',
+          consentVersion: '2026-11',
           createdAt: serverTimestamp(),
           userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
         });

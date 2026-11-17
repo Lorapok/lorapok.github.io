@@ -6,13 +6,15 @@ import * as http from 'http';
 import * as url from 'url';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as admin from 'firebase-admin';
+import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { Firestore, getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { collectNews } from './collector';
 import { writeBlogPost } from './writer';
 import { generateCoverImage } from './imageGen';
 import { distributeSocially } from './distributor';
 import { validateDuplicatePost } from './validator';
 import { isPublicManualPost, isPublicPost, loadAllForDedup, loadPublicPosts, persistDraft, rewritePublicIndex } from './catalogPolicy';
+import { hasValidServiceToken } from './security';
 
 // ─── Environment Auto-loading ───
 try {
@@ -31,6 +33,7 @@ try {
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 const SERVICE_TOKEN = process.env.LOLABO_API_KEY || process.env.SERVICE_TOKEN || '';
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'https://lorapok.tech';
 const POSTS_JSON_PATH = process.env.POSTS_JSON_PATH || path.resolve(__dirname, '../public/blog/posts.json');
 
 // ─── Firebase Initialization ───
@@ -89,16 +92,16 @@ function loadServiceAccount(): any {
 }
 
 const serviceAccount = loadServiceAccount();
-let db: FirebaseFirestore.Firestore | null = null;
+let db: Firestore | null = null;
 
 if (serviceAccount && serviceAccount.project_id) {
   try {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+    if (!getApps().length) {
+      initializeApp({
+        credential: cert(serviceAccount)
       });
     }
-    db = admin.firestore();
+    db = getFirestore();
     console.log(`🔥 Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
   } catch (err) {
     console.error("❌ Failed to initialize Firebase Admin with service account:", err);
@@ -106,10 +109,10 @@ if (serviceAccount && serviceAccount.project_id) {
 } else {
   // Try Application Default Credentials fallback
   try {
-    if (!admin.apps.length) {
-      admin.initializeApp();
+    if (!getApps().length) {
+      initializeApp();
     }
-    db = admin.firestore();
+    db = getFirestore();
     console.log("🔥 Connected to Cloud Firestore via Application Default Credentials.");
   } catch {
     console.log("⚡ Standalone / Local mode active (Cloud Firestore not configured).");
@@ -179,9 +182,14 @@ function sendJson(res: http.ServerResponse, statusCode: number, data: any) {
   const body = JSON.stringify(data, null, 2);
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': CORS_ORIGIN,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Api-Key',
+    'Cache-Control': 'no-store',
+    'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+    'Referrer-Policy': 'no-referrer',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
     'Content-Length': Buffer.byteLength(body),
     'X-Service': 'LoLaBo-Microservice/2.0'
   });
@@ -191,13 +199,17 @@ function sendJson(res: http.ServerResponse, statusCode: number, data: any) {
 function parseJsonBody(req: http.IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let raw = '';
+    let tooLarge = false;
     req.on('data', chunk => {
+      if (tooLarge) return;
       raw += chunk;
       if (raw.length > 5 * 1024 * 1024) {
-        reject(new Error('Payload too large'));
+        tooLarge = true;
+        raw = '';
       }
     });
     req.on('end', () => {
+      if (tooLarge) return reject(new Error('Payload too large'));
       if (!raw) return resolve({});
       try {
         resolve(JSON.parse(raw));
@@ -209,12 +221,11 @@ function parseJsonBody(req: http.IncomingMessage): Promise<any> {
   });
 }
 
-function checkAuth(req: http.IncomingMessage, reqUrl: URL): boolean {
-  if (!SERVICE_TOKEN) return true; // Open if no token configured
+function checkAuth(req: http.IncomingMessage): boolean {
   const authHeader = req.headers['authorization'] || '';
   const bearerToken = authHeader.replace(/^Bearer\s+/i, '').trim();
-  const apiKey = (req.headers['x-api-key'] as string) || (reqUrl.searchParams.get('token') as string) || '';
-  return bearerToken === SERVICE_TOKEN || apiKey === SERVICE_TOKEN;
+  const apiKey = (req.headers['x-api-key'] as string) || '';
+  return hasValidServiceToken(SERVICE_TOKEN, bearerToken, apiKey);
 }
 
 function getCachedPosts(): any[] {
@@ -447,7 +458,7 @@ export async function executeDispatch(options: { force?: boolean; customTopic?: 
         }, { merge: true });
 
         await db.collection('agent_config').doc('lolabo_settings').set({
-          lastRunAt: admin.firestore.Timestamp.now(),
+          lastRunAt: Timestamp.now(),
           triggerRequested: false
         }, { merge: true }).catch(() => {});
         console.log(`✅ [Cloud Firestore] Document '${postId}' committed successfully.`);
@@ -555,7 +566,7 @@ const server = http.createServer(async (req, res) => {
   // CORS Preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Api-Key',
     });
@@ -568,24 +579,19 @@ const server = http.createServer(async (req, res) => {
 
   // 1. Healthcheck (GET / or GET /health)
   if (pathname === '/' || pathname === '/health') {
-    const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
     return sendJson(res, 200, {
       status: "ok",
       service: telemetry.service,
       version: telemetry.version,
-      uptimeSeconds: Math.round(process.uptime()),
-      databaseConnected: Boolean(db),
-      databaseType: db ? `Cloud Firestore (${serviceAccount?.project_id || 'active'})` : 'Local Fallback',
-      aiConfigured: hasAiKey,
-      aiProvider: hasAiKey ? 'Google Gemini' : 'Online AI Required',
-      aiModel: hasAiKey ? 'gemini-3.8-flash' : 'none',
       timestamp: new Date().toISOString(),
-      nodeVersion: process.version
     });
   }
 
   // 2. Microservice Telemetry & Status (GET /api/status)
   if (pathname === '/api/status' && method === 'GET') {
+    if (!checkAuth(req)) {
+      return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+    }
     const posts = getCachedPosts();
     const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
     return sendJson(res, 200, {
@@ -630,15 +636,16 @@ const server = http.createServer(async (req, res) => {
 
     const tag = reqUrl.searchParams.get('tag') || undefined;
     const category = reqUrl.searchParams.get('category') || undefined;
-    const limit = parseInt(reqUrl.searchParams.get('limit') || '50', 10);
+    const requestedLimit = parseInt(reqUrl.searchParams.get('limit') || '50', 10);
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 100) : 50;
 
-    let filtered = posts;
+    let filtered = posts.filter(isPublicPost);
     if (tag) filtered = filtered.filter(p => p.tags && p.tags.includes(tag));
     if (category) filtered = filtered.filter(p => p.category === category);
     filtered = filtered.slice(0, limit);
 
     return sendJson(res, 200, {
-      total: posts.length,
+      total: posts.filter(isPublicPost).length,
       count: filtered.length,
       posts: filtered
     });
@@ -647,7 +654,7 @@ const server = http.createServer(async (req, res) => {
   // 4. Single Post by Slug (GET /api/posts/:slug)
   if (pathname.startsWith('/api/posts/') && method === 'GET') {
     const slug = pathname.replace('/api/posts/', '').trim();
-    const posts = getCachedPosts();
+    const posts = getCachedPosts().filter(isPublicPost);
     const post = posts.find(p => p.slug === slug || p.id === slug);
     if (!post) {
       return sendJson(res, 404, { error: `Post not found with slug: ${slug}` });
@@ -657,7 +664,7 @@ const server = http.createServer(async (req, res) => {
 
   // 5. Trigger Autonomous Dispatch (POST /api/dispatch)
   if (pathname === '/api/dispatch' && method === 'POST') {
-    if (!checkAuth(req, reqUrl)) {
+    if (!checkAuth(req)) {
       return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
     }
 
@@ -673,7 +680,7 @@ const server = http.createServer(async (req, res) => {
 
   // 6. Generate Custom Article On Demand (POST /api/generate)
   if (pathname === '/api/generate' && method === 'POST') {
-    if (!checkAuth(req, reqUrl)) {
+    if (!checkAuth(req)) {
       return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
     }
 
@@ -692,13 +699,15 @@ const server = http.createServer(async (req, res) => {
 
   // 7. Test Discord Webhook Notification & Rich Embed Template (POST /api/test-discord)
   if (pathname === '/api/test-discord' && method === 'POST') {
+    if (!checkAuth(req)) {
+      return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+    }
     try {
       const body = await parseJsonBody(req);
-      const targetWebhook = body.webhookUrl || process.env.DISCORD_WEBHOOK_URL;
+      const targetWebhook = process.env.DISCORD_WEBHOOK_URL;
       if (!targetWebhook || !String(targetWebhook).trim()) {
         return sendJson(res, 400, {
-          error: 'No Discord webhook URL provided in payload {"webhookUrl": "https://..."} or DISCORD_WEBHOOK_URL environment variable.',
-          tip: 'Configure DISCORD_WEBHOOK_URL in .env or pass {"webhookUrl": "https://discord.com/api/webhooks/..."} in the JSON body.'
+          error: 'DISCORD_WEBHOOK_URL is not configured for this service.'
         });
       }
 
@@ -738,6 +747,9 @@ const server = http.createServer(async (req, res) => {
 
   // 8. Validate Candidate Post Duplication (POST /api/validate-post)
   if (pathname === '/api/validate-post' && method === 'POST') {
+    if (!checkAuth(req)) {
+      return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+    }
     try {
       const body = await parseJsonBody(req);
       if (!body.title) {
@@ -761,7 +773,7 @@ const server = http.createServer(async (req, res) => {
 
   // 9. Refresh Static Data & Sitemaps (POST /api/export)
   if (pathname === '/api/export' && method === 'POST') {
-    if (!checkAuth(req, reqUrl)) {
+    if (!checkAuth(req)) {
       return sendJson(res, 401, { error: 'Unauthorized' });
     }
     try {
@@ -774,6 +786,9 @@ const server = http.createServer(async (req, res) => {
 
   // 10. Prometheus / OpenTelemetry Metrics (GET /metrics)
   if (pathname === '/metrics' && method === 'GET') {
+    if (!checkAuth(req)) {
+      return sendJson(res, 401, { error: 'Unauthorized. Invalid or missing API key.' });
+    }
     const mem = process.memoryUsage();
     const hasAiKey = Boolean(process.env.AI_API_KEY || process.env.GEMINI_API_KEY);
     const metrics = [
@@ -821,6 +836,9 @@ const server = http.createServer(async (req, res) => {
 
 // ─── Startup Handler ───
 export function startServer(port = PORT, host = HOST) {
+  if (!SERVICE_TOKEN || SERVICE_TOKEN.length < 32) {
+    throw new Error('LOLAbO service startup refused: LOLABO_API_KEY or SERVICE_TOKEN must contain at least 32 characters.');
+  }
   // Run startup database synchronization in background
   syncDatabaseOnStartup();
 

@@ -241,6 +241,10 @@ const routePrerender = {
     { heading: "Using Lorapok resources", body: "These terms describe the relationship between the public website, linked open-source repositories, third-party services, advertising, and sponsored references." },
     { heading: "Repository licenses", body: "Individual project licenses remain authoritative for copying, modification, redistribution, and contribution terms." },
   ],
+  security: [
+    { heading: "Security assurance", body: "Review the Lorapok Labs internal VAPT attestation, tested surfaces, remediation status, responsible-disclosure route, and machine-readable evidence." },
+    { heading: "Independent verification", body: "This transparent internal attestation is not a substitute for an independently accredited penetration test or compliance certification." },
+  ],
   dev: [
     { heading: "Developer Studio", body: "Open the authenticated Lorapok workspace for content, provider, project, analytics, and studio operations." },
     { heading: "Private workspace boundary", body: "Studio credentials remain session-isolated and administrative actions require the configured authentication and access rules." },
@@ -327,6 +331,12 @@ const routeMeta = {
     description: "Terms for using lorapok.tech, including open-source projects, ads, and the sponsored partner link.",
     keywords: "Lorapok terms, advertising, open source",
     canonical: "https://lorapok.tech/terms/"
+  },
+  security: {
+    title: "Security & VAPT Attestation — Lorapok Labs",
+    description: "Lorapok Labs security posture, internal vulnerability assessment and penetration testing attestation, remediation evidence, and responsible-disclosure contact.",
+    keywords: "Lorapok security, VAPT, vulnerability assessment, penetration testing, responsible disclosure, security.txt",
+    canonical: "https://lorapok.tech/security/"
   },
   dev: {
     title: "Developer Studio — Lorapok Labs",

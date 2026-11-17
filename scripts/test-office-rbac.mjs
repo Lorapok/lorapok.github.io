@@ -14,7 +14,26 @@ const testEnv = await initializeTestEnvironment({
   firestore: { rules: fs.readFileSync("firestore.rules", "utf8") },
 });
 
-const profile = (uid, email, role, status = "active") => ({ uid, email, displayName: role, role, status });
+const profile = (uid, email, role, status = "active") => ({
+  uid,
+  email,
+  displayName: role,
+  photoURL: "",
+  role,
+  status,
+  lastLogin: serverTimestamp(),
+});
+
+const invitation = (email, role, invitedBy) => ({
+  email,
+  displayName: email.split("@")[0],
+  role,
+  status: "invited",
+  department: "",
+  title: "",
+  invitedBy,
+  invitedAt: serverTimestamp(),
+});
 
 try {
   await testEnv.clearFirestore();
@@ -41,7 +60,7 @@ try {
     ]);
   });
 
-  const dbFor = (uid, email) => testEnv.authenticatedContext(uid, { email }).firestore();
+  const dbFor = (uid, email) => testEnv.authenticatedContext(uid, { email, email_verified: true }).firestore();
   const anonymous = testEnv.unauthenticatedContext().firestore();
   const owner = dbFor("owner-uid", "imaizied@gmail.com");
   const admin = dbFor("admin-uid", "admin@example.com");
@@ -59,23 +78,34 @@ try {
   await assertFails(getDoc(doc(anonymous, "office_partners", "private-partner")));
   await assertFails(getDoc(doc(anonymous, "blog_posts", "draft-post")));
 
-  await assertSucceeds(setDoc(doc(anonymous, "newsletter_subscribers", "valid-subscription"), {
+  await assertSucceeds(setDoc(doc(anonymous, "newsletter_subscribers", "subscriber@example.com"), {
     email: "subscriber@example.com",
     source: "home_newsletter",
     consentVersion: "2026-11",
     createdAt: serverTimestamp(),
   }));
-  await assertFails(setDoc(doc(anonymous, "newsletter_subscribers", "invalid-subscription"), {
+  await assertFails(setDoc(doc(anonymous, "newsletter_subscribers", "subscriber@example.com"), {
+    email: "subscriber@example.com",
+    source: "home_newsletter",
+    consentVersion: "2026-11",
+    createdAt: serverTimestamp(),
+  }));
+  await assertFails(setDoc(doc(anonymous, "newsletter_subscribers", "not-an-email"), {
     email: "not-an-email",
     source: "home_newsletter",
     consentVersion: "2026-11",
     createdAt: serverTimestamp(),
   }));
-  await assertFails(getDoc(doc(anonymous, "newsletter_subscribers", "valid-subscription")));
+  await assertFails(getDoc(doc(anonymous, "newsletter_subscribers", "subscriber@example.com")));
 
-  await assertSucceeds(setDoc(doc(owner, "office_invites", "new-admin@example.com"), { email: "new-admin@example.com", role: "admin", status: "invited" }));
-  await assertSucceeds(setDoc(doc(admin, "office_invites", "new-editor@example.com"), { email: "new-editor@example.com", role: "editor", status: "invited" }));
-  await assertFails(setDoc(doc(admin, "office_invites", "second-admin@example.com"), { email: "second-admin@example.com", role: "admin", status: "invited" }));
+  const unverifiedBootstrap = testEnv.authenticatedContext("unverified-owner", {
+    email: "imaizied@gmail.com", email_verified: false,
+  }).firestore();
+  await assertFails(setDoc(doc(unverifiedBootstrap, "users", "unverified-owner"), profile("unverified-owner", "imaizied@gmail.com", "owner")));
+
+  await assertSucceeds(setDoc(doc(owner, "office_invites", "new-admin@example.com"), invitation("new-admin@example.com", "admin", "imaizied@gmail.com")));
+  await assertSucceeds(setDoc(doc(admin, "office_invites", "new-editor@example.com"), invitation("new-editor@example.com", "editor", "admin@example.com")));
+  await assertFails(setDoc(doc(admin, "office_invites", "second-admin@example.com"), invitation("second-admin@example.com", "admin", "admin@example.com")));
 
   await assertSucceeds(setDoc(doc(editor, "office_projects", "editor-project"), { id: "editor-project", visibility: "draft" }));
   await assertSucceeds(setDoc(doc(editor, "office_partners", "editor-partner"), { id: "editor-partner", visibility: "draft", status: "pending" }));
@@ -107,13 +137,42 @@ try {
   await assertFails(getDoc(doc(suspended, "office_modules", "content")));
   await assertFails(updateDoc(doc(teammate, "users", "team-uid"), { role: "admin" }));
 
-  await assertSucceeds(updateDoc(doc(admin, "users", "team-uid"), { role: "editor", status: "active" }));
+  const normalAnalyticsEvent = {
+    category: "nav",
+    action: "security_test",
+    metadata: { tool: "rbac-suite" },
+    uid: "admin-uid",
+    email: "admin@example.com",
+    isAnonymous: false,
+    timestamp: serverTimestamp(),
+    platform: "test",
+    userAgent: "Firebase emulator",
+  };
+  await assertSucceeds(setDoc(doc(admin, "analytics", "valid-event"), normalAnalyticsEvent));
+  await assertFails(setDoc(doc(pending, "analytics", "pending-event"), {
+    ...normalAnalyticsEvent,
+    uid: "pending-uid",
+    email: "pending@example.com",
+  }));
+  await assertFails(setDoc(doc(admin, "analytics", "oversized-event"), {
+    ...normalAnalyticsEvent,
+    metadata: { error: "x".repeat(900_000) },
+  }));
+
+  await assertSucceeds(updateDoc(doc(admin, "users", "team-uid"), {
+    role: "editor",
+    status: "active",
+    department: "Engineering",
+    title: "Editor",
+    accessUpdatedAt: serverTimestamp(),
+    accessUpdatedBy: "admin@example.com",
+  }));
   await assertFails(updateDoc(doc(admin, "users", "editor-uid"), { role: "admin", status: "active" }));
   await assertFails(updateDoc(doc(admin, "users", "owner-uid"), { role: "viewer", status: "suspended" }));
 
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), "office_invites", "invited@example.com"), {
-      email: "invited@example.com", role: "researcher", status: "invited",
+      ...invitation("invited@example.com", "researcher", "imaizied@gmail.com"),
     });
   });
   const invited = dbFor("invited-uid", "invited@example.com");

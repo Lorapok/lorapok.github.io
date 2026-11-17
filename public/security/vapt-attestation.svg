@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Lorapok Labs internal VAPT attestation</title>
+  <desc id="desc">Certificate LP-VAPT-2026-1118-R1, remediated and re-tested on 18 November 2026.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061d17"/><stop offset="1" stop-color="#020b08"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#67f5bb" stop-opacity=".24"/><stop offset="1" stop-color="#67f5bb" stop-opacity="0"/></radialGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="25" flood-opacity=".35"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <circle cx="1360" cy="120" r="420" fill="url(#glow)"/>
+  <circle cx="220" cy="920" r="360" fill="url(#glow)" opacity=".55"/>
+  <rect x="60" y="60" width="1480" height="880" rx="42" fill="none" stroke="#67f5bb" stroke-opacity=".42" stroke-width="2"/>
+  <rect x="78" y="78" width="1444" height="844" rx="34" fill="none" stroke="#67f5bb" stroke-opacity=".13"/>
+  <g font-family="Inter,Arial,sans-serif">
+    <text x="130" y="150" fill="#effff8" font-size="34" font-weight="700">lorapok <tspan fill="#67f5bb">labs.</tspan></text>
+    <text x="1470" y="150" fill="#8ebbaa" font-size="18" text-anchor="end" letter-spacing="5">SECURITY ENGINEERING</text>
+    <text x="130" y="300" fill="#67f5bb" font-size="18" font-weight="700" letter-spacing="5">INTERNAL VULNERABILITY ASSESSMENT</text>
+    <text x="130" y="400" fill="#f3fff9" font-size="82" font-weight="700" letter-spacing="-4">VAPT attestation</text>
+    <text x="130" y="470" fill="#c7b8ff" font-size="44" font-style="italic">Remediated and re-tested.</text>
+    <text x="130" y="555" fill="#a9cbbf" font-size="24">The assessed Lorapok Labs controls passed the documented regression checks</text>
+    <text x="130" y="592" fill="#a9cbbf" font-size="24">for the named revision and scope on 18 November 2026.</text>
+    <g transform="translate(130 675)">
+      <rect width="375" height="105" rx="20" fill="#0b2a21" stroke="#67f5bb" stroke-opacity=".25"/>
+      <text x="28" y="38" fill="#7fa99a" font-size="16" letter-spacing="3">ATTESTATION ID</text>
+      <text x="28" y="76" fill="#effff8" font-size="24" font-family="monospace">LP-VAPT-2026-1118-R1</text>
+      <rect x="400" width="300" height="105" rx="20" fill="#0b2a21" stroke="#67f5bb" stroke-opacity=".25"/>
+      <text x="428" y="38" fill="#7fa99a" font-size="16" letter-spacing="3">STATUS</text>
+      <text x="428" y="76" fill="#67f5bb" font-size="24" font-weight="700">VERIFIED</text>
+      <rect x="725" width="375" height="105" rx="20" fill="#0b2a21" stroke="#67f5bb" stroke-opacity=".25"/>
+      <text x="753" y="38" fill="#7fa99a" font-size="16" letter-spacing="3">REASSESS BY</text>
+      <text x="753" y="76" fill="#effff8" font-size="24">18 February 2027</text>
+    </g>
+    <g transform="translate(1270 370)" filter="url(#shadow)">
+      <circle cx="0" cy="0" r="150" fill="#0b2b22" stroke="#67f5bb" stroke-width="3"/>
+      <circle cx="0" cy="0" r="130" fill="none" stroke="#67f5bb" stroke-opacity=".25" stroke-width="10"/>
+      <path d="M0-76 62-50 54 24C47 80 0 105 0 105S-47 80-54 24l8-74z" fill="none" stroke="#67f5bb" stroke-width="12" stroke-linejoin="round"/>
+      <path d="m-30 12 22 23 45-54" fill="none" stroke="#67f5bb" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="0" y="190" fill="#67f5bb" font-size="18" font-weight="700" text-anchor="middle" letter-spacing="5">VAPT · VERIFIED</text>
+    </g>
+    <text x="130" y="865" fill="#728f84" font-size="17">Internal engineering attestation — not independent third-party accreditation. Verify scope and evidence at lorapok.tech/security/</text>
+    <text x="1470" y="865" fill="#728f84" font-size="17" text-anchor="end">lorapok.tech/security/</text>
+  </g>
+</svg>

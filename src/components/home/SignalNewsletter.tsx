@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { ArrowRight, CheckCircle2, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { db, isFirebaseConfigured } from "../../lib/firebase";
@@ -24,7 +24,7 @@ export default function SignalNewsletter() {
   const subscribe = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(normalizedEmail)) {
       setState("error");
       setMessage("Enter a valid email address.");
       return;
@@ -38,7 +38,7 @@ export default function SignalNewsletter() {
     setState("submitting");
     setMessage("");
     try {
-      await addDoc(collection(db, "newsletter_subscribers"), {
+      await setDoc(doc(db, "newsletter_subscribers", normalizedEmail), {
         email: normalizedEmail,
         source: "home_newsletter",
         consentVersion: "2026-11",

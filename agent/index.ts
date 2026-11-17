@@ -4,7 +4,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as admin from 'firebase-admin';
+import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { Firestore, getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { collectNews } from './collector';
 import { writeBlogPost } from './writer';
 import { generateCoverImage } from './imageGen';
@@ -80,16 +81,16 @@ function loadServiceAccount(): any {
 }
 
 const serviceAccount = loadServiceAccount();
-let db: FirebaseFirestore.Firestore | null = null;
+let db: Firestore | null = null;
 
 if (serviceAccount && serviceAccount.project_id) {
   try {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+    if (!getApps().length) {
+      initializeApp({
+        credential: cert(serviceAccount)
       });
     }
-    db = admin.firestore();
+    db = getFirestore();
     console.log(`🔥 Connected to Cloud Firestore successfully (Project: ${serviceAccount.project_id}).`);
   } catch (err) {
     console.error("❌ Failed to initialize Firebase Admin with service account:", err);
@@ -97,10 +98,10 @@ if (serviceAccount && serviceAccount.project_id) {
 } else {
   // Try Application Default Credentials fallback
   try {
-    if (!admin.apps.length) {
-      admin.initializeApp();
+    if (!getApps().length) {
+      initializeApp();
     }
-    db = admin.firestore();
+    db = getFirestore();
     console.log("🔥 Connected to Cloud Firestore via Application Default Credentials.");
   } catch {
     console.log("⚡ Standalone / Local mode active (Cloud Firestore not configured).");
@@ -138,6 +139,7 @@ function updateFeedsLocally(posts: any[], baseDir: string) {
       { path: 'contact', priority: '0.5', changefreq: 'monthly' },
       { path: 'privacy', priority: '0.4', changefreq: 'yearly' },
       { path: 'terms', priority: '0.4', changefreq: 'yearly' },
+      { path: 'security', priority: '0.5', changefreq: 'monthly' },
     ];
     let rootSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     for (const route of coreRoutes) {
@@ -323,7 +325,7 @@ async function runAgent() {
       console.log(`✅ [Cloud Firestore] Post committed with deterministic document ID: ${docId}`);
 
       await db.collection('agent_config').doc('lolabo_settings').update({
-        lastRunAt: admin.firestore.Timestamp.now(),
+        lastRunAt: Timestamp.now(),
         triggerRequested: false
       }).catch(() => {});
     }

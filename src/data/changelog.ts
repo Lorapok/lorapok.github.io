@@ -75,7 +75,7 @@ export const changelog: ChangelogEntry[] = [
       "Live usage tracking for Cursor AI with model switching, quota monitoring, and budget alerts.",
     type: "feature",
     links: [
-      { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor" },
+      { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor-by-lorapok" },
     ],
   },
   {
@@ -83,9 +83,9 @@ export const changelog: ChangelogEntry[] = [
     product: "Loragent",
     title: "Multi-agent orchestration framework",
     description:
-      "Enterprise-grade agent framework with 250-resource AI marketplace, MCP integration, and mission control.",
+      "Agent orchestration ecosystem with a 224-definition skill catalog, MCP integration, and mission control.",
     type: "launch",
-    links: [{ label: "GitHub", url: "https://github.com/Maijied/Loragent" }],
+    links: [{ label: "Product Site", url: "https://loragent.lorapok.tech/" }],
   },
   {
     date: "2026-07-24",

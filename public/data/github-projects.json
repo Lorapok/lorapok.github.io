@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-11-16T22:43:34.610Z",
+  "generatedAt": "2026-11-17T22:18:40.871Z",
   "owners": [
     "Lorapok",
     "Maijied"
   ],
-  "publicRepositoryCount": 28,
+  "publicRepositoryCount": 29,
   "projects": [
     {
       "id": "lorapok-lorapok-github-io",
@@ -27,7 +27,34 @@
       "defaultBranch": "main",
       "createdAt": "2026-05-03T23:06:17Z",
       "updatedAt": "2026-11-12T04:40:34Z",
-      "pushedAt": "2026-11-16T22:30:02Z",
+      "pushedAt": "2026-11-17T21:58:48Z",
+      "source": "github",
+      "origin": "github",
+      "projectModel": "unclassified",
+      "stage": "active"
+    },
+    {
+      "id": "lorapok-lorapok-instar",
+      "owner": "Lorapok",
+      "name": "lorapok-instar",
+      "fullName": "Lorapok/lorapok-instar",
+      "description": "Systems-grade, low-RAM, sandboxed multi-account workspace for Ubuntu & Linux desktop",
+      "url": "https://github.com/Lorapok/lorapok-instar",
+      "homepage": "",
+      "language": "TypeScript",
+      "languageColor": "#6b7280",
+      "topics": [],
+      "stars": 0,
+      "forks": 0,
+      "archived": false,
+      "fork": false,
+      "visibility": "published",
+      "category": "Desktop/Linux",
+      "featured": false,
+      "defaultBranch": "main",
+      "createdAt": "2026-11-17T06:11:47Z",
+      "updatedAt": "2026-11-17T07:28:25Z",
+      "pushedAt": "2026-11-17T11:20:22Z",
       "source": "github",
       "origin": "github",
       "projectModel": "unclassified",
