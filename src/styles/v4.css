@@ -59,6 +59,7 @@
 .v4 .product-card:nth-child(3n+2) .product-tag,.v4 .product-card:nth-child(3n) .product-tag{border-color:#0003}
 .v4 .product-tag{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.13em;border:1px solid #fff6;border-radius:99px;width:max-content;padding:10px 15px}
 .v4 .product-glyph{height:180px;display:grid;place-items:center;font-size:120px;filter:drop-shadow(0 15px 10px #0002);animation:v4-float 5s ease-in-out infinite}
+.v4 .product-glyph svg,.v4 .v4-relic svg{display:block;filter:drop-shadow(0 15px 10px #0002)}
 .v4 .product-card:nth-child(even) .product-glyph{animation-delay:-2.2s}
 .v4 .product-card h3{font-size:39px;margin-bottom:10px}
 .v4 .product-card p{opacity:.83;font-size:15px}

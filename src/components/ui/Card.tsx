@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Globe, ExternalLink, Code2, Terminal, Layers, BookOpen, Box, Cpu } from 'lucide-react';
+import { Star, Globe, ExternalLink, Code2, Terminal, Layers, BookOpen, Box } from 'lucide-react';
 import { Badge } from './Badge';
 import { Button } from './Button';
+import { ProjectGlyph } from '../projects/ProjectGlyph';
 import type { Project } from '../../data/lorapok';
 
 export interface ProjectLink {
@@ -154,7 +155,12 @@ export const Card = (props: CardProps) => {
               <Star size={12} className="mr-1 fill-amber-400" /> Featured
             </div>
           ) : (
-            <Cpu className="w-5 h-5 text-gray-600" />
+            <ProjectGlyph
+              project={{ name, category: category as Project['category'] }}
+              size={27}
+              strokeWidth={1.55}
+              className="text-[#67ff8f]/70"
+            />
           )}
         </div>
       )}

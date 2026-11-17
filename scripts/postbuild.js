@@ -289,7 +289,7 @@ const routeMeta = {
   partners: {
     title: "Partners & Verified Benefits — Lorapok Labs",
     description: "Transparent Lorapok Labs partner and affiliate references, including verified customer benefits, relationship labels, and provider terms.",
-    keywords: "Lorapok partners, verified benefits, affiliate disclosure, Dynadot referral credit",
+    keywords: "Lorapok partners, verified benefits, affiliate disclosure, Dynadot referral credit, Mercor referral opportunity",
     canonical: "https://lorapok.tech/partners/",
     image: "https://lorapok.tech/assets/ribo/generated/20261117/founder-navigator.webp"
   },
