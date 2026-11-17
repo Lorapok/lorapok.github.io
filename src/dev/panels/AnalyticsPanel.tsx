@@ -171,8 +171,8 @@ export default function AnalyticsPanel() {
         <article className="infra-card">
           <div className="infra-card__heading"><div><span>DNS inventory</span><h2>Published records</h2></div><Globe2 size={19} /></div>
           <div className="infra-table" role="table" aria-label="Cloudflare DNS records">
-            {(overview?.dns ?? []).slice(0, 8).map((record) => (
-              <div role="row" key={`${record.type}-${record.name}`}><b>{record.type}</b><span>{record.name}</span><em>{record.proxied ? "Proxied" : "DNS only"}</em></div>
+            {(overview?.dns ?? []).slice(0, 8).map((record, index) => (
+              <div role="row" key={`${record.type}-${record.name}-${record.proxied ? "proxied" : "dns"}-${index}`}><b>{record.type}</b><span>{record.name}</span><em>{record.proxied ? "Proxied" : "DNS only"}</em></div>
             ))}
             {overview && overview.dns.length > 8 && <small>+ {overview.dns.length - 8} more records protected from this compact view</small>}
             {(!overview || overview.dns.length === 0) && <div className="infra-empty">DNS inventory unavailable.</div>}
