@@ -34,6 +34,22 @@ Eleven verified, reusable originals are copied into `public/assets/brand-library
 
 The private Office Brand Gallery can filter these assets by family, preview them, copy their stable public path, and download the approved file. Source-family labels describe provenance; they do not assert partnerships.
 
+## Generated scene archive
+
+Full-resolution generated masters are archived outside the deploy bundle at:
+
+`/mnt/NewVolume/Personal_Projects/Lorapok Assets/Generated/Lorapok Website/2026-11-17/`
+
+The optimized site copies live under `public/assets/generated/scenes/` and are registered in `src/data/generatedVisuals.ts`. This keeps the permanent drive archive, application path, alt text, and Office Brand Gallery synchronized.
+
+| Scene | Primary placement | Supporting placement |
+|---|---|---|
+| Agent command deck | `/agents` cinematic catalog hero | Office Brand Gallery |
+| LoLaBo living archive | `/blog` editorial masthead | Office Brand Gallery |
+| Collective studio | `/team` collective hero | Office Brand Gallery |
+
+Every future generated image must follow the same sequence: save the full-resolution source in the shared drive archive, create an optimized web copy in the project, register its path and accessible description, use it on a specific page, and expose it in the Office library when it is reusable.
+
 ## Usage rules
 
 - Use the master lockups when a full product name must remain legible.

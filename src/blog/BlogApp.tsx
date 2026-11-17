@@ -40,7 +40,7 @@ import {
 import SEOHead from "./components/SEOHead";
 import LoLaBoLogo from "./components/LoLaBoLogo";
 import LoLaBoImage, { preloadImages } from "./components/LoLaBoImage";
-import PageMascotFeature from "../components/layout/PageMascotFeature";
+import { generatedVisuals } from "../data/generatedVisuals";
 import "./BlogApp.css";
 
 // ─── Types ───
@@ -1663,10 +1663,15 @@ export default function BlogApp() {
     <div className="lolabo pb-24">
       <SEOHead />
 
-      {/* World-Class Editorial Masthead */}
-      <section className="lolabo-hero relative overflow-hidden pt-14 pb-14 border-b border-white/5 bg-[#06080e] [background-image:radial-gradient(ellipse_75%_60%_at_50%_0%,rgba(56,189,248,0.1),rgba(103,255,143,0.04)_45%,transparent_75%)]">
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40" />
-        <div className="hero-content relative z-10 text-center max-w-5xl mx-auto px-4">
+      <section className="lolabo-story-hero">
+        <img
+          className="lolabo-story-hero__image"
+          src={generatedVisuals.lolaboLivingArchive.path}
+          alt={generatedVisuals.lolaboLivingArchive.alt}
+          fetchPriority="high"
+        />
+        <div className="lolabo-story-hero__shade" aria-hidden="true" />
+        <div className="lolabo-story-hero__content">
           
           {/* Kicker Badge with Live Beacon */}
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-inner mb-6">
@@ -1680,35 +1685,27 @@ export default function BlogApp() {
           </div>
 
           {/* Master Brand Typography & Insignia */}
-          <div className="flex flex-col items-center justify-center mb-6">
-            <div className="relative mb-5 group">
+          <div className="lolabo-story-brand">
+            <div className="relative group">
               <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-[#67ff8f]/20 via-[#38bdf8]/20 to-[#c084fc]/20 blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               <div className="relative transform hover:scale-105 transition-transform duration-300">
-                <LoLaBoLogo variant="icon" animated size={68} />
+                <LoLaBoLogo variant="icon" animated size={54} />
               </div>
             </div>
-            
-            <h1 className="hero-title text-6xl sm:text-7xl md:text-8xl font-black tracking-[-0.04em] mb-2 flex items-center justify-center select-none">
-              <span className="bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent drop-shadow-[0_4px_35px_rgba(255,255,255,0.15)]">
-                LoLaBo
-              </span>
-            </h1>
-            
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-mono tracking-[0.22em] text-gray-400 uppercase font-semibold">
-              <span className="text-[var(--lp-accent,#67ff8f)] font-bold">LORAPOK LABS</span>
-              <span className="text-white/20">•</span>
-              <span className="text-gray-300">SYSTEMS ARCHITECTURE & ENGINEERING JOURNAL</span>
+            <div>
+              <strong>LoLaBo</strong>
+              <span>Lorapok Labs · research engine</span>
             </div>
           </div>
 
-          {/* Intellectual Manifesto */}
-          <p className="hero-subtitle text-gray-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Lab notes on public Lorapok repositories. Each note names the repository, the language GitHub reports, and where to open the source.
+          <h1>Research with a <em>living memory.</em></h1>
+          <p className="lolabo-story-hero__lede">
+            Architecture dispatches, public repository notes and autonomous research—curated with visible sources, technical context and an honest quality gate.
           </p>
 
           {/* Dynamic Live Publication Telemetry Bar */}
-          <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs font-mono max-w-4xl mx-auto">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-gray-400">
+          <div className="lolabo-story-hero__telemetry">
+            <div className="lolabo-story-hero__signals">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-[var(--lp-accent,#67ff8f)] animate-pulse" />
                 <span>SOURCE: <strong className="text-white font-semibold">PUBLIC GITHUB</strong></span>
@@ -1721,7 +1718,7 @@ export default function BlogApp() {
                 <span className="w-2 h-2 rounded-full bg-[#c084fc]" />
                 <span>DOMAINS: <strong className="text-white font-semibold">{dynamicStats.activeCategoriesCount} ACTIVE</strong></span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 hidden md:flex">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span>AVG READ: <strong className="text-white font-semibold">{dynamicStats.avgRead} MINS</strong></span>
               </div>
@@ -1751,15 +1748,6 @@ export default function BlogApp() {
 
         </div>
       </section>
-
-      <PageMascotFeature
-        image="/assets/ribo/inner-pages/documentation-librarian.webp"
-        alt="Documentation Librarian, Lorapok's 3D research companion"
-        eyebrow="KNOWLEDGE SIGNAL / VERIFIED SOURCES"
-        title="Research should remain traceable"
-        body="The Documentation Librarian represents the source links, citations and technical context that keep LoLaBo dispatches useful beyond the headline."
-        tone="lavender"
-      />
 
       <main className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         

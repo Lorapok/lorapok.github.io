@@ -71,6 +71,21 @@ function authError(error: unknown) {
   return { code: record.code || "auth/unknown", message: record.message || "Authentication could not be completed." };
 }
 
+function authErrorMessage(error: unknown) {
+  const { code } = authError(error);
+  const host = typeof window === "undefined" ? "this host" : window.location.hostname;
+  const messages: Record<string, string> = {
+    "auth/unauthorized-domain": `Google sign-in is not authorized for ${host}. This host must be added to Firebase Authentication authorized domains.`,
+    "auth/operation-not-allowed": "Google sign-in is not enabled for this Firebase project.",
+    "auth/network-request-failed": "The authentication service could not be reached. Check the connection and try again.",
+    "auth/popup-closed-by-user": "The Google sign-in window was closed before authentication finished.",
+    "auth/cancelled-popup-request": "A newer Google sign-in attempt replaced the previous one. Please try once more.",
+    "auth/web-storage-unsupported": "This browser is blocking the storage required to keep the Office session secure.",
+    "auth/user-disabled": "This Google identity is disabled for the authentication project.",
+  };
+  return messages[code] || "Google sign-in could not be completed. Please retry or use the redirect flow.";
+}
+
 export function DevAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(isFirebaseConfigured);
@@ -229,14 +244,14 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     } catch (error: unknown) {
       const err = authError(error);
       console.warn("Auth Attempt Failed:", err.code);
-      if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request" || err.code === "auth/popup-closed-by-user") {
+      if (err.code === "auth/popup-blocked") {
         try {
           await signInWithRedirect(auth, googleProvider);
         } catch (redirectError: unknown) {
-          setLoginError(authError(redirectError).message);
+          setLoginError(authErrorMessage(redirectError));
         }
       } else {
-        setLoginError(`${err.code}: ${err.message}`);
+        setLoginError(authErrorMessage(error));
       }
     } finally {
       setSigningIn(false);
@@ -248,7 +263,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     if (!isFirebaseConfigured) return;
     getRedirectResult(auth).catch(err => {
       if (err.code !== 'auth/web-storage-unsupported') {
-        setLoginError(err.message);
+        setLoginError(authErrorMessage(err));
       }
     });
   }, []);
@@ -390,7 +405,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
                 setSigningIn(true);
                 try {
                   await signInWithRedirect(auth, googleProvider);
-                } catch (error: unknown) { setLoginError(authError(error).message); setSigningIn(false); }
+                } catch (error: unknown) { setLoginError(authErrorMessage(error)); setSigningIn(false); }
               }}
               style={{ background: "#fff", border: "none", color: "#000", padding: "6px 12px", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
             >
@@ -452,6 +467,7 @@ export function OfficeGate({ children }: { children: ReactNode }) {
           <div className="dev-auth-badge">Lorapok Labs Office</div>
           <h2 className="dev-auth-title"><span>Office</span> Sign-in</h2>
           <p className="dev-auth-sub">Sign in with an invited Google account to enter the role-controlled studio, project control plane, and LoLaBo operations center.</p>
+          <div className="dev-auth-origin">Secure origin · {window.location.hostname}</div>
           
           {!user ? (
             <button

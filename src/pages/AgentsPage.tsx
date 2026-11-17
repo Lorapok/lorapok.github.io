@@ -18,8 +18,8 @@ import {
 } from "../data/agents";
 import { SearchBar } from "../components/ui/SearchBar";
 import { SEOHead } from "../components/SEOHead";
-import PageIntro from "../components/layout/PageIntro";
-import PageMascotFeature from "../components/layout/PageMascotFeature";
+import SceneHero from "../components/layout/SceneHero";
+import { generatedVisuals } from "../data/generatedVisuals";
 
 export default function AgentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,59 +118,21 @@ export default function AgentsPage() {
       />
 
       <div className="v4-inner-page min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        {/* Hero Section */}
-        <PageIntro
-          align="center"
+        <SceneHero
+          image={generatedVisuals.agentCommandDeck.path}
+          alt={generatedVisuals.agentCommandDeck.alt}
           tone="lavender"
           eyebrow={<><Bot size={14} /> LORAGENT INTELLIGENCE NETWORK</>}
           title={<>Autonomous <em>agents & skills.</em></>}
           description={<>A living catalog of {agentStats.total}+ modular AI agents, domain specialists, and deterministic routines engineered for multi-agent orchestration.</>}
-        />
-
-        <PageMascotFeature
-          image="/assets/ribo/inner-pages/formation-commander.webp"
-          alt="Formation Commander, Lorapok's 3D multi-agent orchestrator"
-          eyebrow="FORMATION SIGNAL / HUB-AND-SPOKE"
-          title="Orchestration with a visible shape"
-          body="The Formation Commander represents how specialist agents gather around a clear objective, share bounded context and return evidence to one coordinated system."
-          tone="lavender"
-        />
-
-        {/* Quick Stats Banner */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
-            <div className="text-2xl font-bold text-white mb-1 font-mono">
-              {agentStats.total}
-            </div>
-            <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">
-              Total Units
-            </div>
+        >
+          <div className="scene-hero__stats" aria-label="Loragent catalog statistics">
+            <span><strong>{agentStats.total}</strong>Total units</span>
+            <span><strong>{agentStats.agents}</strong>Agents</span>
+            <span><strong>{agentStats.skills}</strong>Skills</span>
+            <span><strong>5</strong>Formations</span>
           </div>
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
-            <div className="text-2xl font-bold text-[#67ff8f] mb-1 font-mono">
-              {agentStats.agents}
-            </div>
-            <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">
-              Auto Agents
-            </div>
-          </div>
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
-            <div className="text-2xl font-bold text-cyan-400 mb-1 font-mono">
-              {agentStats.skills}
-            </div>
-            <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">
-              Skill Modules
-            </div>
-          </div>
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
-            <div className="text-2xl font-bold text-purple-400 mb-1 font-mono">
-              5
-            </div>
-            <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">
-              Formations
-            </div>
-          </div>
-        </div>
+        </SceneHero>
 
         {/* Search & Formation Filter */}
         <div className="flex flex-col gap-6 max-w-4xl mx-auto mb-10">

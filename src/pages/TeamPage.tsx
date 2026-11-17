@@ -13,7 +13,8 @@ import { DepartmentFilter } from "../components/team/DepartmentFilter";
 import { SearchBar } from "../components/ui/SearchBar";
 import { SEOHead } from "../components/SEOHead";
 import { Link } from "react-router-dom";
-import PageIntro from "../components/layout/PageIntro";
+import SceneHero from "../components/layout/SceneHero";
+import { generatedVisuals } from "../data/generatedVisuals";
 
 export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,13 +62,19 @@ export default function TeamPage() {
       />
 
       <div className="v4-inner-page min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        {/* Hero Section */}
-        <PageIntro
-          align="center"
+        <SceneHero
+          image={generatedVisuals.collectiveStudio.path}
+          alt={generatedVisuals.collectiveStudio.alt}
+          tone="gold"
           eyebrow={<><Users size={14} /> LORAPOK COLLECTIVE</>}
           title={<>The minds behind <em>Lorapok Labs.</em></>}
           description="A distributed collective of engineers, technical advisors, agent architects, visual directors, and strategists building open technology with craft and soul."
-        />
+        >
+          <div className="scene-hero__actions">
+            <Link to="/contact/">Join the collective</Link>
+            <a href="https://github.com/Lorapok" target="_blank" rel="noopener noreferrer">Explore our work ↗</a>
+          </div>
+        </SceneHero>
 
         {/* Search & Department Filters */}
         <div className="flex flex-col gap-6 max-w-4xl mx-auto mb-10">

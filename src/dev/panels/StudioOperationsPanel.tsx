@@ -6,6 +6,7 @@ import {
   Palette, Plus, Search, Send, Users, Video,
 } from "lucide-react";
 import { teamMembers } from "../../data/team";
+import { generatedVisuals } from "../../data/generatedVisuals";
 
 export type StudioTool =
   | "content" | "team-studio" | "offers" | "feedback" | "mail"
@@ -306,6 +307,9 @@ function BrandGallery() {
     { id: "automate-success", family: "Automate", label: "Success state", path: "/assets/brand-library/automate/mascot-success.webp", type: "WebP", use: "Completed workflows" },
     { id: "automate-recovery", family: "Automate", label: "Recovery state", path: "/assets/brand-library/automate/mascot-recovery.webp", type: "WebP", use: "Recovery workflows" },
     { id: "ecosystem-strip", family: "Ecosystem", label: "Co-branded strip", path: "/assets/brand-library/ecosystem/co-branded-strip.webp", type: "WebP", use: "Labs and LoraHost bridges" },
+    { id: "scene-agents", family: "Scenes", label: "Agent command deck", path: generatedVisuals.agentCommandDeck.path, type: "WebP", use: "Agents catalog hero" },
+    { id: "scene-lolabo", family: "Scenes", label: "LoLaBo living archive", path: generatedVisuals.lolaboLivingArchive.path, type: "WebP", use: "Research journal hero" },
+    { id: "scene-collective", family: "Scenes", label: "Collective studio", path: generatedVisuals.collectiveStudio.path, type: "WebP", use: "Team and collective storytelling" },
   ];
   const [activeMood, setActiveMood] = useState(() => localStorage.getItem("lorapok-ribo-mood") || "curious");
   const [assetFamily, setAssetFamily] = useState("All");
@@ -326,8 +330,8 @@ function BrandGallery() {
     <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Operational character set</span><h2>Ribo at work</h2></div><span className="studio-library-count">05 roles</span></div><div className="studio-character-gallery studio-role-gallery">{roles.map((item) => <article key={item.id}><img className="mini-ribo" src={`/assets/ribo/roles/${item.id}.webp`} alt={`${item.label} Ribo character`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
     <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Authentic reference expansion</span><h2>Product worlds, one mascot family</h2></div><span className="studio-library-count">10 new roles</span></div><div className="studio-character-gallery studio-reference-gallery">{referenceCollection.map((item) => <article key={item.id} data-family={item.family}><span className="studio-character-signal">{item.family}</span><img className="mini-ribo" src={`/assets/ribo/collections/${item.id}.webp`} alt={`${item.label} ${item.family} mascot`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
     <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Inner-page companions</span><h2>Context-aware guides</h2></div><span className="studio-library-count">06 roles</span></div><div className="studio-character-gallery studio-reference-gallery">{innerPageRoles.map((item) => <article key={item.id} data-family={item.family}><span className="studio-character-signal">{item.family}</span><img className="mini-ribo" src={`/assets/ribo/inner-pages/${item.id}.webp`} alt={`${item.label} ${item.family} mascot`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
-    <section className="studio-workspace-card studio-brand-library studio-asset-library"><div className="workspace-card-heading"><div><span className="studio-overline">Approved source library</span><h2>Browse, select and reuse</h2></div><span className="studio-library-count">{brandAssets.length.toString().padStart(2, "0")} originals</span></div>
-      <div className="studio-asset-filters" role="group" aria-label="Filter brand assets">{["All", "Labs", "LoraHost", "Automate", "Ecosystem"].map((family) => <button type="button" key={family} className={assetFamily === family ? "active" : ""} aria-pressed={assetFamily === family} onClick={() => setAssetFamily(family)}>{family}</button>)}</div>
+    <section className="studio-workspace-card studio-brand-library studio-asset-library"><div className="workspace-card-heading"><div><span className="studio-overline">Approved source library</span><h2>Browse, select and reuse</h2></div><span className="studio-library-count">{brandAssets.length.toString().padStart(2, "0")} assets</span></div>
+      <div className="studio-asset-filters" role="group" aria-label="Filter brand assets">{["All", "Labs", "LoraHost", "Automate", "Ecosystem", "Scenes"].map((family) => <button type="button" key={family} className={assetFamily === family ? "active" : ""} aria-pressed={assetFamily === family} onClick={() => setAssetFamily(family)}>{family}</button>)}</div>
       <div className="studio-asset-grid">{visibleBrandAssets.map((asset) => <article key={asset.id} data-family={asset.family}><div className="studio-asset-preview"><img src={asset.path} alt={`${asset.family} ${asset.label}`} loading="lazy" /></div><span>{asset.family} · {asset.type}</span><h3>{asset.label}</h3><p>{asset.use}</p><div className="studio-asset-actions"><button type="button" onClick={() => copyAssetPath(asset.path)}>{copiedAsset === asset.path ? <Check size={13} /> : <Copy size={13} />}{copiedAsset === asset.path ? "Copied" : "Copy path"}</button><a href={asset.path} download><Download size={13} /> Download</a></div></article>)}</div>
     </section>
   </>;
