@@ -5,7 +5,12 @@ type SEOHeadProps = {
   description?: string;
   path?: string;
   image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   keywords?: string;
+  robots?: string;
+  type?: "website" | "article";
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 };
 
@@ -20,48 +25,70 @@ export function SEOHead({
   description = BASE_DESCRIPTION,
   path = "/",
   image = BASE_IMAGE,
+  imageAlt,
+  imageWidth,
+  imageHeight,
   keywords,
+  robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+  type = "website",
   jsonLd,
 }: SEOHeadProps) {
   const fullTitle = title ? `${title} — ${BASE_TITLE}` : BASE_TITLE;
-  const canonicalUrl = `${BASE_URL}${path}`;
-  const imageUrl = image.startsWith("http") ? image : `${BASE_URL}${image}`;
+  const canonicalUrl = new URL(path, `${BASE_URL}/`).toString();
+  const imageUrl = new URL(image, `${BASE_URL}/`).toString();
+  const socialImageAlt = imageAlt || `${fullTitle} social preview`;
 
   useEffect(() => {
     document.title = fullTitle;
 
     const setMeta = (property: string, content: string) => {
-      let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.querySelector(`meta[name="${property}"]`) as HTMLMetaElement | null;
-      }
+      const isProperty = property.startsWith("og:") || property.startsWith("article:");
+      const attribute = isProperty ? "property" : "name";
+      let el = document.querySelector(`meta[${attribute}="${property}"]`) as HTMLMetaElement | null;
       if (!el) {
         el = document.createElement("meta");
-        if (property.startsWith("og:") || property.startsWith("article:")) {
-          el.setAttribute("property", property);
-        } else {
-          el.setAttribute("name", property);
-        }
+        el.setAttribute(attribute, property);
         document.head.appendChild(el);
       }
       el.setAttribute("content", content);
     };
 
+    const removeMeta = (name: string) => {
+      document.querySelector(`meta[name="${name}"]`)?.remove();
+    };
+    const removePropertyMeta = (property: string) => {
+      document.querySelector(`meta[property="${property}"]`)?.remove();
+    };
+
     setMeta("description", description);
-    if (keywords) {
-      setMeta("keywords", keywords);
-    }
+    setMeta("robots", robots);
+    setMeta("googlebot", robots);
+    if (keywords) setMeta("keywords", keywords);
+    else removeMeta("keywords");
     setMeta("og:title", fullTitle);
     setMeta("og:description", description);
     setMeta("og:url", canonicalUrl);
     setMeta("og:image", imageUrl);
-    setMeta("og:type", "website");
+    setMeta("og:image:secure_url", imageUrl);
+    setMeta("og:image:alt", socialImageAlt);
+    if (imageWidth && imageHeight) {
+      setMeta("og:image:width", String(imageWidth));
+      setMeta("og:image:height", String(imageHeight));
+    } else {
+      removePropertyMeta("og:image:width");
+      removePropertyMeta("og:image:height");
+    }
+    setMeta("og:type", type);
     setMeta("og:site_name", BASE_TITLE);
+    setMeta("og:locale", "en_US");
     setMeta("twitter:card", "summary_large_image");
     setMeta("twitter:title", fullTitle);
     setMeta("twitter:description", description);
     setMeta("twitter:image", imageUrl);
+    setMeta("twitter:image:alt", socialImageAlt);
     setMeta("twitter:site", "@LorapokLabs");
+    setMeta("twitter:creator", "@LorapokLabs");
+    setMeta("twitter:url", canonicalUrl);
 
     // Canonical
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -96,7 +123,7 @@ export function SEOHead({
         page_path: path,
       });
     }
-  }, [fullTitle, description, canonicalUrl, imageUrl, keywords, jsonLd, path]);
+  }, [fullTitle, description, canonicalUrl, imageUrl, socialImageAlt, imageWidth, imageHeight, keywords, robots, type, jsonLd, path]);
 
   return null;
 }

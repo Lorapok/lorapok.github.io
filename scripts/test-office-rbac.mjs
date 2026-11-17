@@ -6,7 +6,7 @@ import {
   assertSucceeds,
   initializeTestEnvironment,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
 const projectId = "demo-lorapok-rbac";
 const testEnv = await initializeTestEnvironment({
@@ -58,6 +58,20 @@ try {
   await assertFails(getDoc(doc(anonymous, "office_projects", "private-project")));
   await assertFails(getDoc(doc(anonymous, "office_partners", "private-partner")));
   await assertFails(getDoc(doc(anonymous, "blog_posts", "draft-post")));
+
+  await assertSucceeds(setDoc(doc(anonymous, "newsletter_subscribers", "valid-subscription"), {
+    email: "subscriber@example.com",
+    source: "home_newsletter",
+    consentVersion: "2026-11",
+    createdAt: serverTimestamp(),
+  }));
+  await assertFails(setDoc(doc(anonymous, "newsletter_subscribers", "invalid-subscription"), {
+    email: "not-an-email",
+    source: "home_newsletter",
+    consentVersion: "2026-11",
+    createdAt: serverTimestamp(),
+  }));
+  await assertFails(getDoc(doc(anonymous, "newsletter_subscribers", "valid-subscription")));
 
   await assertSucceeds(setDoc(doc(owner, "office_invites", "new-admin@example.com"), { email: "new-admin@example.com", role: "admin", status: "invited" }));
   await assertSucceeds(setDoc(doc(admin, "office_invites", "new-editor@example.com"), { email: "new-editor@example.com", role: "editor", status: "invited" }));

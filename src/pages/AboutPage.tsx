@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code2, BriefcaseBusiness, Globe, Users, ArrowRight, MessageSquare, Mail } from 'lucide-react';
-import { founder, philosophy, brand } from '../data/lorapok';
+import { founder, philosophy } from '../data/lorapok';
 import { teamMembers, type TeammateProfile } from '../data/team';
 import { TeammateCard } from '../components/team/TeammateCard';
 import { TeammateModal } from '../components/team/TeammateModal';
@@ -11,10 +11,6 @@ import PageMascotFeature from '../components/layout/PageMascotFeature';
 
 export default function AboutPage() {
   const [selectedMember, setSelectedMember] = useState<TeammateProfile | null>(null);
-
-  useEffect(() => {
-    document.title = `About & Collective | ${brand.name}`;
-  }, []);
 
   return (
     <>

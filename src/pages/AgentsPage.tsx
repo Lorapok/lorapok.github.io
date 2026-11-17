@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bot,
@@ -28,10 +28,6 @@ export default function AgentsPage() {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [displayLimit, setDisplayLimit] = useState(48);
 
-  useEffect(() => {
-    document.title = "Autonomous Agents & Skills — Lorapok Labs";
-  }, []);
-
   const filteredItems = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return agentsAndSkills.filter((item) => {
@@ -50,10 +46,6 @@ export default function AgentsPage() {
 
       return matchesSearch && matchesFormation;
     });
-  }, [searchQuery, activeFormation]);
-
-  useEffect(() => {
-    setDisplayLimit(48);
   }, [searchQuery, activeFormation]);
 
   const formationCounts = useMemo(() => {
@@ -138,7 +130,7 @@ export default function AgentsPage() {
         <div className="flex flex-col gap-6 max-w-4xl mx-auto mb-10">
           <SearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(value) => { setSearchQuery(value); setDisplayLimit(48); }}
             placeholder="Search agents by name, slug, capability, layer, or tech stack..."
           />
 
@@ -151,7 +143,7 @@ export default function AgentsPage() {
                 return (
                   <button
                     key={formation.id}
-                    onClick={() => setActiveFormation(formation.id)}
+                    onClick={() => { setActiveFormation(formation.id); setDisplayLimit(48); }}
                     className={`
                       px-4 py-2 rounded-full text-xs font-mono font-medium transition-all duration-200 flex items-center gap-2
                       ${
@@ -185,7 +177,7 @@ export default function AgentsPage() {
           </span>
           {activeFormation !== "all" && (
             <button
-              onClick={() => setActiveFormation("all")}
+              onClick={() => { setActiveFormation("all"); setDisplayLimit(48); }}
               className="text-[#67ff8f] hover:underline"
             >
               Reset Formation Filter

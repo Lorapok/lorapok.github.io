@@ -16,6 +16,8 @@ export default function SEOHead({ post }: SEOHeadProps) {
 
     if (!post) {
       removeArticleMetadata();
+      removeMeta("og:image:width", "property");
+      removeMeta("og:image:height", "property");
       document.title = blogMeta.title;
       updateMeta("description", blogMeta.description);
       updateMeta("keywords", blogMeta.keywords);
@@ -25,10 +27,19 @@ export default function SEOHead({ post }: SEOHeadProps) {
       updateMeta("og:url", blogMeta.canonical, "property");
       updateMeta("og:type", "website", "property");
       updateMeta("og:site_name", "Lorapok Labs", "property");
+      updateMeta("og:locale", "en_US", "property");
+      updateMeta("og:image:secure_url", blogMeta.image, "property");
+      updateMeta("og:image:alt", "LoLaBo research journal by Lorapok Labs", "property");
+      updateMeta("robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+      updateMeta("googlebot", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
       updateMeta("twitter:card", "summary_large_image");
+      updateMeta("twitter:site", "@LorapokLabs");
+      updateMeta("twitter:creator", "@LorapokLabs");
       updateMeta("twitter:title", blogMeta.title);
       updateMeta("twitter:description", blogMeta.description);
       updateMeta("twitter:image", blogMeta.image);
+      updateMeta("twitter:image:alt", "LoLaBo research journal by Lorapok Labs");
+      updateMeta("twitter:url", blogMeta.canonical);
       updateCanonical(blogMeta.canonical);
       return () => {
         updateFavicon("/assets/lorapok-icon.svg", "image/svg+xml");
@@ -38,27 +49,38 @@ export default function SEOHead({ post }: SEOHeadProps) {
 
     const canonicalUrl = `https://lorapok.tech/blog/${post.slug}/`;
     const allTags = Array.from(new Set([...(post.tags || []), "LorapokLabs", "Lorapok"]));
+    const socialImage = post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png";
+    removeMeta("og:image:width", "property");
+    removeMeta("og:image:height", "property");
 
     // Standard Tags
     document.title = post.seo?.metaTitle || `${post.title} | LoLaBo — Lorapok Labs`;
     updateMeta("description", post.seo?.metaDescription || post.excerpt);
     updateMeta("keywords", allTags.join(", "));
+    updateMeta("robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+    updateMeta("googlebot", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
     updateCanonical(canonicalUrl);
 
     // Open Graph
     updateMeta("og:title", post.title, "property");
     updateMeta("og:description", post.excerpt, "property");
-    updateMeta("og:image", post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png", "property");
+    updateMeta("og:image", socialImage, "property");
+    updateMeta("og:image:secure_url", socialImage, "property");
+    updateMeta("og:image:alt", `${post.title} — LoLaBo article cover`, "property");
     updateMeta("og:url", canonicalUrl, "property");
     updateMeta("og:type", "article", "property");
     updateMeta("og:site_name", "Lorapok Labs", "property");
+    updateMeta("og:locale", "en_US", "property");
 
     // Twitter
     updateMeta("twitter:card", "summary_large_image");
     updateMeta("twitter:site", "@LorapokLabs");
+    updateMeta("twitter:creator", "@LorapokLabs");
     updateMeta("twitter:title", post.title);
     updateMeta("twitter:description", post.excerpt);
-    updateMeta("twitter:image", post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png");
+    updateMeta("twitter:image", socialImage);
+    updateMeta("twitter:image:alt", `${post.title} — LoLaBo article cover`);
+    updateMeta("twitter:url", canonicalUrl);
 
     // Published date resolution
     const toIsoDate = (value: unknown): string | undefined => {
@@ -74,6 +96,9 @@ export default function SEOHead({ post }: SEOHeadProps) {
     const pubDateIso = toIsoDate(post.publishedAt);
     const rawModified = post.updatedAt || post.modifiedAt;
     const modifiedDateIso = toIsoDate(rawModified) || pubDateIso;
+    if (pubDateIso) updateMeta("article:published_time", pubDateIso, "property");
+    if (modifiedDateIso) updateMeta("article:modified_time", modifiedDateIso, "property");
+    updateMeta("article:section", post.category || "Engineering", "property");
 
     // Schema.org JSON-LD (Graph with Article + Breadcrumbs + Publisher)
     const schema = {
@@ -89,7 +114,7 @@ export default function SEOHead({ post }: SEOHeadProps) {
           },
           "headline": post.title,
           "description": post.excerpt,
-          "image": [post.coverImage || "https://lorapok.tech/assets/lolabo-logo.png"],
+          "image": [socialImage],
           ...(pubDateIso ? { "datePublished": pubDateIso } : {}),
           ...(modifiedDateIso ? { "dateModified": modifiedDateIso } : {}),
           "author": {
@@ -181,6 +206,10 @@ function updateMeta(name: string, content: string, attr: "name" | "property" = "
     document.head.appendChild(el);
   }
   el.setAttribute("content", content);
+}
+
+function removeMeta(name: string, attr: "name" | "property" = "name") {
+  document.querySelector(`meta[${attr}="${name}"]`)?.remove();
 }
 
 function updateCanonical(url: string) {

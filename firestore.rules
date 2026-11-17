@@ -131,6 +131,20 @@ service cloud.firestore {
       allow write: if canEditPublishing();
     }
 
+    match /newsletter_subscribers/{subscriptionId} {
+      allow create: if request.resource.data.keys().hasOnly([
+          "email", "source", "consentVersion", "createdAt"
+        ])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() >= 6
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
+        && request.resource.data.source == "home_newsletter"
+        && request.resource.data.consentVersion == "2026-11"
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if false;
+    }
+
     match /agent_config/{documentId} {
       allow read, write: if canRunResearch();
     }

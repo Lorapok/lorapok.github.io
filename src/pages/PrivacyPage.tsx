@@ -1,14 +1,8 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { brand } from "../data/lorapok";
 import { SEOHead } from "../components/SEOHead";
 import PageIntro from "../components/layout/PageIntro";
 
 export default function PrivacyPage() {
-  useEffect(() => {
-    document.title = `Privacy Policy | ${brand.name}`;
-  }, []);
-
   return (
     <>
       <SEOHead
@@ -64,6 +58,16 @@ export default function PrivacyPage() {
           <p>
             The contact form asks for a name, email address, subject, and message so we can reply. We do not sell that
             information. Do not send passwords, payment card numbers, or government ID numbers through the form.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-2xl font-bold text-white">Newsletter subscriptions</h2>
+          <p>
+            If you join the Lorapok Labs newsletter, we store the email address you submit, the signup source, the
+            consent-version marker, and the subscription time in Cloud Firestore. The public website cannot read,
+            change, or delete subscriber records. We use the address only for Lorapok Labs updates and do not sell it.
+            Every newsletter will provide an unsubscribe path, and you can also request removal through the contact page.
           </p>
         </section>
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchX, Users, Sparkles } from "lucide-react";
 import {
@@ -20,10 +20,6 @@ export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeDepartment, setActiveDepartment] = useState<TeamDepartment>("All");
   const [selectedMember, setSelectedMember] = useState<TeammateProfile | null>(null);
-
-  useEffect(() => {
-    document.title = "Collective & Teammates — Lorapok Labs";
-  }, []);
 
   const filteredMembers = useMemo(() => {
     return teamMembers.filter((member) => {

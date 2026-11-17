@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/SEOHead';
-import { brand, projects, type Project } from '../data/lorapok';
+import SignalNewsletter from '../components/home/SignalNewsletter';
+import { projects, type Project } from '../data/lorapok';
 
 const GLYPH: Record<string, string> = {
   AI: '✦', 'Developer Tools': '⌘', 'Engineering Craft': '✣', Media: '▶', 'Language/Input': '⌨', 'Laravel/PHP': '◈', 'Desktop/Linux': '▣',
@@ -19,8 +20,9 @@ type Post = { slug: string; title: string; excerpt: string; category?: string; s
 const homeJsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'WebSite', name: 'Lorapok Labs', url: 'https://lorapok.tech', description: 'Open-source products, AI agent skills, and Creator Works in 3D art and design from the Lorapok collective.' },
-    { '@type': 'Organization', name: 'Lorapok Labs', url: 'https://lorapok.tech', logo: 'https://lorapok.tech/assets/lorapok-labs-logo.png', sameAs: ['https://github.com/Lorapok', 'https://github.com/Maijied', 'https://x.com/LorapokLabs'] },
+    { '@type': 'WebSite', '@id': 'https://lorapok.tech/#website', name: 'Lorapok Labs', url: 'https://lorapok.tech/', inLanguage: 'en', publisher: { '@id': 'https://lorapok.tech/#organization' }, description: 'Open-source products, AI agent skills, and Creator Works in 3D art and design from the Lorapok collective.' },
+    { '@type': 'Organization', '@id': 'https://lorapok.tech/#organization', name: 'Lorapok Labs', url: 'https://lorapok.tech/', logo: { '@type': 'ImageObject', url: 'https://lorapok.tech/assets/lorapok-labs-logo.png', width: 2400, height: 640 }, sameAs: ['https://github.com/Lorapok', 'https://github.com/Maijied', 'https://www.linkedin.com/showcase/lorapok/', 'https://x.com/LorapokLabs'] },
+    { '@type': 'WebPage', '@id': 'https://lorapok.tech/#webpage', url: 'https://lorapok.tech/', name: 'Lorapok Labs — Open-source Products That Feel Alive', isPartOf: { '@id': 'https://lorapok.tech/#website' }, about: { '@id': 'https://lorapok.tech/#organization' }, inLanguage: 'en' },
   ],
 };
 
@@ -45,7 +47,6 @@ export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    document.title = `${brand.name} | ${brand.tagline}`;
     fetch('/blog/posts.json')
       .then((r) => r.json())
       .then((d: Post[]) => Array.isArray(d) && setPosts(d.filter((p) => (p.status || 'published') === 'published').slice(0, 3)))
@@ -61,6 +62,9 @@ export default function HomePage() {
         description="Lorapok Labs ships open-source software, 224 Loragent skills, and Creator Works in 3D art and design — biological UI, sensory computing, and practical engineering from Dhaka."
         path="/"
         image="/assets/lorapok-labs-logo.png"
+        imageAlt="Lorapok Labs — open-source products that feel alive"
+        imageWidth={2400}
+        imageHeight={640}
         keywords="Lorapok Labs, open source, Creator Works, 3D art and design, Loragent, developer tools, sensory computing, biological UI, LoLaBo"
         jsonLd={homeJsonLd}
       />
@@ -211,6 +215,8 @@ export default function HomePage() {
           <Link to="/projects/" className="button">Enter the ecosystem ↗</Link>
         </div>
       </section>
+
+      <SignalNewsletter />
 
       <section className="section"><div className="wrap4"><div className="cta-band reveal">
         <h2>Build something<br />alive with us.</h2>
