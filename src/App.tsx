@@ -20,7 +20,6 @@ import {
   Sparkles,
   Terminal,
   X,
-  Zap,
   Package,
   Download,
   Cloud,
@@ -45,6 +44,7 @@ import {
 import { sendContactMail } from "./lib/contactMail";
 import "./App.css";
 import DevModePortal from "./dev/DevModePortal";
+import { ProjectGlyph } from "./components/projects/ProjectGlyph";
 
 const heroImage = "/assets/lorapok-hero.png";
 const badgeImage = "/assets/ribo/ribo-curious.webp";
@@ -857,8 +857,6 @@ function ProjectCard({
   index: number;
   featured?: boolean;
 }) {
-  const Icon = featured ? Zap : Cpu;
-
   return (
     <motion.article
       className={`project-card ${featured ? "featured" : ""}`}
@@ -869,7 +867,7 @@ function ProjectCard({
     >
       <div className="project-card-head">
         <span className="project-icon">
-          <Icon size={18} />
+          <ProjectGlyph project={project} size={18} />
         </span>
         <span className="project-category">{project.category}</span>
       </div>

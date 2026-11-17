@@ -2,12 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/SEOHead';
 import SignalNewsletter from '../components/home/SignalNewsletter';
+import { ProjectGlyph } from '../components/projects/ProjectGlyph';
 import { projects, type Project } from '../data/lorapok';
-
-const GLYPH: Record<string, string> = {
-  AI: '✦', 'Developer Tools': '⌘', 'Engineering Craft': '✣', Media: '▶', 'Language/Input': '⌨', 'Laravel/PHP': '◈', 'Desktop/Linux': '▣',
-  'Browser Extensions': '❖', 'Games/Utilities': '◉', 'Mobile Apps': '▤', 'Sensory & Hardware': '≋', '3D Art & Design': '◆',
-};
 
 const OFFERS = [
   { name: 'Starter Hosting', badge: 'START HERE', blurb: 'Entry-level managed hosting for a focused website.' },
@@ -35,7 +31,7 @@ function ProductCard({ p }: { p: Project }) {
   return (
     <a className="product-card reveal" href={link?.url} target="_blank" rel="noopener noreferrer">
       <span className="product-tag">{p.isNew ? 'New · ' : ''}{p.category}</span>
-      <div className="product-glyph" aria-hidden="true">{GLYPH[p.category] || '✳'}</div>
+      <div className="product-glyph"><ProjectGlyph project={p} size={118} strokeWidth={1.15} /></div>
       <h3>{p.name}</h3>
       <p>{p.tagline}</p>
       <span className="more">{link?.label || 'Open'} <b>↗</b></span>
@@ -160,9 +156,9 @@ export default function HomePage() {
           <p>Recently highlighted on the public Lorapok product catalog. “New” reflects the published catalog label, not an unverified launch date.</p>
         </div>
         <div className="v4-new-grid">
-          <a className="v4-release reveal" href="https://smilo.lorapok.tech/" target="_blank" rel="noopener noreferrer"><span className="v4-badge">NEW ON CATALOG</span><div className="v4-relic">◉</div><h3>Smilo</h3><p>A modular Rust camera engine and creative studio with real-time filters and smile-triggered capture.</p><span className="v4-release-foot">Explore Smilo <b>↗</b></span></a>
-          <a className="v4-release v4-purple reveal" href="https://lorahost.lorapok.tech/" target="_blank" rel="noopener noreferrer"><span className="v4-badge">CLOUD / STOREFRONT</span><div className="v4-relic">☁</div><h3>LoraHost</h3><p>Hosting, domains and AI workspace options, with GPU workspaces explicitly described as early access.</p><span className="v4-release-foot">Explore LoraHost <b>↗</b></span></a>
-          <a className="v4-release v4-yellow reveal" href="https://seeyou.lorapok.tech/" target="_blank" rel="noopener noreferrer"><span className="v4-badge">AGENTIC SEO</span><div className="v4-relic">⌘</div><h3>SeeYou</h3><p>Audit crawler visibility, schema and answer-engine optimization with a technical-first workflow.</p><span className="v4-release-foot">Explore SeeYou <b>↗</b></span></a>
+          <a className="v4-release reveal" href="https://smilo.lorapok.tech/" target="_blank" rel="noopener noreferrer"><span className="v4-badge">NEW ON CATALOG</span><div className="v4-relic"><ProjectGlyph project={{ name: 'Smilo', category: 'Sensory & Hardware' }} size={112} strokeWidth={1.15} /></div><h3>Smilo</h3><p>A modular Rust camera engine and creative studio with real-time filters and smile-triggered capture.</p><span className="v4-release-foot">Explore Smilo <b>↗</b></span></a>
+          <a className="v4-release v4-purple reveal" href="https://lorahost.lorapok.tech/" target="_blank" rel="noopener noreferrer"><span className="v4-badge">CLOUD / STOREFRONT</span><div className="v4-relic"><ProjectGlyph project={{ name: 'LoraHost', category: 'Developer Tools' }} size={112} strokeWidth={1.15} /></div><h3>LoraHost</h3><p>Hosting, domains and AI workspace options, with GPU workspaces explicitly described as early access.</p><span className="v4-release-foot">Explore LoraHost <b>↗</b></span></a>
+          <a className="v4-release v4-yellow reveal" href="https://seeyou.lorapok.tech/" target="_blank" rel="noopener noreferrer"><span className="v4-badge">AGENTIC SEO</span><div className="v4-relic"><ProjectGlyph project={{ name: 'SeeYou', category: 'Developer Tools' }} size={112} strokeWidth={1.15} /></div><h3>SeeYou</h3><p>Audit crawler visibility, schema and answer-engine optimization with a technical-first workflow.</p><span className="v4-release-foot">Explore SeeYou <b>↗</b></span></a>
         </div>
       </div></section>
 
