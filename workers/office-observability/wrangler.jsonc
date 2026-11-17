@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lorapok-office-observability",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-17",
+  "workers_dev": true,
+  "vars": {
+    "FIREBASE_PROJECT_ID": "lorapok-labs",
+    "CLOUDFLARE_ACCOUNT_ID": "f049faaf2f67549f5c58837479596a4a",
+    "CLOUDFLARE_ZONE_ID": "0c39bc637ec21e2aaace918b0c9ba5c1",
+    "PERIOD_HOURS": "24",
+    "ALLOWED_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4175,http://127.0.0.1:4175"
+  }
+}

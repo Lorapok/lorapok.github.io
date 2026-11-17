@@ -50,6 +50,7 @@ function MemberEditor({
   busy: boolean;
   onSave: (member: OfficeMember, changes: Partial<OfficeMember>) => Promise<void>;
 }) {
+  const [imageFailed, setImageFailed] = useState(false);
   const [role, setRole] = useState(member.role);
   const [status, setStatus] = useState(member.status);
   const [department, setDepartment] = useState(member.department || "");
@@ -61,7 +62,9 @@ function MemberEditor({
   return (
     <article className="rbac-member-card">
       <div className="rbac-member-identity">
-        {member.photoURL ? <img src={member.photoURL} alt="" /> : <span>{member.displayName?.slice(0, 1) || member.email.slice(0, 1)}</span>}
+        {member.photoURL && !imageFailed
+          ? <img src={member.photoURL} alt="" onError={() => setImageFailed(true)} />
+          : <span>{member.displayName?.slice(0, 1) || member.email.slice(0, 1)}</span>}
         <div><strong>{member.displayName || member.email.split("@")[0]}</strong><small>{member.email}</small></div>
         <i className={`rbac-status status-${member.status}`}>{member.status}</i>
       </div>

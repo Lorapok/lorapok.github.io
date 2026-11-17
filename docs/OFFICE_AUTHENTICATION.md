@@ -19,6 +19,9 @@ The browser build requires these deployment values:
 - `VITE_FIREBASE_STORAGE_BUCKET`
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_MEASUREMENT_ID`
+- `VITE_OFFICE_OBSERVABILITY_URL` (GitHub Actions variable; the protected Cloudflare Worker URL)
+
+Cloudflare credentials never belong in `VITE_*` variables. The Office observability gateway keeps its read-only `CLOUDFLARE_API_TOKEN` in a Cloudflare Worker secret and independently re-checks the signed-in user's active Firestore role before returning infrastructure data.
 
 Production values remain GitHub deployment secrets. Local values remain in ignored environment files and must be sourced from the encrypted credential vault when synchronization is required. Never commit or display decrypted values.
 
