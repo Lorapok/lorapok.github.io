@@ -123,15 +123,15 @@
   {
     "id": "lorapok-inventory-system",
     "slug": "lorapok-inventory-system",
-    "title": "Lorapok Inventory System keeps each shop in its own database",
-    "excerpt": "The Lorapok-Inventory-System README describes a multi-tenant point of sale where each shop has its own subdomain, branding, and database.",
-    "content": "# Lorapok Inventory System\n\nThe public repository [Maijied/Lorapok-Inventory-System](https://github.com/Maijied/Lorapok-Inventory-System) is a PHP application. GitHub reports the language as PHP, and the repository homepage is [maijied.github.io/Lorapok-Inventory-System](https://maijied.github.io/Lorapok-Inventory-System/).\n\n## What the README says\n\nThe README titles the project Lorapok Retail and describes it as multi-tenant inventory and point-of-sale software for shops that sell serialised goods. One super admin provisions shops. Each shop gets its own subdomain, its own branding, and its own database.\n\n## What this note does not claim\n\nThis note does not report install counts, revenue, or uptime. Those figures are not in the public repository description. The useful fact is the tenancy model: shop data is separated by database, not only by a tenant column.\n\n## Where to look\n\n- Source: https://github.com/Maijied/Lorapok-Inventory-System\n- Site linked from the repository: https://maijied.github.io/Lorapok-Inventory-System/\n",
+    "title": "Lorapok Retail keeps each shop in its own database",
+    "excerpt": "The public Lorapok Retail product page describes multi-tenant inventory and point of sale with a separate database for each shop.",
+    "content": "# Lorapok Retail\n\n[Lorapok Retail](https://inventory.lorapok.tech/) is the public product name for Lorapok's inventory and point-of-sale system for shops that sell serialised goods. The current public page identifies the release as v0.2.0.\n\n## What the product page says\n\nOne super admin provisions shops. Each shop receives its own subdomain, branding, and database, alongside stock, barcode, IMEI, offline billing, and point-of-sale workflows.\n\n## What this note does not claim\n\nThis note does not report install counts, revenue, or uptime. The useful published fact is the tenancy model: shop data is separated by database, not only by a tenant column.\n\n## Where to look\n\n- Product site: https://inventory.lorapok.tech/\n",
     "type": "Product note",
     "citations": [
       {
-        "title": "Lorapok-Inventory-System on GitHub",
-        "source": "GitHub",
-        "url": "https://github.com/Maijied/Lorapok-Inventory-System",
+        "title": "Lorapok Retail product site",
+        "source": "Lorapok Labs",
+        "url": "https://inventory.lorapok.tech/",
         "year": 2026
       }
     ],
@@ -148,8 +148,8 @@
       "avatar": "/assets/founder-avatar.jpg"
     },
     "seo": {
-      "metaTitle": "Lorapok Inventory System keeps each shop in its own database | LoLaBo",
-      "metaDescription": "The Lorapok-Inventory-System README describes a multi-tenant point of sale where each shop has its own subdomain, branding, and database.",
+      "metaTitle": "Lorapok Retail keeps each shop in its own database | LoLaBo",
+      "metaDescription": "The public Lorapok Retail product page describes multi-tenant inventory and point of sale with a separate database for each shop.",
       "keywords": [
         "php",
         "inventory",
@@ -159,8 +159,8 @@
     "source": "manual",
     "sourceArticles": [
       {
-        "title": "Maijied/Lorapok-Inventory-System",
-        "url": "https://github.com/Maijied/Lorapok-Inventory-System"
+        "title": "Lorapok Retail",
+        "url": "https://inventory.lorapok.tech/"
       }
     ],
     "status": "published",
@@ -328,14 +328,14 @@
     "id": "loragent-skill-catalog",
     "slug": "loragent-skill-catalog",
     "title": "Loragent is a multi-agent catalog with 224 skill definitions on this site",
-    "excerpt": "The Loragent README describes an orchestration framework for IDE agents. The skill index in this repository counts 224 definitions.",
-    "content": "# Loragent\n\n[Maijied/Loragent](https://github.com/Maijied/Loragent) is a JavaScript repository. Its homepage is [loragent.lorapok.tech](https://loragent.lorapok.tech/).\n\n## What the README says\n\nThe README presents Loragent as a multi-agent orchestration framework for IDE agents, naming Cursor, Claude Code, Windsurf, Antigravity, Roo Code, Cline, Zed, and Codex. It describes turning a single-agent IDE into a specialist software firm.\n\n## The count on this website\n\n`src/data/agents-index.json` in the Lorapok website repository declares `\"total\": 224`, and the formations in that file add up to 224 skill definitions (210 auto, 2 orchestrator, 9 freelance, 3 observer). That is a count of catalog entries in this repo. It is not a count of people using the software.\n\nThe README also uses the phrase \"250-resource AI marketplace.\" This site uses the counted index total, 224, wherever it states a number.\n\n## Where to look\n\n- Source: https://github.com/Maijied/Loragent\n- Site: https://loragent.lorapok.tech/\n",
+    "excerpt": "The public Loragent site describes an orchestration ecosystem for AI development teams. The skill index on this website counts 224 definitions.",
+    "content": "# Loragent\n\n[Loragent](https://loragent.lorapok.tech/) is Lorapok Labs' public multi-agent ecosystem for orchestrating agent formations, reusable skills, and Edge MCP workflows while building software from the IDE.\n\n## The count on this website\n\n`src/data/agents-index.json` in the public Lorapok website declares `\"total\": 224`, and the formations in that file add up to 224 skill definitions (210 auto, 2 orchestrator, 9 freelance, 3 observer). That is a count of catalog entries on this site. It is not a count of people using the software.\n\n## Where to look\n\n- Product site: https://loragent.lorapok.tech/\n- Public skill catalog: https://lorapok.tech/agents/\n",
     "type": "Product note",
     "citations": [
       {
-        "title": "Loragent on GitHub",
-        "source": "GitHub",
-        "url": "https://github.com/Maijied/Loragent",
+        "title": "Loragent product site",
+        "source": "Lorapok Labs",
+        "url": "https://loragent.lorapok.tech/",
         "year": 2026
       }
     ],
@@ -353,7 +353,7 @@
     },
     "seo": {
       "metaTitle": "Loragent is a multi-agent catalog with 224 skill definitions on this site | LoLaBo",
-      "metaDescription": "The Loragent README describes an orchestration framework for IDE agents. The skill index in this repository counts 224 definitions.",
+      "metaDescription": "The public Loragent site describes an orchestration ecosystem for AI development teams. The skill index on this website counts 224 definitions.",
       "keywords": [
         "javascript",
         "agents",
@@ -363,8 +363,8 @@
     "source": "manual",
     "sourceArticles": [
       {
-        "title": "Maijied/Loragent",
-        "url": "https://github.com/Maijied/Loragent"
+        "title": "Loragent",
+        "url": "https://loragent.lorapok.tech/"
       }
     ],
     "status": "published",

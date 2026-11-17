@@ -4,7 +4,6 @@ import {
   Bot,
   SearchX,
   Sparkles,
-  Terminal,
   Copy,
   Check,
   X,
@@ -298,14 +297,6 @@ export default function AgentsPage() {
               className="px-6 py-3 rounded-xl bg-[#67ff8f] text-black font-semibold text-sm hover:bg-[#8affab] transition-all shadow-[0_0_25px_rgba(103,255,143,0.3)] flex items-center gap-2"
             >
               <ExternalLink size={16} /> Open Loragent Cloud
-            </a>
-            <a
-              href="https://github.com/Maijied/Loragent"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-sm border border-white/10 transition-colors flex items-center gap-2"
-            >
-              <Terminal size={16} /> GitHub Framework
             </a>
           </div>
         </div>

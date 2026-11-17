@@ -125,6 +125,38 @@ export const philosophy = [
 
 export const projects: Project[] = [
   {
+    name: "Automate",
+    tagline: "Connected hospital workflow demo",
+    description:
+      "A public hospital-workflow demonstration with doctor discovery, appointment requests, a patient portal, live queue displays, and QR or reference-based report verification.",
+    category: "Developer Tools",
+    language: "Web",
+    featured: true,
+    isNew: true,
+    badge: "Public Demo",
+    image: "/assets/brand-library/automate/mascot-success.webp",
+    imageType: "cover",
+    links: [
+      { label: "Open Demo", url: "https://automate.lorapok.tech/", icon: "web" },
+    ],
+  },
+  {
+    name: "LoraHost",
+    tagline: "Hosting and domains for Bangladesh",
+    description:
+      "A public hosting and domain storefront with plan comparisons, domain search, and clearly separated registration and renewal pricing for creators and small businesses in Bangladesh.",
+    category: "Developer Tools",
+    language: "Web",
+    featured: true,
+    isNew: true,
+    badge: "Live Service",
+    image: "/assets/brand-library/lorahost/launch-card.webp",
+    imageType: "cover",
+    links: [
+      { label: "Visit LoraHost", url: "https://lorahost.tech/", icon: "web" },
+    ],
+  },
+  {
     name: "HomeDyn Restaurant System",
     tagline: "Interactive restaurant operating system & hospitality demo",
     description:
@@ -313,29 +345,29 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "SubtitleMaster Firefox",
+    name: "Subtitle Master",
     tagline: "Subtitle downloader extension",
-    description: "A browser extension that searches and downloads subtitles using the OpenSubtitles API.",
+    description: "A Firefox extension for finding and downloading subtitles through the OpenSubtitles API.",
     category: "Browser Extensions",
     language: "JavaScript",
+    badge: "Firefox 1.0.4 · Experimental",
     image: "/assets/projects/subtitle-master-icon.png",
     imageType: "icon",
     links: [
-      { label: "AMO", url: "https://addons.mozilla.org/en-US/firefox/addon/subtitle-master/", icon: "firefox" },
-      { label: "GitHub", url: "https://github.com/Maijied/SubtitleMaster-Firefox", icon: "github" },
+      { label: "Firefox Add-ons", url: "https://addons.mozilla.org/firefox/addon/subtitle-master/", icon: "firefox" },
     ],
   },
   {
-    name: "XSnap Media Downloader",
-    tagline: "Cross-browser media capture utility",
-    description: "Opera & Firefox browser extension for downloading and capturing videos, GIFs, and images in high fidelity.",
+    name: "XSnap — Media Downloader for X",
+    tagline: "Firefox media-saving extension",
+    description: "A Firefox extension for saving videos, GIFs, and images from X in the resolutions made available by the source post.",
     category: "Browser Extensions",
     language: "JavaScript",
+    badge: "Firefox 1.0.0 · Released",
     image: "/assets/projects/xsnap-banner.png",
     imageType: "cover",
     links: [
-      { label: "AMO", url: "https://addons.mozilla.org/firefox/addon/xsnap-media-downloader/", icon: "firefox" },
-      { label: "GitHub", url: "https://github.com/Maijied/xsnap-media-downloader_Opera", icon: "github" },
+      { label: "Firefox Add-ons", url: "https://addons.mozilla.org/firefox/addon/xsnap-media-downloader-for-x/", icon: "firefox" },
     ],
   },
   {
@@ -369,11 +401,11 @@ export const projects: Project[] = [
     description: "A lightweight editor focused on essentials like syntax highlighting, word count, and light/dark modes.",
     category: "Desktop/Linux",
     language: "Python",
+    badge: "Public Project Page",
     image: "/assets/projects/linpad-preview.png",
     imageType: "cover",
     links: [
-      { label: "Live", url: "https://linpad.lorapok.tech", icon: "web" },
-      { label: "GitHub", url: "https://github.com/Maijied/linpad", icon: "github" },
+      { label: "Project Page", url: "https://linpad.lorapok.tech/", icon: "web" },
     ],
   },
   {
@@ -432,29 +464,30 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "JavaScript",
     featured: true,
+    badge: "Released",
     image: "/assets/projects/cursor-monitor-preview.png",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://cursor.lorapok.tech/", icon: "web" },
-      { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor", icon: "vscode" },
-      { label: "Open VSX", url: "https://open-vsx.org/extension/LorapokLabs/cursor-curse-monitor", icon: "openvsx" },
+      { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=LorapokLabs.cursor-curse-monitor-by-lorapok", icon: "vscode" },
+      { label: "Open VSX", url: "https://open-vsx.org/extension/lorapok-labs/cursor-curse-monitor-by-lorapok", icon: "openvsx" },
       { label: "Firefox", url: "https://addons.mozilla.org/firefox/addon/cursor-curse-monitor/", icon: "firefox" },
       { label: "GitHub", url: "https://github.com/Maijied/Cursor-Curse-Monitor-by-Lorapok", icon: "github" },
     ],
   },
   {
     name: "Loragent",
-    tagline: "Enterprise multi-agent orchestration",
+    tagline: "AI development workflows for the IDE",
     description:
-      "Multi-agent orchestration framework. The catalog on this site counts 224 skill definitions.",
+      "An AI-assisted development ecosystem that orchestrates agent formations, reusable skills, and Edge MCP workflows for building software from the IDE.",
     category: "AI",
     language: "JavaScript",
     featured: true,
+    badge: "Live Ecosystem",
     image: "/assets/projects/loragent-social.png",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://loragent.lorapok.tech/", icon: "web" },
-      { label: "GitHub", url: "https://github.com/Maijied/Loragent", icon: "github" },
     ],
   },
   {
@@ -758,20 +791,20 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "Lorapok Inventory System",
+    name: "Lorapok Retail",
     tagline: "Multi-tenant inventory and point of sale",
     description:
       "Multi-tenant inventory and point-of-sale for shops that sell serialised goods. One super admin provisions shops. Each shop gets its own subdomain, branding, and database.",
     category: "Laravel/PHP",
     language: "PHP",
     isNew: true,
-    badge: "New",
+    badge: "Public Beta · v0.2.0",
     featured: true,
     image: "/assets/projects/inventory-og.png",
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
-      { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Inventory-System", icon: "github" },
+      { label: "Product Site", url: "https://inventory.lorapok.tech/", icon: "web" },
     ],
   },
   {

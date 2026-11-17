@@ -23,12 +23,12 @@
     <category>Architecture</category>
     </item>
     <item>
-      <title>Lorapok Inventory System keeps each shop in its own database</title>
+      <title>Lorapok Retail keeps each shop in its own database</title>
       <link>https://lorapok.tech/blog/lorapok-inventory-system/</link>
       <guid isPermaLink="true">https://lorapok.tech/blog/lorapok-inventory-system/</guid>
       <pubDate>Wed, 14 Oct 2026 02:00:00 GMT</pubDate>
       <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
-      <description>The Lorapok-Inventory-System README describes a multi-tenant point of sale where each shop has its own subdomain, branding, and database.</description>
+      <description>The public Lorapok Retail product page describes multi-tenant inventory and point of sale with a separate database for each shop.</description>
     <category>php</category>
     <category>inventory</category>
     <category>lorapok</category>
@@ -72,7 +72,7 @@
       <guid isPermaLink="true">https://lorapok.tech/blog/loragent-skill-catalog/</guid>
       <pubDate>Sat, 10 Oct 2026 02:00:00 GMT</pubDate>
       <author>lorapokdev@gmail.com (Mohammad Maizied Hasan Majumder)</author>
-      <description>The Loragent README describes an orchestration framework for IDE agents. The skill index in this repository counts 224 definitions.</description>
+      <description>The public Loragent site describes an orchestration ecosystem for AI development teams. The skill index on this website counts 224 definitions.</description>
     <category>javascript</category>
     <category>agents</category>
     <category>loragent</category>
