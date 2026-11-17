@@ -71,7 +71,7 @@ const toolMeta: Record<StudioTool, { label: string; eyebrow: string; description
   meetings: { label: "Meeting links", eyebrow: "Collaboration", description: "Generate shareable room links without creating accounts or invitations.", icon: Video, mode: "Browser demo" },
   tasks: { label: "Task board", eyebrow: "Operations", description: "Move launch tasks through a lightweight local workflow.", icon: ListChecks, mode: "Browser demo" },
   social: { label: "Social cards", eyebrow: "Publishing", description: "Compose and export 1200×630 release artwork in the browser.", icon: GalleryHorizontalEnd, mode: "Browser demo" },
-  brand: { label: "Brand gallery", eyebrow: "Identity system", description: "Explore Ribo moods, universe emblems and the approved color language.", icon: Palette, mode: "Connected" },
+  brand: { label: "Brand gallery", eyebrow: "Identity system", description: "Explore Ribo moods, sanctuary species, operational characters and the approved color language.", icon: Palette, mode: "Connected" },
 };
 
 function createId(prefix: string) {
@@ -260,13 +260,29 @@ function BrandGallery() {
     { id: "presenting", label: "Presenting", description: "Demos and product stories" },
     { id: "exploring", label: "Exploring", description: "Discovery and active investigation" },
   ];
+  const species = [
+    { id: "vaultie", label: "Vaultie", description: "Scavenger and code keeper", signal: "Charcoal · cyan" },
+    { id: "apex-sovereign", label: "Instar-6 Apex", description: "Sovereign release guardian", signal: "Gold · amber" },
+    { id: "neon-scout", label: "Neon Scout", description: "Low-latency explorer", signal: "Lime · cyan" },
+    { id: "deep-diver", label: "Deep Diver", description: "AI research navigator", signal: "Violet · indigo" },
+    { id: "robo-worker", label: "Robo-Worker", description: "Resilient infrastructure scaler", signal: "Titanium · mint" },
+  ];
+  const roles = [
+    { id: "bio-researcher", label: "Bio-Researcher", description: "LoLaBo and research surfaces" },
+    { id: "release-publisher", label: "Release Publisher", description: "Editorial and launch surfaces" },
+    { id: "network-guardian", label: "Network Guardian", description: "Access, RBAC and security" },
+    { id: "systems-engineer", label: "Systems Engineer", description: "Projects and deployment" },
+    { id: "community-host", label: "Community Host", description: "Team, feedback and welcome" },
+  ];
   const [activeMood, setActiveMood] = useState(() => localStorage.getItem("lorapok-ribo-mood") || "curious");
   useEffect(() => {
     localStorage.setItem("lorapok-ribo-mood", activeMood);
     document.documentElement.dataset.riboMood = activeMood;
   }, [activeMood]);
   return <><section className="studio-brand-tokens"><div><span>Forest</span><strong>#061C17</strong></div><div><span>Mint signal</span><strong>#67F5BB</strong></div><div><span>Lavender mind</span><strong>#D4CCFF</strong></div><div><span>Solar note</span><strong>#EBFA87</strong></div></section>
-    <section className="studio-workspace-card"><div className="workspace-card-heading"><div><span className="studio-overline">Ribo moods</span><h2>One mascot, many signals</h2></div><Palette size={22} /></div><div className="studio-ribo-gallery">{moods.map((mood) => <button type="button" aria-pressed={activeMood === mood.id} className={activeMood === mood.id ? "active" : ""} onClick={() => setActiveMood(mood.id)} key={mood.id}><img className="mini-ribo" src={`/assets/ribo/ribo-${mood.id}.webp`} alt={`${mood.label} Ribo pose`} /><h3>{mood.label}</h3><p>{mood.description}</p></button>)}</div></section>
+    <section className="studio-workspace-card"><div className="workspace-card-heading"><div><span className="studio-overline">Ribo moods</span><h2>One guide, many signals</h2></div><Palette size={22} /></div><div className="studio-ribo-gallery">{moods.map((mood) => <button type="button" aria-pressed={activeMood === mood.id} className={activeMood === mood.id ? "active" : ""} onClick={() => setActiveMood(mood.id)} key={mood.id}><img className="mini-ribo" src={`/assets/ribo/ribo-${mood.id}.webp`} alt={`${mood.label} Ribo pose`} /><h3>{mood.label}</h3><p>{mood.description}</p></button>)}</div></section>
+    <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Larva sanctuary</span><h2>Five restored species</h2></div><span className="studio-library-count">05 species</span></div><div className="studio-character-gallery">{species.map((item) => <article key={item.id}><span className="studio-character-signal">{item.signal}</span><img className="mini-ribo" src={`/assets/ribo/species/${item.id}.webp`} alt={`${item.label} 3D larva species`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
+    <section className="studio-workspace-card studio-brand-library"><div className="workspace-card-heading"><div><span className="studio-overline">Operational character set</span><h2>Ribo at work</h2></div><span className="studio-library-count">05 roles</span></div><div className="studio-character-gallery studio-role-gallery">{roles.map((item) => <article key={item.id}><img className="mini-ribo" src={`/assets/ribo/roles/${item.id}.webp`} alt={`${item.label} Ribo character`} loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p></article>)}</div></section>
   </>;
 }
 

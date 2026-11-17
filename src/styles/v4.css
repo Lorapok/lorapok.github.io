@@ -336,3 +336,30 @@ html[data-ribo-mood]:not([data-ribo-mood="curious"]) .ribo-signal-mood{font-size
 .experience-controls__motion{display:flex;align-items:center;gap:11px;width:100%;margin-top:13px;padding:12px 13px;border:1px solid #ffffff17;border-radius:14px;background:#041a15;color:white;text-align:left;cursor:pointer}.experience-controls__motion>span{display:grid}.experience-controls__motion strong{font-size:11px}.experience-controls__motion small{font-size:9px;color:#719886}
 .lp-motion-paused *,.lp-motion-paused *::before,.lp-motion-paused *::after{animation-play-state:paused!important;scroll-behavior:auto!important}.lp-motion-paused .reveal{opacity:1!important;transform:none!important;filter:none!important}.lp-motion-paused .cursor-glow{display:none!important}
 @media(max-width:700px){.experience-controls{right:16px;bottom:16px}.experience-controls__trigger{padding:7px 10px 7px 7px}.v4 .bio-specimen{right:-36px;top:auto;bottom:58px;width:280px;opacity:.9}.v4 .bio-specimen .signal{right:7%;bottom:-10%;font-size:8px}.v4 .hero{padding-bottom:245px;min-height:940px}.v4 .scrolltag{bottom:24px}}
+
+/* ── Larva Sanctuary ── */
+.v4 .v4-sanctuary{overflow:hidden;background:radial-gradient(circle at 78% 12%,#263462 0,transparent 34%),radial-gradient(circle at 15% 82%,#12573f 0,transparent 35%),#061711}
+.v4 .v4-sanctuary:before{content:'';position:absolute;right:-170px;top:-210px;width:620px;aspect-ratio:1;border:1px dashed #67f5bb26;border-radius:50%;box-shadow:inset 0 0 120px #7659ff0d;pointer-events:none}
+.v4 .v4-sanctuary-heading{position:relative;z-index:1;display:flex;align-items:end;justify-content:space-between;gap:48px;margin-bottom:55px}
+.v4 .v4-sanctuary-heading h2{margin:0}.v4 .v4-sanctuary-heading h2 em{color:#76f6bd;font-style:normal}
+.v4 .v4-sanctuary-heading>p{max-width:500px;margin:0;color:#a8c9ba;font-size:18px;line-height:1.7}
+.v4 .v4-sanctuary-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.v4 .v4-species-card{position:relative;min-width:0;min-height:430px;display:flex;flex-direction:column;padding:18px;border:1px solid #ffffff1c;border-radius:30px;overflow:hidden;background:radial-gradient(circle at 50% 22%,#18e6b126,transparent 42%),linear-gradient(160deg,#0f3028,#071c17);box-shadow:0 24px 65px #0004;transition:transform .5s var(--ease-out),border-color .35s,box-shadow .5s}
+.v4 .v4-species-card:after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#ffffff10,transparent 38%);pointer-events:none}
+.v4 .v4-species-card.species-2{background:radial-gradient(circle at 50% 22%,#ffb32332,transparent 43%),linear-gradient(160deg,#3c2914,#171109)}
+.v4 .v4-species-card.species-3{background:radial-gradient(circle at 50% 22%,#a9ff3d2b,transparent 43%),linear-gradient(160deg,#18351a,#091b12)}
+.v4 .v4-species-card.species-4{background:radial-gradient(circle at 50% 22%,#a775ff32,transparent 43%),linear-gradient(160deg,#281d42,#100c20)}
+.v4 .v4-species-card.species-5{background:radial-gradient(circle at 50% 22%,#8daab92b,transparent 43%),linear-gradient(160deg,#263238,#10191b)}
+.v4 .v4-species-card:hover{transform:translateY(-10px);border-color:#98ffd162;box-shadow:0 34px 85px #0008}
+.v4 .v4-species-index{position:absolute;z-index:2;top:18px;right:20px;color:#a9c9ba;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.12em}
+.v4 .v4-species-card img{position:relative;z-index:1;width:100%;height:225px;object-fit:contain;filter:drop-shadow(0 18px 25px #0008);transition:transform .6s var(--ease-out)}
+.v4 .v4-species-card:hover img{transform:translateY(-7px) scale(1.07) rotate(-1deg)}
+.v4 .v4-species-card>div{position:relative;z-index:2;margin-top:auto;padding:0 4px 5px}
+.v4 .v4-species-card>div>span{display:block;min-height:30px;color:#7fb9a2;font-size:9px;font-weight:800;letter-spacing:.12em;line-height:1.4;text-transform:uppercase}
+.v4 .v4-species-card h3{margin:9px 0 9px;font-size:clamp(23px,2vw,31px);letter-spacing:-.055em}
+.v4 .v4-species-card p{margin:0;color:#8fafa1;font-size:12px;line-height:1.5}
+.v4 .v4-sanctuary-note{position:relative;z-index:1;margin:30px 0 0;padding-top:20px;border-top:1px solid #ffffff18;color:#78998a;font-size:12px;letter-spacing:.06em}
+@media(max-width:1180px){.v4 .v4-sanctuary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.v4 .v4-species-card{min-height:400px}}
+@media(max-width:760px){.v4 .v4-sanctuary-heading{align-items:flex-start;flex-direction:column}.v4 .v4-sanctuary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.v4 .v4-species-card{min-height:360px}.v4 .v4-species-card img{height:185px}}
+@media(max-width:520px){.v4 .v4-sanctuary-grid{grid-template-columns:1fr}.v4 .v4-species-card{min-height:390px}.v4 .v4-species-card img{height:235px}.v4 .v4-sanctuary-heading>p{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.v4 .v4-species-card,.v4 .v4-species-card img{transition:none!important;transform:none!important}}

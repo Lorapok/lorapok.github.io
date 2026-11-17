@@ -14,6 +14,14 @@ const OFFERS = [
   { name: 'Pro Hosting', badge: 'FOR TEAMS', blurb: 'A broader hosting path for multi-site and agency workflows.' },
 ];
 
+const SANCTUARY_SPECIES = [
+  { id: 'vaultie', name: 'Vaultie', role: 'Scavenger / code keeper', signal: 'Charcoal armor · cyan bio-streams' },
+  { id: 'apex-sovereign', name: 'Instar-6 Apex', role: 'Sovereign / release guardian', signal: 'Golden shell · amber crown energy' },
+  { id: 'neon-scout', name: 'Neon Scout', role: 'Explorer / low-latency runner', signal: 'Lime armor · cyan speed channels' },
+  { id: 'deep-diver', name: 'Deep Diver', role: 'Research wizard / AI navigator', signal: 'Cyber purple · orbiting MCP nodes' },
+  { id: 'robo-worker', name: 'Robo-Worker', role: 'Infrastructure / resilient scaler', signal: 'Titanium slate · modular utility claws' },
+];
+
 type Post = { slug: string; title: string; excerpt: string; category?: string; source?: string; readTime?: string | number; status?: string };
 
 const homeJsonLd = {
@@ -116,6 +124,23 @@ export default function HomePage() {
             <div key={t} className="feature-card reveal" style={{ background: '#fff7' }}><span className="icon">{i}</span><h3>{t}</h3><p>{d}</p></div>
           ))}
         </div>
+      </div></section>
+
+      <section className="section v4-sanctuary" aria-labelledby="sanctuary-title"><div className="wrap4">
+        <div className="v4-sanctuary-heading">
+          <div><div className="eyebrow">LARVA SANCTUARY / ARCHIVE RESTORED</div><h2 id="sanctuary-title">One family.<br /><em>Five species.</em></h2></div>
+          <p>Ribo remains the studio guide. The wider sanctuary restores Lorapok’s original cyber-biological character system—each species carrying a different operational signal.</p>
+        </div>
+        <div className="v4-sanctuary-grid">
+          {SANCTUARY_SPECIES.map((species, index) => (
+            <article className={`v4-species-card species-${index + 1} reveal`} key={species.id}>
+              <span className="v4-species-index">0{index + 1}</span>
+              <img src={`/assets/ribo/species/${species.id}.webp`} alt={`${species.name}, a Lorapok 3D larva species`} loading="lazy" />
+              <div><span>{species.role}</span><h3>{species.name}</h3><p>{species.signal}</p></div>
+            </article>
+          ))}
+        </div>
+        <p className="v4-sanctuary-note">Inspired by the six biological instar stages: Lorapok products evolve instead of standing still.</p>
       </div></section>
 
       <section className="statement yellow"><div className="wrap4">
