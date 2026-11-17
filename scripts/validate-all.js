@@ -254,6 +254,7 @@ try {
   const distDir = path.join(rootDir, 'dist');
   const requiredRoutes = [
     'projects',
+    'engineering-craft',
     'creator-works',
     'agents',
     'mascots',

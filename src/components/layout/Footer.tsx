@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 const productLinks = [
   ['Product universe', '/projects'],
+  ['Engineering Craft', '/engineering-craft'],
   ['Creator Works', '/creator-works'],
   ['Living mascots', '/mascots'],
   ['Partners & benefits', '/partners'],

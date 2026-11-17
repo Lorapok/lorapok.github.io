@@ -4,7 +4,7 @@ import { SEOHead } from '../components/SEOHead';
 import { brand, projects, type Project } from '../data/lorapok';
 
 const GLYPH: Record<string, string> = {
-  AI: '✦', 'Developer Tools': '⌘', Media: '▶', 'Language/Input': '⌨', 'Laravel/PHP': '◈', 'Desktop/Linux': '▣',
+  AI: '✦', 'Developer Tools': '⌘', 'Engineering Craft': '✣', Media: '▶', 'Language/Input': '⌨', 'Laravel/PHP': '◈', 'Desktop/Linux': '▣',
   'Browser Extensions': '❖', 'Games/Utilities': '◉', 'Mobile Apps': '▤', 'Sensory & Hardware': '≋', '3D Art & Design': '◆',
 };
 

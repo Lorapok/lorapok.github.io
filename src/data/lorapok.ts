@@ -1,6 +1,7 @@
 export type ProjectCategory =
   | "AI"
   | "Developer Tools"
+  | "Engineering Craft"
   | "Media"
   | "Language/Input"
   | "Laravel/PHP"
@@ -458,14 +459,15 @@ export const projects: Project[] = [
   },
   {
     name: "ReportKit",
-    tagline: "Prepare → Secure Store → Zero Re-Query PHP & Laravel Stack",
+    tagline: "Multi-DB reports that stay fast",
     description:
-      "High-performance chunked prepare, in-memory secure store, and zero re-query reporting engine for Laravel (4.1 to 13+) and plain PHP. Features DateRangeChunker for concurrency-capped SQL reads, in-memory secure store, and streaming exports for Excel, CSV, PDF, and DataTables.",
-    category: "Laravel/PHP",
-    language: "PHP",
+      "A host-owned reporting system for live and archive databases. ReportKit validates filters, plans week-sized reads, merges and deduplicates results, then serves DataTables, XLS, CSV, PDF, and email output without repeating the database work.",
+    category: "Engineering Craft",
+    language: "PHP / TypeScript",
     featured: true,
-    badge: "Monorepo Suite",
-    image: "/assets/projects/reportkit-banner.png",
+    isNew: true,
+    badge: "Flagship System",
+    image: "/assets/projects/reportkit-engineering-craft.webp",
     imageType: "cover",
     links: [
       { label: "Live Site", url: "https://reportkit.lorapok.tech/", icon: "web" },
@@ -480,7 +482,7 @@ export const projects: Project[] = [
     tagline: "In-memory secure store & zero re-query PHP engine",
     description:
       "Core standalone PHP reporting engine (reportkit/core) compatible with PHP 5.6 to 8.3+. Provides DateRangeChunker for weekly database concurrency capping, in-memory secure store, and PseudoPaginator to sort, slice, and deduplicate without redundant database queries.",
-    category: "Laravel/PHP",
+    category: "Engineering Craft",
     language: "PHP",
     badge: "reportkit/core",
     image: "/assets/projects/reportkit-mark.png",
@@ -496,7 +498,7 @@ export const projects: Project[] = [
     tagline: "Modern Laravel 5.5 to 13+ reporting adapter",
     description:
       "Official modern Laravel adapter (reportkit/laravel). Seamless auto-discovery service provider, ReportKit facade, Blade directives, and response macros for instant DataTables JSON and multi-format reports.",
-    category: "Laravel/PHP",
+    category: "Engineering Craft",
     language: "PHP",
     badge: "reportkit/laravel",
     image: "/assets/projects/reportkit-laravel.svg",
@@ -513,7 +515,7 @@ export const projects: Project[] = [
     tagline: "Laravel 4.1 to 5.4 backward-compatible adapter",
     description:
       "Engineered specifically for legacy enterprise production environments running Laravel 4.1–5.4 on PHP 5.6–7.x. Brings modern chunked prepare, secure store, and zero re-query stability to legacy codebases without risky framework upgrades.",
-    category: "Laravel/PHP",
+    category: "Engineering Craft",
     language: "PHP",
     badge: "reportkit/laravel-legacy",
     image: "/assets/projects/reportkit-legacy.svg",
@@ -530,7 +532,7 @@ export const projects: Project[] = [
     tagline: "Browser UI, CAS security tokens & DataTables helpers",
     description:
       "Browser client library (@lorapok-labs/reportkit-ui) published on npm. Features CAS security token handling, export progress indicators, and DataTables helpers for high-throughput reporting frontends.",
-    category: "Developer Tools",
+    category: "Engineering Craft",
     language: "TypeScript",
     badge: "@reportkit/ui",
     image: "/assets/projects/reportkit-larva.gif",
@@ -1045,9 +1047,14 @@ export const projects: Project[] = [
 ];
 
 export const CREATOR_WORKS_CATEGORY: ProjectCategory = "3D Art & Design";
+export const ENGINEERING_CRAFT_CATEGORY: ProjectCategory = "Engineering Craft";
 
 export function getCreatorWorks(): Project[] {
   return projects.filter((p) => p.category === CREATOR_WORKS_CATEGORY);
+}
+
+export function getEngineeringCraft(): Project[] {
+  return projects.filter((p) => p.category === ENGINEERING_CRAFT_CATEGORY);
 }
 
 export function categoryToSlug(category: string): string {
@@ -1060,6 +1067,7 @@ export function categoryToSlug(category: string): string {
 export const categories: ("All" | ProjectCategory)[] = [
   "All",
   "AI",
+  "Engineering Craft",
   "Developer Tools",
   "Sensory & Hardware",
   "Media",

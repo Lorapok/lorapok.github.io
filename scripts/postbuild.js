@@ -183,6 +183,10 @@ const routePrerender = {
     { heading: "Open-source product catalog", body: "Browse developer tools, AI systems, media software, browser extensions, mobile applications, sensory-computing experiments, and public release links maintained across the Lorapok ecosystem." },
     { heading: "Evidence with every project", body: "Project entries connect to source repositories, live demonstrations, package registries, extension stores, or release documentation so visitors can inspect the work directly." },
   ],
+  "engineering-craft": [
+    { heading: "Systems shaped with intention", body: "Engineering Craft presents Lorapok systems where architecture, performance, interaction, documentation, and visual clarity are treated as one designed artifact." },
+    { heading: "ReportKit", body: "The featured work is ReportKit: a host-owned multi-database reporting system with week-sized planning, merge and deduplication, reusable composition, and DataTables, spreadsheet, CSV, PDF, and email delivery." },
+  ],
   "creator-works": [
     { heading: "Selected studio work", body: "The Creator Works collection documents sculpture, kinetic installations, clay studies, Bengali folk craft, and other physical or digital artwork from Lorapok collective creators." },
     { heading: "Creator context", body: "Each work is presented with its creator, medium, story, and portfolio path rather than being treated as anonymous decoration." },
@@ -240,6 +244,13 @@ const routeMeta = {
     description: "Public open-source repositories from @Maijied and @Lorapok, plus Creator Works in 3D art and design, with GitHub links and live demos.",
     keywords: "Lorapok, open source projects, developer tools, 3D art and design, AI, sensory computing, browser extensions",
     canonical: "https://lorapok.tech/projects/"
+  },
+  'engineering-craft': {
+    title: "Engineering Craft — Systems Shaped With Intention — Lorapok Labs",
+    description: "Explore ReportKit and selected Lorapok systems where architecture, performance, interaction, and visual clarity become one crafted engineering artifact.",
+    keywords: "Engineering Craft, ReportKit, multi-database reporting, Laravel reports, PHP reporting engine, Lorapok Labs",
+    canonical: "https://lorapok.tech/engineering-craft/",
+    image: "https://lorapok.tech/assets/projects/reportkit-engineering-craft.webp"
   },
   'creator-works': {
     title: "Creator Works — Studio Sculpture & 3D Art — Lorapok Labs",
