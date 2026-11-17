@@ -68,8 +68,9 @@ export default function HomePage() {
       <header className="hero">
         <div className="orbit" /><div className="orb one" /><div className="orb two" /><div className="blob one" />
         <div className="bio-specimen" aria-hidden="true">
-          <div className="shell"><span className="ribo-eye left" /><span className="ribo-eye right" /><span className="ribo-mouth" /></div>
-          <div className="satellite" />
+          {['curious', 'focused', 'celebrating', 'thinking', 'presenting', 'exploring'].map((mood) => (
+            <img key={mood} className={`ribo-pose ribo-pose-${mood}`} src={`/assets/ribo/ribo-${mood}.webp`} alt="" />
+          ))}
           <div className="signal">● RIBO SIGNAL · <span className="ribo-signal-mood">CURIOUS</span></div>
         </div>
         <div className="wrap4">

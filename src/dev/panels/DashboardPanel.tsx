@@ -79,8 +79,9 @@ export default function DashboardPanel({ onSwitchPanel }: DashboardPanelProps) {
         <div className="studio-ribo-stage" aria-label="Ribo, the Lorapok studio guide">
           <div className="studio-orbit orbit-one" /><div className="studio-orbit orbit-two" />
           <div className="studio-ribo">
-            <span className="ribo-antenna left" /><span className="ribo-antenna right" />
-            <span className="ribo-eye left" /><span className="ribo-eye right" /><span className="ribo-smile" />
+            {['curious', 'focused', 'celebrating', 'thinking', 'presenting', 'exploring'].map((mood) => (
+              <img key={mood} className={`studio-ribo-pose studio-ribo-pose-${mood}`} src={`/assets/ribo/ribo-${mood}.webp`} alt="" />
+            ))}
           </div>
           <div className="studio-ribo-note"><Sparkles size={14} /><span><strong>Ribo is awake</strong>Guiding the studio, one honest signal at a time.</span></div>
         </div>

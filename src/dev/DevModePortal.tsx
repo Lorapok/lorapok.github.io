@@ -47,7 +47,7 @@ import "./DevMode.css";
 type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo" | StudioTool;
 
 
-const devBadgeImage = "/assets/lorapok-badge.png";
+const devBadgeImage = "/assets/ribo/ribo-focused.webp";
 
 interface NavItem {
   id: PanelId;

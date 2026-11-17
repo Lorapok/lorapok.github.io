@@ -39,7 +39,7 @@ export default function Footer() {
         <div className="footer-grid">
           <div className="footer-brand">
             <Link className="footer-logo" to="/" aria-label="Lorapok Labs home">
-              <span aria-hidden="true" /> lorapok <em>labs.</em>
+              <img src="/assets/ribo/ribo-presenting.webp" alt="" aria-hidden="true" /> lorapok <em>labs.</em>
             </Link>
             <p>Open-source products that feel alive — biological interfaces, practical engineering, and curious experiments from Dhaka to the world.</p>
             <div className="footer-socials" aria-label="Lorapok social links">

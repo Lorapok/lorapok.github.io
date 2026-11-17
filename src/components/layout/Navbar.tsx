@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -15,11 +15,6 @@ const navLinks = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -33,7 +28,7 @@ export default function Navbar() {
   return (
     <nav className="nav" aria-label="Main">
       <Link to="/" className="logo-type" onClick={() => setOpen(false)} aria-label="Lorapok Labs home">
-        <i aria-hidden="true" /> lorapok <span>labs.</span>
+        <img src="/assets/ribo/ribo-curious.webp" alt="" aria-hidden="true" /> lorapok <span>labs.</span>
       </Link>
       <div id="primary-navigation" className={`nav-links${open ? ' open' : ''}`}>
         {navLinks.map((l) => (

@@ -12,7 +12,7 @@ The V7 browser review specifically promised a working product search, Ribo mood 
 
 ## Experience contract
 
-- Ribo is visible in the first mobile experience and exposes Curious, Focused, Celebrating, and Thinking states.
+- Ribo is visible in the first mobile experience and exposes six identity-consistent 3D states: Curious, Focused, Celebrating, Thinking, Presenting, and Exploring. The transparent pose set is shared by the public hero, navigation, footer, experience controls, Studio dashboard, and Brand Gallery.
 - Motion can be paused globally and the preference persists locally.
 - Product search and category filtering work from the public product universe.
 - Mobile Studio navigation is grouped and collapsible instead of presenting one long wall of controls.
@@ -52,7 +52,7 @@ Both universes share the same biological interface language, Ribo mascot, brand 
 | 08 | Meeting links | Browser demo | Generate copyable Jitsi room URLs without creating accounts. |
 | 09 | Task board | Browser demo | Move local tasks through backlog, progress, and completion. |
 | 10 | Social cards | Browser demo | Compose and export branded 1200×630 PNG cards. |
-| 11 | Brand gallery | Connected | Review Ribo moods and approved color tokens. |
+| 11 | Brand gallery | Connected | Review the six production Ribo poses and approved color tokens. |
 | 12 | AI laboratory | Connected | Configure providers and run existing AI experiments. |
 | 13 | Prompt library | Connected | Reuse existing prompt workflows. |
 | 14 | Analytics | Connected | Review available audience and product signals. |

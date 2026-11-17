@@ -1,13 +1,15 @@
 import { Pause, Play, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-type RiboMood = 'curious' | 'focused' | 'celebrating' | 'thinking';
+type RiboMood = 'curious' | 'focused' | 'celebrating' | 'thinking' | 'presenting' | 'exploring';
 
 const MOODS: Array<{ id: RiboMood; label: string; signal: string }> = [
   { id: 'curious', label: 'Curious', signal: 'Exploring the universe' },
   { id: 'focused', label: 'Focused', signal: 'Deep work in progress' },
   { id: 'celebrating', label: 'Celebrating', signal: 'A release just landed' },
   { id: 'thinking', label: 'Thinking', signal: 'Research mode active' },
+  { id: 'presenting', label: 'Presenting', signal: 'Sharing the next useful thing' },
+  { id: 'exploring', label: 'Exploring', signal: 'Following a fresh signal' },
 ];
 
 const MOTION_KEY = 'lorapok-motion-paused';
@@ -43,7 +45,7 @@ export default function ExperienceControls() {
         aria-controls="ribo-controls-panel"
         onClick={() => setOpen((value) => !value)}
       >
-        <span className={`ribo-control-avatar mood-${mood}`} aria-hidden="true"><i /><i /><b /></span>
+        <img className="ribo-control-avatar" src={`/assets/ribo/ribo-${mood}.webp`} alt="" aria-hidden="true" />
         <span><strong>Ribo</strong><small>{activeMood.label}</small></span>
         <Sparkles size={15} aria-hidden="true" />
       </button>

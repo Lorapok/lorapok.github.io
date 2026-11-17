@@ -47,8 +47,8 @@ import "./App.css";
 import DevModePortal from "./dev/DevModePortal";
 
 const heroImage = "/assets/lorapok-hero.png";
-const badgeImage = "/assets/lorapok-badge.png";
-const devBadgeImage = "/assets/lorapok-dev-logo.png";
+const badgeImage = "/assets/ribo/ribo-curious.webp";
+const devBadgeImage = "/assets/ribo/ribo-focused.webp";
 const founderImage = "/assets/founder-avatar.jpg";
 const bkashQrImage = "https://raw.githubusercontent.com/Maijied/Maijied/main/portfolio/bkash.jpg";
 const gravatarUrl = "https://gravatar.com/lorapok";

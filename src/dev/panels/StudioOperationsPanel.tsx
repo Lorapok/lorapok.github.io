@@ -257,6 +257,8 @@ function BrandGallery() {
     { id: "focused", label: "Focused", description: "Engineering and deep work" },
     { id: "celebrating", label: "Celebrating", description: "Releases and community wins" },
     { id: "thinking", label: "Thinking", description: "Research and reflection" },
+    { id: "presenting", label: "Presenting", description: "Demos and product stories" },
+    { id: "exploring", label: "Exploring", description: "Discovery and active investigation" },
   ];
   const [activeMood, setActiveMood] = useState(() => localStorage.getItem("lorapok-ribo-mood") || "curious");
   useEffect(() => {
@@ -264,7 +266,7 @@ function BrandGallery() {
     document.documentElement.dataset.riboMood = activeMood;
   }, [activeMood]);
   return <><section className="studio-brand-tokens"><div><span>Forest</span><strong>#061C17</strong></div><div><span>Mint signal</span><strong>#67F5BB</strong></div><div><span>Lavender mind</span><strong>#D4CCFF</strong></div><div><span>Solar note</span><strong>#EBFA87</strong></div></section>
-    <section className="studio-workspace-card"><div className="workspace-card-heading"><div><span className="studio-overline">Ribo moods</span><h2>One mascot, many signals</h2></div><Palette size={22} /></div><div className="studio-ribo-gallery">{moods.map((mood, index) => <button type="button" aria-pressed={activeMood === mood.id} className={activeMood === mood.id ? "active" : ""} onClick={() => setActiveMood(mood.id)} key={mood.id}><div className={`mini-ribo mood-${index}`}><i /><i /></div><h3>{mood.label}</h3><p>{mood.description}</p></button>)}</div></section>
+    <section className="studio-workspace-card"><div className="workspace-card-heading"><div><span className="studio-overline">Ribo moods</span><h2>One mascot, many signals</h2></div><Palette size={22} /></div><div className="studio-ribo-gallery">{moods.map((mood) => <button type="button" aria-pressed={activeMood === mood.id} className={activeMood === mood.id ? "active" : ""} onClick={() => setActiveMood(mood.id)} key={mood.id}><img className="mini-ribo" src={`/assets/ribo/ribo-${mood.id}.webp`} alt={`${mood.label} Ribo pose`} /><h3>{mood.label}</h3><p>{mood.description}</p></button>)}</div></section>
   </>;
 }
 
