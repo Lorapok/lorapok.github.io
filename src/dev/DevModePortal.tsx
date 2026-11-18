@@ -1,6 +1,6 @@
 // src/dev/DevModePortal.tsx
 // The full Lorapok Labs Developer Mode workspace
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { DevAuthProvider, OfficeGate, useDevAuth } from "./DevAuth";
 import AILabsPanel from "./panels/AILabsPanel";
 import BlogPanel from "./panels/BlogPanel";
@@ -150,6 +150,12 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
   const [time, setTime] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const motionMode = localStorage.getItem("lorapok-motion-mode-v2");
+    document.documentElement.classList.toggle("lp-motion-force", motionMode === "active");
+    document.documentElement.classList.toggle("lp-motion-paused", motionMode === "paused");
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
