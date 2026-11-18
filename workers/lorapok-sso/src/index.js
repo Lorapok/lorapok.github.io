@@ -1,6 +1,7 @@
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 const JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
 const ROLE_PERMISSIONS = {
+  "super-admin": ["view_office", "manage_projects", "manage_content", "manage_team", "manage_offers", "manage_feedback", "collaborate", "use_ai", "view_analytics", "manage_users", "manage_lolabo", "manage_blog", "use_developer_tools"],
   owner: ["view_office", "manage_projects", "manage_content", "manage_team", "manage_offers", "manage_feedback", "collaborate", "use_ai", "view_analytics", "manage_users", "manage_lolabo", "manage_blog", "use_developer_tools"],
   admin: ["view_office", "manage_projects", "manage_content", "manage_team", "manage_offers", "manage_feedback", "collaborate", "use_ai", "view_analytics", "manage_users", "manage_lolabo", "manage_blog", "use_developer_tools"],
   editor: ["view_office", "manage_projects", "manage_content", "manage_team", "manage_offers", "manage_feedback", "collaborate", "manage_blog", "use_developer_tools"],
@@ -174,7 +175,7 @@ async function createSession(request, env, origin, url) {
       getDocument(env, token, `sso_access/${encodeURIComponent(`${claims.sub}__${appId}`)}`),
     ]);
     if (!profile || profile.status !== "active") return json({ error: "Lorapok account access is not active" }, 403, origin, env, app);
-    const privileged = profile.role === "owner" || profile.role === "admin";
+    const privileged = profile.role === "super-admin" || profile.role === "owner" || profile.role === "admin";
     if (!privileged && grant?.status !== "active") return json({ error: "Access has not been granted for this application" }, 403, origin, env, app);
     const scopes = Array.isArray(grant?.scopes) ? grant.scopes.filter((item) => typeof item === "string").slice(0, 30) : [];
     return json({

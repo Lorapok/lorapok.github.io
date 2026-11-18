@@ -4,7 +4,7 @@ import { AppWindow, Check, Clock3, History, KeyRound, MailPlus, Plus, RefreshCw,
 import { db } from "../../lib/firebase";
 import { AdminGate, useDevAuth } from "../DevAuth";
 import {
-  BOOTSTRAP_OWNER_EMAILS, OFFICE_ROLES, normalizeOfficeRole,
+  OFFICE_ROLES, normalizeOfficeRole,
   type OfficeAccessStatus, type OfficeRole,
 } from "../rbac";
 
@@ -60,13 +60,20 @@ interface SsoAccessGrant {
 
 const ASSIGNABLE_BY_ADMIN: OfficeRole[] = ["editor", "researcher", "teammate", "viewer"];
 const ASSIGNABLE_BY_OWNER: OfficeRole[] = ["admin", ...ASSIGNABLE_BY_ADMIN];
+const ASSIGNABLE_BY_SUPER_ADMIN: OfficeRole[] = ["owner", ...ASSIGNABLE_BY_OWNER];
+
+function assignableRolesFor(role: OfficeRole) {
+  if (role === "super-admin") return ASSIGNABLE_BY_SUPER_ADMIN;
+  if (role === "owner") return ASSIGNABLE_BY_OWNER;
+  return ASSIGNABLE_BY_ADMIN;
+}
 
 function timestampLabel(value?: { toDate?: () => Date }) {
   return value?.toDate ? value.toDate().toLocaleString() : "Not recorded";
 }
 
-function isProtectedOwner(member: Pick<OfficeMember, "email" | "role">) {
-  return member.role === "owner" || BOOTSTRAP_OWNER_EMAILS.includes(member.email.toLowerCase() as typeof BOOTSTRAP_OWNER_EMAILS[number]);
+function isProtectedOwner(member: Pick<OfficeMember, "role">) {
+  return member.role === "super-admin";
 }
 
 function MemberEditor({
@@ -83,8 +90,12 @@ function MemberEditor({
   const [department, setDepartment] = useState(member.department || "");
   const [title, setTitle] = useState(member.title || "");
   const protectedOwner = isProtectedOwner(member);
-  const actorCanEdit = actorRole === "owner" || (!protectedOwner && member.role !== "admin");
-  const roleOptions = actorRole === "owner" ? ASSIGNABLE_BY_OWNER : ASSIGNABLE_BY_ADMIN;
+  const actorCanEdit = !protectedOwner && (
+    actorRole === "super-admin"
+    || (actorRole === "owner" && member.role !== "owner")
+    || (actorRole === "admin" && member.role !== "owner" && member.role !== "admin")
+  );
+  const roleOptions = assignableRolesFor(actorRole);
 
   return (
     <article className="rbac-member-card">
@@ -97,8 +108,9 @@ function MemberEditor({
       </div>
       <div className="rbac-member-fields">
         <label><span>Role</span><select value={role} disabled={!actorCanEdit || protectedOwner} onChange={(event) => setRole(event.target.value as OfficeRole)}>
-          {protectedOwner && <option value="owner">Owner</option>}
-          {!protectedOwner && member.role === "admin" && actorRole !== "owner" && <option value="admin">Administrator</option>}
+          {protectedOwner && <option value="super-admin">Super Admin</option>}
+          {!protectedOwner && member.role === "owner" && actorRole !== "super-admin" && <option value="owner">Owner (legacy)</option>}
+          {!protectedOwner && member.role === "admin" && !["super-admin", "owner"].includes(actorRole) && <option value="admin">Administrator</option>}
           {roleOptions.map((item) => <option value={item} key={item}>{OFFICE_ROLES[item].label}</option>)}
         </select></label>
         <label><span>Access</span><select value={status} disabled={!actorCanEdit || protectedOwner} onChange={(event) => setStatus(event.target.value as OfficeAccessStatus)}>
@@ -109,7 +121,7 @@ function MemberEditor({
       </div>
       <div className="rbac-member-footer">
         <small><Clock3 size={12} /> Last sign-in: {timestampLabel(member.lastLogin)}</small>
-        {protectedOwner ? <span className="rbac-owner-lock"><ShieldCheck size={13} /> Protected owner</span> : (
+        {protectedOwner ? <span className="rbac-owner-lock"><ShieldCheck size={13} /> Protected Super Admin</span> : (
           <div className="rbac-member-actions">
             {member.status === "pending" && (
               <button className="dev-btn dev-btn-primary dev-btn-sm" disabled={!actorCanEdit || busy} onClick={() => onSave(member, { role, status: "active", department: department.trim(), title: title.trim() })}>
@@ -267,7 +279,7 @@ function AdminContent() {
   const invite = async () => {
     const email = inviteEmail.trim().toLowerCase();
     if (!/^\S+@\S+\.\S+$/.test(email)) { setError("Enter a valid Google account email address."); return; }
-    const allowedRoles = actorRole === "owner" ? ASSIGNABLE_BY_OWNER : ASSIGNABLE_BY_ADMIN;
+    const allowedRoles = assignableRolesFor(actorRole).filter((role) => role !== "owner");
     if (!allowedRoles.includes(inviteRole)) { setError("Your role cannot grant the selected level of access."); return; }
     setBusyId(`invite:${email}`); setNotice(""); setError("");
     try {
@@ -365,7 +377,7 @@ function AdminContent() {
     } finally { setBusyId(""); }
   };
 
-  const assignableRoles = actorRole === "owner" ? ASSIGNABLE_BY_OWNER : ASSIGNABLE_BY_ADMIN;
+  const assignableRoles = assignableRolesFor(actorRole).filter((role) => role !== "owner");
 
   return (
     <div className="dev-panel-content rbac-office">
