@@ -10,6 +10,7 @@
     "service": "node server.js",
     "daemon": "node server.js --daemon",
     "dispatch": "node index.js",
+    "dispatch:project-visuals": "node projectVisualBatch.js",
     "export": "node exportData.js"
   },
   "dependencies": {
