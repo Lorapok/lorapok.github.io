@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ExternalLink, GitBranch, Plus, RefreshCw, Save, Search, ShieldCheck } from "lucide-react";
+import { Check, ExternalLink, GitBranch, PackageCheck, Plus, RefreshCw, Save, Search, ShieldCheck } from "lucide-react";
 import { categories, type ProjectCategory } from "../../data/lorapok";
+import { packageReleases, registrySnapshotDate } from "../../data/packageReleases";
 import { createOfficeProject, saveOfficeProject, subscribeOfficeProjects } from "../../lib/projectOfficeService";
 import type { GitHubProjectInventory, OfficeProject, ProjectModel, ProjectStage, ProjectVisibility } from "../../types/officeProjects";
 import { useDevAuth } from "../DevAuth";
@@ -214,6 +215,30 @@ export default function ProjectsPanel() {
           ) : <div className="office-projects__empty">Select a repository to review its Office metadata.</div>}
         </section>
       </div>
+
+      <section className="office-registry-snapshot" aria-labelledby="office-registry-title">
+        <div className="office-registry-snapshot__heading">
+          <div><span><PackageCheck size={14} /> Public distribution</span><h2 id="office-registry-title">Package registry snapshot</h2><p>Source-controlled publishing evidence from the public npm and Packagist APIs. Package metadata is changed at its registry, then verified before the public newsroom is updated.</p></div>
+          <a className="dev-btn dev-btn-ghost dev-btn-sm" href="/changelog/" target="_blank" rel="noreferrer">Open public newsroom <ExternalLink size={13} /></a>
+        </div>
+        <div className="office-registry-snapshot__stats">
+          <span><strong>{packageReleases.filter((item) => item.registry === "npm").length}</strong> npm</span>
+          <span><strong>{packageReleases.filter((item) => item.registry === "Packagist").length}</strong> Packagist</span>
+          <span><strong>{new Set(packageReleases.map((item) => item.product)).size}</strong> product families</span>
+          <span><strong>{new Date(registrySnapshotDate).toLocaleDateString()}</strong> last verified</span>
+        </div>
+        <div className="office-registry-snapshot__list">
+          {packageReleases.map((release) => (
+            <a key={`${release.registry}:${release.name}`} href={release.registryUrl} target="_blank" rel="noreferrer" className="office-registry-row">
+              <span className={`office-registry-row__mark is-${release.registry.toLowerCase()}`}>{release.registry === "npm" ? "npm" : "P"}</span>
+              <span><strong>{release.name}</strong><small>{release.product} · {release.status}</small></span>
+              <code>{release.version}</code>
+              <time dateTime={release.publishedAt}>{new Date(release.publishedAt).toLocaleDateString()}</time>
+              <ExternalLink size={13} />
+            </a>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

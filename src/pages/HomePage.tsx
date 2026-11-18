@@ -4,6 +4,7 @@ import { SEOHead } from '../components/SEOHead';
 import SignalNewsletter from '../components/home/SignalNewsletter';
 import { ProjectGlyph } from '../components/projects/ProjectGlyph';
 import { projects, type Project } from '../data/lorapok';
+import { packageReleases } from '../data/packageReleases';
 
 const OFFERS = [
   { name: 'Starter Hosting', badge: 'START HERE', blurb: 'Entry-level managed hosting for a focused website.' },
@@ -50,6 +51,9 @@ export default function HomePage() {
   }, []);
 
   const featured = projects.filter((p) => p.featured).slice(0, 6);
+  const latestPackageNews = packageReleases.filter((release, index, all) =>
+    all.findIndex((candidate) => candidate.product === release.product) === index
+  ).slice(0, 3);
 
   return (
     <div className="v4-home">
@@ -148,6 +152,28 @@ export default function HomePage() {
         <div className="eyebrow" style={{ color: '#455716' }}>A SMALL PLANET. INFINITE POSSIBILITIES.</div>
         <h2 className="reveal">Built in Dhaka.<br />Made for everywhere.</h2>
         <div style={{ marginTop: 40 }}><Link className="button" to="/team/">Meet our collective</Link></div>
+      </div></section>
+
+      <section className="section home-registry-signal"><div className="wrap4">
+        <div className="home-registry-signal__heading">
+          <div><div className="eyebrow">PACKAGE NEWSROOM / VERIFIED AT SOURCE</div><h2>Installable work.<br /><em>Documented clearly.</em></h2></div>
+          <div className="home-registry-signal__totals" aria-label="Published package totals">
+            <span><strong>{packageReleases.filter((item) => item.registry === 'npm').length}</strong> npm</span>
+            <span><strong>{packageReleases.filter((item) => item.registry === 'Packagist').length}</strong> Packagist</span>
+          </div>
+        </div>
+        <div className="home-registry-signal__grid">
+          {latestPackageNews.map((release) => (
+            <a key={`${release.registry}:${release.name}`} href={release.registryUrl} target="_blank" rel="noopener noreferrer" className="home-package-pulse reveal">
+              <span>{release.registry} · {release.status}</span>
+              <h3>{release.product}</h3>
+              <code>{release.name}@{release.version}</code>
+              <p>{release.description}</p>
+              <b>Open package ↗</b>
+            </a>
+          ))}
+        </div>
+        <Link className="button" to="/changelog/">See all packages and release news ↗</Link>
       </div></section>
 
       <section className="v4-new section" id="new-releases"><div className="wrap4">

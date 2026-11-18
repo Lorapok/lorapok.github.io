@@ -226,8 +226,8 @@ const routePrerender = {
     { heading: "Open engineering", body: "The lab favors readable systems, inspectable source, direct feedback loops, and practical tools that people can learn from, fork, and extend." },
   ],
   changelog: [
-    { heading: "Release history", body: "Follow product launches, ecosystem milestones, catalog updates, design changes, and engineering improvements across Lorapok Labs." },
-    { heading: "Traceable progress", body: "Entries point visitors toward the affected product or public source whenever supporting evidence is available." },
+    { heading: "Verified package registry", body: "Browse every active Lorapok package currently verified through the public npm and Packagist APIs, including exact package names, current versions, maturity, publication dates, install commands, licenses, and source repositories." },
+    { heading: "Release history", body: "Follow package publications, product launches, ecosystem milestones, catalog updates, design changes, and engineering improvements across Lorapok Labs." },
   ],
   contact: [
     { heading: "Start a conversation", body: "Contact Lorapok Labs about open-source collaboration, product work, Creator Works, partnerships, support, or responsible issue reporting." },
@@ -309,9 +309,9 @@ const routeMeta = {
     canonical: "https://lorapok.tech/about/"
   },
   changelog: {
-    title: "Changelog & Releases — Lorapok Labs",
-    description: "Release history, product updates, agent logs, and ecosystem milestones across Lorapok Labs.",
-    keywords: "Lorapok changelog, release history, updates, milestones",
+    title: "Releases & Package Registry — Lorapok Labs",
+    description: "Verified Lorapok Labs packages on npm and Packagist, with install commands, current versions, source links, release dates, and the studio changelog.",
+    keywords: "Lorapok npm packages, Lorapok Packagist, Loragent npm, ReportKit Laravel, Lorapok releases, package registry",
     canonical: "https://lorapok.tech/changelog/"
   },
   contact: {
