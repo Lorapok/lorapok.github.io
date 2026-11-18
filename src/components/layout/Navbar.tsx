@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { preloadRoute } from '../../lib/routePreload';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -25,6 +26,8 @@ export default function Navbar() {
 
   const handleNavigation = (targetPath: string) => {
     setOpen(false);
+    document.documentElement.classList.remove('nav-menu-open');
+    document.body.style.removeProperty('overflow');
     if (normalizePath(pathname) !== normalizePath(targetPath)) return;
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -67,7 +70,16 @@ export default function Navbar() {
         </Link>
         <div id="primary-navigation" className={`nav-links${open ? ' open' : ''}`}>
           {navLinks.map((l) => (
-            <NavLink key={l.path} to={l.path} end={l.path === '/'} className={({ isActive }) => (isActive ? 'active' : '')} onClick={() => handleNavigation(l.path)}>
+            <NavLink
+              key={l.path}
+              to={l.path}
+              end={l.path === '/'}
+              className={({ isActive }) => (isActive ? 'active' : '')}
+              onClick={() => handleNavigation(l.path)}
+              onFocus={() => preloadRoute(l.path)}
+              onPointerEnter={() => preloadRoute(l.path)}
+              onTouchStart={() => preloadRoute(l.path)}
+            >
               <span>{l.name}</span><b aria-hidden="true">↗</b>
             </NavLink>
           ))}

@@ -1,4 +1,4 @@
-import { StrictMode, lazy, Suspense } from "react";
+import { StrictMode, lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./styles/tokens.css";
@@ -9,32 +9,44 @@ import "./index.css";
 // Eagerly loaded
 import Layout from "./components/layout/Layout";
 import HomePage from "./pages/HomePage";
+import { routeLoaders } from "./lib/routePreload";
 
 // Lazy-loaded pages for code splitting
-const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
-const EngineeringCraftPage = lazy(() => import("./pages/EngineeringCraftPage"));
-const CreatorWorksPage = lazy(() => import("./pages/CreatorWorksPage"));
-const AgentsPage = lazy(() => import("./pages/AgentsPage"));
-const MascotGalleryPage = lazy(() => import("./pages/MascotGalleryPage"));
-const PartnersPage = lazy(() => import("./pages/PartnersPage"));
-const TeamPage = lazy(() => import("./pages/TeamPage"));
-const AboutPage = lazy(() => import("./pages/AboutPage"));
-const ChangelogPage = lazy(() => import("./pages/ChangelogPage"));
-const ContactPage = lazy(() => import("./pages/ContactPage"));
-const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
-const TermsPage = lazy(() => import("./pages/TermsPage"));
-const SecurityPage = lazy(() => import("./pages/SecurityPage"));
-const BlogApp = lazy(() => import("./blog/BlogApp"));
-const DevModePortal = lazy(() => import("./dev/DevModePortal"));
+const ProjectsPage = lazy(routeLoaders['/projects']);
+const EngineeringCraftPage = lazy(routeLoaders['/engineering-craft']);
+const CreatorWorksPage = lazy(routeLoaders['/creator-works']);
+const AgentsPage = lazy(routeLoaders['/agents']);
+const MascotGalleryPage = lazy(routeLoaders['/mascots']);
+const PartnersPage = lazy(routeLoaders['/partners']);
+const TeamPage = lazy(routeLoaders['/team']);
+const AboutPage = lazy(routeLoaders['/about']);
+const ChangelogPage = lazy(routeLoaders['/changelog']);
+const ContactPage = lazy(routeLoaders['/contact']);
+const PrivacyPage = lazy(routeLoaders['/privacy']);
+const TermsPage = lazy(routeLoaders['/terms']);
+const SecurityPage = lazy(routeLoaders['/security']);
+const BlogApp = lazy(routeLoaders['/blog']);
+const DevModePortal = lazy(routeLoaders['/dev']);
 
 // Legacy App fallback
 const LegacyApp = lazy(() => import("./App"));
 
 function LoadingFallback() {
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlow(true), 6500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <div className="route-loader" role="status" aria-live="polite">
       <span className="route-loader__orbit" aria-hidden="true"><i /><img src="/assets/ribo/inner-pages/ecosystem-cartographer.webp" alt="" /></span>
       <span>Growing the next view</span>
+      {slow && <div className="route-loader__recovery">
+        <small>{navigator.onLine ? 'This view is taking longer than expected.' : 'Your device appears to be offline.'}</small>
+        <button type="button" onClick={() => window.location.reload()}>Retry this page</button>
+      </div>}
     </div>
   );
 }

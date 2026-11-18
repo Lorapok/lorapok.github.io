@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Navbar from './Navbar';
@@ -14,8 +14,23 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const { pathname, hash } = useLocation();
   const reduceMotion = useReducedMotion();
+  const [compactMotion, setCompactMotion] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 760px), (pointer: coarse)').matches
+      : false,
+  );
   useV4Effects([pathname]);
   const isHome = pathname === '/';
+  const cinematicMotion = !reduceMotion && !compactMotion;
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 760px), (pointer: coarse)');
+    const updateMotionMode = () => setCompactMotion(media.matches);
+
+    updateMotionMode();
+    media.addEventListener?.('change', updateMotionMode);
+    return () => media.removeEventListener?.('change', updateMotionMode);
+  }, []);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -42,19 +57,19 @@ export default function Layout({ children }: LayoutProps) {
       <Navbar />
       <ExperienceControls />
       <main id="main" tabIndex={-1} className={`flex-grow flex flex-col relative${isHome ? '' : ' page-top'}`}>
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode={cinematicMotion ? 'wait' : 'sync'} initial={false}>
           <motion.div
             key={pathname}
             className="route-page-shell"
-            initial={reduceMotion ? false : { opacity: 0, y: 18, filter: 'blur(7px)' }}
-            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -10, filter: 'blur(4px)' }}
-            transition={{ duration: reduceMotion ? 0 : 0.42, ease: [0.22, 1, 0.36, 1] }}
+            initial={reduceMotion ? false : cinematicMotion ? { opacity: 0, y: 18, filter: 'blur(7px)' } : { opacity: 0.72 }}
+            animate={cinematicMotion ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 1 }}
+            exit={reduceMotion ? { opacity: 1 } : cinematicMotion ? { opacity: 0, y: -10, filter: 'blur(4px)' } : { opacity: 0.88 }}
+            transition={{ duration: reduceMotion ? 0 : cinematicMotion ? 0.42 : 0.16, ease: [0.22, 1, 0.36, 1] }}
           >
             {children}
           </motion.div>
         </AnimatePresence>
-        {!reduceMotion && <motion.div
+        {cinematicMotion && <motion.div
           key={`route-curtain:${pathname}`}
           className="route-transition-curtain"
           aria-hidden="true"
@@ -65,6 +80,14 @@ export default function Layout({ children }: LayoutProps) {
           <div className="route-transition-curtain__signal"><span /><img src="/assets/ribo/inner-pages/ecosystem-cartographer.webp" alt="" /><span /></div>
           <small>Lorapok Labs · opening {pathname === '/' ? 'home' : pathname.slice(1).replaceAll('-', ' ')}</small>
         </motion.div>}
+        {!reduceMotion && compactMotion && <motion.div
+          key={`route-progress:${pathname}`}
+          className="route-transition-progress"
+          aria-hidden="true"
+          initial={{ scaleX: 0, opacity: 1 }}
+          animate={{ scaleX: [0, 0.72, 1], opacity: [1, 1, 0] }}
+          transition={{ duration: 0.5, times: [0, 0.72, 1], ease: 'easeOut' }}
+        />}
       </main>
       <Footer />
     </div>
