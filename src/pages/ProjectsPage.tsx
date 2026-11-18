@@ -132,6 +132,7 @@ export default function ProjectsPage() {
         body="A guide for moving between open-source tools, creative experiments, business products and the public repositories that support them."
         referenceImage="/assets/brand-library/ecosystem/co-branded-strip.webp"
         referenceAlt="Approved Lorapok Labs and LoraHost ecosystem strip"
+        referenceLabel="CURATED PRODUCT ROUTE"
       />
 
       <div className="v4-filter-dock mb-12">

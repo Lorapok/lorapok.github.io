@@ -310,9 +310,7 @@ function AdminContent() {
         status: "active",
         origins,
         createdAt: serverTimestamp(),
-        createdBy: user?.email || "office-admin",
         updatedAt: serverTimestamp(),
-        updatedBy: user?.email || "office-admin",
       });
       await audit("sso_app_registered", normalizedId, { name: appName.trim(), origins });
       const registeredName = appName.trim();
@@ -327,7 +325,7 @@ function AdminContent() {
     setBusyId(`app:${app.appId}`); setNotice(""); setError("");
     try {
       await setDoc(doc(db, "sso_apps", app.appId), {
-        status, updatedAt: serverTimestamp(), updatedBy: user?.email || "office-admin",
+        status, updatedAt: serverTimestamp(),
       }, { merge: true });
       await audit("sso_app_status_updated", app.appId, { status });
       setNotice(`${app.name} is now ${status}.`);
