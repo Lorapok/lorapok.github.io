@@ -1,0 +1,19 @@
+{
+  "name": "@lorapok/sso",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Firebase Identity Platform and TOTP client for Lorapok Labs applications",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    }
+  },
+  "files": ["index.js", "index.d.ts", "README.md"],
+  "peerDependencies": {
+    "firebase": ">=13.4.0"
+  },
+  "license": "MIT"
+}

@@ -182,6 +182,76 @@ service cloud.firestore {
       allow read, write: if canEditPublishing();
     }
 
+    match /sso_apps/{appId} {
+      allow get: if resource.data.status == "active" || (hasUserRecord() && currentUser().status == "active");
+      allow list: if isAccessAdmin();
+      allow create: if isAccessAdmin()
+        && request.resource.data.keys().hasOnly([
+          "appId", "name", "description", "status", "origins", "createdAt", "createdBy", "updatedAt", "updatedBy"
+        ])
+        && request.resource.data.appId == appId
+        && appId.matches("^[a-z0-9][a-z0-9-]{1,62}$")
+        && validShortString(request.resource.data.name, 120)
+        && validShortString(request.resource.data.description, 500)
+        && request.resource.data.status in ["active", "disabled"]
+        && request.resource.data.origins is list
+        && request.resource.data.origins.size() <= 20
+        && validShortString(request.resource.data.createdBy, 254)
+        && validShortString(request.resource.data.updatedBy, 254)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAccessAdmin()
+        && request.resource.data.appId == resource.data.appId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "name", "description", "status", "origins", "updatedAt", "updatedBy"
+        ])
+        && validShortString(request.resource.data.name, 120)
+        && validShortString(request.resource.data.description, 500)
+        && request.resource.data.status in ["active", "disabled"]
+        && request.resource.data.origins is list
+        && request.resource.data.origins.size() <= 20
+        && validShortString(request.resource.data.updatedBy, 254)
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    match /sso_access/{accessId} {
+      allow get: if isAccessAdmin() || (
+        signedIn() && accessId.matches("^" + request.auth.uid + "__[a-z0-9][a-z0-9-]{1,62}$")
+      );
+      allow list: if isAccessAdmin();
+      allow create: if isAccessAdmin()
+        && request.resource.data.keys().hasOnly([
+          "uid", "appId", "status", "scopes", "grantedAt", "grantedBy", "updatedAt", "updatedBy"
+        ])
+        && accessId == request.resource.data.uid + "__" + request.resource.data.appId
+        && request.resource.data.appId.matches("^[a-z0-9][a-z0-9-]{1,62}$")
+        && request.resource.data.status in ["active", "revoked"]
+        && request.resource.data.scopes is list
+        && request.resource.data.scopes.size() <= 30
+        && validShortString(request.resource.data.grantedBy, 254)
+        && validShortString(request.resource.data.updatedBy, 254)
+        && request.resource.data.grantedAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAccessAdmin()
+        && request.resource.data.keys().hasOnly([
+          "uid", "appId", "status", "scopes", "grantedAt", "grantedBy", "updatedAt", "updatedBy"
+        ])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.appId == resource.data.appId
+        && request.resource.data.grantedAt == resource.data.grantedAt
+        && request.resource.data.grantedBy == resource.data.grantedBy
+        && request.resource.data.status in ["active", "revoked"]
+        && request.resource.data.scopes is list
+        && request.resource.data.scopes.size() <= 30
+        && validShortString(request.resource.data.grantedBy, 254)
+        && validShortString(request.resource.data.updatedBy, 254)
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
     match /published_projects/{projectId} {
       allow read: if true;
       allow write: if canEditPublishing();

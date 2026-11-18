@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
-import { Check, Clock3, History, MailPlus, RefreshCw, Search, ShieldCheck, UserCheck, UserCog, UserX, Users } from "lucide-react";
+import { AppWindow, Check, Clock3, History, KeyRound, MailPlus, Plus, RefreshCw, Search, ShieldCheck, UserCheck, UserCog, UserX, Users } from "lucide-react";
 import { db } from "../../lib/firebase";
 import { AdminGate, useDevAuth } from "../DevAuth";
 import {
@@ -38,6 +38,24 @@ interface AccessAuditEvent {
   actorEmail: string;
   changes?: Record<string, unknown>;
   createdAt?: { toDate?: () => Date };
+}
+
+interface SsoApplication {
+  appId: string;
+  name: string;
+  description: string;
+  status: "active" | "disabled";
+  origins: string[];
+  createdAt?: { toDate?: () => Date };
+}
+
+interface SsoAccessGrant {
+  id: string;
+  uid: string;
+  appId: string;
+  status: "active" | "revoked";
+  scopes: string[];
+  updatedAt?: { toDate?: () => Date };
 }
 
 const ASSIGNABLE_BY_ADMIN: OfficeRole[] = ["editor", "researcher", "teammate", "viewer"];
@@ -106,6 +124,8 @@ function AdminContent() {
   const [members, setMembers] = useState<OfficeMember[]>([]);
   const [invitations, setInvitations] = useState<OfficeInvitation[]>([]);
   const [auditEvents, setAuditEvents] = useState<AccessAuditEvent[]>([]);
+  const [ssoApps, setSsoApps] = useState<SsoApplication[]>([]);
+  const [ssoGrants, setSsoGrants] = useState<SsoAccessGrant[]>([]);
   const [search, setSearch] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
@@ -115,6 +135,11 @@ function AdminContent() {
   const [busyId, setBusyId] = useState("");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [appId, setAppId] = useState("");
+  const [appName, setAppName] = useState("");
+  const [appDescription, setAppDescription] = useState("");
+  const [appOrigins, setAppOrigins] = useState("");
+  const [selectedMemberByApp, setSelectedMemberByApp] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const unsubscribeMembers = onSnapshot(query(collection(db, "users"), orderBy("email")), (snapshot) => {
@@ -161,7 +186,33 @@ function AdminContent() {
         };
       }));
     }, (reason) => setError(reason.message));
-    return () => { unsubscribeMembers(); unsubscribeInvites(); unsubscribeAudit(); };
+    const unsubscribeSsoApps = onSnapshot(query(collection(db, "sso_apps"), orderBy("name")), (snapshot) => {
+      setSsoApps(snapshot.docs.map((entry) => {
+        const data = entry.data();
+        return {
+          appId: entry.id,
+          name: String(data.name || entry.id),
+          description: String(data.description || ""),
+          status: data.status === "disabled" ? "disabled" : "active",
+          origins: Array.isArray(data.origins) ? data.origins.map(String) : [],
+          createdAt: data.createdAt,
+        };
+      }));
+    }, (reason) => setError(reason.message));
+    const unsubscribeSsoGrants = onSnapshot(collection(db, "sso_access"), (snapshot) => {
+      setSsoGrants(snapshot.docs.map((entry) => {
+        const data = entry.data();
+        return {
+          id: entry.id,
+          uid: String(data.uid || ""),
+          appId: String(data.appId || ""),
+          status: data.status === "active" ? "active" : "revoked",
+          scopes: Array.isArray(data.scopes) ? data.scopes.map(String) : [],
+          updatedAt: data.updatedAt,
+        };
+      }));
+    }, (reason) => setError(reason.message));
+    return () => { unsubscribeMembers(); unsubscribeInvites(); unsubscribeAudit(); unsubscribeSsoApps(); unsubscribeSsoGrants(); };
   }, []);
 
   const stats = useMemo(() => ({
@@ -241,6 +292,71 @@ function AdminContent() {
     } finally { setBusyId(""); }
   };
 
+  const saveSsoApplication = async () => {
+    const normalizedId = appId.trim().toLowerCase();
+    const origins = [...new Set(appOrigins.split(/[\n,]+/).map((value) => value.trim().replace(/\/$/, "")).filter(Boolean))];
+    if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(normalizedId)) { setError("Use a 2–63 character app ID containing lowercase letters, numbers, or hyphens."); return; }
+    if (!appName.trim()) { setError("Enter the application name."); return; }
+    if (ssoApps.some((app) => app.appId === normalizedId)) { setError("That application ID is already registered. Disable the existing entry before replacing it."); return; }
+    if (origins.length === 0 || origins.some((origin) => {
+      try { const url = new URL(origin); return url.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(url.hostname); } catch { return true; }
+    })) { setError("Add at least one complete HTTPS application origin. Localhost is allowed for development."); return; }
+    setBusyId(`app:${normalizedId}`); setNotice(""); setError("");
+    try {
+      await setDoc(doc(db, "sso_apps", normalizedId), {
+        appId: normalizedId,
+        name: appName.trim(),
+        description: appDescription.trim(),
+        status: "active",
+        origins,
+        createdAt: serverTimestamp(),
+        createdBy: user?.email || "office-admin",
+        updatedAt: serverTimestamp(),
+        updatedBy: user?.email || "office-admin",
+      });
+      await audit("sso_app_registered", normalizedId, { name: appName.trim(), origins });
+      const registeredName = appName.trim();
+      setAppId(""); setAppName(""); setAppDescription(""); setAppOrigins("");
+      setNotice(`${registeredName} is registered for Lorapok SSO.`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "The SSO application could not be registered.");
+    } finally { setBusyId(""); }
+  };
+
+  const setSsoApplicationStatus = async (app: SsoApplication, status: "active" | "disabled") => {
+    setBusyId(`app:${app.appId}`); setNotice(""); setError("");
+    try {
+      await setDoc(doc(db, "sso_apps", app.appId), {
+        status, updatedAt: serverTimestamp(), updatedBy: user?.email || "office-admin",
+      }, { merge: true });
+      await audit("sso_app_status_updated", app.appId, { status });
+      setNotice(`${app.name} is now ${status}.`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "The SSO application could not be updated.");
+    } finally { setBusyId(""); }
+  };
+
+  const setSsoAccess = async (app: SsoApplication, member: OfficeMember, status: "active" | "revoked") => {
+    const accessId = `${member.uid}__${app.appId}`;
+    const existing = ssoGrants.find((grant) => grant.id === accessId);
+    setBusyId(`grant:${accessId}`); setNotice(""); setError("");
+    try {
+      await setDoc(doc(db, "sso_access", accessId), {
+        uid: member.uid,
+        appId: app.appId,
+        status,
+        scopes: existing?.scopes || [],
+        ...(!existing ? { grantedAt: serverTimestamp(), grantedBy: user?.email || "office-admin" } : {}),
+        updatedAt: serverTimestamp(),
+        updatedBy: user?.email || "office-admin",
+      }, { merge: true });
+      await audit(status === "active" ? "sso_access_granted" : "sso_access_revoked", member.email, { appId: app.appId, status });
+      setNotice(`${app.name} access ${status === "active" ? "granted to" : "revoked for"} ${member.displayName || member.email}.`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Application access could not be updated.");
+    } finally { setBusyId(""); }
+  };
+
   const assignableRoles = actorRole === "owner" ? ASSIGNABLE_BY_OWNER : ASSIGNABLE_BY_ADMIN;
 
   return (
@@ -268,6 +384,46 @@ function AdminContent() {
           <button className="dev-btn dev-btn-primary" onClick={invite} disabled={busyId.startsWith("invite:")}><UserCheck size={15} /> Grant access</button>
         </div>
         <div className="rbac-role-guide">{assignableRoles.map((item) => <div key={item}><strong>{OFFICE_ROLES[item].label}</strong><span>{OFFICE_ROLES[item].description}</span></div>)}</div>
+      </section>
+
+      <section className="dev-card sso-admin-card">
+        <div className="rbac-section-heading"><KeyRound size={18} /><div><strong>Connected applications</strong><span>One Google identity, one authenticator, and independent access for every Lorapok Labs product.</span></div></div>
+        <div className="sso-register-grid">
+          <label><span>Application ID</span><input value={appId} onChange={(event) => setAppId(event.target.value.toLowerCase())} placeholder="reportkit" /></label>
+          <label><span>Application name</span><input value={appName} onChange={(event) => setAppName(event.target.value)} placeholder="ReportKit" /></label>
+          <label className="sso-wide-field"><span>Description</span><input value={appDescription} onChange={(event) => setAppDescription(event.target.value)} placeholder="What this application does" /></label>
+          <label className="sso-wide-field"><span>Approved origins</span><textarea value={appOrigins} onChange={(event) => setAppOrigins(event.target.value)} placeholder={"https://reportkit.lorapok.tech\nhttp://localhost:5173"} rows={3} /></label>
+          <button className="dev-btn dev-btn-primary" onClick={saveSsoApplication} disabled={busyId.startsWith("app:")}><Plus size={15} /> Register application</button>
+        </div>
+        <div className="sso-app-list">
+          {ssoApps.map((app) => {
+            const activeGrants = ssoGrants.filter((grant) => grant.appId === app.appId && grant.status === "active");
+            const selectedUid = selectedMemberByApp[app.appId] || members.find((member) => member.status === "active" && !isProtectedOwner(member))?.uid || "";
+            const selectedMember = members.find((member) => member.uid === selectedUid);
+            return <article className={`sso-app-card is-${app.status}`} key={app.appId}>
+              <header><span className="sso-app-icon"><AppWindow size={18} /></span><div><strong>{app.name}</strong><small>{app.appId}</small></div><i>{app.status}</i></header>
+              <p>{app.description || "No application description has been added."}</p>
+              <div className="sso-origin-list">{app.origins.map((origin) => <code key={origin}>{origin}</code>)}</div>
+              <div className="sso-grant-controls">
+                <select value={selectedUid} onChange={(event) => setSelectedMemberByApp((current) => ({ ...current, [app.appId]: event.target.value }))}>
+                  <option value="">Select an active teammate</option>
+                  {members.filter((member) => member.status === "active" && !isProtectedOwner(member)).map((member) => <option value={member.uid} key={member.uid}>{member.displayName || member.email} · {OFFICE_ROLES[member.role].label}</option>)}
+                </select>
+                <button className="dev-btn dev-btn-primary dev-btn-sm" disabled={!selectedMember || busyId.startsWith("grant:")} onClick={() => selectedMember && setSsoAccess(app, selectedMember, "active")}><UserCheck size={13} /> Grant</button>
+                <button className="dev-btn dev-btn-ghost dev-btn-sm" disabled={busyId === `app:${app.appId}`} onClick={() => setSsoApplicationStatus(app, app.status === "active" ? "disabled" : "active")}>{app.status === "active" ? "Disable app" : "Enable app"}</button>
+              </div>
+              <div className="sso-grant-list">
+                {activeGrants.map((grant) => {
+                  const member = members.find((item) => item.uid === grant.uid);
+                  if (!member) return null;
+                  return <span key={grant.id}>{member.displayName || member.email}<button aria-label={`Revoke ${app.name} access for ${member.displayName || member.email}`} disabled={busyId === `grant:${grant.id}`} onClick={() => setSsoAccess(app, member, "revoked")}><UserX size={12} /></button></span>;
+                })}
+                {activeGrants.length === 0 && <small>No teammate-specific grants. Owners and administrators retain emergency access.</small>}
+              </div>
+            </article>;
+          })}
+          {ssoApps.length === 0 && <div className="rbac-empty">No connected applications are registered yet.</div>}
+        </div>
       </section>
 
       <section className="rbac-directory">

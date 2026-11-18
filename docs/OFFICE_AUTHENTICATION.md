@@ -49,3 +49,17 @@ Editorial planning, offers, feedback, mail drafts, team chat, meeting links, and
 - Pending and suspended identities are rejected by Firestore rules.
 
 Role and invitation changes are written to the immutable `rbac_audit` collection and displayed in the Access & Admin panel.
+
+## Lorapok SSO for connected products
+
+The Office is also the control plane for other Lorapok Labs products. **People & Access → Connected applications** registers each product's stable application ID and exact browser origins, then grants or revokes teammate access without copying credentials between projects.
+
+The shared service has three deliberately separate layers:
+
+1. Firebase Authentication with Identity Platform proves the Google identity and TOTP authenticator challenge.
+2. The `lorapok-sso` Cloudflare Worker independently verifies the Firebase RS256 signature, issuer, audience, lifetime, verified email, and second-factor claim.
+3. Firestore `sso_apps` and `sso_access` records decide whether that identity may enter a specific application. Owners and administrators retain emergency access; other roles require an active per-app grant.
+
+Connected web applications use [`@lorapok/sso`](../packages/lorapok-sso/README.md) and send their short-lived Firebase ID token only to the SSO gateway. The gateway returns a sanitized session profile, role permissions, and optional app scopes. It never returns tokens, TOTP secrets, private Firestore documents, or infrastructure credentials. Browser persistence remains session-scoped on each origin; SSO means one authoritative identity and access system, not a cross-domain shared cookie.
+
+The Worker implementation and deployment notes are in [`workers/lorapok-sso`](../workers/lorapok-sso/README.md). Production clients should use `https://sso.lorapok.tech` once their exact origin has been registered in the Office.
