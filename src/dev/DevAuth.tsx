@@ -1,17 +1,24 @@
 /* eslint-disable react-refresh/only-export-components */
 // src/dev/DevAuth.tsx
 // Global Context for Lorapok Labs Developer Mode: Auth, API Keys, and Workspace State
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import {
+  browserSessionPersistence,
+  getMultiFactorResolver,
   onAuthStateChanged,
+  multiFactor,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   signOut,
   setPersistence,
-  browserLocalPersistence,
+  TotpMultiFactorGenerator,
+  type MultiFactorError,
+  type MultiFactorResolver,
+  type TotpSecret,
   type User,
 } from "firebase/auth";
+import QRCode from "qrcode";
 import { auth, googleProvider, isFirebaseConfigured, db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { AI_PROVIDERS, type AIProviderId } from "./constants/providers";
@@ -32,7 +39,17 @@ interface DevContextType {
   loading: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  secondFactorState: SecondFactorState;
+  secondFactorBusy: boolean;
+  secondFactorError: string | null;
+  secondFactorEnrollment: SecondFactorEnrollment | null;
+  beginSecondFactorEnrollment: () => Promise<void>;
+  confirmSecondFactorEnrollment: (pin: string) => Promise<void>;
+  verifySecondFactorPin: (pin: string) => Promise<void>;
+  restartSecureSignIn: () => Promise<void>;
+  cancelSecondFactor: () => void;
   isAdmin: boolean;
+  hasOfficeRoleAccess: boolean;
   canAccessOffice: boolean;
   role: OfficeRole;
   accessStatus: OfficeAccessStatus;
@@ -50,6 +67,13 @@ interface DevContextType {
   // Analytics & Logging
   logEvent: (category: LogCategory, action: string, metadata?: Record<string, unknown>) => Promise<void>;
   logChat: (provider: AIProviderId, model: string, messages: { role: 'user' | 'assistant', content: string }[]) => Promise<void>;
+}
+
+type SecondFactorState = "idle" | "checking" | "enroll" | "challenge" | "reauthenticate" | "verified";
+
+interface SecondFactorEnrollment {
+  qrDataUrl: string;
+  secretKey: string;
 }
 
 export interface OfficeAccessProfile {
@@ -82,8 +106,23 @@ function authErrorMessage(error: unknown) {
     "auth/cancelled-popup-request": "A newer Google sign-in attempt replaced the previous one. Please try once more.",
     "auth/web-storage-unsupported": "This browser is blocking the storage required to keep the Office session secure.",
     "auth/user-disabled": "This Google identity is disabled for the authentication project.",
+    "auth/invalid-verification-code": "That six-digit authenticator PIN is invalid. Wait for a fresh code and try again.",
+    "auth/code-expired": "That authenticator PIN has expired. Enter the newest code from your authenticator app.",
+    "auth/invalid-multi-factor-session": "The secure sign-in window expired. Start the Google sign-in again.",
+    "auth/multi-factor-info-not-found": "This authenticator is no longer enrolled. Start a new secure sign-in.",
+    "auth/requires-recent-login": "For security, sign in with Google again before changing the authenticator.",
+    "auth/unverified-email": "A verified Google email is required before an authenticator can be enrolled.",
+    "auth/admin-restricted-operation": "Authenticator PIN sign-in is not enabled for this Firebase project yet.",
+    "auth/operation-not-supported-in-this-environment": "This browser cannot complete the secure authenticator flow.",
   };
-  return messages[code] || "Google sign-in could not be completed. Please retry or use the redirect flow.";
+  return messages[code] || "Secure sign-in could not be completed. Please try again.";
+}
+
+function hasSecondFactorClaim(user: User) {
+  return user.getIdTokenResult().then((token) => {
+    const firebase = token.claims.firebase as { sign_in_second_factor?: string } | undefined;
+    return Boolean(firebase?.sign_in_second_factor);
+  }).catch(() => false);
 }
 
 export function DevAuthProvider({ children }: { children: ReactNode }) {
@@ -91,6 +130,12 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(isFirebaseConfigured);
   const [accessLoading, setAccessLoading] = useState(isFirebaseConfigured);
   const [accessProfile, setAccessProfile] = useState<OfficeAccessProfile | null>(null);
+  const [secondFactorState, setSecondFactorState] = useState<SecondFactorState>(isFirebaseConfigured ? "checking" : "idle");
+  const [secondFactorBusy, setSecondFactorBusy] = useState(false);
+  const [secondFactorError, setSecondFactorError] = useState<string | null>(null);
+  const [secondFactorResolver, setSecondFactorResolver] = useState<MultiFactorResolver | null>(null);
+  const [secondFactorSecret, setSecondFactorSecret] = useState<TotpSecret | null>(null);
+  const [secondFactorEnrollment, setSecondFactorEnrollment] = useState<SecondFactorEnrollment | null>(null);
   const [activeProvider, setActiveProvider] = useState<AIProviderId>(() => {
     return (localStorage.getItem("lpk_active_provider") as AIProviderId) || "claude";
   });
@@ -215,14 +260,28 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
-    void setPersistence(auth, browserLocalPersistence);
-    const unsub = onAuthStateChanged(auth, (u) => {
+    void setPersistence(auth, browserSessionPersistence);
+    const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       setLoading(false);
       if (!u) {
         setAccessProfile(null);
         setAccessLoading(false);
+        setSecondFactorState((current) => current === "challenge" ? current : "idle");
+        return;
       }
+
+      setSecondFactorState("checking");
+      setSecondFactorError(null);
+      const factors = multiFactor(u).enrolledFactors;
+      if (factors.length === 0) {
+        setSecondFactorState("enroll");
+        return;
+      }
+
+      const verifiedByFirebase = await hasSecondFactorClaim(u);
+      const verifiedInTab = sessionStorage.getItem("lpk_mfa_verified_uid") === u.uid;
+      setSecondFactorState(verifiedByFirebase || verifiedInTab ? "verified" : "reauthenticate");
     });
     return unsub;
   }, []);
@@ -236,6 +295,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     setLoginError(null);
+    setSecondFactorError(null);
     setSigningIn(true);
     
     try {
@@ -244,7 +304,16 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     } catch (error: unknown) {
       const err = authError(error);
       console.warn("Auth Attempt Failed:", err.code);
-      if (err.code === "auth/popup-blocked") {
+      if (err.code === "auth/multi-factor-auth-required") {
+        const resolver = getMultiFactorResolver(auth, error as MultiFactorError);
+        const totpHint = resolver.hints.find((hint) => hint.factorId === TotpMultiFactorGenerator.FACTOR_ID);
+        if (!totpHint) {
+          setLoginError("This account uses an unsupported second factor. Contact an Office owner.");
+        } else {
+          setSecondFactorResolver(resolver);
+          setSecondFactorState("challenge");
+        }
+      } else if (err.code === "auth/popup-blocked") {
         try {
           await signInWithRedirect(auth, googleProvider);
         } catch (redirectError: unknown) {
@@ -261,12 +330,110 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
   // Handle Redirect Result (Fallback)
   useEffect(() => {
     if (!isFirebaseConfigured) return;
-    getRedirectResult(auth).catch(err => {
-      if (err.code !== 'auth/web-storage-unsupported') {
-        setLoginError(authErrorMessage(err));
+    getRedirectResult(auth).catch((error: unknown) => {
+      const err = authError(error);
+      if (err.code === "auth/multi-factor-auth-required") {
+        const resolver = getMultiFactorResolver(auth, error as MultiFactorError);
+        const totpHint = resolver.hints.find((hint) => hint.factorId === TotpMultiFactorGenerator.FACTOR_ID);
+        if (totpHint) {
+          setSecondFactorResolver(resolver);
+          setSecondFactorState("challenge");
+          return;
+        }
       }
+      if (err.code !== "auth/web-storage-unsupported") setLoginError(authErrorMessage(error));
     });
   }, []);
+
+  const beginSecondFactorEnrollment = async () => {
+    if (!user) return;
+    setSecondFactorBusy(true);
+    setSecondFactorError(null);
+    try {
+      const session = await multiFactor(user).getSession();
+      const secret = await TotpMultiFactorGenerator.generateSecret(session);
+      const uri = secret.generateQrCodeUrl(user.email || user.uid, "Lorapok Labs Office");
+      const qrDataUrl = await QRCode.toDataURL(uri, {
+        errorCorrectionLevel: "M",
+        margin: 1,
+        width: 256,
+        color: { dark: "#09271d", light: "#effff8" },
+      });
+      setSecondFactorSecret(secret);
+      setSecondFactorEnrollment({ qrDataUrl, secretKey: secret.secretKey });
+    } catch (error) {
+      setSecondFactorError(authErrorMessage(error));
+    } finally {
+      setSecondFactorBusy(false);
+    }
+  };
+
+  const confirmSecondFactorEnrollment = async (pin: string) => {
+    if (!user || !secondFactorSecret || !/^\d{6}$/.test(pin)) {
+      setSecondFactorError("Enter the current six-digit PIN from your authenticator app.");
+      return;
+    }
+    setSecondFactorBusy(true);
+    setSecondFactorError(null);
+    try {
+      const assertion = TotpMultiFactorGenerator.assertionForEnrollment(secondFactorSecret, pin);
+      await multiFactor(user).enroll(assertion, "Lorapok Office authenticator");
+      setSecondFactorSecret(null);
+      setSecondFactorEnrollment(null);
+      sessionStorage.removeItem("lpk_mfa_verified_uid");
+      setSecondFactorState("reauthenticate");
+      await logEvent("auth", "totp_enrolled", { factor: "totp" });
+    } catch (error) {
+      setSecondFactorError(authErrorMessage(error));
+    } finally {
+      setSecondFactorBusy(false);
+    }
+  };
+
+  const verifySecondFactorPin = async (pin: string) => {
+    if (!secondFactorResolver || !/^\d{6}$/.test(pin)) {
+      setSecondFactorError("Enter the current six-digit PIN from your authenticator app.");
+      return;
+    }
+    const hint = secondFactorResolver.hints.find((item) => item.factorId === TotpMultiFactorGenerator.FACTOR_ID);
+    if (!hint) {
+      setSecondFactorError("No compatible authenticator is enrolled for this account.");
+      return;
+    }
+    setSecondFactorBusy(true);
+    setSecondFactorError(null);
+    try {
+      const assertion = TotpMultiFactorGenerator.assertionForSignIn(hint.uid, pin);
+      const credential = await secondFactorResolver.resolveSignIn(assertion);
+      sessionStorage.setItem("lpk_mfa_verified_uid", credential.user.uid);
+      setSecondFactorResolver(null);
+      setSecondFactorState("verified");
+    } catch (error) {
+      setSecondFactorError(authErrorMessage(error));
+    } finally {
+      setSecondFactorBusy(false);
+    }
+  };
+
+  const restartSecureSignIn = async () => {
+    setSecondFactorBusy(true);
+    setSecondFactorError(null);
+    try {
+      sessionStorage.removeItem("lpk_mfa_verified_uid");
+      if (auth.currentUser) await signOut(auth);
+    } finally {
+      setSecondFactorBusy(false);
+    }
+    await handleSignIn();
+  };
+
+  const cancelSecondFactor = () => {
+    setSecondFactorResolver(null);
+    setSecondFactorSecret(null);
+    setSecondFactorEnrollment(null);
+    setSecondFactorError(null);
+    setSecondFactorState(user ? "enroll" : "idle");
+  };
 
   const handleSignOut = async () => {
     if (!isFirebaseConfigured) return;
@@ -281,6 +448,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     }
     keysToClear.forEach(k => localStorage.removeItem(k));
     AI_PROVIDERS.forEach((provider) => sessionStorage.removeItem(`lpk_key_${provider.id}`));
+    sessionStorage.removeItem("lpk_mfa_verified_uid");
 
     // Reset local state to defaults
     const emptyKeys: Record<string, string> = {};
@@ -292,6 +460,11 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     setApiKeys(emptyKeys);
     setActiveModels(defaultModels);
     setActiveProvider("claude");
+    setSecondFactorState("idle");
+    setSecondFactorResolver(null);
+    setSecondFactorSecret(null);
+    setSecondFactorEnrollment(null);
+    setSecondFactorError(null);
 
     await signOut(auth);
     logEvent("auth", "logout");
@@ -368,7 +541,8 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
 
   const role = accessProfile?.role || "viewer";
   const accessStatus = accessProfile?.status || "pending";
-  const canAccessOffice = Boolean(user && accessProfile && accessStatus === "active" && hasOfficePermission(role, "view_office"));
+  const hasOfficeRoleAccess = Boolean(user && accessProfile && accessStatus === "active" && hasOfficePermission(role, "view_office"));
+  const canAccessOffice = hasOfficeRoleAccess && secondFactorState === "verified";
   const can = (permission: OfficePermission) => canAccessOffice && hasOfficePermission(role, permission);
   const isAdmin = can("manage_users");
 
@@ -376,7 +550,9 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     <DevContext.Provider
       value={{ 
         user, loading: loading || signingIn || accessLoading, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
-        canAccessOffice, role, accessStatus, accessProfile, can,
+        secondFactorState, secondFactorBusy, secondFactorError, secondFactorEnrollment,
+        beginSecondFactorEnrollment, confirmSecondFactorEnrollment, verifySecondFactorPin, restartSecureSignIn, cancelSecondFactor,
+        hasOfficeRoleAccess, canAccessOffice, role, accessStatus, accessProfile, can,
         apiKeys, setApiKey: updateApiKey,
         activeProvider, setActiveProvider: updateActiveProvider,
         activeModels, setActiveModel: updateActiveModel,
@@ -432,10 +608,64 @@ export function useDevAuth() {
   return context;
 }
 
+function LarvaeAuthTransition({ message, compact = false }: { message: string; compact?: boolean }) {
+  return (
+    <div className={`dev-auth-transition${compact ? " is-compact" : ""}`} role="status" aria-live="polite">
+      <div className="dev-auth-orbit" aria-hidden="true">
+        <span className="dev-auth-orbit__ring ring-one" />
+        <span className="dev-auth-orbit__ring ring-two" />
+        <span className="dev-auth-orbit__signal signal-one" />
+        <span className="dev-auth-orbit__signal signal-two" />
+        <img className="dev-auth-orbit__larva larva-core" src="/assets/ribo/generated/20261117/vault-guardian.webp" alt="" />
+        <img className="dev-auth-orbit__larva larva-scout" src="/assets/ribo/species/neon-scout.webp" alt="" />
+        <img className="dev-auth-orbit__larva larva-worker" src="/assets/ribo/species/robo-worker.webp" alt="" />
+      </div>
+      <div className="dev-auth-transition__copy">
+        <strong>{message}</strong>
+        <span><i /> Identity <i /> Role <i /> Authenticator</span>
+      </div>
+    </div>
+  );
+}
+
+function AuthPinForm({ busy, error, label, onSubmit }: {
+  busy: boolean;
+  error: string | null;
+  label: string;
+  onSubmit: (pin: string) => Promise<void>;
+}) {
+  const [pin, setPin] = useState("");
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    void onSubmit(pin);
+  };
+  return (
+    <form className="dev-auth-pin" onSubmit={submit}>
+      <label htmlFor="office-authenticator-pin">{label}</label>
+      <input
+        id="office-authenticator-pin"
+        value={pin}
+        onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        pattern="[0-9]{6}"
+        maxLength={6}
+        placeholder="000 000"
+        aria-describedby={error ? "office-authenticator-error" : undefined}
+        autoFocus
+      />
+      {error && <p id="office-authenticator-error" className="dev-auth-error" role="alert">{error}</p>}
+      <button className="dev-btn dev-btn-primary dev-auth-signin" type="submit" disabled={busy || pin.length !== 6}>
+        {busy ? "Verifying secure PIN…" : "Verify and enter Office"}
+      </button>
+    </form>
+  );
+}
+
 export function AdminGate({ children }: { children: ReactNode }) {
   const { loading, can } = useDevAuth();
 
-  if (loading) return <div className="dev-auth-loading"><div className="dev-auth-spinner" /><span>Authenticating…</span></div>;
+  if (loading) return <LarvaeAuthTransition message="Checking owner permissions" compact />;
 
   if (!can("manage_users")) {
     return (
@@ -453,11 +683,33 @@ export function AdminGate({ children }: { children: ReactNode }) {
 }
 
 export function OfficeGate({ children }: { children: ReactNode }) {
-  const { user, loading, signIn, signOut: leaveOffice, canAccessOffice, accessStatus } = useDevAuth();
+  const {
+    user, loading, signIn, signOut: leaveOffice, hasOfficeRoleAccess, canAccessOffice, accessStatus,
+    secondFactorState, secondFactorBusy, secondFactorError, secondFactorEnrollment,
+    beginSecondFactorEnrollment, confirmSecondFactorEnrollment, verifySecondFactorPin,
+    restartSecureSignIn, cancelSecondFactor,
+  } = useDevAuth();
 
-  if (loading) return <div className="dev-auth-loading"><div className="dev-auth-spinner" /><span>Authenticating…</span></div>;
+  if (loading || (user && secondFactorState === "checking")) {
+    return <LarvaeAuthTransition message="Waking the secure Office" />;
+  }
 
-  if (!user || !canAccessOffice) {
+  if (secondFactorState === "challenge") {
+    return (
+      <div className="dev-auth-gate dev-auth-gate--secure">
+        <div className="dev-auth-gate-inner">
+          <LarvaeAuthTransition message="Google identity verified" compact />
+          <div className="dev-auth-badge">Second factor · authenticator</div>
+          <h2 className="dev-auth-title"><span>Secure</span> PIN required</h2>
+          <p className="dev-auth-sub">Enter the rotating six-digit code from the authenticator app enrolled for this Office identity.</p>
+          <AuthPinForm busy={secondFactorBusy} error={secondFactorError} label="Authenticator PIN" onSubmit={verifySecondFactorPin} />
+          <button className="dev-auth-text-button" type="button" onClick={cancelSecondFactor}>Use another Google account</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (user && !hasOfficeRoleAccess) {
     const statusMessage = accessStatus === "suspended"
       ? "This Office account is suspended. Contact an owner if access should be restored."
       : "Your Google identity is recorded as pending. An Office owner must approve it or send an invitation before workspace access is granted.";
@@ -469,27 +721,88 @@ export function OfficeGate({ children }: { children: ReactNode }) {
           <p className="dev-auth-sub">Sign in with an invited Google account to enter the role-controlled studio, project control plane, and LoLaBo operations center.</p>
           <div className="dev-auth-origin">Secure origin · {window.location.hostname}</div>
           
-          {!user ? (
-            <button
-              className="dev-btn dev-btn-primary dev-auth-signin"
-              onClick={signIn}
-              disabled={loading}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", width: "100%" }}
-            >
-              {loading ? <div className="dev-auth-spinner" style={{ width: "16px", height: "16px" }} /> : "Sign in with Google"}
-            </button>
+          <div className="dev-access-state">
+            <strong>{accessStatus === "suspended" ? "Access suspended" : "Approval pending"}</strong>
+            <p>{statusMessage}</p>
+            <small>{user.email}</small>
+            <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={leaveOffice}>Use another account</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (user && hasOfficeRoleAccess && secondFactorState === "enroll") {
+    return (
+      <div className="dev-auth-gate dev-auth-gate--enroll">
+        <div className="dev-auth-gate-inner dev-auth-gate-inner--wide">
+          <div className="dev-auth-badge">Required protection · one-time setup</div>
+          <h2 className="dev-auth-title"><span>Enroll</span> your authenticator</h2>
+          <p className="dev-auth-sub">Lorapok Labs Office now requires Google sign-in plus a rotating six-digit PIN. The shared key stays between Firebase and your authenticator app.</p>
+          {!secondFactorEnrollment ? (
+            <div className="dev-auth-enroll-intro">
+              <LarvaeAuthTransition message="Preparing a private authenticator" compact />
+              {secondFactorError && <p className="dev-auth-error" role="alert">{secondFactorError}</p>}
+              <button className="dev-btn dev-btn-primary dev-auth-signin" type="button" disabled={secondFactorBusy} onClick={() => void beginSecondFactorEnrollment()}>
+                {secondFactorBusy ? "Creating secure setup…" : "Create authenticator setup"}
+              </button>
+              <button className="dev-auth-text-button" type="button" onClick={leaveOffice}>Use another Google account</button>
+            </div>
           ) : (
-            <div className="dev-access-state">
-              <strong>{accessStatus === "suspended" ? "Access suspended" : "Approval pending"}</strong>
-              <p>{statusMessage}</p>
-              <small>{user.email}</small>
-              <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={leaveOffice}>Use another account</button>
+            <div className="dev-auth-enrollment">
+              <div className="dev-auth-qr">
+                <img src={secondFactorEnrollment.qrDataUrl} alt="Authenticator enrollment QR code" />
+                <span>Scan with Google Authenticator, 1Password, Authy, or another TOTP app.</span>
+              </div>
+              <div className="dev-auth-enrollment__form">
+                <div className="dev-auth-secret">
+                  <span>Manual setup key</span>
+                  <code>{secondFactorEnrollment.secretKey}</code>
+                </div>
+                <AuthPinForm busy={secondFactorBusy} error={secondFactorError} label="Confirm the current six-digit PIN" onSubmit={confirmSecondFactorEnrollment} />
+              </div>
             </div>
           )}
         </div>
       </div>
     );
   }
+
+  if (user && hasOfficeRoleAccess && secondFactorState === "reauthenticate") {
+    return (
+      <div className="dev-auth-gate dev-auth-gate--secure">
+        <div className="dev-auth-gate-inner">
+          <LarvaeAuthTransition message="Authenticator linked" compact />
+          <div className="dev-auth-badge">Final security check</div>
+          <h2 className="dev-auth-title"><span>Protection</span> is ready</h2>
+          <p className="dev-auth-sub">Sign in once more so Firebase can challenge the newly enrolled authenticator before opening the Office.</p>
+          {secondFactorError && <p className="dev-auth-error" role="alert">{secondFactorError}</p>}
+          <button className="dev-btn dev-btn-primary dev-auth-signin" type="button" disabled={secondFactorBusy} onClick={() => void restartSecureSignIn()}>
+            {secondFactorBusy ? "Securing session…" : "Continue secure sign-in"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="dev-auth-gate">
+        <div className="dev-auth-gate-inner">
+          <LarvaeAuthTransition message="Office perimeter ready" compact />
+          <div className="dev-auth-badge">Lorapok Labs Office</div>
+          <h2 className="dev-auth-title"><span>Two signals.</span> One secure Office.</h2>
+          <p className="dev-auth-sub">Use an invited Google identity, then confirm the rotating six-digit PIN from your authenticator app.</p>
+          <div className="dev-auth-origin">Google identity · role boundary · authenticator PIN</div>
+          <button className="dev-btn dev-btn-primary dev-auth-signin" type="button" onClick={() => void signIn()}>
+            Continue with Google
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canAccessOffice) return <LarvaeAuthTransition message="Completing secure sign-in" />;
 
   return <>{children}</>;
 }

@@ -1,6 +1,6 @@
 # Lorapok Labs Office authentication
 
-The private `/dev` Office uses Firebase Google authentication and Firestore-backed role access. Authentication and authorization remain separate: a successful Google sign-in does not grant Office access unless the corresponding user record is active and its role includes `view_office`.
+The private `/dev` Office uses Firebase Google authentication, Firebase TOTP multi-factor authentication, and Firestore-backed role access. Authentication and authorization remain separate: a successful Google sign-in does not grant Office access unless the corresponding user record is active, its role includes `view_office`, and the current session has completed the authenticator challenge.
 
 ## Authorized origins
 
@@ -30,11 +30,13 @@ Production values remain GitHub deployment secrets. Local values remain in ignor
 1. Open `/dev` on an authorized origin.
 2. Choose **Sign in with Google**.
 3. Select an invited or protected owner identity.
-4. Firebase establishes a persistent browser session.
-5. The Office reads the server-controlled `users/{uid}` record.
-6. Only active identities with the required permission enter the Office; pending and suspended identities receive explicit status screens.
+4. On first use, scan the private QR code with a TOTP authenticator and confirm the rotating six-digit PIN.
+5. On later sign-ins, complete the Firebase authenticator challenge with the current six-digit PIN.
+6. Firebase establishes a browser-session-scoped login; closing the browser requires a fresh secure sign-in.
+7. The Office reads the server-controlled `users/{uid}` record.
+8. Only active identities with both the required permission and a verified second factor enter the Office; pending and suspended identities receive explicit status screens.
 
-The client translates common Firebase failures into safe, actionable messages and does not display raw provider error payloads.
+TOTP secrets are generated and verified by Firebase Authentication with Identity Platform. The QR payload exists only in memory during enrollment and is never written to Firestore, local storage, analytics, or application logs. The client translates common Firebase failures into safe, actionable messages and does not display raw provider error payloads.
 
 ## Shared Office operations
 
