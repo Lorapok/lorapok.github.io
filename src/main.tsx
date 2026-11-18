@@ -33,7 +33,7 @@ const LegacyApp = lazy(() => import("./App"));
 function LoadingFallback() {
   return (
     <div className="route-loader" role="status" aria-live="polite">
-      <span className="route-loader__orb" aria-hidden="true" />
+      <span className="route-loader__orbit" aria-hidden="true"><i /><img src="/assets/ribo/inner-pages/ecosystem-cartographer.webp" alt="" /></span>
       <span>Growing the next view</span>
     </div>
   );

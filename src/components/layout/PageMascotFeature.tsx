@@ -9,6 +9,7 @@ type PageMascotFeatureProps = {
   tone?: 'mint' | 'cyan' | 'lavender' | 'gold';
   referenceImage?: string;
   referenceAlt?: string;
+  referenceLabel?: string;
   planet?: boolean;
 };
 
@@ -21,6 +22,7 @@ export default function PageMascotFeature({
   tone = 'mint',
   referenceImage,
   referenceAlt = '',
+  referenceLabel = 'ECOSYSTEM ROUTE',
   planet = false,
 }: PageMascotFeatureProps) {
   return (
@@ -39,9 +41,14 @@ export default function PageMascotFeature({
         <span>{eyebrow}</span>
         <h2>{title}</h2>
         <p>{body}</p>
-        {referenceImage && (
-          <img className="page-mascot-feature__reference" src={referenceImage} alt={referenceAlt} loading="lazy" decoding="async" />
-        )}
+        {referenceImage && <div className="page-mascot-feature__reference-card">
+          <div className="page-mascot-feature__reference-head"><span>{referenceLabel}</span><i><b /> verified connection</i></div>
+          <div className="page-mascot-feature__reference-visual">
+            <img className="page-mascot-feature__reference" src={referenceImage} alt={referenceAlt} loading="lazy" decoding="async" />
+            <span className="page-mascot-feature__reference-scan" aria-hidden="true" />
+          </div>
+          <div className="page-mascot-feature__reference-meta"><span>Discover</span><b aria-hidden="true" /><span>Evaluate</span><b aria-hidden="true" /><span>Open the source</span></div>
+        </div>}
       </div>
     </aside>
   );

@@ -77,6 +77,7 @@ export default function PartnersPage() {
           body="A guide for evaluating useful collaborations across the Lorapok ecosystem—keeping public benefits, relationship types and provider-controlled terms easy to understand."
           referenceImage="/assets/brand-library/ecosystem/co-branded-strip.webp"
           referenceAlt="Lorapok Labs ecosystem identity strip"
+          referenceLabel="PARTNER SIGNAL ROUTE"
         />
       </div>
 
