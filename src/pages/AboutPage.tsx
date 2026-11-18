@@ -7,7 +7,7 @@ import { TeammateCard } from '../components/team/TeammateCard';
 import { TeammateModal } from '../components/team/TeammateModal';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/SEOHead';
-import PageMascotFeature from '../components/layout/PageMascotFeature';
+import LarvaePlanetSystem from '../components/layout/LarvaePlanetSystem';
 
 export default function AboutPage() {
   const [selectedMember, setSelectedMember] = useState<TeammateProfile | null>(null);
@@ -23,76 +23,77 @@ export default function AboutPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="v4-inner-page py-16 px-4 max-w-5xl mx-auto w-full"
+        className="v4-inner-page py-16 px-4 max-w-6xl mx-auto w-full"
       >
-        <PageMascotFeature
-          image="/assets/ribo/inner-pages/collective-facilitator.webp"
-          alt="Collective Facilitator, Lorapok's 3D team companion"
-          eyebrow="COLLECTIVE SIGNAL / PEOPLE FIRST"
-          title="Many disciplines, one living studio"
-          body="The Collective Facilitator represents the researchers, engineers, designers and specialists who shape Lorapok products together without erasing their individual craft."
-          planet
-        />
-
-        {/* Hero Section */}
-        <section className="v4-founder-hero flex flex-col md:flex-row gap-12 items-center md:items-start mb-24">
-          <div className="w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shrink-0 border border-white/10 bg-white/5 relative">
-            <img 
-              src="/assets/founder-avatar.jpg" 
-              alt={founder.name} 
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = 'https://ui-avatars.com/api/?name=Mohammad+Maizied&background=0a0a0f&color=67ff8f&size=256';
-              }}
-            />
-          </div>
-          
-          <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">{founder.name}</h1>
-            <h2 className="text-xl text-[#67ff8f] font-medium mb-4">{founder.role} • {founder.location}</h2>
-            
-            <div className="prose prose-invert max-w-none text-gray-300 mb-8 space-y-4">
-              <p>{founder.bio}</p>
+        <section className="about-identity-card mb-24" aria-labelledby="about-founder-title">
+          <div className="about-identity-card__visual" aria-label="Lorapok origin planet and founder portrait">
+            <div className="about-identity-card__planet"><LarvaePlanetSystem variant="feature" /></div>
+            <div className="about-identity-card__portrait">
+              <img
+                src="/assets/founder-avatar.jpg"
+                alt={founder.name}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'https://ui-avatars.com/api/?name=Mohammad+Maizied&background=0a0a0f&color=67ff8f&size=256';
+                }}
+              />
+              <span><i /> Founder · Systems architect</span>
             </div>
-            
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+          </div>
+
+          <div className="about-identity-card__copy">
+            <div className="about-identity-card__collective">
+              <span>COLLECTIVE SIGNAL / PEOPLE FIRST</span>
+              <h2>Many disciplines, one living studio</h2>
+              <p>The Collective Facilitator represents the researchers, engineers, designers and specialists who shape Lorapok products together without erasing their individual craft.</p>
+            </div>
+
+            <div className="about-identity-card__bridge" aria-hidden="true"><span /><b>COLLECTIVE ORIGIN</b><span /></div>
+
+            <div className="about-identity-card__founder">
+              <span>FOUNDER PROFILE / OPEN ENGINEERING</span>
+              <h1 id="about-founder-title">{founder.name}</h1>
+              <h3>{founder.role} <b>·</b> {founder.location}</h3>
+              <p>{founder.bio}</p>
+
+              <div className="about-identity-card__links">
               {founder.links.github && (
-                <a href={founder.links.github} target="_blank" rel="noopener noreferrer" title="GitHub" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                <a href={founder.links.github} target="_blank" rel="noopener noreferrer" title="GitHub">
                   <Code2 size={18} />
                   <span>GitHub</span>
                 </a>
               )}
               {founder.links.linkedin && (
-                <a href={founder.links.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                <a href={founder.links.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
                   <BriefcaseBusiness size={18} />
                   <span>LinkedIn</span>
                 </a>
               )}
               {founder.links.portfolio && (
-                <a href={founder.links.portfolio} target="_blank" rel="noopener noreferrer" title="Portfolio" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                <a href={founder.links.portfolio} target="_blank" rel="noopener noreferrer" title="Portfolio">
                   <Globe size={18} />
                   <span>Portfolio</span>
                 </a>
               )}
               {founder.links.twitter && (
-                <a href={founder.links.twitter} target="_blank" rel="noopener noreferrer" title="X / Twitter" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                <a href={founder.links.twitter} target="_blank" rel="noopener noreferrer" title="X / Twitter">
                   <MessageSquare size={18} />
                   <span>X / Twitter</span>
                 </a>
               )}
               {founder.links.telegram && (
-                <a href={founder.links.telegram} target="_blank" rel="noopener noreferrer" title="Telegram" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                <a href={founder.links.telegram} target="_blank" rel="noopener noreferrer" title="Telegram">
                   <MessageSquare size={18} />
                   <span>Telegram</span>
                 </a>
               )}
               {founder.email && (
-                <a href={`mailto:${founder.email}`} title="Email Founder" className="p-2.5 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/10 text-white flex items-center gap-2 text-sm px-4">
+                <a href={`mailto:${founder.email}`} title="Email Founder">
                   <Mail size={18} />
                   <span>Email</span>
                 </a>
               )}
+              </div>
             </div>
           </div>
         </section>
