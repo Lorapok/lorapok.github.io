@@ -6,6 +6,14 @@ import path from "node:path";
 
 const OWNERS = ["Lorapok", "Maijied"];
 const OUTPUT = path.resolve("public/data/github-projects.json");
+const PROJECT_VISUALS = {
+  "lorapok/lorapok.github.io": "/assets/projects/generated/lorapok-labs-website-product-v2.webp",
+  "lorapok/lorapok-instar": "/assets/projects/generated/lorapok-instar-product-v2.webp",
+  "lorapok/nocatch": "/assets/projects/generated/nocatch-product-v2.webp",
+  "maijied/bnp": "/assets/projects/generated/bnp-product-v2.webp",
+  "lorapok/loragi": "/assets/projects/generated/loragi-product-v2.webp",
+  "maijied/cursor-curse-monitor-by-lorapok": "/assets/projects/generated/cursor-curse-monitor-product-v2.webp",
+};
 const FIELDS = [
   "name",
   "nameWithOwner",
@@ -61,6 +69,7 @@ for (const owner of OWNERS) {
     // The public artifact must never disclose private repository metadata.
     if (repo.isPrivate || String(repo.visibility).toUpperCase() !== "PUBLIC") continue;
     const key = repo.nameWithOwner.toLowerCase();
+    const image = PROJECT_VISUALS[key];
     deduped.set(key, {
       id: key.replace(/[^a-z0-9]+/g, "-"),
       owner: repo.nameWithOwner.split("/")[0],
@@ -89,6 +98,7 @@ for (const owner of OWNERS) {
       origin: "github",
       projectModel: "unclassified",
       stage: repo.isArchived ? "archived" : "active",
+      ...(image ? { image, imageType: "cover" } : {}),
     });
   }
 }

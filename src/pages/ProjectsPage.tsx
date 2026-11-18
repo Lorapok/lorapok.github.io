@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { projects, categories, CREATOR_WORKS_CATEGORY, categoryToSlug, type Project } from '../data/lorapok';
@@ -11,9 +11,56 @@ import { CategoryFilter } from '../components/ui/CategoryFilter';
 import { SearchX } from 'lucide-react';
 import PageIntro from '../components/layout/PageIntro';
 import PageMascotFeature from '../components/layout/PageMascotFeature';
+import { ProjectModal } from '../components/projects/ProjectModal';
+import { projectSlug } from '../lib/projectSlug';
+
+const discoveredProjectPresentation: Record<string, Pick<Project, 'tagline' | 'description' | 'image' | 'imageType' | 'badge'>> = {
+  'https://github.com/lorapok/lorapok.github.io': {
+    tagline: 'The living home of the Lorapok ecosystem',
+    description: 'The public Lorapok Labs experience: a curated bridge between open engineering, sensory computing, biological interfaces, releases, people, and the repositories that support them.',
+    image: '/assets/projects/generated/lorapok-labs-website-product-v2.webp',
+    imageType: 'cover',
+    badge: 'Live website',
+  },
+  'https://github.com/lorapok/lorapok-instar': {
+    tagline: 'Isolated multi-account workspace for Linux',
+    description: 'A systems-grade workspace for Ubuntu and Linux that keeps multiple accounts separated in low-memory sandboxes, giving each working identity a focused and controlled desktop environment.',
+    image: '/assets/projects/generated/lorapok-instar-product-v2.webp',
+    imageType: 'cover',
+    badge: 'Public repository',
+  },
+  'https://github.com/lorapok/nocatch': {
+    tagline: 'One-click NotebookLM media harvester',
+    description: 'A focused collection tool for exporting NotebookLM podcasts, videos, and study guides in practical formats so research artifacts can be archived and reused outside the notebook.',
+    image: '/assets/projects/generated/nocatch-product-v2.webp',
+    imageType: 'cover',
+    badge: 'Public repository',
+  },
+  'https://github.com/maijied/bnp': {
+    tagline: 'Focused bike number-plate utility',
+    description: 'A compact public utility repository for bike number-plate workflows. The repository currently presents the project as “Bike Number Plate”; source history remains the authoritative implementation record.',
+    image: '/assets/projects/generated/bnp-product-v2.webp',
+    imageType: 'cover',
+    badge: 'Public repository',
+  },
+  'https://github.com/lorapok/loragi': {
+    tagline: 'Bio-digital precision video slicer',
+    description: 'A precision media tool for cutting video into multiple intentional segments, designed around a fast bio-digital workflow for selecting, reviewing, and exporting useful clips.',
+    image: '/assets/projects/generated/loragi-product-v2.webp',
+    imageType: 'cover',
+    badge: 'Public repository',
+  },
+  'https://github.com/maijied/cursor-curse-monitor-by-lorapok': {
+    tagline: 'Live Cursor usage and billing monitor',
+    description: 'A developer utility for tracking Cursor usage limits, budgets, billing cycles, and fallback options from a single operational dashboard.',
+    image: '/assets/projects/generated/cursor-curse-monitor-product-v2.webp',
+    imageType: 'cover',
+    badge: 'Released',
+  },
+};
 
 export default function ProjectsPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [officeProjects, setOfficeProjects] = useState<OfficeProject[]>([]);
@@ -48,20 +95,25 @@ export default function ProjectsPage() {
 
     const discovered: Project[] = officeProjects
       .filter((project) => project.visibility === 'published' && !matched.has(normalize(project.url)))
-      .map((project) => ({
-        name: project.displayName || project.name,
-        tagline: project.summary || project.description || 'Public Lorapok repository',
-        description: project.description || project.summary || 'Open-source project maintained in the Lorapok ecosystem.',
-        category: project.category,
-        language: project.language || 'Other',
-        featured: project.featured,
-        isNew: !project.archived,
-        badge: project.badge || (project.fork ? 'Community fork' : 'GitHub'),
-        links: [
-          ...(project.homepage ? [{ label: 'Live', url: project.homepage, icon: 'web' as const }] : []),
-          { label: 'GitHub', url: project.url, icon: 'github' as const },
-        ],
-      }));
+      .map((project) => {
+        const presentation = discoveredProjectPresentation[normalize(project.url)];
+        return {
+          name: project.displayName || project.name,
+          tagline: presentation?.tagline || project.summary || project.description || 'Public Lorapok repository',
+          description: presentation?.description || project.description || project.summary || 'Open-source project maintained in the Lorapok ecosystem.',
+          category: project.category,
+          language: project.language || 'Other',
+          featured: project.featured,
+          isNew: !project.archived,
+          badge: project.badge || presentation?.badge || (project.fork ? 'Community fork' : 'GitHub'),
+          image: project.image || presentation?.image,
+          imageType: project.imageType || presentation?.imageType,
+          links: [
+            ...(project.homepage ? [{ label: 'Live', url: project.homepage, icon: 'web' as const }] : []),
+            { label: 'GitHub', url: project.url, icon: 'github' as const },
+          ],
+        } satisfies Project;
+      });
 
     return [...curated, ...discovered];
   }, [officeProjects]);
@@ -70,13 +122,17 @@ export default function ProjectsPage() {
     const catSlug = searchParams.get('category');
     if (!catSlug) return;
     if (catSlug === categoryToSlug(CREATOR_WORKS_CATEGORY)) {
+      // The active filter intentionally mirrors the route query.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveCategory(CREATOR_WORKS_CATEGORY);
       return;
     }
     const match = categories.find(
       (c) => c !== 'All' && categoryToSlug(c) === catSlug
     );
-    if (match) setActiveCategory(match);
+    if (match) {
+      setActiveCategory(match);
+    }
   }, [searchParams]);
 
   const filteredProjects = useMemo(() => {
@@ -93,6 +149,24 @@ export default function ProjectsPage() {
       })
       .sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew)));
   }, [searchQuery, activeCategory, publicProjects]);
+
+  const selectedProject = useMemo(() => {
+    const slug = searchParams.get('project');
+    if (!slug) return null;
+    return publicProjects.find((project) => projectSlug(project) === slug) || null;
+  }, [publicProjects, searchParams]);
+
+  const openProject = useCallback((project: Project) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('project', projectSlug(project));
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
+
+  const closeProject = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('project');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -170,7 +244,7 @@ export default function ProjectsPage() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card project={project} />
+                <Card project={project} onClick={() => openProject(project)} />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -184,6 +258,7 @@ export default function ProjectsPage() {
           <p className="text-gray-400">Try adjusting your search query or category filter.</p>
         </div>
       )}
+      <ProjectModal project={selectedProject} onClose={closeProject} />
     </motion.div>
   );
 }

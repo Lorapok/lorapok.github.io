@@ -202,6 +202,8 @@ export default function ProjectsPanel() {
                 <label className="office-projects__wide"><span>Live or documentation URL</span><input type="url" value={draft.homepage} onChange={(event) => updateDraft("homepage", event.target.value)} placeholder="https://project.lorapok.tech" /></label>
                 <label><span>Badge</span><input value={draft.badge || ""} onChange={(event) => updateDraft("badge", event.target.value)} placeholder="Open source" /></label>
                 <label><span>Topics</span><input value={draft.topics.join(", ")} onChange={(event) => updateDraft("topics", event.target.value.split(",").map((topic) => topic.trim()).filter(Boolean))} /></label>
+                <label className="office-projects__wide"><span>Product image URL</span><input value={draft.image || ""} onChange={(event) => updateDraft("image", event.target.value)} placeholder="/assets/projects/generated/project-product-v2.webp" /></label>
+                <label><span>Image presentation</span><select value={draft.imageType || "cover"} onChange={(event) => updateDraft("imageType", event.target.value as "cover" | "icon")}><option value="cover">Wide product cover</option><option value="icon">Centered product icon</option></select></label>
                 {draft.localFolder && <label className="office-projects__wide"><span>Local source folder</span><input value={draft.localFolder} readOnly /></label>}
               </div>
 

@@ -31,7 +31,9 @@
       "source": "github",
       "origin": "github",
       "projectModel": "unclassified",
-      "stage": "active"
+      "stage": "active",
+      "image": "/assets/projects/generated/lorapok-labs-website-product-v2.webp",
+      "imageType": "cover"
     },
     {
       "id": "lorapok-lorapok-instar",
@@ -58,7 +60,9 @@
       "source": "github",
       "origin": "github",
       "projectModel": "unclassified",
-      "stage": "active"
+      "stage": "active",
+      "image": "/assets/projects/generated/lorapok-instar-product-v2.webp",
+      "imageType": "cover"
     },
     {
       "id": "maijied-cursor-curse-monitor-by-lorapok",
@@ -95,7 +99,9 @@
       "source": "github",
       "origin": "github",
       "projectModel": "unclassified",
-      "stage": "active"
+      "stage": "active",
+      "image": "/assets/projects/generated/cursor-curse-monitor-product-v2.webp",
+      "imageType": "cover"
     },
     {
       "id": "lorapok-nocatch",
@@ -131,7 +137,9 @@
       "source": "github",
       "origin": "github",
       "projectModel": "unclassified",
-      "stage": "active"
+      "stage": "active",
+      "image": "/assets/projects/generated/nocatch-product-v2.webp",
+      "imageType": "cover"
     },
     {
       "id": "maijied-bnp",
@@ -158,7 +166,9 @@
       "source": "github",
       "origin": "github",
       "projectModel": "unclassified",
-      "stage": "active"
+      "stage": "active",
+      "image": "/assets/projects/generated/bnp-product-v2.webp",
+      "imageType": "cover"
     },
     {
       "id": "maijied-otari",
@@ -212,7 +222,9 @@
       "source": "github",
       "origin": "github",
       "projectModel": "unclassified",
-      "stage": "active"
+      "stage": "active",
+      "image": "/assets/projects/generated/loragi-product-v2.webp",
+      "imageType": "cover"
     },
     {
       "id": "maijied-lorek",
