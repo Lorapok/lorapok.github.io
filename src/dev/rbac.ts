@@ -1,4 +1,4 @@
-export type OfficeRole = "owner" | "admin" | "editor" | "researcher" | "teammate" | "viewer";
+export type OfficeRole = "super-admin" | "owner" | "admin" | "editor" | "researcher" | "teammate" | "viewer";
 export type OfficeAccessStatus = "pending" | "active" | "suspended";
 
 export type OfficePermission =
@@ -29,9 +29,14 @@ const ALL_PERMISSIONS: readonly OfficePermission[] = [
 ];
 
 export const OFFICE_ROLES: Record<OfficeRole, OfficeRoleDefinition> = {
+  "super-admin": {
+    label: "Super Admin",
+    description: "Protected primary administrator with every permission and authority over Office access roles.",
+    permissions: ALL_PERMISSIONS,
+  },
   owner: {
-    label: "Owner",
-    description: "Protected workspace owner with every permission, including role administration.",
+    label: "Owner (legacy)",
+    description: "Legacy full-access owner role retained for compatibility. Super Admin remains the protected top-level role.",
     permissions: ALL_PERMISSIONS,
   },
   admin: {
@@ -63,12 +68,6 @@ export const OFFICE_ROLES: Record<OfficeRole, OfficeRoleDefinition> = {
     permissions: ["view_office"],
   },
 };
-
-export const BOOTSTRAP_OWNER_EMAILS = [
-  "imaizied@gmail.com",
-  "mdshuvo40@gmail.com",
-  "lorapokdev@gmail.com",
-] as const;
 
 export function isOfficeRole(value: unknown): value is OfficeRole {
   return typeof value === "string" && value in OFFICE_ROLES;

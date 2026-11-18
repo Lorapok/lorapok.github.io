@@ -165,6 +165,11 @@ export default function HomePage() {
         <div className="home-registry-signal__grid">
           {latestPackageNews.map((release) => (
             <a key={`${release.registry}:${release.name}`} href={release.registryUrl} target="_blank" rel="noopener noreferrer" className="home-package-pulse reveal">
+              <div className="home-package-pulse__glyph" aria-hidden="true">
+                <i className="home-package-pulse__orbit orbit-a" />
+                <i className="home-package-pulse__orbit orbit-b" />
+                <ProjectGlyph project={{ name: release.product, category: 'Developer Tools' }} size={42} strokeWidth={1.45} />
+              </div>
               <span>{release.registry} · {release.status}</span>
               <h3>{release.product}</h3>
               <code>{release.name}@{release.version}</code>

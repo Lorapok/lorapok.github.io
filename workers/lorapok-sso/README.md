@@ -7,7 +7,7 @@ The gateway is the centralized authorization boundary for Lorapok Labs applicati
 - `GET /health` — liveness only; returns no account information.
 - `POST /v1/session?appId=registered-app-id` — accepts the same `appId` in the JSON body and `Authorization: Bearer <Firebase ID token>`.
 
-Successful responses contain a sanitized user profile, Office permissions, and app-specific scopes. Tokens, TOTP secrets, API credentials, and private Firestore data are never returned.
+Successful responses contain a sanitized user profile, Office permissions, and app-specific scopes. The explicit active `super-admin` role is the protected top-level authority; an email address alone never grants access. Tokens, TOTP secrets, device PIN material, API credentials, and private Firestore data are never returned.
 
 ## Configuration
 

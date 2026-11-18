@@ -6,22 +6,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isBootstrapOwnerEmail(email) {
-      return email in [
-        "imaizied@gmail.com",
-        "mdshuvo40@gmail.com",
-        "lorapokdev@gmail.com"
-      ];
-    }
-
     function hasVerifiedEmail() {
       return signedIn()
         && request.auth.token.email is string
         && request.auth.token.email_verified == true;
-    }
-
-    function isVerifiedBootstrapOwner() {
-      return hasVerifiedEmail() && isBootstrapOwnerEmail(request.auth.token.email);
     }
 
     function hasUserRecord() {
@@ -32,10 +20,17 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
+    function isSuperAdmin() {
+      return hasUserRecord()
+        && currentUser().status == "active"
+        && currentUser().role == "super-admin";
+    }
+
     function isOwner() {
-      return signedIn() && (
-        isVerifiedBootstrapOwner()
-        || (hasUserRecord() && currentUser().status == "active" && currentUser().role == "owner")
+      return isSuperAdmin() || (
+        hasUserRecord()
+        && currentUser().status == "active"
+        && currentUser().role == "owner"
       );
     }
 
@@ -169,10 +164,16 @@ service cloud.firestore {
     }
 
     function adminCanManageTarget() {
-      return isOwner() || (
+      return isSuperAdmin() || (
+        isOwner()
+        && resource.data.role != "super-admin"
+        && request.resource.data.role != "super-admin"
+      ) || (
         isAccessAdmin()
+        && resource.data.role != "super-admin"
         && resource.data.role != "owner"
         && resource.data.role != "admin"
+        && request.resource.data.role != "super-admin"
         && request.resource.data.role != "owner"
         && request.resource.data.role != "admin"
       );
@@ -348,11 +349,6 @@ service cloud.firestore {
         && validUserCreate(userId)
         && (
           (
-            isVerifiedBootstrapOwner()
-            && request.resource.data.role == "owner"
-            && request.resource.data.status == "active"
-          )
-          || (
             validInvitation()
             && request.resource.data.role == get(/databases/$(database)/documents/office_invites/$(request.auth.token.email)).data.role
             && request.resource.data.status == "active"

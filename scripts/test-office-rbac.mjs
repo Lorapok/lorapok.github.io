@@ -40,6 +40,7 @@ try {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
     await Promise.all([
+      setDoc(doc(db, "users", "super-uid"), profile("super-uid", "mdshuvo40@gmail.com", "super-admin")),
       setDoc(doc(db, "users", "owner-uid"), profile("owner-uid", "imaizied@gmail.com", "owner")),
       setDoc(doc(db, "users", "admin-uid"), profile("admin-uid", "admin@example.com", "admin")),
       setDoc(doc(db, "users", "editor-uid"), profile("editor-uid", "editor@example.com", "editor")),
@@ -62,7 +63,8 @@ try {
 
   const dbFor = (uid, email) => testEnv.authenticatedContext(uid, { email, email_verified: true }).firestore();
   const anonymous = testEnv.unauthenticatedContext().firestore();
-  const owner = dbFor("owner-uid", "imaizied@gmail.com");
+  const owner = dbFor("super-uid", "mdshuvo40@gmail.com");
+  const legacyOwner = dbFor("owner-uid", "imaizied@gmail.com");
   const admin = dbFor("admin-uid", "admin@example.com");
   const editor = dbFor("editor-uid", "editor@example.com");
   const researcher = dbFor("research-uid", "research@example.com");
@@ -102,8 +104,11 @@ try {
     email: "imaizied@gmail.com", email_verified: false,
   }).firestore();
   await assertFails(setDoc(doc(unverifiedBootstrap, "users", "unverified-owner"), profile("unverified-owner", "imaizied@gmail.com", "owner")));
+  const verifiedMainEmailWithoutRole = dbFor("unprovisioned-main", "mdshuvo40@gmail.com");
+  await assertFails(setDoc(doc(verifiedMainEmailWithoutRole, "users", "unprovisioned-main"), profile("unprovisioned-main", "mdshuvo40@gmail.com", "super-admin")));
 
   await assertSucceeds(setDoc(doc(owner, "office_invites", "new-admin@example.com"), invitation("new-admin@example.com", "admin", "imaizied@gmail.com")));
+  await assertSucceeds(setDoc(doc(legacyOwner, "office_invites", "legacy-admin@example.com"), invitation("legacy-admin@example.com", "admin", "imaizied@gmail.com")));
   await assertSucceeds(setDoc(doc(admin, "office_invites", "new-editor@example.com"), invitation("new-editor@example.com", "editor", "admin@example.com")));
   await assertFails(setDoc(doc(admin, "office_invites", "second-admin@example.com"), invitation("second-admin@example.com", "admin", "admin@example.com")));
 
@@ -169,6 +174,7 @@ try {
   }));
   await assertFails(updateDoc(doc(admin, "users", "editor-uid"), { role: "admin", status: "active" }));
   await assertFails(updateDoc(doc(admin, "users", "owner-uid"), { role: "viewer", status: "suspended" }));
+  await assertFails(updateDoc(doc(legacyOwner, "users", "super-uid"), { role: "owner", status: "active" }));
 
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), "office_invites", "invited@example.com"), {
@@ -185,7 +191,7 @@ try {
   await assertSucceeds(setDoc(doc(uninvited, "users", "new-uid"), profile("new-uid", "new@example.com", "viewer", "pending")));
   await assertFails(setDoc(doc(uninvited, "users", "new-uid-2"), profile("new-uid-2", "new@example.com", "editor")));
 
-  console.log("Office RBAC rule tests passed: public, owner, admin, editor, researcher, teammate, viewer, pending, suspended, and invitation boundaries verified.");
+  console.log("Office RBAC rule tests passed: explicit Super Admin, legacy owner, admin, editor, researcher, teammate, viewer, pending, suspended, and invitation boundaries verified.");
 } finally {
   await testEnv.cleanup();
 }

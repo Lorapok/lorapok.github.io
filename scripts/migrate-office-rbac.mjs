@@ -7,8 +7,8 @@ import path from "node:path";
 const requireFromAgent = createRequire(path.resolve("agent/package.json"));
 const admin = requireFromAgent("firebase-admin");
 const serviceAccountPath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH || "agent/.credentials/lorapok-labs-sa.json");
-const ownerEmails = new Set(["imaizied@gmail.com", "mdshuvo40@gmail.com", "lorapokdev@gmail.com"]);
-const roles = new Set(["owner", "admin", "editor", "researcher", "teammate", "viewer"]);
+const primarySuperAdminEmail = "mdshuvo40@gmail.com";
+const roles = new Set(["super-admin", "owner", "admin", "editor", "researcher", "teammate", "viewer"]);
 const statuses = new Set(["pending", "active", "suspended"]);
 
 if (!fs.existsSync(serviceAccountPath)) {
@@ -19,23 +19,23 @@ const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
 if (!admin.apps.length) admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
 const snapshot = await db.collection("users").get();
-let owners = 0;
+let superAdmins = 0;
 let normalized = 0;
 
 for (const entry of snapshot.docs) {
   const data = entry.data();
   const email = String(data.email || "").trim().toLowerCase();
-  const isOwner = ownerEmails.has(email);
-  const role = isOwner ? "owner" : (roles.has(data.role) && data.role !== "owner" ? data.role : "viewer");
-  const status = isOwner ? "active" : (statuses.has(data.status) ? data.status : "pending");
+  const isPrimarySuperAdmin = email === primarySuperAdminEmail;
+  const role = isPrimarySuperAdmin ? "super-admin" : (roles.has(data.role) && data.role !== "super-admin" ? data.role : "viewer");
+  const status = isPrimarySuperAdmin ? "active" : (statuses.has(data.status) ? data.status : "pending");
   await entry.ref.set({
     email,
     role,
     status,
     rbacMigratedAt: admin.firestore.FieldValue.serverTimestamp(),
   }, { merge: true });
-  if (isOwner) owners++;
+  if (isPrimarySuperAdmin) superAdmins++;
   else normalized++;
 }
 
-console.log(`Office RBAC migration complete: ${owners} protected owners, ${normalized} member records normalized.`);
+console.log(`Office RBAC migration complete: ${superAdmins} protected Super Admin, ${normalized} member records normalized.`);

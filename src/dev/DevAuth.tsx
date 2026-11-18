@@ -3,7 +3,7 @@
 // Global Context for Lorapok Labs Developer Mode: Auth, API Keys, and Workspace State
 import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import {
-  browserSessionPersistence,
+  browserLocalPersistence,
   getMultiFactorResolver,
   onAuthStateChanged,
   multiFactor,
@@ -23,7 +23,6 @@ import { auth, googleProvider, isFirebaseConfigured, db } from "../lib/firebase"
 import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { AI_PROVIDERS, type AIProviderId } from "./constants/providers";
 import {
-  BOOTSTRAP_OWNER_EMAILS,
   hasOfficePermission,
   normalizeOfficeRole,
   type OfficeAccessStatus,
@@ -46,6 +45,9 @@ interface DevContextType {
   beginSecondFactorEnrollment: () => Promise<void>;
   confirmSecondFactorEnrollment: (pin: string) => Promise<void>;
   verifySecondFactorPin: (pin: string) => Promise<void>;
+  setupDevicePin: (pin: string, confirmation: string) => Promise<void>;
+  verifyDevicePin: (pin: string) => Promise<void>;
+  resetDevicePin: () => Promise<void>;
   restartSecureSignIn: () => Promise<void>;
   cancelSecondFactor: () => void;
   isAdmin: boolean;
@@ -69,7 +71,7 @@ interface DevContextType {
   logChat: (provider: AIProviderId, model: string, messages: { role: 'user' | 'assistant', content: string }[]) => Promise<void>;
 }
 
-type SecondFactorState = "idle" | "checking" | "enroll" | "challenge" | "reauthenticate" | "verified";
+type SecondFactorState = "idle" | "checking" | "enroll" | "challenge" | "reauthenticate" | "setup-device-pin" | "device-pin" | "verified";
 
 interface SecondFactorEnrollment {
   qrDataUrl: string;
@@ -89,6 +91,80 @@ export interface OfficeAccessProfile {
 }
 
 const DevContext = createContext<DevContextType | undefined>(undefined);
+
+const DEVICE_PIN_PREFIX = "lpk_device_pin_v1_";
+const DEVICE_PIN_UNLOCKED_KEY = "lpk_device_pin_unlocked_uid";
+const DEVICE_PIN_ATTEMPTS_PREFIX = "lpk_device_pin_attempts_";
+
+function currentEpochMs() {
+  return Date.now();
+}
+
+interface DevicePinEnvelope {
+  version: 1;
+  salt: string;
+  iv: string;
+  ciphertext: string;
+}
+
+function bytesToBase64(bytes: Uint8Array) {
+  let value = "";
+  bytes.forEach((byte) => { value += String.fromCharCode(byte); });
+  return btoa(value);
+}
+
+function base64ToBytes(value: string) {
+  const decoded = atob(value);
+  return Uint8Array.from(decoded, (character) => character.charCodeAt(0));
+}
+
+async function deriveDevicePinKey(pin: string, salt: Uint8Array) {
+  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", hash: "SHA-256", salt: salt as BufferSource, iterations: 310_000 },
+    material,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+async function createDevicePinEnvelope(uid: string, pin: string): Promise<DevicePinEnvelope> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveDevicePinKey(pin, salt);
+  const plaintext = new TextEncoder().encode(`lorapok-office:${uid}:trusted-device`);
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plaintext);
+  return {
+    version: 1,
+    salt: bytesToBase64(salt),
+    iv: bytesToBase64(iv),
+    ciphertext: bytesToBase64(new Uint8Array(ciphertext)),
+  };
+}
+
+async function openDevicePinEnvelope(uid: string, pin: string, envelope: DevicePinEnvelope) {
+  const salt = base64ToBytes(envelope.salt);
+  const iv = base64ToBytes(envelope.iv);
+  const key = await deriveDevicePinKey(pin, salt);
+  const plaintext = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
+    key,
+    base64ToBytes(envelope.ciphertext),
+  );
+  return new TextDecoder().decode(plaintext) === `lorapok-office:${uid}:trusted-device`;
+}
+
+function getDevicePinEnvelope(uid: string): DevicePinEnvelope | null {
+  try {
+    const value = localStorage.getItem(`${DEVICE_PIN_PREFIX}${uid}`);
+    if (!value) return null;
+    const parsed = JSON.parse(value) as DevicePinEnvelope;
+    return parsed.version === 1 && parsed.salt && parsed.iv && parsed.ciphertext ? parsed : null;
+  } catch {
+    return null;
+  }
+}
 
 function authError(error: unknown) {
   const record = error && typeof error === "object" ? error as { code?: string; message?: string } : {};
@@ -171,7 +247,6 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       try {
         const email = (user.email || "").trim().toLowerCase();
         const current = await getDoc(userRef);
-        const isBootstrapOwner = BOOTSTRAP_OWNER_EMAILS.includes(email as typeof BOOTSTRAP_OWNER_EMAILS[number]);
         let initialAccess: Pick<OfficeAccessProfile, "role" | "status"> | null = null;
         let shouldAcceptInvitation = false;
 
@@ -179,13 +254,9 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
           const invitation = email ? await getDoc(doc(db, "office_invites", email)) : null;
           const inviteData = invitation?.exists() ? invitation.data() : null;
           shouldAcceptInvitation = inviteData?.status === "invited";
-          initialAccess = isBootstrapOwner
-            ? { role: "owner", status: "active" }
-            : inviteData?.status === "invited"
+          initialAccess = inviteData?.status === "invited"
               ? { role: normalizeOfficeRole(inviteData.role), status: "active" }
               : { role: "viewer", status: "pending" };
-        } else if (isBootstrapOwner) {
-          initialAccess = { role: "owner", status: "active" };
         }
 
         await setDoc(userRef, {
@@ -260,7 +331,9 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
-    void setPersistence(auth, browserSessionPersistence);
+    // Firebase keeps the already MFA-verified identity on this trusted browser.
+    // A separate encrypted local PIN unlocks each new browser session.
+    void setPersistence(auth, browserLocalPersistence);
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       setLoading(false);
@@ -281,7 +354,13 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
 
       const verifiedByFirebase = await hasSecondFactorClaim(u);
       const verifiedInTab = sessionStorage.getItem("lpk_mfa_verified_uid") === u.uid;
-      setSecondFactorState(verifiedByFirebase || verifiedInTab ? "verified" : "reauthenticate");
+      const deviceUnlocked = sessionStorage.getItem(DEVICE_PIN_UNLOCKED_KEY) === u.uid;
+      const hasDevicePin = Boolean(getDevicePinEnvelope(u.uid));
+      if (verifiedByFirebase || verifiedInTab) {
+        setSecondFactorState(hasDevicePin ? (deviceUnlocked ? "verified" : "device-pin") : "setup-device-pin");
+      } else {
+        setSecondFactorState("reauthenticate");
+      }
     });
     return unsub;
   }, []);
@@ -407,12 +486,96 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       const credential = await secondFactorResolver.resolveSignIn(assertion);
       sessionStorage.setItem("lpk_mfa_verified_uid", credential.user.uid);
       setSecondFactorResolver(null);
-      setSecondFactorState("verified");
+      if (getDevicePinEnvelope(credential.user.uid)) {
+        sessionStorage.setItem(DEVICE_PIN_UNLOCKED_KEY, credential.user.uid);
+        setSecondFactorState("verified");
+      } else {
+        setSecondFactorState("setup-device-pin");
+      }
     } catch (error) {
       setSecondFactorError(authErrorMessage(error));
     } finally {
       setSecondFactorBusy(false);
     }
+  };
+
+  const setupDevicePin = async (pin: string, confirmation: string) => {
+    if (!user || !/^\d{6}$/.test(pin)) {
+      setSecondFactorError("Choose a six-digit device PIN.");
+      return;
+    }
+    if (pin !== confirmation) {
+      setSecondFactorError("The two device PIN entries do not match.");
+      return;
+    }
+    setSecondFactorBusy(true);
+    setSecondFactorError(null);
+    try {
+      const envelope = await createDevicePinEnvelope(user.uid, pin);
+      localStorage.setItem(`${DEVICE_PIN_PREFIX}${user.uid}`, JSON.stringify(envelope));
+      localStorage.removeItem(`${DEVICE_PIN_ATTEMPTS_PREFIX}${user.uid}`);
+      sessionStorage.setItem(DEVICE_PIN_UNLOCKED_KEY, user.uid);
+      sessionStorage.setItem("lpk_mfa_verified_uid", user.uid);
+      setSecondFactorState("verified");
+      await logEvent("auth", "device_pin_created", { protection: "pbkdf2-aes-gcm", localOnly: true });
+    } catch {
+      setSecondFactorError("This browser could not create the encrypted device PIN. Update the browser and try again.");
+    } finally {
+      setSecondFactorBusy(false);
+    }
+  };
+
+  const verifyDevicePin = async (pin: string) => {
+    if (!user || !/^\d{6}$/.test(pin)) {
+      setSecondFactorError("Enter your six-digit device PIN.");
+      return;
+    }
+    const attemptKey = `${DEVICE_PIN_ATTEMPTS_PREFIX}${user.uid}`;
+    const attemptState = (() => {
+      try { return JSON.parse(localStorage.getItem(attemptKey) || "{}") as { count?: number; blockedUntil?: number }; }
+      catch { return {}; }
+    })();
+    const now = currentEpochMs();
+    if ((attemptState.blockedUntil || 0) > now) {
+      const minutes = Math.max(1, Math.ceil(((attemptState.blockedUntil || 0) - now) / 60_000));
+      setSecondFactorError(`Too many attempts. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}, or use the authenticator.`);
+      return;
+    }
+    const envelope = getDevicePinEnvelope(user.uid);
+    if (!envelope) {
+      setSecondFactorState("setup-device-pin");
+      return;
+    }
+    setSecondFactorBusy(true);
+    setSecondFactorError(null);
+    try {
+      const valid = await openDevicePinEnvelope(user.uid, pin, envelope);
+      if (!valid) throw new Error("invalid-pin");
+      localStorage.removeItem(attemptKey);
+      sessionStorage.setItem(DEVICE_PIN_UNLOCKED_KEY, user.uid);
+      sessionStorage.setItem("lpk_mfa_verified_uid", user.uid);
+      setSecondFactorState("verified");
+      await logEvent("auth", "device_pin_unlocked", { localOnly: true });
+    } catch {
+      const count = (attemptState.count || 0) + 1;
+      const blockedUntil = count >= 5 ? currentEpochMs() + 5 * 60_000 : 0;
+      localStorage.setItem(attemptKey, JSON.stringify({ count: count >= 5 ? 0 : count, blockedUntil }));
+      setSecondFactorError(blockedUntil
+        ? "Too many attempts. Device PIN is locked for five minutes; the authenticator remains available."
+        : `Incorrect device PIN. ${5 - count} attempt${5 - count === 1 ? "" : "s"} remain before a short lock.`);
+    } finally {
+      setSecondFactorBusy(false);
+    }
+  };
+
+  const resetDevicePin = async () => {
+    if (user) {
+      localStorage.removeItem(`${DEVICE_PIN_PREFIX}${user.uid}`);
+      localStorage.removeItem(`${DEVICE_PIN_ATTEMPTS_PREFIX}${user.uid}`);
+    }
+    sessionStorage.removeItem(DEVICE_PIN_UNLOCKED_KEY);
+    setSecondFactorError(null);
+    await restartSecureSignIn();
   };
 
   const restartSecureSignIn = async () => {
@@ -449,6 +612,7 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
     keysToClear.forEach(k => localStorage.removeItem(k));
     AI_PROVIDERS.forEach((provider) => sessionStorage.removeItem(`lpk_key_${provider.id}`));
     sessionStorage.removeItem("lpk_mfa_verified_uid");
+    sessionStorage.removeItem(DEVICE_PIN_UNLOCKED_KEY);
 
     // Reset local state to defaults
     const emptyKeys: Record<string, string> = {};
@@ -551,7 +715,8 @@ export function DevAuthProvider({ children }: { children: ReactNode }) {
       value={{ 
         user, loading: loading || signingIn || accessLoading, signIn: handleSignIn, signOut: handleSignOut, isAdmin,
         secondFactorState, secondFactorBusy, secondFactorError, secondFactorEnrollment,
-        beginSecondFactorEnrollment, confirmSecondFactorEnrollment, verifySecondFactorPin, restartSecureSignIn, cancelSecondFactor,
+        beginSecondFactorEnrollment, confirmSecondFactorEnrollment, verifySecondFactorPin,
+        setupDevicePin, verifyDevicePin, resetDevicePin, restartSecureSignIn, cancelSecondFactor,
         hasOfficeRoleAccess, canAccessOffice, role, accessStatus, accessProfile, can,
         apiKeys, setApiKey: updateApiKey,
         activeProvider, setActiveProvider: updateActiveProvider,
@@ -628,7 +793,7 @@ function LarvaeAuthTransition({ message, compact = false }: { message: string; c
   );
 }
 
-function AuthPinForm({ busy, error, label, onSubmit }: {
+function AuthenticatorCodeForm({ busy, error, label, onSubmit }: {
   busy: boolean;
   error: string | null;
   label: string;
@@ -656,7 +821,57 @@ function AuthPinForm({ busy, error, label, onSubmit }: {
       />
       {error && <p id="office-authenticator-error" className="dev-auth-error" role="alert">{error}</p>}
       <button className="dev-btn dev-btn-primary dev-auth-signin" type="submit" disabled={busy || pin.length !== 6}>
-        {busy ? "Verifying secure PIN…" : "Verify and enter Office"}
+        {busy ? "Verifying authenticator…" : "Verify authenticator code"}
+      </button>
+    </form>
+  );
+}
+
+function DevicePinForm({ busy, error, setup = false, onSubmit }: {
+  busy: boolean;
+  error: string | null;
+  setup?: boolean;
+  onSubmit: (pin: string, confirmation: string) => Promise<void>;
+}) {
+  const [pin, setPin] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    void onSubmit(pin, setup ? confirmation : pin);
+  };
+  return (
+    <form className="dev-auth-pin dev-auth-device-pin" onSubmit={submit}>
+      <label htmlFor="office-device-pin">{setup ? "Choose a six-digit device PIN" : "Device PIN"}</label>
+      <input
+        id="office-device-pin"
+        value={pin}
+        onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
+        inputMode="numeric"
+        autoComplete={setup ? "new-password" : "current-password"}
+        pattern="[0-9]{6}"
+        maxLength={6}
+        placeholder="••• •••"
+        aria-describedby={error ? "office-device-pin-error" : undefined}
+        autoFocus
+      />
+      {setup && (
+        <>
+          <label htmlFor="office-device-pin-confirm">Confirm device PIN</label>
+          <input
+            id="office-device-pin-confirm"
+            value={confirmation}
+            onChange={(event) => setConfirmation(event.target.value.replace(/\D/g, "").slice(0, 6))}
+            inputMode="numeric"
+            autoComplete="new-password"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            placeholder="••• •••"
+          />
+        </>
+      )}
+      {error && <p id="office-device-pin-error" className="dev-auth-error" role="alert">{error}</p>}
+      <button className="dev-btn dev-btn-primary dev-auth-signin" type="submit" disabled={busy || pin.length !== 6 || (setup && confirmation.length !== 6)}>
+        {busy ? "Securing this device…" : setup ? "Create secure device PIN" : "Unlock Office"}
       </button>
     </form>
   );
@@ -687,11 +902,43 @@ export function OfficeGate({ children }: { children: ReactNode }) {
     user, loading, signIn, signOut: leaveOffice, hasOfficeRoleAccess, canAccessOffice, accessStatus,
     secondFactorState, secondFactorBusy, secondFactorError, secondFactorEnrollment,
     beginSecondFactorEnrollment, confirmSecondFactorEnrollment, verifySecondFactorPin,
-    restartSecureSignIn, cancelSecondFactor,
+    setupDevicePin, verifyDevicePin, resetDevicePin, restartSecureSignIn, cancelSecondFactor,
   } = useDevAuth();
 
   if (loading || (user && secondFactorState === "checking")) {
     return <LarvaeAuthTransition message="Waking the secure Office" />;
+  }
+
+  if (user && secondFactorState === "device-pin") {
+    return (
+      <div className="dev-auth-gate dev-auth-gate--secure">
+        <div className="dev-auth-gate-inner">
+          <LarvaeAuthTransition message="Trusted browser recognized" compact />
+          <div className="dev-auth-badge">Quick unlock · this device only</div>
+          <h2 className="dev-auth-title"><span>Enter</span> your device PIN</h2>
+          <p className="dev-auth-sub">Your Google and authenticator session is still trusted. Use the local six-digit PIN to unlock this browser without opening the authenticator app again.</p>
+          <DevicePinForm busy={secondFactorBusy} error={secondFactorError} onSubmit={(pin) => verifyDevicePin(pin)} />
+          <button className="dev-auth-text-button" type="button" disabled={secondFactorBusy} onClick={() => void resetDevicePin()}>Forgot PIN? Verify with authenticator</button>
+          <p className="dev-auth-security-note">The PIN is encrypted for this browser and is never uploaded to Lorapok or Firebase.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user && secondFactorState === "setup-device-pin") {
+    return (
+      <div className="dev-auth-gate dev-auth-gate--secure">
+        <div className="dev-auth-gate-inner">
+          <LarvaeAuthTransition message="Preparing quick unlock" compact />
+          <div className="dev-auth-badge">One-time setup · trusted device</div>
+          <h2 className="dev-auth-title"><span>Create</span> your device PIN</h2>
+          <p className="dev-auth-sub">Choose a six-digit PIN for this browser. Future visits use this quick unlock while your Firebase authenticator remains the recovery and new-device security factor.</p>
+          <DevicePinForm busy={secondFactorBusy} error={secondFactorError} setup onSubmit={setupDevicePin} />
+          <button className="dev-auth-text-button" type="button" onClick={leaveOffice}>Not a trusted device? Sign out</button>
+          <p className="dev-auth-security-note">Protected with PBKDF2 and AES-GCM. Five incorrect attempts trigger a temporary lock.</p>
+        </div>
+      </div>
+    );
   }
 
   if (secondFactorState === "challenge") {
@@ -700,9 +947,9 @@ export function OfficeGate({ children }: { children: ReactNode }) {
         <div className="dev-auth-gate-inner">
           <LarvaeAuthTransition message="Google identity verified" compact />
           <div className="dev-auth-badge">Second factor · authenticator</div>
-          <h2 className="dev-auth-title"><span>Secure</span> PIN required</h2>
+          <h2 className="dev-auth-title"><span>Authenticator</span> code required</h2>
           <p className="dev-auth-sub">Enter the rotating six-digit code from the authenticator app enrolled for this Office identity.</p>
-          <AuthPinForm busy={secondFactorBusy} error={secondFactorError} label="Authenticator PIN" onSubmit={verifySecondFactorPin} />
+          <AuthenticatorCodeForm busy={secondFactorBusy} error={secondFactorError} label="Six-digit authenticator code" onSubmit={verifySecondFactorPin} />
           <button className="dev-auth-text-button" type="button" onClick={cancelSecondFactor}>Use another Google account</button>
         </div>
       </div>
@@ -767,7 +1014,7 @@ export function OfficeGate({ children }: { children: ReactNode }) {
                   <span>Manual setup key</span>
                   <code>{secondFactorEnrollment.secretKey}</code>
                 </div>
-                <AuthPinForm busy={secondFactorBusy} error={secondFactorError} label="Confirm the current six-digit PIN" onSubmit={confirmSecondFactorEnrollment} />
+                <AuthenticatorCodeForm busy={secondFactorBusy} error={secondFactorError} label="Confirm the current six-digit authenticator code" onSubmit={confirmSecondFactorEnrollment} />
               </div>
             </div>
           )}
@@ -801,11 +1048,11 @@ export function OfficeGate({ children }: { children: ReactNode }) {
           <div className="dev-auth-badge">Lorapok Labs Office</div>
           <h2 className="dev-auth-title"><span>Two signals.</span> One secure Office.</h2>
           <p className="dev-auth-sub">Sign in with Google to request access. New identities remain locked until an Office administrator reviews the request and assigns a role.</p>
-          <div className="dev-auth-origin">Google identity · role boundary · authenticator PIN</div>
+          <div className="dev-auth-origin">Google identity · approved role · authenticator recovery · device PIN</div>
           <div className="dev-auth-steps" aria-label="Office login instructions">
             <div><b>01</b><span><strong>Request with Google</strong><small>Use the Google identity you want connected to Lorapok Labs Office.</small></span></div>
             <div><b>02</b><span><strong>Wait for administrator approval</strong><small>An owner or administrator approves the identity and assigns its least-privilege role.</small></span></div>
-            <div><b>03</b><span><strong>Secure and enter</strong><small>After approval, enroll the authenticator and verify the rotating six-digit PIN.</small></span></div>
+            <div><b>03</b><span><strong>Secure and enter</strong><small>Enroll the authenticator once, then create a quick-unlock PIN for your trusted browser.</small></span></div>
           </div>
           <p className="dev-auth-approval-note">Google sign-in does not grant Office or Blog System access automatically.</p>
           <button className="dev-btn dev-btn-primary dev-auth-signin" type="button" onClick={() => void signIn()}>
