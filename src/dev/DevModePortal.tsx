@@ -74,7 +74,7 @@ const TOOL_ITEMS: NavItem[] = [
   { id: "chat", icon: <MessageSquareText size={18} />, label: "Team Chat" },
   { id: "meetings", icon: <Video size={18} />, label: "Meeting Links" },
   { id: "tasks", icon: <ListChecks size={18} />, label: "Task Board" },
-  { id: "social", icon: <GalleryHorizontalEnd size={18} />, label: "Social Cards" },
+  { id: "social", icon: <GalleryHorizontalEnd size={18} />, label: "Social Publisher", badge: "META" },
   { id: "brand", icon: <Palette size={18} />, label: "Brand Gallery" },
 ];
 
