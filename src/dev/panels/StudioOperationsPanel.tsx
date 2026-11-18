@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import type { CSSProperties } from "react";
 import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import {
   ArrowRight, BadgePercent, CalendarDays, Check, Circle, Clipboard, Copy,
-  Download, FileText, GalleryHorizontalEnd, ListChecks, Mail, MessageSquareText,
+  FileText, GalleryHorizontalEnd, ListChecks, Mail, MessageSquareText,
   Palette, Plus, Search, Send, Trash2, Users, Video,
 } from "lucide-react";
 import { teamMembers } from "../../data/team";
@@ -11,6 +10,7 @@ import { generatedVisuals } from "../../data/generatedVisuals";
 import { archiveArtwork } from "../../data/mascotGallery";
 import { db } from "../../lib/firebase";
 import { useDevAuth } from "../DevAuth";
+import MetaPublisherPanel from "./MetaPublisherPanel";
 
 export type StudioTool =
   | "content" | "team-studio" | "offers" | "feedback" | "mail"
@@ -75,7 +75,7 @@ const toolMeta: Record<StudioTool, { label: string; eyebrow: string; description
   chat: { label: "Team chat", eyebrow: "Collaboration", description: "A live Office room for product, research and editorial coordination.", icon: MessageSquareText, mode: "Connected" },
   meetings: { label: "Meeting links", eyebrow: "Collaboration", description: "Create shared Jitsi rooms that teammates can copy or open directly.", icon: Video, mode: "Connected" },
   tasks: { label: "Task board", eyebrow: "Operations", description: "Move shared launch tasks through a lightweight team workflow.", icon: ListChecks, mode: "Connected" },
-  social: { label: "Social cards", eyebrow: "Publishing", description: "Compose and export 1200×630 release artwork securely in the browser.", icon: GalleryHorizontalEnd, mode: "Local export" },
+  social: { label: "Social Publisher", eyebrow: "Meta publishing", description: "Prepare media and publish to connected Facebook Pages and Instagram professional accounts.", icon: GalleryHorizontalEnd, mode: "Connected" },
   brand: { label: "Brand gallery", eyebrow: "Identity system", description: "Explore Ribo moods, sanctuary species, operational characters, authentic mascot references and the approved color language.", icon: Palette, mode: "Connected" },
 };
 
@@ -161,7 +161,7 @@ export default function StudioOperationsPanel({ tool }: { tool: StudioTool }) {
             : syncState === "saving" ? "Saving this change for every authorized teammate…"
               : syncState === "error" ? syncMessage
                 : "Live sync is active. Changes are stored in the role-controlled Office workspace."
-          : tool === "social" ? "Artwork is rendered locally and downloaded directly; no unpublished copy leaves this browser."
+          : tool === "social" ? "Publishing is protected by Lorapok Office access control; Meta tokens remain encrypted in the server-side gateway."
             : "This connected library uses the approved assets shipped with the live Lorapok site."
       }</div>
       {tool === "content" && <ContentDesk state={state} update={update} />}
@@ -172,7 +172,7 @@ export default function StudioOperationsPanel({ tool }: { tool: StudioTool }) {
       {tool === "chat" && <ChatDesk state={state} update={update} author={user?.displayName || user?.email?.split("@")[0] || "Teammate"} />}
       {tool === "meetings" && <MeetingDesk state={state} update={update} />}
       {tool === "tasks" && <TaskDesk state={state} update={update} />}
-      {tool === "social" && <SocialCardStudio />}
+      {tool === "social" && <MetaPublisherPanel />}
       {tool === "brand" && <BrandGallery />}
     </div>
   );
@@ -283,28 +283,6 @@ function TaskDesk({ state, update }: { state: StudioState; update: (next: Studio
   return <section className="studio-workspace-card"><div className="studio-compose-row task-compose"><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Add an operational task" /><button onClick={add}><Plus size={17} /></button></div>
     <div className="studio-task-columns">{(["Backlog", "In progress", "Done"] as Task["status"][]).map((status) => <div key={status}><div className="task-column-title"><span>{status}</span><strong>{state.tasks.filter((item) => item.status === status).length}</strong></div>{state.tasks.filter((item) => item.status === status).map((task) => <div className="studio-task-item" key={task.id}><button onClick={() => update({ ...state, tasks: state.tasks.map((item) => item.id === task.id ? { ...item, status: next[item.status] } : item) })}><span className="task-check">{status === "Done" && <Check size={12} />}</span>{task.title}<ArrowRight size={13} /></button><button type="button" className="studio-icon-button" onClick={() => update({ ...state, tasks: state.tasks.filter((entry) => entry.id !== task.id) })} aria-label={`Delete ${task.title}`}><Trash2 size={13} /></button></div>)}</div>)}</div>
   </section>;
-}
-
-function SocialCardStudio() {
-  const [title, setTitle] = useState("Living Universe 5.0"); const [subtitle, setSubtitle] = useState("One living system. Two clear universes."); const [accent, setAccent] = useState("#67f5bb");
-  const exportCard = () => {
-    const canvas = document.createElement("canvas"); canvas.width = 1200; canvas.height = 630; const context = canvas.getContext("2d"); if (!context) return;
-    const gradient = context.createLinearGradient(0, 0, 1200, 630); gradient.addColorStop(0, "#061c17"); gradient.addColorStop(1, "#13243b"); context.fillStyle = gradient; context.fillRect(0, 0, 1200, 630);
-    context.fillStyle = accent; context.beginPath(); context.arc(1020, 95, 190, 0, Math.PI * 2); context.globalAlpha = .18; context.fill(); context.globalAlpha = 1;
-    context.fillStyle = accent; context.font = "700 25px sans-serif"; context.fillText("LORAPOK LABS · LIVING UNIVERSE", 80, 100);
-    context.fillStyle = "#effff8"; context.font = "700 72px sans-serif"; wrapCanvasText(context, title, 80, 245, 980, 82);
-    context.fillStyle = "#abc9be"; context.font = "32px sans-serif"; wrapCanvasText(context, subtitle, 80, 455, 920, 42);
-    context.fillStyle = accent; context.fillRect(80, 550, 180, 8);
-    const link = document.createElement("a"); link.download = "lorapok-social-card.png"; link.href = canvas.toDataURL("image/png"); link.click();
-  };
-  return <div className="studio-workspace-grid social-grid"><section className="studio-workspace-card studio-form-card"><span className="studio-overline">Card composer</span><h2>Build a release card</h2><label>Headline<input value={title} onChange={(event) => setTitle(event.target.value)} /></label><label>Supporting line<textarea value={subtitle} onChange={(event) => setSubtitle(event.target.value)} /></label><label>Accent<input type="color" value={accent} onChange={(event) => setAccent(event.target.value)} /></label><button className="studio-primary-button" onClick={exportCard}><Download size={16} /> Export PNG</button></section>
-    <section className="studio-social-preview" style={{ "--social-accent": accent } as CSSProperties}><span>Lorapok Labs · Living Universe</span><h2>{title}</h2><p>{subtitle}</p><i /></section></div>;
-}
-
-function wrapCanvasText(context: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
-  const words = text.split(" "); let line = ""; let lineY = y;
-  words.forEach((word) => { const test = `${line}${word} `; if (context.measureText(test).width > maxWidth && line) { context.fillText(line, x, lineY); line = `${word} `; lineY += lineHeight; } else line = test; });
-  context.fillText(line, x, lineY);
 }
 
 function BrandGallery() {

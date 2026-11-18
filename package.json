@@ -18,6 +18,7 @@
     "migrate:office-rbac": "node scripts/migrate-office-rbac.mjs",
     "test:rbac": "node scripts/test-office-rbac.mjs",
     "test:sso": "node --test workers/lorapok-sso/test/*.test.js",
+    "test:social": "node --test workers/social-publisher/test/*.test.js",
     "validate": "node scripts/validate-all.js"
   },
   "dependencies": {

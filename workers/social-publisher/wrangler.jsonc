@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lorapok-social-publisher",
+  "account_id": "f049faaf2f67549f5c58837479596a4a",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-18",
+  "workers_dev": true,
+  "vars": {
+    "FIREBASE_PROJECT_ID": "lorapok-labs",
+    "GRAPH_API_VERSION": "v27.0",
+    "META_APP_ID": "1174712351764540",
+    "PUBLIC_BASE_URL": "https://lorapok-social-publisher.mdshuvo40.workers.dev",
+    "ALLOWED_ORIGINS": "https://lorapok.tech,https://www.lorapok.tech,http://localhost:5173,http://127.0.0.1:5173,http://localhost:4175,http://127.0.0.1:4175"
+  },
+  "kv_namespaces": [
+    { "binding": "SOCIAL_SESSIONS", "id": "b515ecb9248e43f5ad96fc233cf12b45" }
+  ],
+  "r2_buckets": [
+    { "binding": "SOCIAL_MEDIA", "bucket_name": "lorapok-social-media" }
+  ],
+  "triggers": {
+    "crons": ["17 3 * * *"]
+  }
+}
