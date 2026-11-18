@@ -26,7 +26,7 @@ export default function PageMascotFeature({
   planet = false,
 }: PageMascotFeatureProps) {
   return (
-    <aside className={`page-mascot-feature tone-${tone}`} aria-label={title}>
+    <aside className={`page-mascot-feature tone-${tone}${planet ? ' page-mascot-feature--planet' : ''}`} aria-label={title}>
       <div className="page-mascot-feature__visual">
         {planet ? (
           <LarvaePlanetSystem variant="feature" />
