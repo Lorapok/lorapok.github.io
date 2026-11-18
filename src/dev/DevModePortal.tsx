@@ -1,6 +1,6 @@
 // src/dev/DevModePortal.tsx
 // The full Lorapok Labs Developer Mode workspace
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DevAuthProvider, OfficeGate, useDevAuth } from "./DevAuth";
 import AILabsPanel from "./panels/AILabsPanel";
 import BlogPanel from "./panels/BlogPanel";
@@ -149,6 +149,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
   const [toastVisible, setToastVisible] = useState(false);
   const [time, setTime] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -182,6 +183,14 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
 
   const activePermission = PANEL_PERMISSIONS[activePanel];
   const permittedPanel: PanelId = activePermission && !can(activePermission) ? "dashboard" : activePanel;
+
+  useEffect(() => {
+    const main = mainRef.current;
+    if (!main) return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      && !document.documentElement.classList.contains("lp-motion-force");
+    main.scrollTo({ top: 0, left: 0, behavior: reducedMotion ? "auto" : "smooth" });
+  }, [permittedPanel]);
 
   const renderPanel = () => {
     switch (permittedPanel) {
@@ -311,9 +320,11 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
         </aside>
 
         {/* Main Content */}
-        <main className="dev-main">
+        <main ref={mainRef} className="dev-main">
           <div className="dev-panel active">
-            {renderPanel()}
+            <div className="dev-panel-stage" key={permittedPanel}>
+              {renderPanel()}
+            </div>
           </div>
         </main>
       </div>
