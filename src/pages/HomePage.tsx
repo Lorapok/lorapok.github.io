@@ -2,15 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/SEOHead';
 import SignalNewsletter from '../components/home/SignalNewsletter';
+import CommerceShowcase from '../components/home/CommerceShowcase';
 import { ProjectGlyph } from '../components/projects/ProjectGlyph';
 import { projects, type Project } from '../data/lorapok';
 import { packageReleases } from '../data/packageReleases';
-
-const OFFERS = [
-  { name: 'Starter Hosting', badge: 'START HERE', blurb: 'Entry-level managed hosting for a focused website.' },
-  { name: 'Business Hosting', badge: 'POPULAR PATH', blurb: 'A larger managed workspace for growing product sites.', featured: true },
-  { name: 'Pro Hosting', badge: 'FOR TEAMS', blurb: 'A broader hosting path for multi-site and agency workflows.' },
-];
 
 type Post = { slug: string; title: string; excerpt: string; category?: string; source?: string; readTime?: string | number; status?: string };
 
@@ -211,27 +206,7 @@ export default function HomePage() {
         </div></section>
       )}
 
-      <section className="v4-offers section" id="offers"><div className="wrap4">
-        <div className="v4-heading">
-          <div><div className="eyebrow">LORAHOST / PUBLISHED OFFERS</div><h2>More building.<br /><em>Less overhead.</em></h2></div>
-          <p>Provider-linked LoraHost plan paths. Review the intended audience here, then open the official service for current limits, checkout availability, and pricing.</p>
-        </div>
-        <div className="v4-offer-grid">
-          {OFFERS.map((o) => (
-            <article key={o.name} className={`v4-offer${o.featured ? ' featured' : ''}`}>
-              <div className="v4-badge">{o.badge}</div><h3>{o.name}</h3><p>{o.blurb}</p>
-              <strong className="v4-price">Live quote</strong>
-              <div className="v4-price-note">Pricing and availability are verified on the provider before checkout.</div>
-              <a className="button" href="https://lorahost.lorapok.tech/plans" target="_blank" rel="noopener noreferrer">Explore plan ↗</a>
-            </article>
-          ))}
-        </div>
-        <div className="v4-offer-secondary">
-          <div><span className="v4-badge">EARLY ACCESS</span><h3>GPU workspaces</h3><p>GPU workspaces are presented as early access. Open the official service for the current credit terms, eligibility, and regional availability.</p></div>
-          <a href="https://lorahost.lorapok.tech/server" target="_blank" rel="noopener noreferrer" className="button">Check early access ↗</a>
-        </div>
-        <p className="v4-disclaimer">Lorapok Labs does not process these orders. Plan names and capabilities are orientation only; confirm the current billing total, VAT, limits, and availability on the official LoraHost service.</p>
-      </div></section>
+      <CommerceShowcase />
 
       <section className="v4-showcase" aria-label="Lorapok's creative product universe">
         <div className="v4-showcase-art" role="img" aria-label="Futuristic Lorapok products and mascot artwork" />

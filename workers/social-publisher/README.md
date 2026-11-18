@@ -28,6 +28,14 @@ The Meta app OAuth redirect URI must be:
 
 `https://lorapok-social-publisher.mdshuvo40.workers.dev/oauth/callback`
 
+Threads OAuth callback:
+
+`https://lorapok-social-publisher.mdshuvo40.workers.dev/threads/oauth/callback`
+
+WhatsApp Cloud API webhook:
+
+`https://lorapok-social-publisher.mdshuvo40.workers.dev/meta/whatsapp-webhook`
+
 Deauthorization callback:
 
 `https://lorapok-social-publisher.mdshuvo40.workers.dev/meta/deauthorize`
@@ -35,6 +43,15 @@ Deauthorization callback:
 Data deletion callback:
 
 `https://lorapok-social-publisher.mdshuvo40.workers.dev/meta/data-deletion`
+
+Additional protected Worker secrets used by the connected channel desk:
+
+- `THREADS_APP_SECRET`
+- `WHATSAPP_ACCESS_TOKEN`
+- `WHATSAPP_PHONE_NUMBER_ID`
+- `WHATSAPP_VERIFY_TOKEN`
+
+Threads tokens are encrypted in KV with the same AES-GCM envelope as the Facebook connection. WhatsApp access tokens remain Worker secrets; they are never returned to the browser or stored in Firestore.
 
 Required Meta permissions:
 

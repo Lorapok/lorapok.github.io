@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import {
   AlertCircle, Camera, CheckCircle2, Download, Film, Image as ImageIcon,
   Eye, Link2, LoaderCircle, LockKeyhole, LogOut, PanelsTopLeft, RefreshCw, Send,
-  ShieldCheck, Sparkles, Upload,
+  ShieldCheck, Sparkles, Upload, AtSign, MessageCircle,
 } from "lucide-react";
 import {
-  beginMetaConnection, disconnectMeta, loadMetaConnection, metaPublisherOrigin, prepareImageForPlacement,
-  prepareVideoForPlacement, publishMetaPost, socialImageDimensions, uploadMetaMedia,
+  beginMetaConnection, beginThreadsConnection, disconnectMeta, disconnectThreads, loadMetaConnection, metaPublisherOrigin, prepareImageForPlacement,
+  prepareVideoForPlacement, publishMetaPost, publishThreadsPost, sendWhatsAppMessage, socialImageDimensions, uploadMetaMedia,
   type MetaConnectionStatus, type MetaPlacement, type PreparedMedia,
 } from "../../lib/metaPublisher";
 
@@ -17,6 +17,12 @@ const placementLabels: Record<MetaPlacement, string> = {
   instagram_reel: "Instagram Reel",
   instagram_story: "Instagram Story",
 };
+
+function publicationLabel(placement: MetaConnectionStatus["jobs"][number]["placement"]) {
+  if (placement === "threads_post") return "Threads Post";
+  if (placement === "whatsapp_message") return "WhatsApp Message";
+  return placementLabels[placement];
+}
 
 function buildGeneratedCard(title: string, subtitle: string, accent: string, placement: MetaPlacement) {
   const { width, height } = socialImageDimensions(placement);
@@ -80,19 +86,38 @@ function wrapCanvasText(context: CanvasRenderingContext2D, text: string, x: numb
   context.fillText(line, x, lineY);
 }
 
+type CatalogSocialDraft = {
+  title?: string;
+  caption?: string;
+  link?: string;
+  image?: string;
+};
+
+function readCatalogSocialDraft(): CatalogSocialDraft | null {
+  try {
+    const stored = localStorage.getItem("lorapok-social-draft");
+    return stored ? JSON.parse(stored) as CatalogSocialDraft : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function MetaPublisherPanel() {
+  const [initialDraft] = useState(readCatalogSocialDraft);
   const [connection, setConnection] = useState<MetaConnectionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<"connect" | "media" | "publish" | "disconnect" | null>(null);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState(initialDraft ? "Catalog product loaded into the publishing desk." : "");
   const [error, setError] = useState("");
   const [pageId, setPageId] = useState("");
   const [placement, setPlacement] = useState<MetaPlacement>("facebook_feed");
-  const [title, setTitle] = useState("Living Universe 5.0");
-  const [caption, setCaption] = useState("One living system. Two clear universes.");
-  const [link, setLink] = useState("https://lorapok.tech");
+  const [title, setTitle] = useState(initialDraft?.title || "Living Universe 5.0");
+  const [caption, setCaption] = useState(initialDraft?.caption || "One living system. Two clear universes.");
+  const [link, setLink] = useState(initialDraft?.link || "https://lorapok.tech");
   const [accent, setAccent] = useState("#67f5bb");
   const [media, setMedia] = useState<PreparedMedia | null>(null);
+  const [whatsappRecipient, setWhatsappRecipient] = useState("");
+  const [whatsappMessage, setWhatsappMessage] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(async () => {
@@ -118,6 +143,19 @@ export default function MetaPublisherPanel() {
     return () => { active = false; };
   }, []);
   useEffect(() => () => { if (media?.previewUrl) URL.revokeObjectURL(media.previewUrl); }, [media]);
+  useEffect(() => {
+    localStorage.removeItem("lorapok-social-draft");
+    if (!initialDraft?.image) return;
+    let cancelled = false;
+    fetch(initialDraft.image).then((response) => {
+      if (!response.ok) throw new Error("Catalog artwork could not be loaded.");
+      return response.blob();
+    }).then((blob) => prepareImageForPlacement(blob, "facebook_feed", "lorapok-catalog.jpg")).then((prepared) => {
+      if (cancelled) URL.revokeObjectURL(prepared.previewUrl);
+      else { setMedia(prepared); setNotice("Catalog product and artwork loaded into the publishing desk."); }
+    }).catch((reason: unknown) => { if (!cancelled) setError(reason instanceof Error ? reason.message : "Catalog artwork could not be loaded."); });
+    return () => { cancelled = true; };
+  }, [initialDraft]);
 
   const page = connection?.pages.find((item) => item.id === pageId) || null;
   const placements = useMemo<MetaPlacement[]>(() => [
@@ -152,6 +190,35 @@ export default function MetaPublisherPanel() {
     setBusy("disconnect"); setError("");
     try { await disconnectMeta(); setMedia(null); setNotice("The Meta connection was removed from this Office account."); await refresh(); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Meta could not be disconnected."); }
+    finally { setBusy(null); }
+  };
+
+  const connectThreads = async () => {
+    setBusy("connect"); setError(""); setNotice("");
+    try {
+      const { authorizationUrl } = await beginThreadsConnection();
+      const popup = window.open(authorizationUrl, "lorapok-threads-connect", "popup,width=620,height=760");
+      if (!popup) throw new Error("Allow pop-ups for Lorapok Office to connect Threads securely.");
+      await new Promise<void>((resolve, reject) => {
+        const timeout = window.setTimeout(() => { cleanup(); reject(new Error("Threads connection timed out. Please try again.")); }, 180_000);
+        const interval = window.setInterval(() => { if (popup.closed) { cleanup(); reject(new Error("Threads connection was closed before it finished.")); } }, 800);
+        const listener = (event: MessageEvent) => {
+          if (event.origin !== metaPublisherOrigin() || event.data?.type !== "lorapok-threads-connected") return;
+          cleanup(); resolve();
+        };
+        const cleanup = () => { window.clearTimeout(timeout); window.clearInterval(interval); window.removeEventListener("message", listener); };
+        window.addEventListener("message", listener);
+      });
+      setNotice("Threads is connected and ready for publishing.");
+      await refresh();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "Threads could not be connected."); }
+    finally { setBusy(null); }
+  };
+
+  const removeThreadsConnection = async () => {
+    setBusy("disconnect"); setError("");
+    try { await disconnectThreads(); setNotice("The Threads connection was removed."); await refresh(); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Threads could not be disconnected."); }
     finally { setBusy(null); }
   };
 
@@ -233,6 +300,30 @@ export default function MetaPublisherPanel() {
     finally { setBusy(null); }
   };
 
+  const publishThreads = async () => {
+    if (!connection?.channels?.threads.connected) return;
+    setBusy("publish"); setError(""); setNotice("");
+    try {
+      if (!caption.trim() || caption.trim().length > 500) throw new Error("Threads posts need 1–500 characters.");
+      const uploaded = media ? await uploadMetaMedia(media) : null;
+      const result = await publishThreadsPost({ text: caption.trim(), mediaUrl: uploaded?.mediaUrl, mediaType: media?.type || "text" });
+      setNotice(`Threads post published successfully · ${result.postId}`);
+      await refresh();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "The Threads post could not be published."); }
+    finally { setBusy(null); }
+  };
+
+  const sendWhatsapp = async () => {
+    setBusy("publish"); setError(""); setNotice("");
+    try {
+      const result = await sendWhatsAppMessage(whatsappRecipient, whatsappMessage);
+      setNotice(`WhatsApp message sent · ${result.messageId}`);
+      setWhatsappMessage("");
+      await refresh();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "The WhatsApp message could not be sent."); }
+    finally { setBusy(null); }
+  };
+
   const generatedRatio = placement.includes("reel") || placement.includes("story") ? "9 / 16" : "4 / 5";
   const activeNetwork = placement.startsWith("instagram") ? "Instagram" : "Facebook";
   const formatLabel = placementLabels[placement].replace(/^(Facebook|Instagram) /, "");
@@ -256,6 +347,21 @@ export default function MetaPublisherPanel() {
       {connection?.connected
         ? <button className="meta-secondary-button" onClick={removeConnection} disabled={busy !== null}><LogOut size={15} /> Disconnect</button>
         : <button className="studio-primary-button" onClick={connect} disabled={busy !== null || connection?.configured === false}>{busy === "connect" ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />} Connect Meta</button>}
+    </section>
+
+    <section className="meta-channel-grid" aria-label="Connected publishing channels">
+      <article className={connection?.channels?.threads.connected ? "is-connected" : ""}>
+        <div className="meta-channel-icon"><AtSign size={21} /></div>
+        <div><span className="studio-overline">Threads</span><h3>{connection?.channels?.threads.connected ? `@${connection.channels.threads.profile?.username || "connected"}` : "Connect Threads"}</h3><p>Publish text, product artwork, and prepared video through a separate encrypted Threads token.</p></div>
+        {connection?.channels?.threads.connected
+          ? <button className="meta-secondary-button" onClick={removeThreadsConnection} disabled={busy !== null}><LogOut size={14} /> Disconnect</button>
+          : <button className="meta-secondary-button" onClick={connectThreads} disabled={busy !== null || connection?.channels?.threads.configured === false}><ShieldCheck size={14} /> Connect</button>}
+      </article>
+      <article className={connection?.channels?.whatsapp.connected ? "is-connected" : ""}>
+        <div className="meta-channel-icon"><MessageCircle size={21} /></div>
+        <div><span className="studio-overline">WhatsApp Business</span><h3>{connection?.channels?.whatsapp.connected ? connection.channels.whatsapp.displayName : "Gateway not configured"}</h3><p>Review incoming customer messages and send an operator-approved response from the protected gateway.</p></div>
+        <span className={`meta-channel-state ${connection?.channels?.whatsapp.connected ? "ready" : ""}`}>{connection?.channels?.whatsapp.connected ? "Ready" : "Setup needed"}</span>
+      </article>
     </section>
 
     {(error || notice) && <div className={`meta-publisher-notice ${error ? "error" : "success"}`} role="status">{error ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}<span>{error || notice}</span></div>}
@@ -298,7 +404,21 @@ export default function MetaPublisherPanel() {
 
       <section className="studio-workspace-card meta-history">
         <div className="workspace-card-heading"><div><span className="studio-overline">Audit trail</span><h2>Recent publications</h2></div><strong>{connection.jobs.length}</strong></div>
-        {connection.jobs.length === 0 ? <div className="studio-empty">No publications from this account yet.</div> : connection.jobs.map((job) => <article key={job.id}><div className={`meta-job-state ${job.status}`}><CheckCircle2 size={15} /></div><div><strong>{job.accountName}</strong><span>{placementLabels[job.placement]} · {new Date(job.createdAt).toLocaleString()}</span></div><code>{job.postId || job.message || job.status}</code></article>)}
+        {connection.jobs.length === 0 ? <div className="studio-empty">No publications from this account yet.</div> : connection.jobs.map((job) => <article key={job.id}><div className={`meta-job-state ${job.status}`}><CheckCircle2 size={15} /></div><div><strong>{job.accountName}</strong><span>{publicationLabel(job.placement)} · {new Date(job.createdAt).toLocaleString()}</span></div><code>{job.postId || job.message || job.status}</code></article>)}
+      </section>
+
+      <section className="meta-channel-workspace">
+        <article className="studio-workspace-card meta-threads-desk">
+          <div className="workspace-card-heading"><div><span className="studio-overline">Threads publisher</span><h2>One idea, one clean thread</h2><p>The main caption and selected artwork above are reused here. Threads supports up to 500 characters in this desk.</p></div><AtSign size={22} /></div>
+          <div className="meta-channel-summary"><span>{connection.channels?.threads.profile ? `@${connection.channels.threads.profile.username}` : "No Threads account"}</span><strong>{caption.trim().length} / 500</strong></div>
+          <button className="studio-primary-button" type="button" onClick={publishThreads} disabled={busy !== null || !connection.channels?.threads.connected || !caption.trim() || caption.trim().length > 500}>{busy === "publish" ? <LoaderCircle className="spin" size={15} /> : <Send size={15} />} Publish to Threads</button>
+        </article>
+
+        <article className="studio-workspace-card meta-whatsapp-desk">
+          <div className="workspace-card-heading"><div><span className="studio-overline">WhatsApp Business inbox</span><h2>Customer conversation</h2><p>Use an approved customer number with country code. Nothing is sent until an authorized operator presses Send.</p></div><MessageCircle size={22} /></div>
+          <div className="meta-whatsapp-compose"><label><span>Recipient</span><input value={whatsappRecipient} onChange={(event) => setWhatsappRecipient(event.target.value)} placeholder="8801XXXXXXXXX" inputMode="tel" /></label><label><span>Message</span><textarea rows={4} value={whatsappMessage} onChange={(event) => setWhatsappMessage(event.target.value)} maxLength={4096} placeholder="Write an operator-reviewed reply…" /></label><button className="studio-primary-button" type="button" onClick={sendWhatsapp} disabled={busy !== null || !connection.channels?.whatsapp.connected || !whatsappRecipient.trim() || !whatsappMessage.trim()}><Send size={15} /> Send WhatsApp message</button></div>
+          <div className="meta-whatsapp-messages">{connection.channels?.whatsapp.messages?.length ? connection.channels.whatsapp.messages.slice(0, 8).map((message) => <div key={`${message.id}:${message.createdAt}`} className={message.direction}><span>{message.direction === "inbound" ? message.fromName || message.from : "Lorapok Labs"}</span><p>{message.text}</p><time>{new Date(message.createdAt).toLocaleString()}</time></div>) : <div className="studio-empty">No WhatsApp messages have reached this gateway yet.</div>}</div>
+        </article>
       </section>
     </> : <section className="meta-empty-state"><div><PanelsTopLeft size={30} /><Camera size={25} /></div><h2>Connect once, publish from one desk.</h2><p>Choose the Facebook Pages you manage and their linked Instagram professional accounts. Meta permissions and account eligibility determine which destinations are available.</p><button className="studio-primary-button" onClick={connect} disabled={busy !== null || connection?.configured === false}><ShieldCheck size={16} /> Connect Meta Business</button>{connection?.configured === false && <small>The protected gateway still needs its Meta App configuration before accounts can connect.</small>}</section>}
   </div>;

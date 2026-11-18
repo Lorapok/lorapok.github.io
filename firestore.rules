@@ -82,7 +82,7 @@ service cloud.firestore {
           && (
             (
               currentUser().role == "editor"
-              && moduleId in ["content", "offers", "feedback", "mail", "chat", "meetings", "tasks"]
+              && moduleId in ["content", "offers", "catalog", "feedback", "mail", "chat", "meetings", "tasks"]
             )
             || (
               currentUser().role == "teammate"
@@ -250,6 +250,11 @@ service cloud.firestore {
     }
 
     match /published_projects/{projectId} {
+      allow read: if true;
+      allow write: if canEditPublishing();
+    }
+
+    match /published_catalog/{documentId} {
       allow read: if true;
       allow write: if canEditPublishing();
     }

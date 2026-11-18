@@ -401,6 +401,35 @@ html[data-ribo-mood]:not([data-ribo-mood="curious"]) .ribo-signal-mood{font-size
 @media(max-width:520px){.v4 .v4-sanctuary-grid{grid-template-columns:1fr}.v4 .v4-species-card{min-height:390px}.v4 .v4-species-card img{height:235px}.v4 .v4-sanctuary-heading>p{font-size:16px}}
 @media(prefers-reduced-motion:reduce){html:not(.lp-motion-force) .v4 .v4-species-card,html:not(.lp-motion-force) .v4 .v4-species-card img{transition:none!important;transform:none!important}}
 
+/* ── Verified commerce catalog ── */
+.v4 .v4-commerce{overflow:hidden;background:radial-gradient(circle at 91% 9%,#5d47a438,transparent 28%),radial-gradient(circle at 7% 82%,#12a8732c,transparent 34%),#071a15}
+.v4 .v4-commerce__heading h2 em{color:#78f3bd;font-style:normal}
+.v4 .v4-commerce__toolbar{display:flex;align-items:center;gap:10px;margin:0 0 34px;padding:9px;border:1px solid #d9fff51c;border-radius:22px;background:#061510a8;box-shadow:0 20px 55px #0003;backdrop-filter:blur(18px)}
+.v4 .v4-commerce__toolbar button{display:flex;align-items:center;gap:9px;min-height:48px;padding:0 17px;border:1px solid transparent;border-radius:14px;background:transparent;color:#88aa9c;font:700 13px 'Space Grotesk',sans-serif;cursor:pointer;transition:.25s ease}
+.v4 .v4-commerce__toolbar button:hover{color:#eafff5;background:#ffffff08}.v4 .v4-commerce__toolbar button.active{border-color:#67f5bb55;background:#67f5bb14;color:#8fffc8;box-shadow:inset 0 0 24px #67f5bb0a}
+.v4 .v4-commerce__toolbar button b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#ffffff0c;color:#c8e4d7;font-size:10px}
+.v4 .v4-commerce__toolbar small{display:flex;align-items:center;gap:7px;margin-left:auto;padding:0 12px;color:#668b7b;font:700 9px 'Space Mono',monospace;text-transform:uppercase;letter-spacing:.09em}
+.v4 .v4-commerce__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.v4 .v4-commerce-card{position:relative;min-width:0;overflow:hidden;border:1px solid #d9fff51b;border-radius:30px;background:linear-gradient(155deg,#12362be8,#081c17 55%,#10192a);box-shadow:0 24px 70px #0004;transition:transform .42s var(--ease-out),border-color .3s,box-shadow .42s}
+.v4 .v4-commerce-card:hover{transform:translateY(-8px);border-color:#67f5bb66;box-shadow:0 34px 90px #0008,0 0 0 1px #67f5bb0d}
+.v4 .v4-commerce-card.featured{border-color:#67f5bb66;box-shadow:0 26px 80px #001e1580,0 0 0 1px #67f5bb18}
+.v4 .v4-commerce-card__visual{position:relative;height:205px;overflow:hidden;border-bottom:1px solid #ffffff14;background:radial-gradient(circle at 72% 25%,#67f5bb24,transparent 40%),#071b18}
+.v4 .v4-commerce-card__visual:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#081d19e8),linear-gradient(120deg,#ffffff0b,transparent 42%);pointer-events:none}
+.v4 .v4-commerce-card__visual img{width:100%;height:100%;object-fit:cover;object-position:center calc(38% + var(--product-index,0)*3%);filter:saturate(.9) contrast(1.08);transform:scale(1.04);transition:transform .65s var(--ease-out),filter .4s}
+.v4 .v4-commerce-card:hover .v4-commerce-card__visual img{transform:scale(1.1);filter:saturate(1.05) contrast(1.08)}
+.v4 .v4-commerce-card__visual>span,.v4 .v4-commerce-card__visual>b{position:absolute;z-index:1;top:18px;padding:7px 10px;border:1px solid #ffffff20;border-radius:99px;background:#03140fcf;color:#a8c9ba;font:800 8px 'Space Mono',monospace;text-transform:uppercase;letter-spacing:.11em;backdrop-filter:blur(12px)}
+.v4 .v4-commerce-card__visual>span{left:18px}.v4 .v4-commerce-card__visual>b{right:18px;border-color:#67f5bb66;background:#67f5bb18;color:#83ffc2}
+.v4 .v4-commerce-card__body{display:flex;min-height:500px;flex-direction:column;padding:27px}.v4 .v4-commerce-card__body>small{color:#67f5bb;font:800 9px 'Space Mono',monospace;text-transform:uppercase;letter-spacing:.14em}
+.v4 .v4-commerce-card__body h3{margin:10px 0 6px;color:#f0fff7;font-size:clamp(27px,2.4vw,39px);letter-spacing:-.055em}.v4 .v4-commerce-card__body>p{min-height:52px;margin:0;color:#9dbbab;font-size:14px;line-height:1.6}
+.v4 .v4-commerce-card__body>strong{display:block;margin:20px 0 13px;color:#f5fff9;font:700 22px 'Space Grotesk',sans-serif;letter-spacing:-.035em}
+.v4 .v4-commerce-card__promotion{display:flex;align-items:flex-start;gap:9px;padding:12px;border:1px solid #67f5bb35;border-radius:14px;background:#67f5bb0d;color:#91fbc5;font-size:12px;line-height:1.45}.v4 .v4-commerce-card__promotion svg{flex:0 0 auto;margin-top:1px}.v4 .v4-commerce-card__promotion span{display:flex;flex-wrap:wrap;gap:7px}.v4 .v4-commerce-card__promotion code{padding:2px 6px;border-radius:6px;background:#67f5bb17;color:#d3ffe9;font-size:10px}
+.v4 .v4-commerce-card__renewal{margin-top:10px;color:#7c9d8e;font-size:10px;line-height:1.45}.v4 .v4-commerce-card ul{display:grid;gap:9px;margin:20px 0 24px;padding:0;list-style:none}.v4 .v4-commerce-card li{display:flex;align-items:flex-start;gap:8px;color:#b1ccbf;font-size:12px;line-height:1.45}.v4 .v4-commerce-card li svg{flex:0 0 auto;margin-top:2px;color:#67f5bb}
+.v4 .v4-commerce-card .button{display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:auto!important;padding:14px!important;opacity:1!important}
+.v4 .v4-commerce .v4-disclaimer{margin:28px 0 0;padding-top:19px;border-top:1px solid #ffffff14;color:#6f9081;font-size:11px;line-height:1.65}
+@media(max-width:1100px){.v4 .v4-commerce__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.v4 .v4-commerce__toolbar{align-items:stretch;flex-direction:column}.v4 .v4-commerce__toolbar button{justify-content:space-between}.v4 .v4-commerce__toolbar small{margin:4px 0 3px}.v4 .v4-commerce__grid{grid-template-columns:1fr}.v4 .v4-commerce-card__body{min-height:0}.v4 .v4-commerce-card__body>p{min-height:0}.v4 .v4-commerce-card__visual{height:230px}}
+@media(prefers-reduced-motion:reduce){html:not(.lp-motion-force) .v4 .v4-commerce-card,html:not(.lp-motion-force) .v4 .v4-commerce-card__visual img{transition:none!important;transform:none!important}}
+
 /* ── Authentic mascot collection ── */
 .v4 .v4-character-collection{overflow:hidden;background:linear-gradient(180deg,#f7fff9,#eef7f2)}
 .v4 .v4-character-heading{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.7fr);align-items:end;gap:48px;margin-bottom:48px}
