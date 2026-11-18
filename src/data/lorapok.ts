@@ -1083,7 +1083,11 @@ export const CREATOR_WORKS_CATEGORY: ProjectCategory = "3D Art & Design";
 export const ENGINEERING_CRAFT_CATEGORY: ProjectCategory = "Engineering Craft";
 
 export function getCreatorWorks(): Project[] {
-  return projects.filter((p) => p.category === CREATOR_WORKS_CATEGORY);
+  return projects.filter(
+    (project) =>
+      project.category === CREATOR_WORKS_CATEGORY ||
+      project.ownerAvatar === "/assets/team/ashraf-joy.jpg"
+  );
 }
 
 export function getEngineeringCraft(): Project[] {
