@@ -14,7 +14,7 @@ const productLinks = [
 const studioLinks = [
   ['Our collective', '/team'],
   ['Founder & mission', '/about'],
-  ['Release log', '/changelog'],
+  ['Packages & releases', '/changelog'],
   ['Start a conversation', '/contact'],
 ];
 
@@ -23,6 +23,8 @@ const externalLinks = [
   ['VS Code Marketplace', 'https://marketplace.visualstudio.com/publishers/LorapokLabs'],
   ['Open VSX Registry', 'https://open-vsx.org/namespace/LorapokLabs'],
   ['Firefox Add-ons', 'https://addons.mozilla.org/firefox/user/lorapok/'],
+  ['npm packages', 'https://www.npmjs.com/~maizied'],
+  ['Packagist packages', 'https://packagist.org/users/maizied/'],
 ];
 
 export default function Footer() {

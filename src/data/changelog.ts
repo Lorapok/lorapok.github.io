@@ -10,6 +10,48 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-10-19",
+    version: "2.0.0",
+    product: "NoCatch",
+    title: "Stable npm and Packagist distributions published",
+    description:
+      "NoCatch shipped as both lorapok-nocatch for JavaScript workflows and lorapok/nocatch for Composer projects. Both active registry records resolve to the same public Lorapok repository.",
+    type: "launch",
+    links: [
+      { label: "npm", url: "https://www.npmjs.com/package/lorapok-nocatch" },
+      { label: "Packagist", url: "https://packagist.org/packages/lorapok/nocatch" },
+      { label: "Repository", url: "https://github.com/Lorapok/nocatch" },
+    ],
+  },
+  {
+    date: "2026-10-11",
+    version: "2.0.1",
+    product: "Loragent",
+    title: "Loragent 2.0.1 released on npm",
+    description:
+      "The published package documents the 224-agent virtual software firm, six formations, MCP integration, and autonomous multi-agent orchestration.",
+    type: "feature",
+    links: [
+      { label: "npm", url: "https://www.npmjs.com/package/loragent" },
+      { label: "Product site", url: "https://loragent.lorapok.tech/" },
+    ],
+  },
+  {
+    date: "2026-08-09",
+    version: "0.1.1 beta",
+    product: "ReportKit",
+    title: "ReportKit browser and Laravel packages enter public beta",
+    description:
+      "The browser UI shipped on npm alongside modern and legacy Laravel adapters on Packagist, giving current and older Laravel applications explicit installation paths.",
+    type: "launch",
+    links: [
+      { label: "npm UI", url: "https://www.npmjs.com/package/@lorapok-labs/reportkit-ui" },
+      { label: "Laravel", url: "https://packagist.org/packages/reportkit/laravel" },
+      { label: "Laravel Legacy", url: "https://packagist.org/packages/reportkit/laravel-legacy" },
+      { label: "Product site", url: "https://reportkit.lorapok.tech/" },
+    ],
+  },
+  {
     date: "2026-10-17",
     product: "HomeDyn",
     title: "HomeDyn Restaurant System Showcase & Prototype Handoff",
@@ -79,15 +121,6 @@ export const changelog: ChangelogEntry[] = [
     ],
   },
   {
-    date: "2026-08-29",
-    product: "Loragent",
-    title: "Multi-agent orchestration framework",
-    description:
-      "Agent orchestration ecosystem with a 224-definition skill catalog, MCP integration, and mission control.",
-    type: "launch",
-    links: [{ label: "Product Site", url: "https://loragent.lorapok.tech/" }],
-  },
-  {
     date: "2026-07-24",
     product: "lorapok.tech",
     title: "Custom domain lorapok.tech configured",
@@ -113,52 +146,41 @@ export const changelog: ChangelogEntry[] = [
     links: [{ label: "GitHub", url: "https://github.com/Lorapok/Hadi-Memoriam" }],
   },
   {
-    date: "2026-05-06",
+    date: "2026-05-03",
+    version: "1.0.0",
     product: "Lorapok Atlas",
-    title: "Product Hunt Launch",
+    title: "Atlas API directory and MCP server published on npm",
     description:
-      "Launched Lorapok Atlas on Product Hunt — a directory for browsing and live-testing 2,100+ free APIs across 34 categories.",
-    type: "launch",
-    links: [
-      { label: "Product Hunt", url: "https://www.producthunt.com/posts/lorapok-atlas" },
-      { label: "npm", url: "https://www.npmjs.com/package/lorapok-atlas" },
-    ],
-  },
-  {
-    date: "2026-05-01",
-    product: "Lorapok Atlas",
-    title: "VS Code + MCP + npm packages shipped",
-    description:
-      "Atlas available as VS Code extension, npm package (lorapok-atlas), and MCP server (lorapok-atlas-mcp) for Claude/Cursor.",
+      "The Atlas programmatic API and its MCP server shipped as separate npm packages for direct application and AI-assistant integrations.",
     type: "feature",
     links: [
-      { label: "VS Code", url: "https://marketplace.visualstudio.com/items?itemName=lorapok.lorapok-atlas" },
+      { label: "Atlas npm", url: "https://www.npmjs.com/package/lorapok-atlas" },
       { label: "MCP npm", url: "https://www.npmjs.com/package/lorapok-atlas-mcp" },
     ],
   },
   {
-    date: "2026-04-15",
+    date: "2026-02-17",
+    version: "1.5.0",
     product: "Roast as a Service",
-    title: "Multi-platform API published",
+    title: "JavaScript and PHP clients reach version 1.5.0",
     description:
-      "Fun roast API available on npm, PyPI, and Packagist simultaneously.",
+      "The unscoped JavaScript package and Composer client were published from the same public source repository for the static, CDN-backed developer roast API.",
     type: "launch",
     links: [
       { label: "npm", url: "https://www.npmjs.com/package/roast-api" },
-      { label: "PyPI", url: "https://pypi.org/project/roast-api/" },
       { label: "Packagist", url: "https://packagist.org/packages/maizied/roast-api" },
     ],
   },
   {
-    date: "2026-03-01",
+    date: "2026-01-20",
+    version: "1.4.0",
     product: "Lorapok Media Player",
-    title: "Desktop media player with Snap support",
+    title: "React media engine published on npm",
     description:
-      "Cross-platform media player published to npm and Snapcraft with low-latency playback.",
+      "The npm release provides HLS, DASH, and hardware-accelerated playback through the Lorapok player engine.",
     type: "launch",
     links: [
       { label: "npm", url: "https://www.npmjs.com/package/lorapok-player" },
-      { label: "Snap", url: "https://snapcraft.io/lorapokmediaplayer" },
     ],
   },
 ];

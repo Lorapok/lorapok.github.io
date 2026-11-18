@@ -10,6 +10,7 @@ const navLinks = [
   { name: 'Partners', path: '/partners/' },
   { name: 'Agents', path: '/agents/' },
   { name: 'Blog', path: '/blog/' },
+  { name: 'Releases', path: '/changelog/' },
   { name: 'Team', path: '/team/' },
   { name: 'About', path: '/about/' },
   { name: 'Contact', path: '/contact/' },
