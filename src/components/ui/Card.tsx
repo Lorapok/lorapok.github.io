@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Globe, ExternalLink, Code2, Terminal, Layers, BookOpen, Box } from 'lucide-react';
+import { Star, Globe, ExternalLink, Code2, Terminal, Layers, BookOpen, Box, Eye } from 'lucide-react';
 import { Badge } from './Badge';
 import { Button } from './Button';
 import { ProjectGlyph } from '../projects/ProjectGlyph';
@@ -73,6 +73,15 @@ export const Card = (props: CardProps) => {
   return (
     <motion.div
       onClick={onClick}
+      onKeyDown={(event) => {
+        if (!onClick || event.target !== event.currentTarget) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `Open details for ${name}` : undefined}
       whileHover={{ y: -5 }}
       className={`catalog-card relative p-6 rounded-2xl flex flex-col h-full bg-[rgba(255,255,255,0.03)] backdrop-blur-md border border-[rgba(255,255,255,0.06)] hover:border-[#67ff8f]/50 hover:shadow-[0_0_24px_rgba(103,255,143,0.12)] transition-all duration-300 overflow-hidden ${onClick ? 'cursor-pointer' : ''}`}
     >
@@ -139,10 +148,19 @@ export const Card = (props: CardProps) => {
           </div>
         )
       ) : (
-        /* Biological Fallback Header */
-        <div className="relative -mx-6 -mt-6 mb-5 h-28 overflow-hidden rounded-t-2xl bg-gradient-to-br from-[#0c1322] via-[#090d16] to-[#04060a] border-b border-white/5 flex items-center justify-between px-6">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,rgba(103,255,143,0.08)_0,transparent_70%)] pointer-events-none" />
-          <div className="flex items-center gap-2 z-10">
+        /* Full-height biological visual for future catalog entries without commissioned artwork */
+        <div className="project-card-fallback relative -mx-6 -mt-6 mb-5 h-48 overflow-hidden rounded-t-2xl border-b border-white/5 flex items-center justify-center px-6">
+          <div className="project-card-fallback__grid" aria-hidden="true" />
+          <div className="project-card-fallback__orbit orbit-one" aria-hidden="true" />
+          <div className="project-card-fallback__orbit orbit-two" aria-hidden="true" />
+          <div className="project-card-fallback__core" aria-hidden="true">
+            <ProjectGlyph
+              project={{ name, category: category as Project['category'] }}
+              size={52}
+              strokeWidth={1.3}
+            />
+          </div>
+          <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
             <Badge variant="accent">{category}</Badge>
             {badge && (
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider uppercase bg-[#67ff8f]/10 text-[#67ff8f] border border-[#67ff8f]/30">
@@ -150,18 +168,12 @@ export const Card = (props: CardProps) => {
               </span>
             )}
           </div>
-          {featured ? (
-            <div className="flex items-center text-amber-400 text-xs font-medium bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20 z-10">
+          {featured && (
+            <div className="absolute top-3 right-3 flex items-center text-amber-300 text-xs font-medium bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-amber-400/40 shadow-sm z-10">
               <Star size={12} className="mr-1 fill-amber-400" /> Featured
             </div>
-          ) : (
-            <ProjectGlyph
-              project={{ name, category: category as Project['category'] }}
-              size={27}
-              strokeWidth={1.55}
-              className="text-[#67ff8f]/70"
-            />
           )}
+          <span className="project-card-fallback__label">PUBLIC PROJECT SIGNAL</span>
         </div>
       )}
       
@@ -184,6 +196,12 @@ export const Card = (props: CardProps) => {
         </div>
         
         <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+          {onClick && (
+            <Button variant="ghost" size="sm" onClick={onClick} className="px-2 hover:text-[#67ff8f]" title="View project details">
+              <Eye size={16} />
+              <span className="sr-only">View project details</span>
+            </Button>
+          )}
           {links.map((link, idx) => (
             <Button key={idx} variant="ghost" size="sm" href={link.url} className="px-2 hover:text-[#67ff8f]" title={link.label}>
               {getIcon(link.icon)}

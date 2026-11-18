@@ -31,6 +31,8 @@ export interface OfficeProject {
   pushedAt?: string;
   source: "github" | "office";
   badge?: string;
+  image?: string;
+  imageType?: "cover" | "icon";
   projectModel?: ProjectModel;
   stage?: ProjectStage;
   origin?: ProjectOrigin;
