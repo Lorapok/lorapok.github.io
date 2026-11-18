@@ -166,7 +166,7 @@ export const projects: Project[] = [
     featured: true,
     isNew: true,
     badge: "Client Showcase",
-    image: "/assets/projects/homedyn-preview.png",
+    image: "/assets/projects/generated/homedyn-restaurant-system-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "/assets/team/shamim-ahammed.jpg",
     links: [
@@ -183,7 +183,7 @@ export const projects: Project[] = [
     category: "Laravel/PHP",
     language: "Laravel / React",
     featured: false,
-    image: "/assets/projects/smartoffice-og.svg",
+    image: "/assets/projects/generated/smartoffice-ai-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "/assets/team/shamim-ahammed.jpg",
     links: [
@@ -199,7 +199,7 @@ export const projects: Project[] = [
     category: "Laravel/PHP",
     language: "Laravel / React",
     featured: false,
-    image: "/assets/projects/property-index-og.svg",
+    image: "/assets/projects/generated/property-index-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "/assets/team/shamim-ahammed.jpg",
     links: [
@@ -217,7 +217,7 @@ export const projects: Project[] = [
     featured: true,
     isNew: true,
     badge: "New",
-    image: "/assets/projects/seeyou-cover.png",
+    image: "/assets/projects/generated/seeyou-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/280749521?v=4",
     links: [
@@ -233,7 +233,7 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "TypeScript",
     featured: true,
-    image: "/assets/projects/atlas-social.jpg",
+    image: "/assets/projects/generated/lorapok-api-atlas-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://atlas.lorapok.tech/", icon: "web" },
@@ -251,7 +251,7 @@ export const projects: Project[] = [
     category: "Media",
     language: "TypeScript",
     featured: true,
-    image: "/assets/projects/player-preview.png",
+    image: "/assets/projects/generated/lorapok-media-player-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://media.lorapok.tech/", icon: "web" },
@@ -268,7 +268,7 @@ export const projects: Project[] = [
     category: "Language/Input",
     language: "Kotlin",
     featured: true,
-    image: "/assets/projects/keyboard-banner.png",
+    image: "/assets/projects/generated/lorapok-keyboard-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://keyboard.lorapok.tech", icon: "web" },
@@ -282,7 +282,7 @@ export const projects: Project[] = [
     category: "AI",
     language: "JavaScript",
     featured: true,
-    image: "/assets/projects/ai-agent-preview.png",
+    image: "/assets/projects/generated/lorapok-ai-agent-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://ai.lorapok.tech/", icon: "web" },
@@ -296,8 +296,8 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "TypeScript",
     featured: true,
-    image: "/assets/projects/roast-service-logo.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/roast-as-a-service-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "npm", url: "https://www.npmjs.com/package/roast-api", icon: "npm" },
       { label: "PyPI", url: "https://pypi.org/project/roast-api/", icon: "pypi" },
@@ -311,8 +311,8 @@ export const projects: Project[] = [
     description: "A privacy-focused communication platform designed to work over a local router network without external servers.",
     category: "Developer Tools",
     language: "JavaScript",
-    image: "/assets/projects/localsync-icon.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/lorapok-localsync-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "Live", url: "https://localsync.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-LocalSync", icon: "github" },
@@ -324,7 +324,7 @@ export const projects: Project[] = [
     description: "A complete setup for running local models with Ollama, API access, VS Code workflows, and a dynamic console UI.",
     category: "AI",
     language: "Python",
-    image: "/assets/projects/ollama-chat-banner.svg",
+    image: "/assets/projects/generated/dynamic-ollama-llm-chat-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Dynamic-Ollama-LLM-Chat-Interface", icon: "github" },
@@ -337,7 +337,7 @@ export const projects: Project[] = [
     category: "Laravel/PHP",
     language: "PHP",
     featured: true,
-    image: "/assets/projects/laravel-monitor.png",
+    image: "/assets/projects/generated/laravel-execution-monitor-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Packagist", url: "https://packagist.org/packages/lorapok/laravel-execution-monitor", icon: "packagist" },
@@ -351,8 +351,8 @@ export const projects: Project[] = [
     category: "Browser Extensions",
     language: "JavaScript",
     badge: "Firefox 1.0.4 · Experimental",
-    image: "/assets/projects/subtitle-master-icon.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/subtitle-master-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "Firefox Add-ons", url: "https://addons.mozilla.org/firefox/addon/subtitle-master/", icon: "firefox" },
     ],
@@ -364,7 +364,7 @@ export const projects: Project[] = [
     category: "Browser Extensions",
     language: "JavaScript",
     badge: "Firefox 1.0.0 · Released",
-    image: "/assets/projects/xsnap-banner.png",
+    image: "/assets/projects/generated/xsnap-media-downloader-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Firefox Add-ons", url: "https://addons.mozilla.org/firefox/addon/xsnap-media-downloader-for-x/", icon: "firefox" },
@@ -376,7 +376,7 @@ export const projects: Project[] = [
     description: "A PHP-based platform for self-hosted ticket selling and event-oriented workflow management.",
     category: "Laravel/PHP",
     language: "PHP",
-    image: "/assets/projects/spotlight-tickets.png",
+    image: "/assets/projects/generated/spotlight-tickets-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/spotlight-tickets", icon: "github" },
@@ -388,7 +388,7 @@ export const projects: Project[] = [
     description: "A responsive glassmorphism scoreboard for tracking four-player Hazari card game sessions.",
     category: "Games/Utilities",
     language: "HTML",
-    image: "/assets/projects/hazari-scoreboard.png",
+    image: "/assets/projects/generated/hazari-scoreboard-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://hazari.lorapok.tech", icon: "web" },
@@ -402,7 +402,7 @@ export const projects: Project[] = [
     category: "Desktop/Linux",
     language: "Python",
     badge: "Public Project Page",
-    image: "/assets/projects/linpad-preview.png",
+    image: "/assets/projects/generated/linpad-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Project Page", url: "https://linpad.lorapok.tech/", icon: "web" },
@@ -414,7 +414,7 @@ export const projects: Project[] = [
     description: "A fun and interactive Air Hockey game for Android built with Unity3D, C#, and Blender.",
     category: "Games/Utilities",
     language: "C#",
-    image: "/assets/projects/airhockey-preview.png",
+    image: "/assets/projects/generated/airhockey-unity3d-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/AirHockey_Unity3D_AndroidGame", icon: "github" },
@@ -426,7 +426,7 @@ export const projects: Project[] = [
     description: "An Android application utilizing machine learning for real-time Bengali character recognition.",
     category: "Mobile Apps",
     language: "Java",
-    image: "/assets/projects/bcr-neural.svg",
+    image: "/assets/projects/generated/bangla-character-recognition-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/Bangla-Character-Recognition-Android-application", icon: "github" },
@@ -438,8 +438,8 @@ export const projects: Project[] = [
     description: "A feature-rich Android app designed for tracking daily expenses and managing personal finances seamlessly.",
     category: "Mobile Apps",
     language: "Java",
-    image: "/assets/projects/expense-manager-icon.jpg",
-    imageType: "icon",
+    image: "/assets/projects/generated/expense-manager-pro-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/ExpenseManagerPro", icon: "github" },
     ],
@@ -450,8 +450,8 @@ export const projects: Project[] = [
     description: "A Zenity and Bash desktop utility for quickly switching Laravel database configuration files.",
     category: "Desktop/Linux",
     language: "Shell",
-    image: "/assets/projects/linux-file-replacer.svg",
-    imageType: "icon",
+    image: "/assets/projects/generated/linux-file-replacer-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/Linux-File-Replacer", icon: "github" },
     ],
@@ -465,7 +465,7 @@ export const projects: Project[] = [
     language: "JavaScript",
     featured: true,
     badge: "Released",
-    image: "/assets/projects/cursor-monitor-preview.png",
+    image: "/assets/projects/generated/cursor-curse-monitor-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://cursor.lorapok.tech/", icon: "web" },
@@ -484,7 +484,7 @@ export const projects: Project[] = [
     language: "JavaScript",
     featured: true,
     badge: "Live Ecosystem",
-    image: "/assets/projects/loragent-social.png",
+    image: "/assets/projects/generated/loragent-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://loragent.lorapok.tech/", icon: "web" },
@@ -500,7 +500,7 @@ export const projects: Project[] = [
     featured: true,
     isNew: true,
     badge: "Flagship System",
-    image: "/assets/projects/reportkit-engineering-craft.webp",
+    image: "/assets/projects/generated/reportkit-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live Site", url: "https://reportkit.lorapok.tech/", icon: "web" },
@@ -518,8 +518,8 @@ export const projects: Project[] = [
     category: "Engineering Craft",
     language: "PHP",
     badge: "reportkit/core",
-    image: "/assets/projects/reportkit-mark.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/reportkit-core-engine-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "Packagist", url: "https://packagist.org/packages/reportkit/core", icon: "packagist" },
       { label: "GitHub", url: "https://github.com/Maijied/Reportkit-Core", icon: "github" },
@@ -534,7 +534,7 @@ export const projects: Project[] = [
     category: "Engineering Craft",
     language: "PHP",
     badge: "reportkit/laravel",
-    image: "/assets/projects/reportkit-laravel.svg",
+    image: "/assets/projects/generated/reportkit-laravel-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Packagist", url: "https://packagist.org/packages/reportkit/laravel", icon: "packagist" },
@@ -551,7 +551,7 @@ export const projects: Project[] = [
     category: "Engineering Craft",
     language: "PHP",
     badge: "reportkit/laravel-legacy",
-    image: "/assets/projects/reportkit-legacy.svg",
+    image: "/assets/projects/generated/reportkit-legacy-laravel-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Packagist", url: "https://packagist.org/packages/reportkit/laravel-legacy", icon: "packagist" },
@@ -568,8 +568,8 @@ export const projects: Project[] = [
     category: "Engineering Craft",
     language: "TypeScript",
     badge: "@reportkit/ui",
-    image: "/assets/projects/reportkit-larva.gif",
-    imageType: "icon",
+    image: "/assets/projects/generated/reportkit-ui-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "npm", url: "https://www.npmjs.com/package/@lorapok-labs/reportkit-ui", icon: "npm" },
       { label: "GitHub", url: "https://github.com/Maijied/Reportkit-UI", icon: "github" },
@@ -585,7 +585,7 @@ export const projects: Project[] = [
     category: "Desktop/Linux",
     language: "Python",
     featured: true,
-    image: "/assets/projects/aswitchi-social.jpg",
+    image: "/assets/projects/generated/aswitchi-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://aswitchi.lorapok.tech", icon: "web" },
@@ -599,7 +599,7 @@ export const projects: Project[] = [
       "Browse, search, and live-test 2,100+ free APIs directly from the Firefox sidebar.",
     category: "Browser Extensions",
     language: "JavaScript",
-    image: "/assets/projects/atlas-firefox.png",
+    image: "/assets/projects/generated/lorapok-atlas-firefox-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "AMO", url: "https://addons.mozilla.org/firefox/addon/lorapok-atlas/", icon: "firefox" },
@@ -614,7 +614,7 @@ export const projects: Project[] = [
     category: "Developer Tools",
     language: "TypeScript",
     featured: true,
-    image: "/assets/projects/babla-banner.svg",
+    image: "/assets/projects/generated/babla-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://babla.lorapok.tech", icon: "web" },
@@ -628,7 +628,7 @@ export const projects: Project[] = [
       "A free, open-source daily brain training app. Three short cognitive challenges exercise memory, pattern recognition, and vocabulary with zero distractions.",
     category: "Games/Utilities",
     language: "TypeScript",
-    image: "/assets/projects/brainspark-preview.jpg",
+    image: "/assets/projects/generated/lorapok-brainspark-product-v2.webp",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-GameSpark", icon: "github" },
@@ -641,8 +641,8 @@ export const projects: Project[] = [
       "A Firefox tab management engine for reclaiming RAM and focus. Features background hibernation, tab workspaces, and biological responsiveness.",
     category: "Browser Extensions",
     language: "TypeScript",
-    image: "/assets/projects/tabman-icon.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/lorapok-tabman-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "Live", url: "https://tabman.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-TabMan", icon: "github" },
@@ -655,8 +655,8 @@ export const projects: Project[] = [
       "Real-time tactical intelligence, live match logs, and tournament tracking for FIFA World Cup 2026, embedded directly into your Firefox toolbar.",
     category: "Browser Extensions",
     language: "JavaScript",
-    image: "/assets/projects/lorasports-icon.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/lorasports-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/LoraSports", icon: "github" },
     ],
@@ -753,8 +753,8 @@ export const projects: Project[] = [
     language: "TypeScript",
     featured: true,
     badge: "Wearable AI & IoT",
-    image: "/assets/projects/cloramf-icon.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/cloramf-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/CLoraMF", icon: "github" },
     ],
@@ -767,8 +767,8 @@ export const projects: Project[] = [
     category: "AI",
     language: "Python",
     featured: true,
-    image: "/assets/projects/larvox-logo.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/larvox-product-v2.webp",
+    imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/larvox", icon: "github" },
     ],
@@ -783,8 +783,8 @@ export const projects: Project[] = [
     isNew: true,
     badge: "New",
     featured: true,
-    image: "/assets/projects/dcursor-logo.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/dcursor-product-v2.webp",
+    imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/dCursor", icon: "github" },
@@ -800,7 +800,7 @@ export const projects: Project[] = [
     isNew: true,
     badge: "Public Beta · v0.2.0",
     featured: true,
-    image: "/assets/projects/inventory-og.png",
+    image: "/assets/projects/generated/lorapok-retail-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
@@ -817,8 +817,8 @@ export const projects: Project[] = [
     isNew: true,
     badge: "New",
     featured: true,
-    image: "/assets/projects/sorcerer-logo.svg",
-    imageType: "icon",
+    image: "/assets/projects/generated/lorapok-sorcerer-product-v2.webp",
+    imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Sorcerer", icon: "github" },
@@ -834,8 +834,8 @@ export const projects: Project[] = [
     isNew: true,
     badge: "New",
     featured: true,
-    image: "/assets/projects/mindnode-logo.svg",
-    imageType: "icon",
+    image: "/assets/projects/generated/lorapok-mindnode-product-v2.webp",
+    imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-MindNode", icon: "github" },
@@ -850,7 +850,7 @@ export const projects: Project[] = [
     language: "TypeScript",
     isNew: true,
     badge: "New",
-    image: "/assets/projects/git-geek-cover.svg",
+    image: "/assets/projects/generated/lorapok-git-geek-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
@@ -867,7 +867,7 @@ export const projects: Project[] = [
     language: "CSS",
     isNew: true,
     badge: "New",
-    image: "/assets/projects/intellij-lorapok-og.svg",
+    image: "/assets/projects/generated/intellij-lorapok-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
@@ -884,7 +884,7 @@ export const projects: Project[] = [
     language: "TypeScript",
     isNew: true,
     badge: "New",
-    image: "/assets/projects/labs-bible-cover.svg",
+    image: "/assets/projects/generated/lorapok-labs-bible-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
@@ -900,7 +900,7 @@ export const projects: Project[] = [
     language: "Arduino",
     isNew: true,
     badge: "New",
-    image: "/assets/projects/arduino-laser-cover.svg",
+    image: "/assets/projects/generated/arduino-laser-stop-product-v2.webp",
     imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
@@ -917,8 +917,8 @@ export const projects: Project[] = [
     isNew: true,
     badge: "New",
     featured: true,
-    image: "/assets/projects/smilo-logo.jpg",
-    imageType: "icon",
+    image: "/assets/projects/generated/smilo-product-v2.webp",
+    imageType: "cover",
     ownerAvatar: "https://avatars.githubusercontent.com/u/11429916?v=4",
     links: [
       { label: "Live Studio", url: "https://smilo.lorapok.tech", icon: "web" },
