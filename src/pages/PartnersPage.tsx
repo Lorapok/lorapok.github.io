@@ -52,10 +52,10 @@ export default function PartnersPage() {
     <div className="v4-inner-page partners-page">
       <SEOHead
         title="Partners & Verified Benefits"
-        description="Explore transparent Lorapok Labs partner, affiliate, invitation, and opportunity references—including Higgsfield AI, Airtm, and Mercor—with verified links and clear relationship disclosures."
+        description="Explore transparent Lorapok Labs partner, affiliate, invitation, and opportunity references—including Starlink, Higgsfield AI, Airtm, and Mercor—with verified links and clear relationship disclosures."
         path="/partners/"
         image="/assets/ribo/generated/20261117/founder-navigator.webp"
-        keywords="Lorapok partners, Dynadot referral credit, Higgsfield referral code, Airtm invitation link, Mercor referral opportunity, Lorapok affiliates, verified partner benefits"
+        keywords="Lorapok partners, Starlink Bangladesh referral credit, Dynadot referral credit, Higgsfield referral code, Airtm invitation link, Mercor referral opportunity, Lorapok affiliates, verified partner benefits"
         jsonLd={partnerJsonLd}
       />
 

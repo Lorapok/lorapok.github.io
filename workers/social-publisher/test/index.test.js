@@ -46,3 +46,20 @@ test("Meta signed requests are verified with HMAC-SHA256", async () => {
   assert.equal(payload.user_id, "12345");
   await assert.rejects(parseMetaSignedRequest(`invalid.${payloadPart}`, secret));
 });
+
+test("WhatsApp webhook verification rejects a wrong token", async () => {
+  const response = await worker.fetch(new Request("https://publisher.example.test/meta/whatsapp-webhook?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=123"), {
+    ...env,
+    WHATSAPP_VERIFY_TOKEN: "correct-token",
+  });
+  assert.equal(response.status, 403);
+});
+
+test("WhatsApp webhook verification returns the Meta challenge", async () => {
+  const response = await worker.fetch(new Request("https://publisher.example.test/meta/whatsapp-webhook?hub.mode=subscribe&hub.verify_token=correct-token&hub.challenge=123"), {
+    ...env,
+    WHATSAPP_VERIFY_TOKEN: "correct-token",
+  });
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "123");
+});

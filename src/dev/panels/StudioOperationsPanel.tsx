@@ -75,7 +75,7 @@ const toolMeta: Record<StudioTool, { label: string; eyebrow: string; description
   chat: { label: "Team chat", eyebrow: "Collaboration", description: "A live Office room for product, research and editorial coordination.", icon: MessageSquareText, mode: "Connected" },
   meetings: { label: "Meeting links", eyebrow: "Collaboration", description: "Create shared Jitsi rooms that teammates can copy or open directly.", icon: Video, mode: "Connected" },
   tasks: { label: "Task board", eyebrow: "Operations", description: "Move shared launch tasks through a lightweight team workflow.", icon: ListChecks, mode: "Connected" },
-  social: { label: "Social Publisher", eyebrow: "Meta publishing", description: "Prepare media and publish to connected Facebook Pages and Instagram professional accounts.", icon: GalleryHorizontalEnd, mode: "Connected" },
+  social: { label: "Social Publisher", eyebrow: "Connected channels", description: "Prepare media, publish to Facebook, Instagram and Threads, and operate the protected WhatsApp Business inbox.", icon: GalleryHorizontalEnd, mode: "Connected" },
   brand: { label: "Brand gallery", eyebrow: "Identity system", description: "Explore Ribo moods, sanctuary species, operational characters, authentic mascot references and the approved color language.", icon: Palette, mode: "Connected" },
 };
 
@@ -161,7 +161,7 @@ export default function StudioOperationsPanel({ tool }: { tool: StudioTool }) {
             : syncState === "saving" ? "Saving this change for every authorized teammate…"
               : syncState === "error" ? syncMessage
                 : "Live sync is active. Changes are stored in the role-controlled Office workspace."
-          : tool === "social" ? "Publishing is protected by Lorapok Office access control; Meta tokens remain encrypted in the server-side gateway."
+          : tool === "social" ? "Publishing is protected by Lorapok Office access control; Facebook, Instagram and Threads tokens stay encrypted, while WhatsApp credentials remain server-side only."
             : "This connected library uses the approved assets shipped with the live Lorapok site."
       }</div>
       {tool === "content" && <ContentDesk state={state} update={update} />}

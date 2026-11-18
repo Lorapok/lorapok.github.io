@@ -30,6 +30,12 @@ function mergePartnerRecords(base: PartnerRecord[], overrides: PartnerRecord[]) 
   return sortPartners(Array.from(records.values()));
 }
 
+function mergePublishedPartners(base: PublicPartnerRecord[], overrides: PublicPartnerRecord[]) {
+  const records = new Map(base.map((partner) => [partner.id, partner]));
+  overrides.forEach((partner) => records.set(partner.id, partner));
+  return sortPartners(Array.from(records.values()));
+}
+
 export function subscribeOfficePartners(onPartners: (partners: PartnerRecord[]) => void, onError?: (error: Error) => void): Unsubscribe {
   onPartners(sortPartners(defaultPartnerRecords));
   if (!isFirebaseConfigured) return () => undefined;
@@ -44,7 +50,7 @@ export function subscribePublishedPartners(onPartners: (partners: PublicPartnerR
   if (!isFirebaseConfigured) return () => undefined;
   return onSnapshot(collection(db, PUBLIC_COLLECTION), (snapshot) => {
     const records = snapshot.docs.map((entry) => ({ ...entry.data(), id: entry.id } as PublicPartnerRecord));
-    onPartners(sortPartners(records));
+    onPartners(mergePublishedPartners(defaultPublishedPartners, records));
   }, (error) => onError?.(error));
 }
 

@@ -23,12 +23,29 @@ export interface MetaPageAccount {
 
 export interface MetaPublishJob {
   id: string;
-  placement: MetaPlacement;
+  placement: MetaPlacement | "threads_post" | "whatsapp_message";
   accountName: string;
   status: "published" | "failed";
   createdAt: string;
   postId?: string;
   message?: string;
+}
+
+export interface ThreadsProfile {
+  id: string;
+  username: string;
+  profilePictureUrl?: string;
+}
+
+export interface WhatsAppMessage {
+  id: string;
+  direction: "inbound" | "outbound";
+  from: string;
+  fromName?: string;
+  to: string;
+  text: string;
+  createdAt: string;
+  status: string;
 }
 
 export interface MetaConnectionStatus {
@@ -37,6 +54,10 @@ export interface MetaConnectionStatus {
   expiresAt?: string;
   pages: MetaPageAccount[];
   jobs: MetaPublishJob[];
+  channels?: {
+    threads: { configured: boolean; connected: boolean; profile: ThreadsProfile | null };
+    whatsapp: { configured: boolean; connected: boolean; displayName: string; messages: WhatsAppMessage[] };
+  };
   message?: string;
 }
 
@@ -82,6 +103,14 @@ export async function disconnectMeta() {
   await authorizedFetch("/api/connection", { method: "DELETE" });
 }
 
+export async function beginThreadsConnection() {
+  return authorizedFetch("/api/threads/connect/start", { method: "POST" }) as Promise<{ authorizationUrl: string }>;
+}
+
+export async function disconnectThreads() {
+  await authorizedFetch("/api/threads/connection", { method: "DELETE" });
+}
+
 export async function uploadMetaMedia(media: PreparedMedia) {
   const body = new FormData();
   body.set("file", media.blob, media.filename);
@@ -107,6 +136,26 @@ export async function publishMetaPost(input: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   }) as Promise<{ ok: true; postId: string; placement: MetaPlacement }>;
+}
+
+export async function publishThreadsPost(input: {
+  text: string;
+  mediaUrl?: string;
+  mediaType: "text" | "image" | "video";
+}) {
+  return authorizedFetch("/api/threads/publish", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  }) as Promise<{ ok: true; postId: string; placement: "threads_post" }>;
+}
+
+export async function sendWhatsAppMessage(recipient: string, message: string) {
+  return authorizedFetch("/api/whatsapp/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ recipient, message }),
+  }) as Promise<{ ok: true; messageId: string }>;
 }
 
 const IMAGE_TARGETS: Record<MetaPlacement, { width: number; height: number }> = {

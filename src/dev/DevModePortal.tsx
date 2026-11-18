@@ -15,6 +15,7 @@ import DashboardPanel from "./panels/DashboardPanel";
 import ReadmePanel from "./panels/ReadmePanel";
 import CommitsPanel from "./panels/CommitsPanel";
 import LoLaBoPanel from "./panels/LoLaBoPanel";
+import CommerceCatalogPanel from "./panels/CommerceCatalogPanel";
 import UserProfilePanel from "./panels/UserProfilePanel";
 import StudioOperationsPanel, { type StudioTool } from "./panels/StudioOperationsPanel";
 import { OFFICE_ROLES, PANEL_PERMISSIONS } from "./rbac";
@@ -41,12 +42,13 @@ import {
   GalleryHorizontalEnd,
   Palette,
   ShieldCheck,
-  Handshake
+  Handshake,
+  ShoppingBag
 } from "lucide-react";
 import "./DevMode.css";
 
 
-type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "partners" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo" | StudioTool;
+type PanelId = "dashboard" | "profile" | "ai-labs" | "blog" | "playground" | "projects" | "catalog" | "partners" | "readme" | "commits" | "compare" | "prompts" | "admin" | "analytics" | "lolabo" | StudioTool;
 
 
 const devBadgeImage = "/assets/ribo/ribo-focused.webp";
@@ -63,6 +65,7 @@ const WORKSPACE_ITEMS: NavItem[] = [
   { id: "dashboard", icon: <Orbit size={18} />, label: "Living Studio", badge: "5.0" },
   { id: "content", icon: <FileText size={18} />, label: "Content Desk" },
   { id: "projects", icon: <Boxes size={18} />, label: "Projects" },
+  { id: "catalog", icon: <ShoppingBag size={18} />, label: "Commerce Catalog", badge: "12" },
   { id: "partners", icon: <Handshake size={18} />, label: "Partners & Benefits" },
   { id: "team-studio", icon: <Users size={18} />, label: "Team Portfolios" },
   { id: "offers", icon: <BadgePercent size={18} />, label: "Offers" },
@@ -95,7 +98,7 @@ const ADVANCED_ITEMS: NavItem[] = [
 ];
 
 const PANEL_IDS: PanelId[] = [
-  "dashboard", "profile", "ai-labs", "blog", "playground", "projects", "readme", "commits",
+  "dashboard", "profile", "ai-labs", "blog", "playground", "projects", "catalog", "readme", "commits",
   "compare", "prompts", "admin", "analytics", "lolabo", "content", "partners", "team-studio", "offers",
   "feedback", "mail", "chat", "meetings", "tasks", "social", "brand",
 ];
@@ -206,6 +209,7 @@ function DevPortalInner({ onClose }: { onClose: () => void }) {
       case "blog": return <BlogPanel />;
       case "playground": return <PlaygroundPanel />;
       case "projects": return <ProjectsPanel />;
+      case "catalog": return <CommerceCatalogPanel onOpenSocial={() => switchPanel("social")} />;
       case "partners": return <PartnersPanel />;
       case "compare": return <ComparePanel />;
       case "prompts": return <PromptLibraryPanel onLoadToPlayground={(text) => {

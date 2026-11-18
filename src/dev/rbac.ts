@@ -86,6 +86,7 @@ export const PANEL_PERMISSIONS: Record<string, OfficePermission> = {
   dashboard: "view_office",
   profile: "view_office",
   projects: "manage_projects",
+  catalog: "manage_offers",
   partners: "manage_offers",
   content: "manage_content",
   "team-studio": "manage_team",

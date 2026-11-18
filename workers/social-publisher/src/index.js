@@ -2,6 +2,7 @@ const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 const JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
 const PUBLISH_ROLES = new Set(["super-admin", "owner", "admin", "editor"]);
 const PLACEMENTS = new Set(["facebook_feed", "facebook_reel", "instagram_feed", "instagram_reel", "instagram_story"]);
+const THREADS_MEDIA_TYPES = new Set(["text", "image", "video"]);
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 90 * 1024 * 1024;
 let cachedJwks = null;
@@ -165,6 +166,21 @@ async function graph(path, token, env, init = {}, host = "graph.facebook.com") {
   return payload;
 }
 
+async function threadsGraph(path, token, init = {}) {
+  const response = await fetch(`https://graph.threads.net/${path.replace(/^\//, "")}`, {
+    ...init,
+    headers: { ...(init.headers || {}), authorization: `Bearer ${token}` },
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || payload.error) {
+    const message = payload.error?.error_user_msg || payload.error?.message || `Threads API returned ${response.status}`;
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+  return payload;
+}
+
 async function connectionFor(uid, env) {
   const stored = await env.SOCIAL_SESSIONS.get(`connection:${uid}`);
   if (!stored) return null;
@@ -200,6 +216,12 @@ async function listJobs(uid, env) {
   const listed = await env.SOCIAL_SESSIONS.list({ prefix: `job:${uid}:`, limit: 20 });
   const jobs = await Promise.all(listed.keys.map((key) => env.SOCIAL_SESSIONS.get(key.name, "json")));
   return jobs.filter(Boolean).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+async function listWhatsAppMessages(env) {
+  const listed = await env.SOCIAL_SESSIONS.list({ prefix: "whatsapp-message:", limit: 100 });
+  const messages = await Promise.all(listed.keys.map((key) => env.SOCIAL_SESSIONS.get(key.name, "json")));
+  return messages.filter(Boolean).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, 50);
 }
 
 async function audit(uid, data, env) {
@@ -277,6 +299,68 @@ async function oauthCallback(url, env) {
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", ...securityHeaders(), "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" } });
 }
 
+async function threadsConnectionFor(uid, env) {
+  const stored = await env.SOCIAL_SESSIONS.get(`threads-connection:${uid}`);
+  if (!stored) return null;
+  try {
+    const connection = await unseal(stored, env);
+    if (connection.expiresAt && Date.parse(connection.expiresAt) <= Date.now()) return null;
+    return connection;
+  } catch { return null; }
+}
+
+async function threadsConnectStart(_request, access, env, origin) {
+  if (!env.THREADS_APP_ID || !(env.THREADS_APP_SECRET || env.META_APP_SECRET) || !env.TOKEN_ENCRYPTION_KEY) {
+    return json({ error: "Threads App configuration is not complete yet" }, 503, origin, env);
+  }
+  const state = crypto.randomUUID();
+  await env.SOCIAL_SESSIONS.put(`threads-oauth:${state}`, JSON.stringify({ uid: access.uid, origin, createdAt: Date.now() }), { expirationTtl: 600 });
+  const redirect = `${env.PUBLIC_BASE_URL.replace(/\/$/, "")}/threads/oauth/callback`;
+  const params = new URLSearchParams({
+    client_id: env.THREADS_APP_ID,
+    redirect_uri: redirect,
+    state,
+    response_type: "code",
+    scope: "threads_basic,threads_content_publish",
+  });
+  return json({ authorizationUrl: `https://threads.net/oauth/authorize?${params}` }, 200, origin, env);
+}
+
+async function threadsOauthCallback(url, env) {
+  const appSecret = env.THREADS_APP_SECRET || env.META_APP_SECRET;
+  const state = url.searchParams.get("state") || "";
+  const code = url.searchParams.get("code") || "";
+  const stored = state ? await env.SOCIAL_SESSIONS.get(`threads-oauth:${state}`, "json") : null;
+  if (!stored || !code || Date.now() - stored.createdAt > 600_000) return new Response("Threads connection expired. Return to Lorapok Office and try again.", { status: 400 });
+  await env.SOCIAL_SESSIONS.delete(`threads-oauth:${state}`);
+  const redirect = `${env.PUBLIC_BASE_URL.replace(/\/$/, "")}/threads/oauth/callback`;
+  const exchange = await fetch("https://graph.threads.net/oauth/access_token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: env.THREADS_APP_ID, client_secret: appSecret, grant_type: "authorization_code", redirect_uri: redirect, code }),
+  });
+  const short = await exchange.json().catch(() => ({}));
+  if (!exchange.ok || !short.access_token) return new Response("Threads did not authorize this connection.", { status: 400 });
+  const longUrl = new URL("https://graph.threads.net/access_token");
+  longUrl.search = new URLSearchParams({ grant_type: "th_exchange_token", client_secret: appSecret, access_token: short.access_token }).toString();
+  const longResponse = await fetch(longUrl);
+  const long = await longResponse.json().catch(() => ({}));
+  const accessToken = longResponse.ok && long.access_token ? long.access_token : short.access_token;
+  const expiresIn = Number(long.expires_in || short.expires_in || 5_184_000);
+  const profile = await threadsGraph("me?fields=id,username,threads_profile_picture_url", accessToken);
+  const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+  await env.SOCIAL_SESSIONS.put(`threads-connection:${stored.uid}`, await seal({
+    accessToken,
+    expiresAt,
+    userId: String(profile.id || ""),
+    username: String(profile.username || ""),
+    profilePictureUrl: String(profile.threads_profile_picture_url || ""),
+  }, env));
+  const safeOrigin = safeReturnOrigin(stored.origin, env);
+  const html = `<!doctype html><meta charset="utf-8"><title>Threads connected</title><style>body{margin:0;display:grid;place-items:center;min-height:100vh;background:#061c17;color:#eafff6;font:16px system-ui;text-align:center}strong{color:#67f5bb;font-size:24px}</style><div><strong>Threads connected</strong><p>You can return to Lorapok Office.</p></div><script>window.opener&&window.opener.postMessage({type:"lorapok-threads-connected"},${JSON.stringify(safeOrigin)});setTimeout(()=>window.close(),700);<\/script>`;
+  return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", ...securityHeaders(), "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" } });
+}
+
 async function deleteKeysByPrefix(namespace, prefix) {
   let cursor;
   do {
@@ -331,15 +415,31 @@ async function metaSignedCallback(request, env, deletion = false) {
 
 async function status(access, env, origin) {
   const configured = Boolean(env.META_APP_ID && env.META_APP_SECRET && env.TOKEN_ENCRYPTION_KEY && env.MEDIA_SIGNING_KEY);
-  if (!configured) return json({ configured: false, connected: false, pages: [], jobs: [], message: "Meta App configuration is incomplete." }, 200, origin, env);
+  const threadsConfigured = Boolean(env.THREADS_APP_ID && (env.THREADS_APP_SECRET || env.META_APP_SECRET) && env.TOKEN_ENCRYPTION_KEY);
+  const whatsappConfigured = Boolean(env.WHATSAPP_PHONE_NUMBER_ID && env.WHATSAPP_ACCESS_TOKEN && env.WHATSAPP_VERIFY_TOKEN);
+  const threadsConnection = threadsConfigured ? await threadsConnectionFor(access.uid, env) : null;
+  const channels = {
+    threads: {
+      configured: threadsConfigured,
+      connected: Boolean(threadsConnection),
+      profile: threadsConnection ? { id: threadsConnection.userId, username: threadsConnection.username, profilePictureUrl: threadsConnection.profilePictureUrl } : null,
+    },
+    whatsapp: {
+      configured: whatsappConfigured,
+      connected: whatsappConfigured,
+      displayName: env.WHATSAPP_DISPLAY_NAME || "Lorapok Labs WhatsApp",
+      messages: whatsappConfigured ? await listWhatsAppMessages(env) : [],
+    },
+  };
+  if (!configured) return json({ configured: false, connected: false, pages: [], jobs: [], channels, message: "Meta App configuration is incomplete." }, 200, origin, env);
   const connection = await connectionFor(access.uid, env);
-  if (!connection) return json({ configured: true, connected: false, pages: [], jobs: await listJobs(access.uid, env) }, 200, origin, env);
+  if (!connection) return json({ configured: true, connected: false, pages: [], jobs: await listJobs(access.uid, env), channels }, 200, origin, env);
   try {
     const pages = await discoverPages(connection, env);
-    return json({ configured: true, connected: true, expiresAt: connection.expiresAt, pages: publicPages(pages), jobs: await listJobs(access.uid, env) }, 200, origin, env);
+    return json({ configured: true, connected: true, expiresAt: connection.expiresAt, pages: publicPages(pages), jobs: await listJobs(access.uid, env), channels }, 200, origin, env);
   } catch (error) {
     if (error.status === 400 || error.status === 401) await env.SOCIAL_SESSIONS.delete(`connection:${access.uid}`);
-    return json({ configured: true, connected: false, pages: [], jobs: await listJobs(access.uid, env), message: "Reconnect Meta to refresh expired permissions." }, 200, origin, env);
+    return json({ configured: true, connected: false, pages: [], jobs: await listJobs(access.uid, env), channels, message: "Reconnect Meta to refresh expired permissions." }, 200, origin, env);
   }
 }
 
@@ -410,6 +510,121 @@ async function publishFacebook(page, input, env) {
   return String(result.id);
 }
 
+async function validatePreparedMedia(input, access, env, origin, url) {
+  if (!input.mediaUrl) return null;
+  let media;
+  try { media = new URL(input.mediaUrl); } catch { return json({ error: "Prepared media URL is invalid" }, 400, origin, env); }
+  if (media.origin !== url.origin || !media.pathname.startsWith("/media/")) return json({ error: "Only media prepared by this protected gateway can be published" }, 400, origin, env);
+  const mediaKey = media.pathname.slice("/media/".length).split("/").map(decodeURIComponent).join("/");
+  if (!mediaKey.startsWith(`${access.uid}/`) || !await validMediaSignature(mediaKey, media.searchParams.get("expires"), media.searchParams.get("signature"), env)) {
+    return json({ error: "Prepared media does not belong to this Office account or has expired" }, 403, origin, env);
+  }
+  const staged = await env.SOCIAL_MEDIA.head(mediaKey);
+  if (!staged || staged.customMetadata?.owner !== access.uid || staged.customMetadata?.mediaType !== input.mediaType) {
+    return json({ error: "Prepared media metadata is invalid" }, 400, origin, env);
+  }
+  return null;
+}
+
+async function publishThreads(request, access, env, origin, url) {
+  const input = await request.json().catch(() => null);
+  if (!input || !THREADS_MEDIA_TYPES.has(input.mediaType || "text")) return json({ error: "Choose a supported Threads publication type" }, 400, origin, env);
+  if (typeof input.text !== "string" || input.text.length < 1 || input.text.length > 500) return json({ error: "Threads text must contain 1–500 characters" }, 400, origin, env);
+  if (input.mediaType !== "text" && !input.mediaUrl) return json({ error: "Threads image and video posts require prepared media" }, 400, origin, env);
+  const mediaError = await validatePreparedMedia(input, access, env, origin, url);
+  if (mediaError) return mediaError;
+  const connection = await threadsConnectionFor(access.uid, env);
+  if (!connection) return json({ error: "Connect Threads before publishing" }, 409, origin, env);
+  const params = new URLSearchParams({ media_type: input.mediaType.toUpperCase(), text: input.text });
+  if (input.mediaType === "image") params.set("image_url", input.mediaUrl);
+  if (input.mediaType === "video") params.set("video_url", input.mediaUrl);
+  try {
+    const container = await threadsGraph(`${connection.userId}/threads`, connection.accessToken, { method: "POST", body: params });
+    if (!container.id) throw new Error("Threads did not create a publication container");
+    if (input.mediaType === "video") {
+      for (let attempt = 0; attempt < 15; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        const state = await threadsGraph(`${container.id}?fields=status,error_message`, connection.accessToken);
+        if (state.status === "FINISHED") break;
+        if (state.status === "ERROR" || state.status === "EXPIRED") throw new Error(state.error_message || "Threads could not process this video");
+        if (attempt === 14) throw new Error("Threads is still processing this video. Try again shortly.");
+      }
+    }
+    const result = await threadsGraph(`${connection.userId}/threads_publish`, connection.accessToken, { method: "POST", body: new URLSearchParams({ creation_id: container.id }) });
+    const postId = String(result.id || container.id);
+    await audit(access.uid, { placement: "threads_post", accountName: `@${connection.username || "threads"}`, status: "published", postId }, env);
+    return json({ ok: true, postId, placement: "threads_post" }, 201, origin, env);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Threads publishing failed";
+    await audit(access.uid, { placement: "threads_post", accountName: `@${connection.username || "threads"}`, status: "failed", message }, env);
+    return json({ error: message }, error.status && error.status < 500 ? 400 : 502, origin, env);
+  }
+}
+
+async function sendWhatsAppMessage(request, access, env, origin) {
+  if (!env.WHATSAPP_PHONE_NUMBER_ID || !env.WHATSAPP_ACCESS_TOKEN) return json({ error: "WhatsApp Business is not configured" }, 503, origin, env);
+  const input = await request.json().catch(() => null);
+  const recipient = String(input?.recipient || "").replace(/[^0-9]/g, "");
+  const message = String(input?.message || "").trim();
+  if (!/^\d{8,15}$/.test(recipient)) return json({ error: "Enter a valid WhatsApp number with country code" }, 400, origin, env);
+  if (!message || message.length > 4096) return json({ error: "WhatsApp message must contain 1–4,096 characters" }, 400, origin, env);
+  try {
+    const result = await graph(`${env.WHATSAPP_PHONE_NUMBER_ID}/messages`, env.WHATSAPP_ACCESS_TOKEN, env, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to: recipient, type: "text", text: { preview_url: true, body: message } }),
+    });
+    const messageId = String(result.messages?.[0]?.id || "");
+    const createdAt = new Date().toISOString();
+    await env.SOCIAL_SESSIONS.put(`whatsapp-message:${createdAt}:${crypto.randomUUID()}`, JSON.stringify({ id: messageId || crypto.randomUUID(), direction: "outbound", from: env.WHATSAPP_DISPLAY_NAME || "Lorapok Labs", to: recipient, text: message, createdAt, status: "sent", sentBy: access.email }), { expirationTtl: 60 * 60 * 24 * 90 });
+    await audit(access.uid, { placement: "whatsapp_message", accountName: env.WHATSAPP_DISPLAY_NAME || "Lorapok Labs WhatsApp", status: "published", postId: messageId }, env);
+    return json({ ok: true, messageId }, 201, origin, env);
+  } catch (error) {
+    return json({ error: error instanceof Error ? error.message : "WhatsApp message could not be sent" }, 502, origin, env);
+  }
+}
+
+async function whatsappWebhook(request, env, url) {
+  if (request.method === "GET") {
+    const valid = url.searchParams.get("hub.mode") === "subscribe" && url.searchParams.get("hub.verify_token") === env.WHATSAPP_VERIFY_TOKEN;
+    return new Response(valid ? url.searchParams.get("hub.challenge") || "" : "Invalid verification token", { status: valid ? 200 : 403, headers: securityHeaders() });
+  }
+  const rawBody = await request.text();
+  const suppliedSignature = String(request.headers.get("x-hub-signature-256") || "");
+  if (env.META_APP_SECRET) {
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.META_APP_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(rawBody)));
+    const suppliedHex = suppliedSignature.startsWith("sha256=") ? suppliedSignature.slice(7) : "";
+    const supplied = suppliedHex && /^[0-9a-f]{64}$/i.test(suppliedHex)
+      ? Uint8Array.from(suppliedHex.match(/.{2}/g).map((byte) => Number.parseInt(byte, 16)))
+      : new Uint8Array();
+    if (!constantTimeEqual(expected, supplied)) return new Response("Invalid webhook signature", { status: 403, headers: securityHeaders() });
+  }
+  const payload = JSON.parse(rawBody || "null");
+  const changes = (payload?.entry || []).flatMap((entry) => entry.changes || []);
+  const records = [];
+  for (const change of changes) {
+    const value = change.value || {};
+    const contacts = new Map((value.contacts || []).map((contact) => [contact.wa_id, contact.profile?.name || contact.wa_id]));
+    for (const message of value.messages || []) {
+      const createdAt = new Date(Number(message.timestamp || Math.floor(Date.now() / 1000)) * 1000).toISOString();
+      records.push({
+        id: String(message.id || crypto.randomUUID()),
+        direction: "inbound",
+        from: String(message.from || ""),
+        fromName: String(contacts.get(message.from) || message.from || "WhatsApp contact"),
+        to: String(value.metadata?.display_phone_number || ""),
+        text: String(message.text?.body || message.button?.text || message.interactive?.button_reply?.title || `[${message.type || "message"}]`),
+        type: String(message.type || "text"),
+        createdAt,
+        status: "received",
+      });
+    }
+  }
+  await Promise.all(records.map((record) => env.SOCIAL_SESSIONS.put(`whatsapp-message:${record.createdAt}:${record.id}`, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 90 })));
+  return new Response("EVENT_RECEIVED", { status: 200, headers: securityHeaders() });
+}
+
 async function publish(request, access, env, origin, url) {
   const input = await request.json().catch(() => null);
   if (!input || !PLACEMENTS.has(input.placement) || !/^\d+$/.test(input.pageId || "")) return json({ error: "A valid Page and placement are required" }, 400, origin, env);
@@ -466,6 +681,8 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin, env) });
     if (url.pathname === "/health") return json({ ok: true, service: "lorapok-social-publisher", configured: Boolean(env.META_APP_ID && env.META_APP_SECRET && env.TOKEN_ENCRYPTION_KEY && env.MEDIA_SIGNING_KEY) }, 200, origin, env);
     if (url.pathname === "/oauth/callback" && request.method === "GET") return oauthCallback(url, env);
+    if (url.pathname === "/threads/oauth/callback" && request.method === "GET") return threadsOauthCallback(url, env);
+    if (url.pathname === "/meta/whatsapp-webhook" && ["GET", "POST"].includes(request.method)) return whatsappWebhook(request, env, url);
     if (url.pathname === "/meta/deauthorize" && request.method === "POST") return metaSignedCallback(request, env, false);
     if (url.pathname === "/meta/data-deletion" && request.method === "POST") return metaSignedCallback(request, env, true);
     if (url.pathname === "/meta/data-deletion/status" && request.method === "GET") {
@@ -478,6 +695,11 @@ export default {
     if (access.error) return json({ error: access.error }, access.status, origin, env);
     if (url.pathname === "/api/status" && request.method === "GET") return status(access, env, origin);
     if (url.pathname === "/api/connect/start" && request.method === "POST") return connectStart(request, access, env, origin);
+    if (url.pathname === "/api/threads/connect/start" && request.method === "POST") return threadsConnectStart(request, access, env, origin);
+    if (url.pathname === "/api/threads/connection" && request.method === "DELETE") {
+      await env.SOCIAL_SESSIONS.delete(`threads-connection:${access.uid}`);
+      return json({ ok: true }, 200, origin, env);
+    }
     if (url.pathname === "/api/connection" && request.method === "DELETE") {
       const connection = await connectionFor(access.uid, env);
       await env.SOCIAL_SESSIONS.delete(`connection:${access.uid}`);
@@ -486,6 +708,8 @@ export default {
     }
     if (url.pathname === "/api/media" && request.method === "POST") return uploadMedia(request, access, env, origin, url);
     if (url.pathname === "/api/publish" && request.method === "POST") return publish(request, access, env, origin, url);
+    if (url.pathname === "/api/threads/publish" && request.method === "POST") return publishThreads(request, access, env, origin, url);
+    if (url.pathname === "/api/whatsapp/messages" && request.method === "POST") return sendWhatsAppMessage(request, access, env, origin);
     return json({ error: "Not found" }, 404, origin, env);
   },
   async scheduled(_event, env) {
