@@ -38,6 +38,8 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.detectEditorialFormat = detectEditorialFormat;
 exports.buildDiscordPayload = buildDiscordPayload;
+exports.buildProjectVisualPayload = buildProjectVisualPayload;
+exports.postProjectVisualToDiscord = postProjectVisualToDiscord;
 exports.postToDiscord = postToDiscord;
 exports.distributeSocially = distributeSocially;
 const fs = __importStar(require("fs"));
@@ -190,6 +192,84 @@ function buildDiscordPayload(post) {
             }
         ]
     };
+}
+/**
+ * Builds a project-specific visual announcement without routing it through the
+ * blog-only payload or inventing an article URL.
+ */
+function buildProjectVisualPayload(project) {
+    const projectUrl = project.url.startsWith('https://')
+        ? project.url
+        : 'https://lorapok.tech/projects/';
+    const imageUrl = project.imageUrl.startsWith('https://lorapok.tech/')
+        ? project.imageUrl
+        : undefined;
+    const archiveLink = project.driveFolderUrl?.startsWith('https://drive.google.com/')
+        ? project.driveFolderUrl
+        : undefined;
+    return {
+        username: 'Loragent • Lorapok Labs',
+        avatar_url: 'https://lorapok.tech/assets/apple-touch-icon.png',
+        content: `🖼️ **PROJECT VISUAL REFRESH** | **${project.name}**`,
+        embeds: [
+            {
+                title: project.name,
+                url: projectUrl,
+                description: `${project.tagline}\n\nA new project-specific 16:9 product visual is now live in the Lorapok Labs catalog.`,
+                color: 0x67ff8f,
+                fields: [
+                    { name: 'Product domain', value: `\`${project.category}\``, inline: true },
+                    { name: 'Production route', value: '`Loragent visual pipeline`', inline: true },
+                    { name: 'Web format', value: '`1280 × 720 WebP`', inline: true },
+                    {
+                        name: 'Links',
+                        value: [
+                            `[Open project](${projectUrl})`,
+                            '[Browse the catalog](https://lorapok.tech/projects/)',
+                            ...(archiveLink ? [`[Full-resolution Drive archive](${archiveLink})`] : []),
+                        ].join(' • '),
+                        inline: false,
+                    },
+                ],
+                image: imageUrl ? { url: imageUrl } : undefined,
+                footer: {
+                    text: 'Loragent Visual Production Pipeline • Lorapok Labs',
+                    icon_url: 'https://lorapok.tech/assets/apple-touch-icon.png',
+                },
+                timestamp: new Date().toISOString(),
+            },
+        ],
+    };
+}
+async function postProjectVisualToDiscord(project, customWebhook) {
+    const webhookUrl = customWebhook || process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl?.trim()) {
+        return { platform: 'discord', status: 'skipped', reason: 'No Discord webhook is configured.' };
+    }
+    const parsedWebhook = (0, security_1.parseAllowedDiscordWebhook)(webhookUrl);
+    if (!parsedWebhook) {
+        return { platform: 'discord', status: 'error', error: 'Discord webhook destination is not allowed.' };
+    }
+    try {
+        const response = await fetch(parsedWebhook.toString(), {
+            method: 'POST',
+            redirect: 'error',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(buildProjectVisualPayload(project)),
+        });
+        if (response.ok || response.status === 204) {
+            return { platform: 'discord', status: 'success', statusCode: response.status };
+        }
+        const error = await response.text().catch(() => '');
+        return { platform: 'discord', status: 'failed', statusCode: response.status, error };
+    }
+    catch (error) {
+        return {
+            platform: 'discord',
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Unknown Discord delivery error',
+        };
+    }
 }
 async function postToDiscord(post, customWebhook) {
     const webhookUrl = customWebhook || process.env.DISCORD_WEBHOOK_URL;
