@@ -46,7 +46,7 @@ Data deletion callback:
 
 Additional protected Worker secrets used by the connected channel desk:
 
-- `THREADS_APP_SECRET`
+- `THREADS_APP_SECRET` (optional when Threads uses the same Meta app; otherwise the worker reuses `META_APP_SECRET`)
 - `WHATSAPP_ACCESS_TOKEN`
 - `WHATSAPP_PHONE_NUMBER_ID`
 - `WHATSAPP_VERIFY_TOKEN`

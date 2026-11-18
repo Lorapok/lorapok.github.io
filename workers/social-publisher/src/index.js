@@ -310,7 +310,7 @@ async function threadsConnectionFor(uid, env) {
 }
 
 async function threadsConnectStart(_request, access, env, origin) {
-  if (!env.THREADS_APP_ID || !env.THREADS_APP_SECRET || !env.TOKEN_ENCRYPTION_KEY) {
+  if (!env.THREADS_APP_ID || !(env.THREADS_APP_SECRET || env.META_APP_SECRET) || !env.TOKEN_ENCRYPTION_KEY) {
     return json({ error: "Threads App configuration is not complete yet" }, 503, origin, env);
   }
   const state = crypto.randomUUID();
@@ -327,6 +327,7 @@ async function threadsConnectStart(_request, access, env, origin) {
 }
 
 async function threadsOauthCallback(url, env) {
+  const appSecret = env.THREADS_APP_SECRET || env.META_APP_SECRET;
   const state = url.searchParams.get("state") || "";
   const code = url.searchParams.get("code") || "";
   const stored = state ? await env.SOCIAL_SESSIONS.get(`threads-oauth:${state}`, "json") : null;
@@ -336,12 +337,12 @@ async function threadsOauthCallback(url, env) {
   const exchange = await fetch("https://graph.threads.net/oauth/access_token", {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ client_id: env.THREADS_APP_ID, client_secret: env.THREADS_APP_SECRET, grant_type: "authorization_code", redirect_uri: redirect, code }),
+    body: new URLSearchParams({ client_id: env.THREADS_APP_ID, client_secret: appSecret, grant_type: "authorization_code", redirect_uri: redirect, code }),
   });
   const short = await exchange.json().catch(() => ({}));
   if (!exchange.ok || !short.access_token) return new Response("Threads did not authorize this connection.", { status: 400 });
   const longUrl = new URL("https://graph.threads.net/access_token");
-  longUrl.search = new URLSearchParams({ grant_type: "th_exchange_token", client_secret: env.THREADS_APP_SECRET, access_token: short.access_token }).toString();
+  longUrl.search = new URLSearchParams({ grant_type: "th_exchange_token", client_secret: appSecret, access_token: short.access_token }).toString();
   const longResponse = await fetch(longUrl);
   const long = await longResponse.json().catch(() => ({}));
   const accessToken = longResponse.ok && long.access_token ? long.access_token : short.access_token;
@@ -414,7 +415,7 @@ async function metaSignedCallback(request, env, deletion = false) {
 
 async function status(access, env, origin) {
   const configured = Boolean(env.META_APP_ID && env.META_APP_SECRET && env.TOKEN_ENCRYPTION_KEY && env.MEDIA_SIGNING_KEY);
-  const threadsConfigured = Boolean(env.THREADS_APP_ID && env.THREADS_APP_SECRET && env.TOKEN_ENCRYPTION_KEY);
+  const threadsConfigured = Boolean(env.THREADS_APP_ID && (env.THREADS_APP_SECRET || env.META_APP_SECRET) && env.TOKEN_ENCRYPTION_KEY);
   const whatsappConfigured = Boolean(env.WHATSAPP_PHONE_NUMBER_ID && env.WHATSAPP_ACCESS_TOKEN && env.WHATSAPP_VERIFY_TOKEN);
   const threadsConnection = threadsConfigured ? await threadsConnectionFor(access.uid, env) : null;
   const channels = {
