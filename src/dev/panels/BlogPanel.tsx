@@ -1,5 +1,5 @@
 // src/dev/panels/BlogPanel.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useDevAuth } from "../DevAuth";
 import { AI_PROVIDERS } from "../constants/providers";
 import { 
@@ -14,7 +14,10 @@ import {
   Type,
   Users,
   Search,
-  Edit
+  Edit,
+  ShieldCheck,
+  Activity,
+  CheckCircle2,
 } from "lucide-react";
 import { blogService } from "../../lib/blogService";
 import type { BlogPost as LivePost } from "../../blog/BlogApp";
@@ -44,9 +47,38 @@ export default function BlogPanel() {
   const [generating, setGenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState("");
   const [copied, setCopied] = useState(false);
+  const composerRef = useRef<HTMLDivElement>(null);
+  const topicInputRef = useRef<HTMLInputElement>(null);
   
-  const { activeProvider, apiKeys } = useDevAuth();
+  const { activeProvider, apiKeys, role, accessProfile } = useDevAuth();
   const activeP = AI_PROVIDERS.find(p => p.id === activeProvider) || AI_PROVIDERS[0];
+  const publishedCount = useMemo(() => posts.filter((post) => post.status === "published").length, [posts]);
+
+  const startNewPublication = () => {
+    setSelectedPost(null);
+    setTopic("");
+    setContext("");
+    setTags("");
+    setGeneratedPost("");
+    requestAnimationFrame(() => {
+      composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      topicInputRef.current?.focus({ preventScroll: true });
+    });
+  };
+
+  const editPublication = (post: LivePost) => {
+    setTopic(post.title);
+    setContext(post.excerpt || "");
+    setTags((post.tags || []).join(", "));
+    setGeneratedPost(post.content);
+    setSelectedPost(null);
+    requestAnimationFrame(() => composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
+  const formatPostDate = (value: LivePost["publishedAt"]) => {
+    const date = typeof value?.toDate === "function" ? value.toDate() : new Date(value);
+    return Number.isNaN(date.getTime()) ? "Recent" : date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  };
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -125,7 +157,7 @@ Write the full blog post now. Output only the Markdown.`;
     try {
       let endpoint = "";
       let body = {};
-      let headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
       
       const systemInstruction = "You are a professional technical writer for Lorapok Labs. Write engaging, accurate blog posts about open-source software development. Output only valid Markdown, no preamble.";
       
@@ -172,8 +204,9 @@ Write the full blog post now. Output only the Markdown.`;
       if (activeProvider === "claude") result = data.content?.[0]?.text || "Generation failed.";
       else if (["openai", "groq", "mistral", "deepseek", "perplexity", "xai", "together", "openrouter", "anyscale"].includes(activeProvider)) result = data.choices?.[0]?.message?.content || "Generation failed.";
       setGeneratedPost(result);
-    } catch (e: any) {
-      setGeneratedPost(`⚠ Network error: ${e.message}. Please try again.`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "The provider did not return a usable response";
+      setGeneratedPost(`⚠ Network error: ${message}. Please try again.`);
     } finally {
       setGenerating(false);
     }
@@ -192,7 +225,11 @@ Write the full blog post now. Output only the Markdown.`;
         coverImage: "",
         tags: tags.split(',').map(t => t.trim()),
         category: "General Tech",
-        author: { name: "Lorapok Admin", designation: "Maintainer", avatar: "👨‍💻" },
+        author: {
+          name: accessProfile?.displayName || accessProfile?.email || "Lorapok Labs editor",
+          designation: accessProfile?.title || `${role[0].toUpperCase()}${role.slice(1)}`,
+          avatar: accessProfile?.photoURL || "/assets/ribo/ribo-focused.webp",
+        },
         seo: { 
           metaTitle: `${topic} | LoLaBo`, 
           metaDescription: context.slice(0, 150),
@@ -222,37 +259,27 @@ Write the full blog post now. Output only the Markdown.`;
   };
 
   const renderContentLibrary = () => {
-    if (loadingPosts) return <div style={{ textAlign: 'center', opacity: 0.5, padding: '2rem' }}>Scanning library...</div>;
+    if (loadingPosts) return <div className="blog-studio__empty"><Activity className="dev-auth-spinner" size={17} /> Scanning library…</div>;
     
     const filtered = posts.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
-    if (filtered.length === 0) return <div style={{ textAlign: 'center', opacity: 0.5, padding: '2rem' }}>No publications found.</div>;
+    if (filtered.length === 0) return <div className="blog-studio__empty">No publications match this search.</div>;
     
     return filtered.map((post: LivePost) => {
       const isSelected = selectedPost && selectedPost.id === post.id;
       return (
         <button 
-          key={post.id} 
+          key={post.id || post.slug}
           onClick={() => setSelectedPost(post)}
-          className="dev-card"
-          style={{ 
-            padding: '1rem', 
-            textAlign: 'left', 
-            width: '100%',
-            background: isSelected ? 'var(--dev-accent-dim)' : 'rgba(255,255,255,0.02)',
-            borderColor: isSelected ? 'var(--dev-accent)' : 'rgba(255,255,255,0.05)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
+          className={`blog-studio-library-card${isSelected ? " is-selected" : ""}`}
         >
-          <div>
-            <div style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{post.title}</div>
-            <div style={{ fontSize: '0.7rem', opacity: 0.5, display: 'flex', gap: '0.75rem' }}>
+          <div className="blog-studio-library-card__copy">
+            <strong>{post.title}</strong>
+            <div>
               <span>{post.readTime} min</span>
-              <span>{post.publishedAt?.toDate?.().toLocaleDateString()}</span>
+              <span>{formatPostDate(post.publishedAt)}</span>
             </div>
           </div>
-          <div className={`dev-badge ${BADGE_MAP[post.status] || 'dev-badge-muted'}`} style={{ fontSize: '0.6rem' }}>
+          <div className={`dev-badge ${BADGE_MAP[post.status] || 'dev-badge-muted'}`}>
             {post.status.toUpperCase()}
           </div>
         </button>
@@ -288,8 +315,8 @@ Write the full blog post now. Output only the Markdown.`;
           </div>
           
           <div style={{ marginTop: '4rem', display: 'flex', gap: '1rem' }}>
-            <button className="dev-btn dev-btn-primary"><Edit size={16} style={{ marginRight: '0.5rem' }} /> EDIT POST</button>
-            <button className="dev-btn dev-btn-ghost"><ExternalLink size={16} style={{ marginRight: '0.5rem' }} /> VIEW LIVE</button>
+            <button className="dev-btn dev-btn-primary" onClick={() => editPublication(selectedPost)}><Edit size={16} /> EDIT POST</button>
+            <a className="dev-btn dev-btn-ghost" href={`/blog/${selectedPost.slug}/`} target="_blank" rel="noreferrer"><ExternalLink size={16} /> VIEW LIVE</a>
           </div>
         </div>
       </div>
@@ -297,89 +324,88 @@ Write the full blog post now. Output only the Markdown.`;
   }
 
   return (
-    <div className="dev-panel-content" style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
-      {/* ─── Header ─── */}
-      <div className="dev-panel-header" style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <div className="dev-panel-title" style={{ fontSize: '2rem' }}>Blog <span>System</span></div>
-          <div className="dev-panel-sub" style={{ opacity: 0.6 }}>AI-powered blog pipeline. Context → AI Writing → Design → Publish.</div>
+    <div className="dev-panel-content blog-studio">
+      <header className="blog-studio__header">
+        <div className="blog-studio__heading">
+          <div className="dev-kicker"><FileText size={13} /> APPROVED EDITORIAL WORKSPACE</div>
+          <div className="dev-panel-title">Blog <span>System</span></div>
+          <div className="dev-panel-sub">Research, draft, review, and publish from one calm editorial surface.</div>
         </div>
-        <button className="dev-btn dev-btn-primary" style={{ padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <Plus size={18} /> NEW PUBLICATION
-        </button>
+        <div className="blog-studio__header-actions">
+          <div className="blog-studio__access"><ShieldCheck size={15} /><span><strong>Publishing access approved</strong><small>{role} · {accessProfile?.email}</small></span></div>
+          <button className="dev-btn dev-btn-primary" onClick={startNewPublication}>
+            <Plus size={18} /> New publication
+          </button>
+        </div>
+      </header>
+
+      <div className="blog-studio__metrics" aria-label="Blog system overview">
+        <div><strong>{posts.length}</strong><span>Library records</span></div>
+        <div><strong>{publishedCount}</strong><span>Published</span></div>
+        <div><strong>{activeP.label}</strong><span>Writing provider</span></div>
+        <div><strong>Role gated</strong><span>Admin-approved access</span></div>
       </div>
 
-      <div className="dev-g12" style={{ gap: '3rem', alignItems: 'start' }}>
-        
-        {/* LEFT: Content Library */}
-        <div style={{ position: 'sticky', top: '1.5rem' }}>
-          <div className="dev-stitle" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <BookOpen size={18} /> CONTENT LIBRARY
-          </div>
-          
-          <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-            <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.3 }} />
-            <input 
-              type="text" 
-              placeholder="Search library..." 
+      <div className="blog-studio__layout">
+        <aside className="blog-studio__library">
+          <div className="blog-studio__section-heading"><BookOpen size={17} /><div><strong>Content library</strong><span>Published notes and working records</span></div></div>
+          <label className="blog-studio__search">
+            <Search size={14} />
+            <input
+              type="text"
+              placeholder="Search publications"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="dev-form-input"
-              style={{ paddingLeft: '36px', fontSize: '0.8rem' }}
             />
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          </label>
+          <div className="blog-studio__library-list">
             {renderContentLibrary()}
           </div>
-        </div>
+        </aside>
 
-        {/* RIGHT: Authoring Suite */}
-        <div>
-          <div className="dev-stitle" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Sparkles size={18} /> AUTHORING SUITE
-          </div>
-          <div className="dev-card" style={{ padding: '2rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <section className="blog-studio__composer" ref={composerRef}>
+          <div className="blog-studio__section-heading"><Sparkles size={17} /><div><strong>Authoring suite</strong><span>Context → writing → review → publish</span></div></div>
+          <div className="dev-card blog-studio__composer-card">
+            <div className="blog-studio__approval-strip"><CheckCircle2 size={15} /><span>Your administrator-approved role includes Blog System publishing. Every release is attributed to this signed-in identity.</span></div>
             
-            <div className="dev-form-group" style={{ marginBottom: '2rem' }}>
-              <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <Type size={14} /> TOPIC OR WORKING TITLE
+            <div className="dev-form-group">
+              <label className="dev-form-label blog-studio__label">
+                <Type size={14} /> Topic or working title
               </label>
               <input 
+                ref={topicInputRef}
                 className="dev-form-input" 
                 type="text" 
                 placeholder="e.g. Why open-source software needs a non-profit future" 
                 value={topic} 
-                onChange={e => setTopic(e.target.value)} 
-                style={{ fontSize: '1.1rem', padding: '12px 16px' }}
+                onChange={e => setTopic(e.target.value)}
               />
             </div>
 
-            <div className="dev-form-group" style={{ marginBottom: '2rem' }}>
-              <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <Layout size={14} /> CONTEXT & KEY ARGUMENTS
+            <div className="dev-form-group">
+              <label className="dev-form-label blog-studio__label">
+                <Layout size={14} /> Context &amp; key arguments
               </label>
               <textarea 
                 className="dev-form-textarea" 
                 placeholder="Paste your raw notes, bullet points, or research here..." 
                 value={context} 
-                onChange={e => setContext(e.target.value)} 
-                style={{ minHeight: '150px' }}
+                onChange={e => setContext(e.target.value)}
               />
             </div>
 
-            <div className="dev-g2" style={{ gap: '1.5rem', marginBottom: '2rem' }}>
+            <div className="blog-studio__field-grid">
               <div className="dev-form-group">
-                <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                  <Users size={14} /> TARGET AUDIENCE
+                <label className="dev-form-label blog-studio__label">
+                  <Users size={14} /> Target audience
                 </label>
                 <select className="dev-form-select" value={audience} onChange={e => setAudience(e.target.value)}>
                   {AUDIENCE_OPTIONS.map(o => <option key={o}>{o}</option>)}
                 </select>
               </div>
               <div className="dev-form-group">
-                <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                  <Sparkles size={14} /> EDITORIAL TONE
+                <label className="dev-form-label blog-studio__label">
+                  <Sparkles size={14} /> Editorial tone
                 </label>
                 <select className="dev-form-select" value={tone} onChange={e => setTone(e.target.value)}>
                   {TONE_OPTIONS.map(o => <option key={o}>{o}</option>)}
@@ -387,45 +413,46 @@ Write the full blog post now. Output only the Markdown.`;
               </div>
             </div>
 
-            <div className="dev-form-group" style={{ marginBottom: '2.5rem' }}>
-              <label className="dev-form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <FileText size={14} /> TAGS
+            <div className="dev-form-group">
+              <label className="dev-form-label blog-studio__label">
+                <FileText size={14} /> Tags
               </label>
-              <input className="dev-form-input" type="text" placeholder="ai, dev-tools" value={tags} onChange={e => setTags(e.target.value)} />
+              <input className="dev-form-input" type="text" placeholder="ai, dev-tools, architecture" value={tags} onChange={e => setTags(e.target.value)} />
             </div>
 
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center", borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2rem' }}>
+            <div className="blog-studio__composer-actions">
               <button 
                 className="dev-btn dev-btn-primary" 
                 onClick={generatePost} 
-                disabled={generating}
-                style={{ padding: '0.8rem 1.5rem', fontSize: '1rem', fontWeight: 800 }}
+                disabled={generating || (!topic.trim() && !context.trim())}
               >
-                {generating ? "CRAFTING CONTENT..." : "GENERATE PUBLICATION"}
+                {generating ? "Crafting publication…" : "Generate publication"}
               </button>
+              <span>Provider: {activeP.label}</span>
             </div>
 
             {generatedPost && (
-              <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div style={{ fontWeight: 'bold' }}>PREVIEW</div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="blog-studio__preview">
+                <div className="blog-studio__preview-head">
+                  <div><strong>Publication preview</strong><span>Review the generated Markdown before publishing.</span></div>
+                  <div>
                     <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={handleCopy}>{copied ? "COPIED" : "COPY"}</button>
                     <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={() => setGeneratedPost("")}>CLEAR</button>
                   </div>
                 </div>
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', maxHeight: '400px', overflowY: 'auto' }}>
-                  <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>{generatedPost}</pre>
+                <div className="blog-studio__preview-body">
+                  <pre>{generatedPost}</pre>
                 </div>
-                <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
-                   <button className="dev-btn" style={{ background: 'var(--dev-accent)', color: '#000' }} onClick={handlePublish} disabled={publishing}>
-                    {publishing ? "PUBLISHING..." : "PUBLISH TO LOLABO"}
+                <div className="blog-studio__publish-row">
+                  <span><ShieldCheck size={13} /> Publishing uses the approved Office identity.</span>
+                  <button className="dev-btn dev-btn-primary" onClick={handlePublish} disabled={publishing || !topic.trim()}>
+                    {publishing ? "Publishing…" : "Publish to LoLaBo"}
                   </button>
                 </div>
               </div>
             )}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

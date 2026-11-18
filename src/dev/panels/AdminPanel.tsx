@@ -110,9 +110,16 @@ function MemberEditor({
       <div className="rbac-member-footer">
         <small><Clock3 size={12} /> Last sign-in: {timestampLabel(member.lastLogin)}</small>
         {protectedOwner ? <span className="rbac-owner-lock"><ShieldCheck size={13} /> Protected owner</span> : (
-          <button className="dev-btn dev-btn-primary dev-btn-sm" disabled={!actorCanEdit || busy} onClick={() => onSave(member, { role, status, department: department.trim(), title: title.trim() })}>
-            {busy ? <RefreshCw className="dev-auth-spinner" size={13} /> : <Check size={13} />} Save access
-          </button>
+          <div className="rbac-member-actions">
+            {member.status === "pending" && (
+              <button className="dev-btn dev-btn-primary dev-btn-sm" disabled={!actorCanEdit || busy} onClick={() => onSave(member, { role, status: "active", department: department.trim(), title: title.trim() })}>
+                {busy ? <RefreshCw className="dev-auth-spinner" size={13} /> : <UserCheck size={13} />} Approve selected role
+              </button>
+            )}
+            <button className="dev-btn dev-btn-ghost dev-btn-sm" disabled={!actorCanEdit || busy} onClick={() => onSave(member, { role, status, department: department.trim(), title: title.trim() })}>
+              {busy ? <RefreshCw className="dev-auth-spinner" size={13} /> : <Check size={13} />} Save access
+            </button>
+          </div>
         )}
       </div>
     </article>
@@ -224,9 +231,12 @@ function AdminContent() {
 
   const filteredMembers = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return members;
-    return members.filter((member) => [member.email, member.displayName, member.department, member.title, member.role]
-      .some((value) => String(value || "").toLowerCase().includes(term)));
+    const visible = term
+      ? members.filter((member) => [member.email, member.displayName, member.department, member.title, member.role]
+          .some((value) => String(value || "").toLowerCase().includes(term)))
+      : members;
+    const statusOrder: Record<OfficeAccessStatus, number> = { pending: 0, active: 1, suspended: 2 };
+    return [...visible].sort((left, right) => statusOrder[left.status] - statusOrder[right.status] || left.email.localeCompare(right.email));
   }, [members, search]);
 
   const audit = async (action: string, target: string, changes: Record<string, unknown>) => {
@@ -426,7 +436,7 @@ function AdminContent() {
 
       <section className="rbac-directory">
         <div className="rbac-directory-heading">
-          <div className="rbac-section-heading"><Users size={18} /><div><strong>Office members</strong><span>Changes take effect in the open session through live access subscriptions.</span></div></div>
+          <div className="rbac-section-heading"><Users size={18} /><div><strong>Office members &amp; access requests</strong><span>Pending requests appear first. Choose the role, then approve; the applicant&apos;s waiting screen updates live.</span></div></div>
           <label className="office-projects__search"><Search size={15} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search members" /></label>
         </div>
         <div className="rbac-member-grid">

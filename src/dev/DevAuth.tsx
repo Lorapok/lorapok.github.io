@@ -722,9 +722,17 @@ export function OfficeGate({ children }: { children: ReactNode }) {
           <div className="dev-auth-origin">Secure origin · {window.location.hostname}</div>
           
           <div className="dev-access-state">
-            <strong>{accessStatus === "suspended" ? "Access suspended" : "Approval pending"}</strong>
+            <strong>{accessStatus === "suspended" ? "Access suspended" : "Request recorded · approval pending"}</strong>
             <p>{statusMessage}</p>
             <small>{user.email}</small>
+            {accessStatus === "pending" && (
+              <div className="dev-access-progress" aria-label="Office access request progress">
+                <span className="is-complete"><i>1</i> Google identity received</span>
+                <span className="is-current"><i>2</i> Administrator assigns role</span>
+                <span><i>3</i> Authenticator enrollment unlocks</span>
+              </div>
+            )}
+            <p className="dev-access-live-note">This screen updates automatically when Access &amp; Admin approves the request.</p>
             <button className="dev-btn dev-btn-ghost dev-btn-sm" onClick={leaveOffice}>Use another account</button>
           </div>
         </div>
@@ -736,9 +744,9 @@ export function OfficeGate({ children }: { children: ReactNode }) {
     return (
       <div className="dev-auth-gate dev-auth-gate--enroll">
         <div className="dev-auth-gate-inner dev-auth-gate-inner--wide">
-          <div className="dev-auth-badge">Required protection · one-time setup</div>
+          <div className="dev-auth-badge">Access approved · required protection</div>
           <h2 className="dev-auth-title"><span>Enroll</span> your authenticator</h2>
-          <p className="dev-auth-sub">Lorapok Labs Office now requires Google sign-in plus a rotating six-digit PIN. The shared key stays between Firebase and your authenticator app.</p>
+          <p className="dev-auth-sub">An administrator approved this identity and role. Complete the one-time authenticator setup to enter Lorapok Labs Office.</p>
           {!secondFactorEnrollment ? (
             <div className="dev-auth-enroll-intro">
               <LarvaeAuthTransition message="Preparing a private authenticator" compact />
@@ -787,15 +795,21 @@ export function OfficeGate({ children }: { children: ReactNode }) {
 
   if (!user) {
     return (
-      <div className="dev-auth-gate">
+      <div className="dev-auth-gate dev-auth-gate--request">
         <div className="dev-auth-gate-inner">
           <LarvaeAuthTransition message="Office perimeter ready" compact />
           <div className="dev-auth-badge">Lorapok Labs Office</div>
           <h2 className="dev-auth-title"><span>Two signals.</span> One secure Office.</h2>
-          <p className="dev-auth-sub">Use an invited Google identity, then confirm the rotating six-digit PIN from your authenticator app.</p>
+          <p className="dev-auth-sub">Sign in with Google to request access. New identities remain locked until an Office administrator reviews the request and assigns a role.</p>
           <div className="dev-auth-origin">Google identity · role boundary · authenticator PIN</div>
+          <div className="dev-auth-steps" aria-label="Office login instructions">
+            <div><b>01</b><span><strong>Request with Google</strong><small>Use the Google identity you want connected to Lorapok Labs Office.</small></span></div>
+            <div><b>02</b><span><strong>Wait for administrator approval</strong><small>An owner or administrator approves the identity and assigns its least-privilege role.</small></span></div>
+            <div><b>03</b><span><strong>Secure and enter</strong><small>After approval, enroll the authenticator and verify the rotating six-digit PIN.</small></span></div>
+          </div>
+          <p className="dev-auth-approval-note">Google sign-in does not grant Office or Blog System access automatically.</p>
           <button className="dev-btn dev-btn-primary dev-auth-signin" type="button" onClick={() => void signIn()}>
-            Continue with Google
+            Request access with Google
           </button>
         </div>
       </div>
