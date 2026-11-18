@@ -124,6 +124,53 @@ type ProjectModalProps = {
   onClose: () => void;
 };
 
+const architectureProfiles: Record<Project['category'], { entry: string; core: string; delivery: string }> = {
+  AI: { entry: 'Intent & interaction', core: 'Agent intelligence layer', delivery: 'Assisted output' },
+  'Developer Tools': { entry: 'Operator surface', core: 'Developer workflow engine', delivery: 'Integration & distribution' },
+  'Engineering Craft': { entry: 'Problem framing', core: 'System composition', delivery: 'Evidence & artifact' },
+  Media: { entry: 'Media intake', core: 'Transform pipeline', delivery: 'Playback & export' },
+  'Language/Input': { entry: 'Human input', core: 'Language processing', delivery: 'Contextual output' },
+  'Laravel/PHP': { entry: 'Application surface', core: 'Domain & service layer', delivery: 'Web delivery' },
+  'Desktop/Linux': { entry: 'Desktop interaction', core: 'Local systems layer', delivery: 'Device workflow' },
+  'Browser Extensions': { entry: 'Browser surface', core: 'Extension runtime', delivery: 'Page & platform action' },
+  'Games/Utilities': { entry: 'Player or operator input', core: 'Rules & utility engine', delivery: 'Interactive result' },
+  'Mobile Apps': { entry: 'Touch experience', core: 'Mobile application layer', delivery: 'Device capability' },
+  'Sensory & Hardware': { entry: 'Physical signal', core: 'Sensing & interpretation', delivery: 'Observable response' },
+  '3D Art & Design': { entry: 'Creative direction', core: 'Material & visual practice', delivery: 'Exhibited work' },
+};
+
+function conciseArchitectureDetail(value: string, limit = 170) {
+  const firstSentence = value.trim().split(/(?<=[.!?])\s+/)[0] || value;
+  return firstSentence.length > limit ? `${firstSentence.slice(0, limit - 1).trimEnd()}…` : firstSentence;
+}
+
+function getProjectArchitecture(project: Project) {
+  const profile = architectureProfiles[project.category];
+  const evidence = project.links.map((link) => link.label).join(' · ') || 'Public project record';
+  return [
+    {
+      step: '01 / ENTRY',
+      title: profile.entry,
+      detail: project.tagline,
+    },
+    {
+      step: '02 / SYSTEM CORE',
+      title: profile.core,
+      detail: conciseArchitectureDetail(project.description),
+    },
+    {
+      step: '03 / IMPLEMENTATION',
+      title: project.language,
+      detail: `Primary public implementation stack, cataloged within ${project.category}.`,
+    },
+    {
+      step: '04 / DELIVERY',
+      title: profile.delivery,
+      detail: `${project.badge || 'Public project'} · ${evidence}`,
+    },
+  ];
+}
+
 export function ProjectModal({ project, onClose }: ProjectModalProps) {
   const [copiedSlug, setCopiedSlug] = useState('');
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -154,6 +201,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
         const currentSlug = projectSlug(project);
         const copied = copiedSlug === currentSlug;
         const primaryLink = project.links[0];
+        const architecture = getProjectArchitecture(project);
         const shareWindow = (url: string) => window.open(url, '_blank', 'noopener,noreferrer,width=760,height=640');
         const copyLink = async () => {
           await navigator.clipboard.writeText(shareUrl);
@@ -229,9 +277,34 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                   {project.featured && <span className="project-modal__featured">Featured work</span>}
                 </div>
 
+                <section className="project-architecture" aria-labelledby="project-architecture-title">
+                  <div className="project-architecture__heading">
+                    <div>
+                      <span>PUBLIC SYSTEM MAP / FOUR-LAYER READING</span>
+                      <h3 id="project-architecture-title">Project architecture</h3>
+                    </div>
+                    <p>A structured view of how this project moves from intent to implementation and public delivery, based only on its verified catalog metadata.</p>
+                  </div>
+                  <div className="project-architecture__flow">
+                    {architecture.map((node) => (
+                      <article key={node.step}>
+                        <span>{node.step}</span>
+                        <h4>{node.title}</h4>
+                        <p>{node.detail}</p>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="project-architecture__legend">
+                    <span><i /> Public metadata</span>
+                    <span><i /> Implementation signal</span>
+                    <span><i /> Delivery evidence</span>
+                    <b>Private internals are intentionally not inferred.</b>
+                  </div>
+                </section>
+
                 <div className="project-modal__content-grid">
                   <div className="project-modal__overview">
-                    <span>Overview</span>
+                    <span>Project brief</span>
                     <p>{project.description}</p>
                     <div className="project-modal__facts">
                       <div><small>Discipline</small><strong>{project.category}</strong></div>
