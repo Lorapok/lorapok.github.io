@@ -10,8 +10,8 @@ const env = {
 async function withRegisteredOrigins(origins, run) {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
-    const url = String(input);
-    if (!url.includes("firestore.googleapis.com")) return originalFetch(input);
+    const url = new URL(input instanceof Request ? input.url : String(input));
+    if (url.hostname !== "firestore.googleapis.com") return originalFetch(input);
     return new Response(JSON.stringify({ fields: {
       name: { stringValue: "Test application" },
       status: { stringValue: "active" },
