@@ -668,7 +668,7 @@ export const projects: Project[] = [
       "Automatically executes relevant Laravel unit and feature tests the instant test files are modified, compatible across all modern Laravel versions.",
     category: "Laravel/PHP",
     language: "PHP",
-    image: "/assets/projects/laratest-daemon.svg",
+    image: "/assets/projects/generated/laratest-cover-v2.webp",
     imageType: "cover",
     links: [
       { label: "KiroHub", url: "https://kirohub.dev/resource/kirohub-generate/lorapok-laratest", icon: "web" },
@@ -682,8 +682,8 @@ export const projects: Project[] = [
       "High-speed, client-side data, format, and unit conversion engine built with instant feedback loops and zero server dependencies.",
     category: "Developer Tools",
     language: "JavaScript",
-    image: "/assets/projects/loracon-icon.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/loracon-cover-v2.webp",
+    imageType: "cover",
     links: [
       { label: "Live", url: "https://loracon.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Lorapok/LoraCon", icon: "github" },
@@ -696,7 +696,7 @@ export const projects: Project[] = [
       "A tribute repository, README banner, and hosted memorial portal built to preserve truth, transparency, and civil justice.",
     category: "Games/Utilities",
     language: "HTML",
-    image: "/assets/projects/hadi-memoriam.png",
+    image: "/assets/projects/generated/hadi-memoriam-cover-v2.webp",
     imageType: "cover",
     links: [
       { label: "Live", url: "https://hadi.lorapok.tech", icon: "web" },
@@ -710,8 +710,8 @@ export const projects: Project[] = [
       "AI-driven moderation and developer community engagement bot designed for Reddit subreddits including r/LorapokLabs.",
     category: "AI",
     language: "JavaScript",
-    image: "/assets/projects/red-bot-icon.png",
-    imageType: "icon",
+    image: "/assets/projects/generated/red-bot-cover-v2.webp",
+    imageType: "cover",
     links: [
       { label: "Live", url: "https://redbot.lorapok.tech", icon: "web" },
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Red-Bot", icon: "github" },
@@ -724,7 +724,7 @@ export const projects: Project[] = [
       "Visual query builder and database schema simulation environment for testing relational joins and indexing strategies in real-time.",
     category: "Developer Tools",
     language: "HTML",
-    image: "/assets/projects/querycraft-visual.svg",
+    image: "/assets/projects/generated/querycraft-cover-v2.webp",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/Lorapok-Querycraft", icon: "github" },
@@ -738,7 +738,7 @@ export const projects: Project[] = [
     category: "Sensory & Hardware",
     language: "Python / Three.js",
     featured: true,
-    image: "/assets/projects/freqghost-viz.png",
+    image: "/assets/projects/generated/freqghost-cover-v2.webp",
     imageType: "cover",
     links: [
       { label: "GitHub", url: "https://github.com/Maijied/FreqGhost", icon: "github" },
